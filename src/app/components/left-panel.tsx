@@ -8,7 +8,7 @@ function LeftPanel() {
         <div className="section-divider"></div>
       </div>
 
-      <div className="end-page">
+      <div className="endings-content">
         <h4>ENDINGS</h4>
         <div className="section-divider"></div>
       </div>
