@@ -2,7 +2,22 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 
-export default function Question({ id, onDelete }: { id: number; onDelete: (id: number) => void }) {
+export default function Question({
+  id,
+  data,
+  onDelete,
+  onUpdate,
+}: {
+  id: number;
+  data: {
+    label: string;
+    content: string;
+    required: boolean;
+  };
+  onDelete: (id: number) => void;
+  onUpdate: (id: number, updatedFields: Partial<typeof data>) => void;
+}) 
+{
   const containerRef = useRef(null);
   const textareaRef = useRef(null);
   const [isSelected, setIsSelected] = useState(false);
@@ -46,7 +61,8 @@ export default function Question({ id, onDelete }: { id: number; onDelete: (id: 
         <input
           placeholder="Ques Label *"
           className="focus:outline-none font-bold text-xl text-black"
-          
+          value = {data.label}
+          onChange={e => onUpdate(id, { label: e.target.value })}
         />
 
         <div className="flex items-center">
@@ -59,7 +75,8 @@ export default function Question({ id, onDelete }: { id: number; onDelete: (id: 
               type="checkbox"
               id="title-toggle"
               className="sr-only peer"
-              
+              checked = {data.required}
+              onChange={e => onUpdate(id, { required: e.target.checked })}
             />
             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
           </label>
@@ -76,10 +93,12 @@ export default function Question({ id, onDelete }: { id: number; onDelete: (id: 
         <textarea
           ref={textareaRef}
           onInput={handleInput}
-          
           placeholder="Write your question here *"
           className="resize-none focus:outline-none w-[75%] min-h-[10px] overflow-hidden p-0"
+          value={data.content}
+          onChange={e => onUpdate(id, { content: e.target.value })}
         />
+        
       </div>
 
       <div className="mt-0 bg-green-300 rounded-md px-4 py-2 text-black/50">
