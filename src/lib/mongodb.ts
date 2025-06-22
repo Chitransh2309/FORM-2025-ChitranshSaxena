@@ -1,20 +1,25 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient } from "mongodb";
 
-const uri = process.env.MONGODB_URI!;
-const options = {};
+const uri = process.env.MONGODB_URI || "";
+const dbName = process.env.MONGODB_DB || "questions"; // fallback
 
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
+let cachedClient: MongoClient | null = null;
 
-declare global {
-  var _mongoClientPromise: Promise<MongoClient>;
+export async function connectToDB() {
+  if (!uri) throw new Error("MONGODB_URI not defined in .env.local");
+
+  const dbClient = cachedClient || new MongoClient(uri);
+  if (!cachedClient) {
+    await dbClient.connect();
+    cachedClient = dbClient;
+  }
+
+  const db = dbClient.db(dbName);
+  return { dbClient, db };
 }
 
-if (!global._mongoClientPromise) {
-  client = new MongoClient(uri, options);
-  global._mongoClientPromise = client.connect();
+export async function disconnectFromDB(dbClient: MongoClient) {
+  if (dbClient && dbClient !== cachedClient) {
+    await dbClient.close();
+  }
 }
-
-clientPromise = global._mongoClientPromise;
-
-export default clientPromise;
