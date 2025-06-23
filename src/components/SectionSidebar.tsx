@@ -46,7 +46,7 @@ export default function LeftSidebar({
           <h2 className="mb-2">ENDINGS</h2>
           <div className="border-t-2 border-black mb-2"></div>
           <div className="h-20 overflow-y-auto scrollbar-hidden">
-            <div className="py-2 rounded text-black bg-green-200 text-sm pl-2">
+            <div className="py-2 rounded text-black bg-[#8cc7aa] text-sm pl-2">
               Thank You Page
             </div>
           </div>
