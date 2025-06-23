@@ -32,14 +32,14 @@ interface FormSettings {
   cameraRequired: boolean;
 }
 
-interface Section {
+export interface Section {
   section_ID: string;
   title: string;
   description: string;
   questions: Question[];
 }
 
-interface Question {
+export interface Question {
   question_ID: string;
   order: number;
   section_ID: string;
@@ -51,7 +51,7 @@ interface Question {
   logic?: Record<string, any>;
 }
 
-enum QuestionType {
+export enum QuestionType {
   TEXT = "TEXT",
   DATE = "DATE",
   MCQ = "MCQ",
