@@ -5,7 +5,7 @@ export default async function AuthBtn({pos}:{pos:string}) {
     const session= await auth();
   return (
     <>
-      {session?(
+      {session&&session?.user?(
                     <form action={async()=>{
                         "use server";
                         await signOut({redirectTo:'/'})   
