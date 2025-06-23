@@ -106,13 +106,14 @@ export default function Page() {
   const selectedSection = sections.find((s) => s.section_ID === selectedSectionId) || null;
 
   return (
-    <div className="flex h-screen">
-      <SectionSidebar
-        sections={sections}
-        selectedSectionId={selectedSectionId}
-        setSelectedSectionId={setSelectedSectionId}
-        onAddSection={addSection}
-      />
+    <div>
+      <div className="flex h-screen">
+        <SectionSidebar
+          sections={sections}
+          selectedSectionId={selectedSectionId}
+          setSelectedSectionId={setSelectedSectionId}
+          onAddSection={addSection}
+        />
 
       <div className="flex-1 bg-[#FAFAFA] overflow-y-auto">
         <SectionEditor
@@ -122,9 +123,6 @@ export default function Page() {
           onAddQuestion={addQuestion}
         />
       </div>
-
-      <Footer />
     </div>
-    
   );
 }
