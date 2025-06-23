@@ -119,15 +119,15 @@ export default function Page() {
           setSelectedSectionId={setSelectedSectionId}
           onAddSection={addSection}
         />
-      </div>
 
-      <div className="flex-1 bg-[#FAFAFA] overflow-y-auto">
-        <SectionEditor
-          section={selectedSection}
-          onUpdateQuestion={updateQuestion}
-          onDeleteQuestion={deleteQuestion}
-          onAddQuestion={addQuestion}
-        />
+        <div className="flex-1 bg-[#FAFAFA] overflow-y-auto">
+          <SectionEditor
+            section={selectedSection}
+            onUpdateQuestion={updateQuestion}
+            onDeleteQuestion={deleteQuestion}
+            onAddQuestion={addQuestion}
+          />
+        </div>
       </div>
     </div>
   );
