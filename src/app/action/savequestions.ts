@@ -1,7 +1,6 @@
-// app/action/savequestions.ts
-'use server'
+'use server';
 
-import { connectToDB, disconnectFromDB } from '@/lib/mongoDB';
+import { connectToDB, disconnectFromDB } from '../../lib/mongodb';
 
 interface Question {
   question_ID: string;
@@ -15,14 +14,29 @@ interface Question {
 export async function saveQuestionsToDB(questions: Question[]) {
   try {
     const { db, dbClient } = await connectToDB();
-    
-    const result = await db.collection("ques").insertMany(questions);
+    const collection = db.collection("ques");
 
+    const operations = questions.map(async (question) => {
+      const existing = await collection.findOne({ question_ID: question.question_ID });
+
+      if (existing) {
+        // If question exists, update it
+        return await collection.updateOne(
+          { question_ID: question.question_ID },
+          { $set: question }
+        );
+      } else {
+        // If question doesn't exist, insert it
+        return await collection.insertOne(question);
+      }
+    });
+
+    await Promise.all(operations);
     await disconnectFromDB(dbClient);
 
     return {
       success: true,
-      insertedCount: result.insertedCount,
+      message: "Questions processed successfully",
     };
   } catch (error) {
     console.error("❌ DB Save Error:", error);
