@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState } from "react";
-import CenterNav from "../components/center-nav";
-import QuestionParent from "../components/question-parent";
-import RightNav from "../components/right-nav";
-import SectionButton from "../components/sectionbutton";
-import Save from "../components/savebutton";
+import CenterNav from "../../components/center-nav";
+import QuestionParent from "../../components/question-parent";
+import RightNav from "../../components/right-nav";
+import SectionButton from "../../components/sectionbutton";
+import Save from "../../components/savebutton";
 
 import { saveQuestionsToDB } from "@/app/action/savequestions";
 import { deleteQuestionFromDB } from "@/app/action/deletequestion"; // ✅ import Mongo delete
@@ -91,20 +91,6 @@ export default function BuildPage() {
   }
 
   return (
-<<<<<<< HEAD:src/app/form/build/page.tsx
-    <div className="flex bg-[#e8ede8] h-screen overflow-hidden">
-      {/* Left Nav */}
-      <div className="w-[24vw] h-[92vh] bg-white border-r-2 border-black-200" />
-
-      {/* Middle Part */}
-      <div className="w-full h-full overflow-auto">
-        <CenterNav />
-
-        {/* Top Row: Section Name + Save Button */}
-        <div className="flex flex-row justify-between items-center">
-          <div className="text-2xl font-bold ml-[5%] mb-3 mt-9 p-4">
-            Section Name
-=======
     <div className="bg-neutral-100 text-black w-screen h-[92vh] flex">
       <div className="w-full h-full overflow-auto">
         <div className="flex bg-[#e8ede8] h-screen overflow-hidden">
@@ -135,26 +121,13 @@ export default function BuildPage() {
 
             {/* Add Section Button */}
             <SectionButton />
->>>>>>> 733cd2c (CUD done):src/app/form/page.tsx
           </div>
-          <div className="mr-5 mt-9 mb-3 p-4">
-            <Save onClick={handleSave} />
+
+          {/* Right Nav */}
+          <div className="w-[34vw] h-[92vh] bg-white border-l-2 border-black-200">
+            <RightNav />
           </div>
         </div>
-
-        {/* Questions */}
-        <QuestionParent
-          ques={ques}
-          onUpdate={updateQuestion}
-          onDelete={deleteQuestion}
-          onAdd={addQuestion}
-        />
-        <SectionButton />
-      </div>
-
-      {/* Right Nav */}
-      <div className="w-[34vw] h-[92vh] bg-white border-l-2 border-black-200">
-        <RightNav />
       </div>
     </div>
   );
