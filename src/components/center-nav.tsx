@@ -1,59 +1,28 @@
-"use client";
+import React from "react";
+import Link from 'next/link';
 
-import React, { useState } from "react";
-import PreviewForm from "@/components/preview-form";
-import BuildForm from "@/components/build-form";
-
-enum Section {
-  Builder,
-  Workflow,
-  Preview,
-}
-
-const CenterNav = ({ formId }: { formId?: string }) => {
-  const [currentSection, setCurrentSection] = useState<Section>(
-    Section.Builder
-  );
-  const LABELS = ["Builder", "Workflow", "Preview"];
-
-  return (
-    <div className="relative w-full h-full flex flex-col bg-[#F6F8F6] overflow-hidden">
-      {/* Top tab nav centered */}
-      <div className="absolute space-y-2 left-1/2 transform -translate-x-1/2 z-10 w-full flex justify-center  ">
-        <div className="flex justify-between items-center px-4 w-full max-w-[483px] h-[62px] rounded-[10px] shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45">
-          {LABELS.map((label, i) => (
-            <button
-              key={label}
-              onClick={() => setCurrentSection(i as Section)}
-              className={`cursor-pointer font-[Outfit] text-[16px] sm:text-[18px] w-auto px-5 py-2 rounded-[7px] transition-colors duration-200 ${
-                currentSection === i
-                  ? "bg-[#61A986] text-black"
-                  : "text-black hover:bg-[#b9d9c8]"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+export default function CenterNav(){
+    return (
+        <div className="w-[36vw] h-[7vh] flex justify-center mx-auto mt-6">
+            <div className=" bg-[#91C4AB] rounded-md px-4 py-1 flex flex-row justify-around items-center">
+                <ul className="flex space-x-8">
+                <li>
+                    <button className="bg-[#61A986] text-black font-semibold px-10 py-1 rounded-md">
+                    <Link href="/forms">Build</Link>
+                    </button>
+                </li>
+                <li>
+                    <button className="bg-transparent text-black font-medium px-6 py-1">
+                    <Link href="/forms"></Link>Workflow
+                    </button>
+                </li>
+                <li>
+                    <button className="bg-transparent text-black font-medium px-6 py-1">
+                    <Link href="/forms">Preview</Link>
+                    </button>
+                </li>
+                </ul>
+            </div>
         </div>
-      </div>
-
-      {/* Main builder or preview area */}
-      <div className="">
-        {currentSection === Section.Builder && <BuildForm />}
-        {currentSection === Section.Workflow && (
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-4">🔁 Workflow View</h2>
-            <p>This is the form workflow configuration.</p>
-          </div>
-        )}
-        {currentSection === Section.Preview && (
-          <div className="p-6 h-full">
-            <PreviewForm formId={formId} />
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default CenterNav;
+    );
+}

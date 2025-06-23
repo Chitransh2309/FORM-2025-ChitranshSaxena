@@ -60,7 +60,9 @@ export default function FormLayout({
 
       <div className="pt-[75px] bg-neutral-600">
         <div className="bg-neutral-100 text-black w-screen h-[92vh] flex">
-          <div className="w-full h-full overflow-auto">{children}</div>
+          <div className="w-full h-full overflow-auto">
+            {children}
+          </div>
         </div>
       </div>
     </div>
