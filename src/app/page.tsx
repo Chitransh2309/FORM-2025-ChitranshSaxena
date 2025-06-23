@@ -34,6 +34,11 @@ export default function Home() {
             <p className="text-2xl text-#F4F3F4 mr-30 font-bold">FEATURE</p>
           </div>
         </div>
+        <div className="flex-1 flex items-center justify-center gap-5 mb-20">
+  {/* feature boxes */}
+</div>
+
+
         <Footer />
       </div>
     </div>
