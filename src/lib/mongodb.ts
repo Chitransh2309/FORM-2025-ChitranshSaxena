@@ -1,14 +1,20 @@
+import { MongoClient } from 'mongodb';
 
-import { Db, MongoClient } from "mongodb";
+const uri = process.env.MONGODB_URI!;
+const options = {};
 
-export async function connectToDB() {
-    const dbClient = new MongoClient(process.env.MONGODB_URI || "")
-    await dbClient.connect();
-    const db = dbClient.db("formdb");
+let client: MongoClient;
+let clientPromise: Promise<MongoClient>;
 
-    return {dbClient, db};
+declare global {
+  var _mongoClientPromise: Promise<MongoClient>;
 }
 
-export async function disconnectFromDB(dbClient: MongoClient) {
-    await dbClient.close();
+if (!global._mongoClientPromise) {
+  client = new MongoClient(uri, options);
+  global._mongoClientPromise = client.connect();
 }
+
+clientPromise = global._mongoClientPromise;
+
+export default clientPromise;

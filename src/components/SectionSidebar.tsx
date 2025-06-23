@@ -1,82 +1,49 @@
-"use client";
-import React from "react";
-import { Section } from "../lib/interface";
-import SectionItem from "./SectionItem";
-import { CircleUser } from "lucide-react";
+'use client';
+import React from 'react';
+import { Section } from '../lib/interface';
+import SectionItem from './SectionItem';
 
-interface SectionSidebarProps {
+interface Props {
   sections: Section[];
   selectedSectionId: string | null;
   setSelectedSectionId: (id: string) => void;
   onAddSection: () => void;
-  onDeleteSection: (sectionId: string) => void;
 }
 
-export default function SectionSidebar({
+export default function LeftSidebar({
   sections,
   selectedSectionId,
   setSelectedSectionId,
-  onAddSection,
-  onDeleteSection,
-}: SectionSidebarProps) {
-  // Debug logging - remove in production
-  console.log('Sections:', sections);
-  console.log('Section IDs:', sections.map(s => s.section_ID));
-  
-  // Check for duplicates and warn
-  const duplicates = sections.filter((s, i, arr) => 
-    arr.findIndex(item => item.section_ID === s.section_ID) !== i
-  );
-  
-  if (duplicates.length > 0) {
-    console.warn('Duplicate section IDs found:', duplicates.map(d => d.section_ID));
-  }
-
+  onAddSection
+}: Props) {
   return (
-    <div className="flex flex-col bg-[#fefefe] text-black w-1/5 h-screen p-4 box-border font-[Outfit]">
-      <div>
-        <h2 className="mb-2 mt-8 text-base">SECTIONS</h2>
-        <div className="border-t-2 border-black mb-6"></div>
+    <div className="w-64 min-h-screen bg-[#F7F7F7] border-r flex flex-col justify-between">
+      <div className="p-4">
+        <h2 className="text-xs font-semibold text-gray-600 mb-2">SECTIONS</h2>
 
-        <div className="h-80 overflow-y-auto scrollbar-hidden text-sm">
-          {sections.map((section, index) => (
-            <SectionItem
-              key={`${section.section_ID}-${index}`} // Fallback key with index
-              section={section}
-              isSelected={section.section_ID === selectedSectionId}
-              onClick={() => setSelectedSectionId(section.section_ID)}
-              onDeleteSection={onDeleteSection}
-            />
-          ))}
+        {sections.map((section) => (
+          <SectionItem
+            key={section.section_ID}
+            section={section}
+            isSelected={section.section_ID === selectedSectionId}
+            onClick={() => setSelectedSectionId(section.section_ID)}
+          />
+        ))}
 
-          <button
-            onClick={onAddSection}
-            className="mt-4 w-full py-3 text-base text-gray-600 bg-gray-200 hover:bg-gray-300 rounded"
-          >
-            + Add New Section
-          </button>
-        </div>
+        <button
+          onClick={onAddSection}
+          className="mt-4 w-full py-2 text-sm text-gray-700 bg-gray-200 hover:bg-gray-300 rounded"
+        >
+          + Add New Section
+        </button>
       </div>
 
-      <div className="my-5">
+      <div className="p-4 border-t text-sm space-y-2">
         <div>
-          <h2 className="mb-2 text-base">ENDINGS</h2>
-          <div className="border-t-2 border-black mb-6"></div>
-          <div className="h-20 overflow-y-auto scrollbar-hidden">
-            <div className="py-3 rounded text-black bg-[#8cc7aa] text-base pl-2">
-              Thank You Page
-            </div>
-          </div>
+          <h2 className="text-xs font-semibold text-gray-600">ENDINGS</h2>
+          <div className="mt-1 px-3 py-2 rounded bg-green-200 text-sm">Thank You Page</div>
         </div>
-      </div>
-
-      <div className="mb-2">
-        <div className="flex items-center gap-2">
-          <span>
-            <CircleUser className="w-5 h-5" />
-          </span>
-          <span>UserName</span>
-        </div>
+        <div className="pt-2 border-t text-gray-500">UserName</div>
       </div>
     </div>
   );
