@@ -1,11 +1,10 @@
-import Image from "next/image";
+import SectionSidebar from "./components/SectionSidebar";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex items-center justify-center w-full h-screen">
-      <div className="flex items-center justify-center w-full h-screen">
-        Hello. This is the form project cycle 2025.
-      </div>
+    <div className="flex">
+      <SectionSidebar />
+      <main className="flex-1 p-6">{/* Your form builder canvas */}</main>
     </div>
   );
 }
