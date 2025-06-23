@@ -1,11 +1,11 @@
-import Link from "next/link";
-import Navbar from "../../components/Navbar";
-import Hero from "../../components/Hero";
-import Footer from "../../components/Footer";
+import Footer from "../../components/Landing_Page/Footer";
+import Hero from "../../components/Landing_Page/Hero";
+import Navbar from "../../components/Landing_Page/Navbar";
+
 
 export default function Home() {
   return (
-    <div className="w-screen h-screen bg-[#F6F8F6] overflow-x-hidden dark">
+    <div className="w-screen h-screen bg-[#F6F8F6] overflow-x-hidden">
       <Navbar />
       <Hero />
       <div className="w-full h-full p-6 flex flex-col">
@@ -34,12 +34,7 @@ export default function Home() {
             <p className="text-2xl text-#F4F3F4 mr-30 font-bold">FEATURE</p>
           </div>
         </div>
-        <div className="flex-1 flex items-center justify-center gap-5 mb-20">
-  {/* feature boxes */}
-</div>
-
-
-        <Footer />
+      <Footer />
       </div>
     </div>
     

@@ -1,7 +1,7 @@
 import React from 'react'
 import AuthBtn from './AuthBtn'
 import Link from 'next/link'
-import { Copyright, Facebook, FacebookIcon, InstagramIcon, TwitterIcon } from 'lucide-react'
+import { Copyright, FacebookIcon, InstagramIcon, TwitterIcon } from 'lucide-react'
 import { Outfit } from 'next/font/google';
 const out_fit=Outfit({subsets:['latin'], weight:['400','800']});
 export default function Footer() {

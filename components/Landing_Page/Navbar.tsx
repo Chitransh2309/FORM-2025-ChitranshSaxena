@@ -5,8 +5,7 @@ import AuthBtn from './AuthBtn'
 import { Outfit } from 'next/font/google';
 
 const out_font= Outfit({subsets:['latin'],weight:['400','800']})
-export default async function Navbar() {
-
+export default function Navbar() {
   return (
     <header className={`px-9 py-6 text-black text-2xl font-bold sticky top-0 absolute ${out_font.className}`}>
       <nav className='flex justify-between items-center h-9'>
