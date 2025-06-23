@@ -2,16 +2,17 @@ import React from 'react'
 import AuthBtn from './AuthBtn'
 import Link from 'next/link'
 import { Copyright, Facebook, FacebookIcon, InstagramIcon, TwitterIcon } from 'lucide-react'
-
+import { Outfit } from 'next/font/google';
+const out_fit=Outfit({subsets:['latin'], weight:['400','800']});
 export default function Footer() {
   return (
     <div className='h-40 w-full p-3 bg-[#61A986]'>
       <div className='flex justify-between'>
         <div className='ml-10'>
-          <p className='text-2xl text-white font-bold'>
+          <p className={`text-2xl text-#F6F8F6 font-bold ${out_fit.className}`}>
             "Forms that hustle, so you don't have to."
           </p>
-          <p className='text-xl text-white font-bold mt-4'>
+          <p className={`text-xl text-#F6F8F6 font-bold mt-4 ${out_fit.className}`}>
             F.O.R.M
           </p>
           <div className='flex justify-start text-sm gap-3'>

@@ -1,11 +1,12 @@
 'use client'
-import { useState } from 'react'
+import { useState} from 'react'
 import { Sun, Moon } from 'lucide-react'
 
 
 
 const ToggleSwitch = () => {
   const [enabled, setEnabled] = useState(true)
+
 
   return (
     <button
@@ -26,7 +27,7 @@ const ToggleSwitch = () => {
           }`}
         />
         <Moon
-          className={`w-4 h-4 text-white transition-opacity duration-300 ${
+          className={` dark w-4 h-4 text-white transition-opacity duration-300 ${
             enabled ? 'opacity-50' : 'opacity-100'
           }`}
         />

@@ -23,3 +23,11 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.dark{
+  --mode: #191719, #61A986,#E5E0CF, #FFFFFF, #DDD8CA,
+        #3D3D3D, #A9A8A9, #E6AD00;
+}

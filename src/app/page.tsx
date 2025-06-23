@@ -5,7 +5,7 @@ import Footer from "../../components/Footer";
 
 export default function Home() {
   return (
-    <div className="w-screen h-screen bg-[#F4EAE1] overflow-x-hidden">
+    <div className="w-screen h-screen bg-[#F6F8F6] overflow-x-hidden dark">
       <Navbar />
       <Hero />
       <div className="w-full h-full p-6 flex flex-col">
@@ -22,16 +22,16 @@ export default function Home() {
         </p>
         <div className="flex-1 flex items-center justify-center gap-5">
           <div className="h-80 w-70 bg-[#61A986] rounded-xl text-white flex flex-col items-center gap-8">
-            <div className="h-50 w-60 bg-[#F4EAE1] mt-5 rounded-xl"></div>
-            <p className="text-2xl text-white mr-30 font-bold">FEATURE</p>
+            <div className="h-50 w-60 bg-[#F8F8F6] mt-5 rounded-xl"></div>
+            <p className="text-2xl text-#F4EAE1 mr-30 font-bold">FEATURE</p>
           </div>
           <div className="h-80 w-70 bg-[#E6AD00] rounded-xl text-white flex flex-col items-center gap-8">
-            <div className="h-50 w-60 bg-[#FFF2D6] mt-5 rounded-xl"></div>
-            <p className="text-2xl text-white mr-30 font-bold">FEATURE</p>
+            <div className="h-50 w-60 bg-[#F6F8F6] mt-5 rounded-xl"></div>
+            <p className="text-2xl text-#F6F8F6 mr-30 font-bold">FEATURE</p>
           </div>
           <div className="h-80 w-70 bg-[#3D3D3D] rounded-xl text-white flex flex-col items-center gap-8">
-            <div className="h-50 w-60 bg-[#CFCCCF] mt-5 rounded-xl"></div>
-            <p className="text-2xl text-white mr-30 font-bold">FEATURE</p>
+            <div className="h-50 w-60 bg-[#F4F3F4] mt-5 rounded-xl"></div>
+            <p className="text-2xl text-#F4F3F4 mr-30 font-bold">FEATURE</p>
           </div>
         </div>
         <Footer />
