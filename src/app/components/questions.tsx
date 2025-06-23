@@ -16,8 +16,12 @@ export default function Question({
   };
   onDelete: (id: number) => void;
   onUpdate: (id: number, updatedFields: Partial<typeof data>) => void;
+<<<<<<< HEAD
 }) 
 {
+=======
+}) {
+>>>>>>> 733cd2c (CUD done)
   const containerRef = useRef(null);
   const textareaRef = useRef(null);
   const [isSelected, setIsSelected] = useState(false);
@@ -34,7 +38,10 @@ export default function Question({
     setIsSelected(true);
   };
 
+<<<<<<< HEAD
  
+=======
+>>>>>>> 733cd2c (CUD done)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -49,11 +56,16 @@ export default function Question({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+<<<<<<< HEAD
+=======
+  const toggleId = `title-toggle-${id}`; // unique ID for checkbox
+
+>>>>>>> 733cd2c (CUD done)
   return (
     <div
       ref={containerRef}
       onClick={handleClick}
-      className={`bg-green-200 p-6 rounded-xl w-[90%] min-h-[20%] mx-auto mb-10 ${
+      className={`bg-[#FEFEFE] p-6 rounded-xl w-[90%] min-h-[20%] mx-auto mb-10 ${
         isSelected ? "ring-4 ring-black" : ""
       }`}
     >
@@ -61,21 +73,35 @@ export default function Question({
         <input
           placeholder="Ques Label *"
           className="focus:outline-none font-bold text-xl text-black"
+<<<<<<< HEAD
           value = {data.label}
+=======
+          value={data.label}
+>>>>>>> 733cd2c (CUD done)
           onChange={e => onUpdate(id, { label: e.target.value })}
         />
 
         <div className="flex items-center">
           <label className="text-gray-700 mr-1">Required</label>
           <label
+<<<<<<< HEAD
             htmlFor="title-toggle"
+=======
+            htmlFor={toggleId}
+>>>>>>> 733cd2c (CUD done)
             className="relative inline-flex items-center cursor-pointer"
           >
             <input
               type="checkbox"
+<<<<<<< HEAD
               id="title-toggle"
               className="sr-only peer"
               checked = {data.required}
+=======
+              id={toggleId}
+              className="sr-only peer"
+              checked={data.required}
+>>>>>>> 733cd2c (CUD done)
               onChange={e => onUpdate(id, { required: e.target.checked })}
             />
             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
@@ -101,7 +127,7 @@ export default function Question({
         
       </div>
 
-      <div className="mt-0 bg-green-300 rounded-md px-4 py-2 text-black/50">
+      <div className="mt-0 bg-[#F6F6F6] rounded-md px-4 py-2 text-black/50">
         answer type: short text/mcq/checkbox
       </div>
 

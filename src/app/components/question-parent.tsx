@@ -1,9 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Question from "./questions";
 import AddQues from "./add-question";
-import { saveQuestionsToDB } from "../action/savequestions";
+// import { QuestionType } from "../form/page";
+// import { saveQuestionsToDB } from "../action/savequestions";
+
+type Props = {
+  ques: QuestionType[];
+  onAdd: () => void;
+  onDelete: (id: number) => void;
+  onUpdate: (id: number, updates: Partial<QuestionType>) => void;
+};
 
 export type QuestionType = {
   id: number;
@@ -12,68 +20,84 @@ export type QuestionType = {
   required: boolean;
 };
 
-export default function QuestionSet() {
-  const [ques, setQues] = useState<QuestionType[]>([
-    { id: 1, label: "", content: "", required: false },
-  ]);
-  const [nextId, setNextId] = useState(2);
+export default function QuestionSet({ ques, onAdd, onDelete, onUpdate }: Props) {
+  // const [ques, setQues] = useState<QuestionType[]>([
+  //   { id: 1, label: "", content: "", required: false },
+  // ]);
+  // const [nextId, setNextId] = useState(2);
 
-  function AddingQues() {
-    setQues(prev => [
-      ...prev,
-      { id: nextId, label: "", content: "", required: false },
-    ]);
-    setNextId(prev => prev + 1);
-  }
+  // function AddingQues() {
+  //   setQues(prev => [
+  //     ...prev,
+  //     { id: nextId, label: "", content: "", required: false },
+  //   ]);
+  //   setNextId(prev => prev + 1);
+  // }
 
-  function deleteQuestion(id: number) {
-    setQues(prev => prev.filter(q => q.id !== id));
-  }
+  // function deleteQuestion(id: number) {
+  //   setQues(prev => prev.filter(q => q.id !== id));
+  // }
 
-  function updateQuestion(id: number, updates: Partial<QuestionType>) {
-    setQues(prev => prev.map(q => (q.id === id ? { ...q, ...updates } : q)));
-  }
+  // function updateQuestion(id: number, updates: Partial<QuestionType>) {
+  //   setQues(prev => prev.map(q => (q.id === id ? { ...q, ...updates } : q)));
+  // }
 
-  async function handleSave() {
-    const dataToSend = ques.map((q, idx) => ({
-      question_ID: `q-${q.id}`,
-      order: idx + 1,
-      section_ID: "section-1", // you can make this dynamic later
-      type: "short_text", // or "mcq", "checkbox", etc.
-      questionText: q.content,
-      isRequired: q.required,
-    }));
+  // async function handleSave() {
+  //   const dataToSend = ques.map((q, idx) => ({
+  //     question_ID: `q-${q.id}`,
+  //     order: idx + 1,
+  //     section_ID: "section-1", // you can make this dynamic later
+  //     type: "short_text", // or "mcq", "checkbox", etc.
+  //     questionText: q.content,
+  //     isRequired: q.required,
+  //   }));
 
-    const result = await saveQuestionsToDB(dataToSend);
-    if (result.success) {
-      alert(`Saved ${result.insertedCount} questions successfully!`);
-    } else {
-      alert("Failed to save questions. Check console.");
-      console.error(result.error);
-    }
-  }
+  //   const result = await saveQuestionsToDB(dataToSend);
+  //   if (result.success) {
+  //     alert(`Saved ${result.insertedCount} questions successfully!`);
+  //   } else {
+  //     alert("Failed to save questions. Check console.");
+  //     console.error(result.error);
+  //   }
+  // }
 
-  return (
+  // return (
+  //   <div>
+  //     {/* Save Button */}
+  //     <button
+  //       onClick={handleSave}
+  //       className="bg-green-500 text-white hover:bg-green-400 mt-4 p-3 rounded"
+  //     >
+  //       Save All
+  //     </button>
+
+  //     {ques.map((q) => (
+  //       <Question
+  //         key={q.id}
+  //         id={q.id}
+  //         data={q}
+  //         onUpdate={updateQuestion}
+  //         onDelete={deleteQuestion}
+  //       />
+  //     ))}
+
+  //     <AddQues onClick={AddingQues} />
+
+  //   </div>
+  // );
+
+   return (
     <div>
       {ques.map((q) => (
-        <div key={q.id}>
-          <Question
-            id={q.id}
-            data={q}
-            onUpdate={updateQuestion}
-            onDelete={deleteQuestion}
-          />
-        </div>
+        <Question
+          key={q.id}
+          id={q.id}
+          data={q}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
+        />
       ))}
-      <AddQues onClick={AddingQues} />
-
-      {/* Save Button */}
-      <button
-        onClick={handleSave}
-        className="bg-green-500 text-white hover:bg-green-400 mt-4 p-3 rounded"
-      >
-        Save All
-      </button>
+      <AddQues onClick={onAdd} />
     </div>
   );
 }

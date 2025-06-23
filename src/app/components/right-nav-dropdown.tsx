@@ -35,7 +35,7 @@ export default function QuestionTypeDropdown() {
                   type="number"
                   value={minChar}
                   onChange={(e) => setMinChar(Number(e.target.value))}
-                  className="w-12 px-1 py-0.5 rounded bg-green-100 text-center outline-none"
+                  className="w-12 px-1 py-0.5 rounded bg-[#8CC7AA] text-center outline-none"
                 />
               </label>
 
@@ -45,7 +45,7 @@ export default function QuestionTypeDropdown() {
                   type="number"
                   value={maxChar}
                   onChange={(e) => setMaxChar(Number(e.target.value))}
-                  className="w-12 px-1 py-0.5 rounded bg-green-100 text-center outline-none"
+                  className="w-12 px-1 py-0.5 rounded bg-[#8CC7AA] text-center outline-none"
                 />
               </label>
             </div>
@@ -72,7 +72,7 @@ export default function QuestionTypeDropdown() {
     <div className="w-72 relative rounded-xl bg-white">
       {/* Dropdown header */}
       <div
-        className="bg-green-300 rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer"
+        className="bg-[#8CC7AA] rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className="text-black font-medium">{selectedType}</span>
@@ -81,7 +81,7 @@ export default function QuestionTypeDropdown() {
 
       {/* Dropdown options */}
       {isOpen && (
-        <div className="absolute z-10 w-full bg-green-200 text-black rounded-b-xl shadow-lg">
+        <div className="absolute z-10 w-full bg-[#8CC7AA] text-black rounded-b-xl shadow-lg">
           <hr className="border-gray-400" />
           <ul className="py-2 px-4 space-y-2">
             {questionTypes.map((type) => (
