@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { Section } from "../lib/interface";
+import { Trash2 } from "lucide-react";
+import { ChevronRight, ChevronDown } from "lucide-react";
 
 interface Props {
   section: Section;
@@ -14,7 +16,7 @@ export default function SectionItem({ section, isSelected, onClick }: Props) {
   return (
     <div className="mb-1">
       <div
-        className={`flex justify-between items-center px-3 py-2 rounded cursor-pointer ${
+        className={`flex justify-between items-center px-3 py-3 rounded cursor-pointer ${
           isSelected
             ? "bg-[#8cc7aa] text-black"
             : "hover:bg-gray-200 text-gray-700"
@@ -22,7 +24,7 @@ export default function SectionItem({ section, isSelected, onClick }: Props) {
         onClick={onClick}
       >
         <div>
-          <div className="text-sm font-medium">
+          <div className="text-base font-medium">
             {section.title || "Section Name"}
           </div>
           <div className="text-xs text-gray-500">
@@ -30,15 +32,25 @@ export default function SectionItem({ section, isSelected, onClick }: Props) {
             {section.questions.length !== 1 ? "s" : ""}
           </div>
         </div>
-        <button
-          className="text-gray-600 text-xs"
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsOpen((prev) => !prev);
-          }}
-        >
-          {isOpen ? "▼" : "▶"}
-        </button>
+        <div className="flex gap-2 items-center">
+          <button>
+            <Trash2 className="w-4 h-4" />
+          </button>
+
+          <button
+            className="text-gray-600 text-xs"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsOpen((prev) => !prev);
+            }}
+          >
+            {isOpen ? (
+              <ChevronDown className="w-5 h-5" />
+            ) : (
+              <ChevronRight className="w-5 h-5" />
+            )}
+          </button>
+        </div>
       </div>
 
       {isOpen && (
