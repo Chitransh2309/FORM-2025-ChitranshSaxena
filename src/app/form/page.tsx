@@ -1,129 +1,185 @@
 'use client';
 
-import React, { useState } from "react";
-import CenterNav from "../../components/center-nav";
-import QuestionParent from "../../components/question-parent";
-import RightNav from "../../components/right-nav";
-import SectionButton from "../../components/sectionbutton";
-import Save from "../../components/savebutton";
+import React, { useState } from 'react';
+import SectionSidebar from '@/components/SectionSidebar';
+import CenterNav from '@/components/center-nav';
+import RightNav from '@/components/right-nav';
+import SaveButton from '@/components/savebutton';
+import SectionButton from '@/components/sectionbutton';
+import QuestionParent, { QuestionType } from '@/components/question-parent';
 
-import { saveQuestionsToDB } from "@/app/action/savequestions";
-import { deleteQuestionFromDB } from "@/app/action/deletequestion"; // ✅ import Mongo delete
-
-export type QuestionType = {
-  id: number;
-  label: string;
-  content: string;
-  required: boolean;
-};
+import { saveQuestionsToDB } from '../../app/action/savequestions';
+import { deleteQuestionFromDB } from '@/app/action/deletequestion';
 
 export default function BuildPage() {
-  const [ques, setQues] = useState<QuestionType[]>([
+  const [sections, setSections] = useState([
     {
-      id: 1,
-      label: "",
-      content: "",
-      required: false,
+      section_ID: 'section-1',
+      title: 'Section 1',
+      description: '',
+      questions: [
+        {
+          id: 1,
+          label: '',
+          content: '',
+          required: true,
+        },
+      ],
     },
   ]);
-  const [nextId, setNextId] = useState(2);
 
-  // Add a new blank question
+  const [nextId, setNextId] = useState(2);
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
+    sections[0]?.section_ID || null
+  );
+
+  const selectedSection = sections.find(
+    (s) => s.section_ID === selectedSectionId
+  );
+
   const addQuestion = () => {
-    setQues((prev) => [
-      ...prev,
-      {
-        id: nextId,
-        label: "",
-        content: "",
-        required: false,
-      },
-    ]);
+    if (!selectedSectionId) return;
+
+    const updatedSections = sections.map((section) => {
+      if (section.section_ID === selectedSectionId) {
+        const newQ: QuestionType = {
+          id: nextId,
+          label: '',
+          content: '',
+          required: false,
+        };
+        return {
+          ...section,
+          questions: [...section.questions, newQ],
+        };
+      }
+      return section;
+    });
+
+    setSections(updatedSections);
     setNextId((prev) => prev + 1);
   };
 
-  // Update a field of an existing question
   const updateQuestion = (id: number, updates: Partial<QuestionType>) => {
-    setQues((prev) =>
-      prev.map((q) => (q.id === id ? { ...q, ...updates } : q))
-    );
+    if (!selectedSectionId) return;
+
+    const updatedSections = sections.map((section) => {
+      if (section.section_ID === selectedSectionId) {
+        const newQs = section.questions.map((q) =>
+          q.id === id ? { ...q, ...updates } : q
+        );
+        return { ...section, questions: newQs };
+      }
+      return section;
+    });
+
+    setSections(updatedSections);
   };
 
-  // Delete a question from both UI and DB
   const deleteQuestion = async (id: number) => {
-    const question = ques.find((q) => q.id === id);
-    if (!question) return;
+    if (!selectedSectionId) return;
 
-    const isUnsaved = !question.label && !question.content;
-    if (isUnsaved) {
-      // Just remove from UI
-      setQues((prev) => prev.filter((q) => q.id !== id));
-      return;
-    }
+    const section = sections.find((s) => s.section_ID === selectedSectionId);
+    const question = section?.questions.find((q) => q.id === id);
+    const isUnsaved = !question?.label && !question?.content;
 
-    const question_ID = `q-${id}`;
-    const result = await deleteQuestionFromDB(question_ID);
-    if (result.success) {
-      setQues((prev) => prev.filter((q) => q.id !== id));
-    } else {
-      alert("❌ Failed to delete from DB: " + result.error);
+    const updatedSections = sections.map((section) => {
+      if (section.section_ID === selectedSectionId) {
+        return {
+          ...section,
+          questions: section.questions.filter((q) => q.id !== id),
+        };
+      }
+      return section;
+    });
+
+    setSections(updatedSections);
+
+    // Only call DB delete if question has data
+    if (!isUnsaved) {
+      const question_ID = `q-${id}`;
+      const result = await deleteQuestionFromDB(question_ID);
+      if (!result.success) {
+        alert(`❌ Failed to delete from DB: ${result.error}`);
+      }
     }
   };
 
-  // Save all questions to DB (insert or update)
-  async function handleSave() {
-    const dataToSend = ques.map((q, idx) => ({
+  const handleSave = async () => {
+    if (!selectedSectionId) return;
+
+    const section = sections.find((s) => s.section_ID === selectedSectionId);
+    if (!section) return;
+
+    const formatted = section.questions.map((q, idx) => ({
       question_ID: `q-${q.id}`,
       order: idx + 1,
-      section_ID: "section-1", // Change later for dynamic sections
-      type: "text", // You can support "mcq", "checkbox", etc.
+      section_ID: section.section_ID,
+      type: 'text',
       questionText: q.content,
       isRequired: q.required,
     }));
 
-    const result = await saveQuestionsToDB(dataToSend);
+    const result = await saveQuestionsToDB(formatted);
     if (result.success) {
-      alert(`✅ Saved questions successfully!`);
+      alert('✅ Saved to DB!');
     } else {
-      alert("❌ Failed to save questions. Check console.");
       console.error(result.error);
+      alert('❌ Failed to save questions.');
     }
-  }
+  };
+
+  const addSection = () => {
+    const newIndex = sections.length + 1;
+    const newId = `section-${newIndex}`;
+  
+    const newSection = {
+      section_ID: newId,
+      title: `Section ${newIndex}`,
+      description: '',
+      questions: [],
+    };
+  
+    setSections((prev) => [...prev, newSection]);
+    setSelectedSectionId(newId);
+  };
+  
 
   return (
     <div className="bg-neutral-100 text-black w-screen h-[92vh] flex">
+      <SectionSidebar
+        sections={sections}
+        selectedSectionId={selectedSectionId}
+        setSelectedSectionId={setSelectedSectionId}
+        onAddSection={addSection}
+      />
+
       <div className="w-full h-full overflow-auto">
         <div className="flex bg-[#e8ede8] h-screen overflow-hidden">
-          {/* Left Nav */}
-          <div className="w-[24vw] h-[92vh] bg-white border-r-2 border-black-200" />
-
-          {/* Middle Content */}
           <div className="w-full h-full overflow-auto">
             <CenterNav />
 
             {/* Top Row */}
             <div className="flex flex-row justify-between items-center">
               <div className="text-2xl font-bold ml-[5%] mb-3 mt-9 p-4">
-                Section Name
+                {selectedSection?.title || 'No Section Selected'}
               </div>
               <div className="mr-5 mt-9 mb-3 p-4">
-                <Save onClick={handleSave} />
+                <SaveButton onClick={handleSave} />
               </div>
             </div>
 
-            {/* Questions */}
-            <QuestionParent
-              ques={ques}
-              onUpdate={updateQuestion}
-              onDelete={deleteQuestion}
-              onAdd={addQuestion}
-            />
-
-            {/* Add Section Button */}
-            <SectionButton />
+            {selectedSection && (
+              <QuestionParent
+                ques={selectedSection.questions}
+                onUpdate={updateQuestion}
+                onDelete={deleteQuestion}
+                onAdd={addQuestion}
+              />
+            )}
+            
           </div>
 
-          {/* Right Nav */}
           <div className="w-[34vw] h-[92vh] bg-white border-l-2 border-black-200">
             <RightNav />
           </div>

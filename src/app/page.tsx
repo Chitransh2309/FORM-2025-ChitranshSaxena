@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div className="flex items-center justify-center w-full h-screen">
       <div className="flex items-center justify-center w-full h-screen">
-        Hello. This is the form project cycle<Link href="/form/build"> 2025</Link>.
+        Hello. This is the form project cycle<Link href="/form"> 2025</Link>.
       </div>
     </div>
   );
