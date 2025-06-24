@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import SectionSidebar from '@/components/SectionSidebar';
-import CenterNav from '@/components/center-nav';
-import RightNav from '@/components/right-nav';
-import SaveButton from '@/components/savebutton';
-import SectionButton from '@/components/sectionbutton';
-import QuestionParent, { QuestionType } from '@/components/question-parent';
+import React, { useState } from "react";
+import SectionSidebar from "@/components/SectionSidebar";
+import CenterNav from "@/components/center-nav";
+import RightNav from "@/components/right-nav";
+import SaveButton from "@/components/savebutton";
+import SectionButton from "@/components/sectionbutton";
+import QuestionParent, { QuestionType } from "@/components/question-parent";
 
-import { saveQuestionsToDB } from '../../app/action/savequestions';
-import { deleteQuestionFromDB } from '@/app/action/deletequestion';
+import { saveQuestionsToDB } from "../../app/action/savequestions";
+import { deleteQuestionFromDB } from "@/app/action/deletequestion";
 
 export default function BuildPage() {
   const [sections, setSections] = useState([
     {
-      section_ID: 'section-1',
-      title: 'Section 1',
-      description: '',
+      section_ID: "section-1",
+      title: "Section 1",
+      description: "",
       questions: [
         {
           id: 1,
-          label: '',
-          content: '',
+          label: "",
+          content: "",
           required: true,
         },
       ],
@@ -44,8 +44,8 @@ export default function BuildPage() {
       if (section.section_ID === selectedSectionId) {
         const newQ: QuestionType = {
           id: nextId,
-          label: '',
-          content: '',
+          label: "",
+          content: "",
           required: false,
         };
         return {
@@ -115,38 +115,37 @@ export default function BuildPage() {
       question_ID: `q-${q.id}`,
       order: idx + 1,
       section_ID: section.section_ID,
-      type: 'text',
+      type: "text",
       questionText: q.content,
       isRequired: q.required,
     }));
 
     const result = await saveQuestionsToDB(formatted);
     if (result.success) {
-      alert('✅ Saved to DB!');
+      alert("✅ Saved to DB!");
     } else {
       console.error(result.error);
-      alert('❌ Failed to save questions.');
+      alert("❌ Failed to save questions.");
     }
   };
 
   const addSection = () => {
     const newIndex = sections.length + 1;
     const newId = `section-${newIndex}`;
-  
+
     const newSection = {
       section_ID: newId,
       title: `Section ${newIndex}`,
-      description: '',
+      description: "",
       questions: [],
     };
-  
+
     setSections((prev) => [...prev, newSection]);
     setSelectedSectionId(newId);
   };
-  
 
   return (
-    <div className="bg-neutral-100 text-black w-screen h-[92vh] flex">
+    <div className="bg-neutral-100 text-black w-screen h-[92vh] font-[Outfit] flex">
       <SectionSidebar
         sections={sections}
         selectedSectionId={selectedSectionId}
@@ -162,7 +161,7 @@ export default function BuildPage() {
             {/* Top Row */}
             <div className="flex flex-row justify-between items-center">
               <div className="text-2xl font-bold ml-[5%] mb-3 mt-9 p-4">
-                {selectedSection?.title || 'No Section Selected'}
+                {selectedSection?.title || "No Section Selected"}
               </div>
               <div className="mr-5 mt-9 mb-3 p-4">
                 <SaveButton onClick={handleSave} />
@@ -177,7 +176,6 @@ export default function BuildPage() {
                 onAdd={addQuestion}
               />
             )}
-            
           </div>
 
           <div className="w-[34vw] h-[92vh] bg-white border-l-2 border-black-200">
