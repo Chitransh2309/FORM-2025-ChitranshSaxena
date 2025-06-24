@@ -145,42 +145,42 @@ export default function BuildPage() {
   };
 
   return (
-    <div className="bg-neutral-100 text-black w-screen h-[92vh] font-[Outfit] flex">
-      <SectionSidebar
-        sections={sections}
-        selectedSectionId={selectedSectionId}
-        setSelectedSectionId={setSelectedSectionId}
-        onAddSection={addSection}
-      />
+    <div className="bg-neutral-100 text-black w-screen font-[Outfit] flex overflow-hidden">
+      <div className="w-[20%]">
+        <SectionSidebar
+          sections={sections}
+          selectedSectionId={selectedSectionId}
+          setSelectedSectionId={setSelectedSectionId}
+          onAddSection={addSection}
+        />
+      </div>
 
-      <div className="w-full h-full overflow-hidden">
-        <div className="flex bg-[#e8ede8] h-screen overflow-hidden">
-          <div className="w-full h-full overflow-auto">
-            <CenterNav />
+      <div className="flex bg-[#e8ede8] overflow-hidden">
+        <div className="w-[60vw]  overflow-auto">
+          <CenterNav />
 
-            {/* Top Row */}
-            <div className="flex flex-row justify-between items-center">
-              <div className="text-2xl font-bold ml-[5%] mb-3 mt-9 p-4">
-                {selectedSection?.title || "No Section Selected"}
-              </div>
-              <div className="mr-5 mt-9 mb-3 p-4">
-                <SaveButton onClick={handleSave} />
-              </div>
+          {/* Top Row */}
+          <div className="flex flex-row justify-between items-center">
+            <div className="text-2xl font-bold ml-[5%] mb-3 mt-9 p-4">
+              {selectedSection?.title || "No Section Selected"}
             </div>
-
-            {selectedSection && (
-              <QuestionParent
-                ques={selectedSection.questions}
-                onUpdate={updateQuestion}
-                onDelete={deleteQuestion}
-                onAdd={addQuestion}
-              />
-            )}
+            <div className="mr-5 mt-9 mb-3 p-4">
+              <SaveButton onClick={handleSave} />
+            </div>
           </div>
 
-          <div className="w-[20vw] h-[92vh] bg-white">
-            <RightNav />
-          </div>
+          {selectedSection && (
+            <QuestionParent
+              ques={selectedSection.questions}
+              onUpdate={updateQuestion}
+              onDelete={deleteQuestion}
+              onAdd={addQuestion}
+            />
+          )}
+        </div>
+
+        <div className="w-[20vw]  bg-white">
+          <RightNav />
         </div>
       </div>
     </div>
