@@ -18,6 +18,7 @@ export async function insertUser() {
             googleID: id,
             name: name,
             image: image,
+            forms: [],
             });
         }
     }

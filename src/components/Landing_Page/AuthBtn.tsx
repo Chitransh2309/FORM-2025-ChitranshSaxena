@@ -1,5 +1,5 @@
 import React from 'react'
-import { auth,signOut,signIn} from '../../auth';
+import { auth,signOut,signIn} from '../../../auth';
 
 export default async function AuthBtn({pos}:{pos:string}) {
     const session= await auth();
