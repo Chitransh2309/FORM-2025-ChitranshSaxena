@@ -7,10 +7,22 @@ import { Sun, Moon } from 'lucide-react'
 const ToggleSwitch = () => {
   const [enabled, setEnabled] = useState(true)
 
+  const toggleTheme = () => {
+    const newEnabled = !enabled
+    setEnabled(newEnabled)
+
+    if (newEnabled) {
+      // Light mode
+      document.documentElement.classList.remove('dark')
+    } else {
+      // Dark mode
+      document.documentElement.classList.add('dark')
+    }
+  }
 
   return (
     <button
-      onClick={() => setEnabled(!enabled)}
+      onClick={toggleTheme}
       className={`relative w-12 h-6 flex items-center rounded-full transition-colors duration-300 ${
         enabled ? 'bg-yellow-400' : 'bg-gray-600'
       }`}
