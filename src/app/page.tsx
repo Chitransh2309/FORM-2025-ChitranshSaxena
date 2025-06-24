@@ -1,9 +1,11 @@
 import Footer from "../../components/Landing_Page/Footer";
 import Hero from "../../components/Landing_Page/Hero";
 import Navbar from "../../components/Landing_Page/Navbar";
+import { insertUser } from "./action/user";
 
 
-export default function Home() {
+export default async function Home() {
+  await insertUser();
   return (
     <div className="w-screen h-screen bg-[#F6F8F6] overflow-x-hidden">
       <Navbar />
