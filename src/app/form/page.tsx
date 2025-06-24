@@ -153,7 +153,7 @@ export default function BuildPage() {
         onAddSection={addSection}
       />
 
-      <div className="w-full h-full overflow-auto">
+      <div className="w-full h-full overflow-hidden">
         <div className="flex bg-[#e8ede8] h-screen overflow-hidden">
           <div className="w-full h-full overflow-auto">
             <CenterNav />

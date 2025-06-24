@@ -18,9 +18,13 @@ export type QuestionType = {
   required: boolean;
 };
 
-export default function QuestionSet({ ques, onAdd, onDelete, onUpdate }: Props) {
-
-   return (
+export default function QuestionSet({
+  ques,
+  onAdd,
+  onDelete,
+  onUpdate,
+}: Props) {
+  return (
     <div>
       {ques.map((q) => (
         <Question
