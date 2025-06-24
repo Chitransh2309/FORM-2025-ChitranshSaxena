@@ -178,7 +178,7 @@ export default function BuildPage() {
             )}
           </div>
 
-          <div className="w-[34vw] h-[92vh] bg-white border-l-2 border-black-200">
+          <div className="w-[20vw] h-[92vh] bg-white">
             <RightNav />
           </div>
         </div>
