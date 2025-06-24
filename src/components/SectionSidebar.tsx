@@ -18,7 +18,7 @@ export default function LeftSidebar({
   onAddSection,
 }: Props) {
   return (
-    <div className="flex flex-col bg-[#fefefe] text-black w-1/5 h-screen p-4 box-border">
+    <div className="flex flex-col bg-[#fefefe] text-black w-1/5 h-full p-4 box-border">
       <div>
         <h2 className="mb-2 mt-8 text-base">SECTIONS</h2>
         <div className="border-t-2 border-black mb-6"></div>
