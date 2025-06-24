@@ -15,13 +15,6 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #ffffff;
-    --foreground: #ffffff;
-  }
-}
-
 @font-face {
   font-family: "Outfit";
   src: url("/fonts/Outfit.ttf") format("truetype");
