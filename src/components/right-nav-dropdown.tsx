@@ -69,7 +69,7 @@ export default function QuestionTypeDropdown() {
   };
 
   return (
-    <div className="w-72 relative rounded-xl bg-white">
+    <div className="w-65 relative rounded-xl bg-white">
       {/* Dropdown header */}
       <div
         className="bg-[#8CC7AA] rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer"
