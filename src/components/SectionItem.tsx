@@ -1,16 +1,21 @@
 "use client";
 import React, { useState } from "react";
 import { Section } from "../lib/interface";
-import { Trash2 } from "lucide-react";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { Trash2, ChevronRight, ChevronDown } from "lucide-react";
 
 interface Props {
   section: Section;
   isSelected: boolean;
   onClick: () => void;
+  onDeleteSection?: () => void; // Optional: provide a delete handler from parent if needed
 }
 
-export default function SectionItem({ section, isSelected, onClick }: Props) {
+export default function SectionItem({
+  section,
+  isSelected,
+  onClick,
+  onDeleteSection,
+}: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -32,8 +37,14 @@ export default function SectionItem({ section, isSelected, onClick }: Props) {
             {section.questions.length !== 1 ? "s" : ""}
           </div>
         </div>
+
         <div className="flex gap-2 items-center">
-          <button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onDeleteSection) onDeleteSection();
+            }}
+          >
             <Trash2 className="w-4 h-4" />
           </button>
 
@@ -57,8 +68,8 @@ export default function SectionItem({ section, isSelected, onClick }: Props) {
         <ul className="ml-4 mt-1 text-xs text-gray-600">
           {section.questions.length > 0 ? (
             section.questions.map((q) => (
-              <li key={q.question_ID} className="py-1 truncate">
-                • {q.questionText || "Untitled"}
+              <li key={`sec-${section.section_ID}-q-${q.id}`} className="py-1 truncate">
+                • {q.content || "Untitled"}
               </li>
             ))
           ) : (

@@ -106,22 +106,9 @@ export default function Page() {
   const selectedSection = sections.find((s) => s.section_ID === selectedSectionId) || null;
 
   return (
-    <div>
-      <div className="flex h-screen">
-        <SectionSidebar
-          sections={sections}
-          selectedSectionId={selectedSectionId}
-          setSelectedSectionId={setSelectedSectionId}
-          onAddSection={addSection}
-        />
-
-      <div className="flex-1 bg-[#FAFAFA] overflow-y-auto">
-        <SectionEditor
-          section={selectedSection}
-          onUpdateQuestion={updateQuestion}
-          onDeleteQuestion={deleteQuestion}
-          onAddQuestion={addQuestion}
-        />
+    <div className="flex items-center justify-center w-full h-screen">
+      <div className="flex items-center justify-center w-full h-screen">
+        Hello. This is the form project cycle<Link href="/form"> 2025</Link>.
       </div>
     </div>
   );
