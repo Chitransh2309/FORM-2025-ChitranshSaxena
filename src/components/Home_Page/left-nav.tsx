@@ -1,6 +1,6 @@
 function LeftNav() {
   return (
-    <aside className="w-[20%] bg-green-600 text-black p-4 flex flex-col gap-6">
+    <aside className="w-[20%] bg-[#56A37D] text-black p-4 flex flex-col gap-6">
       <h1 className="text-xl font-bold">F.O.R.M</h1>
       <nav className="flex flex-col gap-4">
         <input

@@ -1,61 +1,53 @@
-// app/page.tsx (or app/home/page.tsx if routed there)
+"use client";
+
+import { CircleQuestionMark, CircleUser } from "lucide-react";
+import FormCard from "@/components/Home_Page/form-card";
+
 export default function HomePage() {
   return (
-    <div className="p-6">
-      {/* Top bar */}
-      <div className="flex justify-between items-center mb-4">
-        <select className="bg-green-500 text-white px-3 py-1 rounded">
+    <div className="h-full flex flex-col p-6">
+      {/* Icons */}
+      <div className="flex justify-end gap-4 mb-4">
+        <CircleQuestionMark />
+        <CircleUser />
+      </div>
+
+      {/* Workspace Dropdown + New Form */}
+      <div className="flex justify-between items-center mb-6">
+        <select className="bg-[#61A986] text-white px-3 py-1 rounded">
           <option>My Workspace</option>
         </select>
-
-        <div className="flex gap-4 items-center">
-          <button className="bg-black text-white px-3 py-1 rounded">
-            + New Form
-          </button>
-          <span className="toggle-switch">🌙/☀️</span>
-          <span>❓</span>
-          <span>👤</span>
-        </div>
+        <button className="bg-black text-white px-3 py-1 rounded">
+          + New Form
+        </button>
       </div>
 
       {/* Form Sections */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="flex-grow grid grid-cols-2 gap-6">
         {/* Drafts */}
-        <div>
+        <div className="flex flex-col">
           <h2 className="font-semibold mb-2">Drafts</h2>
-          <div className="grid grid-cols-2 gap-4 border border-dashed p-4">
-            {[1, 2].map((_, i) => (
-              <div
+          <div className="flex-grow overflow-auto max-h-[calc(100vh-220px)] border border-dashed p-4 grid grid-cols-2 gap-4">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <FormCard
                 key={i}
-                className="bg-gray-300 h-32 flex flex-col items-center justify-end gap-2 p-2"
-              >
-                <button className="bg-green-600 text-white px-2 py-1 rounded">
-                  Edit Form
-                </button>
-                <button className="bg-black text-white px-2 py-1 rounded">
-                  Discard Draft
-                </button>
-              </div>
+                editLabel="Edit Form"
+                secondLabel="Discard Draft"
+              />
             ))}
           </div>
         </div>
 
         {/* Published */}
-        <div>
+        <div className="flex flex-col">
           <h2 className="font-semibold mb-2">Published</h2>
-          <div className="grid grid-cols-2 gap-4 border border-dashed p-4">
-            {[1, 2].map((_, i) => (
-              <div
+          <div className="flex-grow overflow-auto max-h-[calc(100vh-220px)] border border-dashed p-4 grid grid-cols-2 gap-4">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <FormCard
                 key={i}
-                className="bg-gray-300 h-32 flex flex-col items-center justify-end gap-2 p-2"
-              >
-                <button className="bg-green-600 text-white px-2 py-1 rounded">
-                  Edit Form
-                </button>
-                <button className="bg-black text-white px-2 py-1 rounded">
-                  View Response
-                </button>
-              </div>
+                editLabel="Edit Form"
+                secondLabel="View Response"
+              />
             ))}
           </div>
         </div>
