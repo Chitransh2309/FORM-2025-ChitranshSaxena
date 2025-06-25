@@ -21,15 +21,7 @@ import {
   deleteSection,
 } from "@/app/action/sections";
 
-import { createFormIfNotExists } from "@/app/action/forms";
-
-interface Section {
-  section_ID: string;
-  form_ID: string;
-  title: string;
-  description: string;
-  questions: QuestionType[];
-}
+import { Section } from "@/lib/interface";
 
 export default function BuildPage() {
   const { id: formId } = useParams();
@@ -41,13 +33,9 @@ export default function BuildPage() {
     (s) => s.section_ID === selectedSectionId
   );
 
-  // Load form, sections and questions
   useEffect(() => {
     const loadData = async () => {
       if (!formId || typeof formId !== "string") return;
-
-      // Ensure form exists
-      await createFormIfNotExists(formId);
 
       const res = await getSectionsAndQuestions(formId);
       if (res.success && Array.isArray(res.data)) {
@@ -154,7 +142,7 @@ export default function BuildPage() {
     await saveSectionsToDB([
       {
         section_ID: section.section_ID,
-        form_ID: formId as string,
+        form_ID: formId,
         title: section.title,
         description: section.description,
       },
@@ -164,7 +152,7 @@ export default function BuildPage() {
       question_ID: `q-${q.id}`,
       order: idx + 1,
       section_ID: section.section_ID,
-      form_ID: formId as string,
+      form_ID: formId,
       type: "text",
       questionText: q.content,
       isRequired: q.required,
