@@ -94,3 +94,11 @@ export async function getSectionsAndQuestions(form_ID: string) {
     };
   }
 }
+// Returns all question_ID values for a form
+export async function getAllQuestionIDsForForm(form_ID: string): Promise<string[]> {
+  const { db, dbClient } = await connectToDB();
+  const docs = await db.collection("ques").find({ form_ID }).project({ question_ID: 1 }).toArray();
+  await disconnectFromDB(dbClient);
+  return docs.map((d) => d.question_ID);
+}
+

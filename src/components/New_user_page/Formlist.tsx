@@ -4,7 +4,7 @@ import Workspace from "./Workspace";
 
 export default function Formlist(){
     return (
-        <div className="h-screen">
+        <div className="h-screen ">
             <Workspace />
         </div>
     );
