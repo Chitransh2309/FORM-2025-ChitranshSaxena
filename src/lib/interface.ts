@@ -1,4 +1,36 @@
-interface User {
+// export interface Question {
+//   question_ID: string;
+//   order: number;
+//   section_ID: string;
+//   type: string;
+//   questionText: string;
+//   isRequired: boolean;
+// }
+
+export interface QuestionType {
+  id: number;
+  label: string;
+  content: string;
+  required: boolean;
+}
+
+export interface Section {
+  section_ID: string;
+  form_ID: string;
+  title: string;
+  description: string;
+  questions: QuestionType[];
+}
+
+// export interface Form {
+//   form_ID: string;
+//   title: string;
+//   description?: string;
+//   createdAt?: Date;
+//   updatedAt?: Date;
+// }
+
+export interface User {
   user_ID: string;
   email: string;
   googleID: string;
@@ -8,21 +40,21 @@ interface User {
   verified?: Date;
 }
 
-interface Form {
+export interface Form {
   form_ID: string;
   title: string;
-  description: string;
+  description?: string;
   createdAt: Date;
   createdBy: string; // user_ID reference
-  publishedAt: Date;
-  isActive: boolean;
+  publishedAt?: Date;
+  isActive?: boolean;
   version: number;
-  share_url: string;
-  settings: FormSettings;
+  share_url?: string;
+  settings?: FormSettings;
   sections: Section[];
 }
 
-interface FormSettings {
+export interface FormSettings {
   maxResponses?: number;
   startDate: Date;
   endDate?: Date;
@@ -32,14 +64,14 @@ interface FormSettings {
   cameraRequired: boolean;
 }
 
-interface Section {
-  section_ID: string;
-  title: string;
-  description: string;
-  questions: Question[];
-}
+// export interface Section {
+//   section_ID: string;
+//   title: string;
+//   description: string;
+//   questions: Question[];
+// }
 
-interface Question {
+export interface Question {
   question_ID: string;
   order: number;
   section_ID: string;
@@ -51,19 +83,19 @@ interface Question {
   logic?: Record<string, any>;
 }
 
-enum QuestionType {
-  TEXT = "TEXT",
-  DATE = "DATE",
-  MCQ = "MCQ",
-  CHECKBOX = "CHECKBOX",
-  DROPDOWN = "DROPDOWN",
-  FILE_UPLOAD = "FILE_UPLOAD",
-  EMAIL = "EMAIL",
-  URL = "URL",
-  RATING = "RATING",
-}
+// export enum QuestionType {
+//   TEXT = "TEXT",
+//   DATE = "DATE",
+//   MCQ = "MCQ",
+//   CHECKBOX = "CHECKBOX",
+//   DROPDOWN = "DROPDOWN",
+//   FILE_UPLOAD = "FILE_UPLOAD",
+//   EMAIL = "EMAIL",
+//   URL = "URL",
+//   RATING = "RATING",
+// }
 
-interface FormResponse {
+export interface FormResponse {
   response_ID: string;
   form_ID: string;
   userId: string;
@@ -75,7 +107,7 @@ interface FormResponse {
   version: number;
 }
 
-interface Answer {
+export interface Answer {
   answer_ID: string;
   question_ID: string;
   value: string;
@@ -83,7 +115,7 @@ interface Answer {
   updatedAt: Date;
 }
 
-interface ReportedFlag {
+export interface ReportedFlag {
   reason: string;
   numTimesReported: number;
   flaggedBy: string;

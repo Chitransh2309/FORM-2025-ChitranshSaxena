@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
+
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #ffffff;
 }
 
 @theme inline {
@@ -12,11 +15,14 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@font-face {
+  font-family: "Outfit";
+  src: url("/fonts/Outfit.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("/fonts/Outfit.ttf") format("truetype");
 }
 
 body {
@@ -31,7 +37,7 @@ body {
   position: absolute;
   background-color: #f9f9f9;
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
 }
 
