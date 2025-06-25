@@ -7,7 +7,7 @@ interface Props {
   section: Section;
   isSelected: boolean;
   onClick: () => void;
-  onDeleteSection?: () => void; // Optional: provide a delete handler from parent if needed
+  onDeleteSection?: (sectionId: string) => void;
 }
 
 export default function SectionItem({
@@ -39,14 +39,18 @@ export default function SectionItem({
         </div>
 
         <div className="flex gap-2 items-center">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              if (onDeleteSection) onDeleteSection();
-            }}
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+          {onDeleteSection && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteSection(section.section_ID);
+              }}
+              className="text-red-500 hover:text-red-700 ml-1"
+              title="Delete section"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
 
           <button
             className="text-gray-600 text-xs"

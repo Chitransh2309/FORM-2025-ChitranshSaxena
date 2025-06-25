@@ -69,7 +69,7 @@ export default function QuestionTypeDropdown() {
   };
 
   return (
-    <div className="w-65 relative rounded-xl bg-white">
+    <div className="w-72 relative rounded-xl bg-white">
       {/* Dropdown header */}
       <div
         className="bg-[#8CC7AA] rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer"
@@ -81,7 +81,7 @@ export default function QuestionTypeDropdown() {
 
       {/* Dropdown options */}
       {isOpen && (
-        <div className="absolute z-10 bg-[#8CC7AA] text-black rounded-b-xl shadow-lg">
+        <div className="absolute z-10 w-full bg-[#8CC7AA] text-black rounded-b-xl shadow-lg">
           <hr className="border-gray-400" />
           <ul className="py-2 px-4 space-y-2">
             {questionTypes.map((type) => (
