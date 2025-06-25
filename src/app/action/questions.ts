@@ -1,6 +1,8 @@
 'use server';
 
-import { connectToDB, disconnectFromDB } from '../../lib/mongodb';
+
+import { connectToDB, disconnectFromDB } from '../../lib/mongoDB';
+
 
 interface Question {
   question_ID: string;
