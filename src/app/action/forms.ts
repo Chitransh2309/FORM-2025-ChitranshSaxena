@@ -1,7 +1,7 @@
 // 📁 app/action/form.ts
-'use server';
+"use server";
 
-import { connectToDB, disconnectFromDB } from '../../lib/mongoDB';
+import { connectToDB, disconnectFromDB } from "../../lib/mongodb";
 
 interface Form {
   form_ID: string;
@@ -9,7 +9,10 @@ interface Form {
   createdAt?: Date;
 }
 
-export async function createFormIfNotExists(form_ID: string, title = "Untitled Form") {
+export async function createFormIfNotExists(
+  form_ID: string,
+  title = "Untitled Form"
+) {
   try {
     const { db, dbClient } = await connectToDB();
     const collection = db.collection("forms");
@@ -27,6 +30,9 @@ export async function createFormIfNotExists(form_ID: string, title = "Untitled F
     return { success: true };
   } catch (err) {
     console.error("❌ Create Form Error:", err);
-    return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Unknown error",
+    };
   }
 }

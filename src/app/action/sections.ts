@@ -1,7 +1,7 @@
 // /app/action/sections.ts
-'use server';
+"use server";
 
-import { connectToDB, disconnectFromDB } from "@/lib/mongoDB";
+import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
 
 interface Section {
   section_ID: string;
@@ -15,7 +15,9 @@ export async function createOrUpdateSection(section: Section) {
     const { db, dbClient } = await connectToDB();
     const collection = db.collection("sections");
 
-    const existing = await collection.findOne({ section_ID: section.section_ID });
+    const existing = await collection.findOne({
+      section_ID: section.section_ID,
+    });
 
     if (existing) {
       await collection.updateOne(
@@ -29,7 +31,10 @@ export async function createOrUpdateSection(section: Section) {
     await disconnectFromDB(dbClient);
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Unknown error",
+    };
   }
 }
 
@@ -43,7 +48,10 @@ export async function getSectionsByFormId(form_ID: string) {
     await disconnectFromDB(dbClient);
     return { success: true, data: sections };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Unknown error",
+    };
   }
 }
 
@@ -58,7 +66,10 @@ export async function deleteSection(section_ID: string) {
       message: result.deletedCount === 1 ? "Section deleted" : "Not found",
     };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Unknown error",
+    };
   }
 }
 
@@ -68,7 +79,9 @@ export async function saveSectionsToDB(sections: Section[]) {
     const collection = db.collection("sections");
 
     const operations = sections.map(async (section) => {
-      const existing = await collection.findOne({ section_ID: section.section_ID });
+      const existing = await collection.findOne({
+        section_ID: section.section_ID,
+      });
       if (existing) {
         return await collection.updateOne(
           { section_ID: section.section_ID },
@@ -84,6 +97,9 @@ export async function saveSectionsToDB(sections: Section[]) {
     return { success: true };
   } catch (err) {
     console.error("❌ Save Sections Error:", err);
-    return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Unknown error",
+    };
   }
 }
