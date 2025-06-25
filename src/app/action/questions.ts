@@ -1,8 +1,6 @@
-'use server';
+"use server";
 
-
-import { connectToDB, disconnectFromDB } from '../../lib/mongoDB';
-
+import { connectToDB, disconnectFromDB } from "../../lib/mongodb";
 
 interface Question {
   question_ID: string;
@@ -20,7 +18,9 @@ export async function saveQuestionsToDB(questions: Question[]) {
     const collection = db.collection("ques");
 
     const operations = questions.map(async (question) => {
-      const existing = await collection.findOne({ question_ID: question.question_ID });
+      const existing = await collection.findOne({
+        question_ID: question.question_ID,
+      });
       if (existing) {
         return await collection.updateOne(
           { question_ID: question.question_ID },
@@ -36,7 +36,10 @@ export async function saveQuestionsToDB(questions: Question[]) {
     return { success: true };
   } catch (err) {
     console.error("❌ Save Questions Error:", err);
-    return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Unknown error",
+    };
   }
 }
 
@@ -48,14 +51,20 @@ export async function deleteQuestionFromDB(question_ID: string) {
     return { success: result.deletedCount === 1 };
   } catch (err) {
     console.error("❌ Delete Question Error:", err);
-    return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Unknown error",
+    };
   }
 }
 
 export async function getSectionsAndQuestions(form_ID: string) {
   try {
     const { db, dbClient } = await connectToDB();
-    const sections = await db.collection("sections").find({ form_ID }).toArray();
+    const sections = await db
+      .collection("sections")
+      .find({ form_ID })
+      .toArray();
     const questions = await db.collection("ques").find({ form_ID }).toArray();
     await disconnectFromDB(dbClient);
 
@@ -74,10 +83,12 @@ export async function getSectionsAndQuestions(form_ID: string) {
         })),
     }));
 
-
     return { success: true, data: sectionsWithQuestions };
   } catch (err) {
     console.error("❌ Fetch Error:", err);
-    return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Unknown error",
+    };
   }
 }
