@@ -2,6 +2,7 @@ import Footer from "../components/Landing_Page/Footer";
 import Hero from "../components/Landing_Page/Hero";
 import Navbar from "../components/Landing_Page/Navbar";
 import { insertUser } from "./action/user";
+import Image from 'next/image';
 
 
 export default async function Home() {
@@ -15,7 +16,12 @@ export default async function Home() {
           Build Forms Like Never Before
         </p>
         <div className="flex-1 flex items-center justify-center">
-          <div className="h-full w-full bg-[#6E6E6E] overflow-auto rounded text-white mx-40"></div>
+            <Image
+            src="form builder-dark mode.svg"
+            height={700}
+            width={700}
+            alt="form-builder"
+            />
         </div>
       </div>
       <div className="w-full h-full flex flex-col">
