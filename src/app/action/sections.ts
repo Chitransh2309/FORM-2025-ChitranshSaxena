@@ -1,7 +1,7 @@
 // /app/action/sections.ts
 'use server';
 
-import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
+import { connectToDB, disconnectFromDB } from "@/lib/mongoDB";
 
 interface Section {
   section_ID: string;
