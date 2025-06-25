@@ -1,7 +1,7 @@
 // 📁 app/action/form.ts
 'use server';
 
-import { connectToDB, disconnectFromDB } from '../../lib/mongodb';
+import { connectToDB, disconnectFromDB } from '../../lib/mongoDB';
 
 interface Form {
   form_ID: string;
