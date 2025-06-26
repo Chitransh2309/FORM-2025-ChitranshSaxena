@@ -1,12 +1,23 @@
 'use client'
-import { useState} from 'react'
+import { useEffect, useState} from 'react'
 import { Sun, Moon } from 'lucide-react'
-
 
 
 const ToggleSwitch = () => {
   const [enabled, setEnabled] = useState(true)
 
+  useEffect(() => {
+    // Check saved theme on initial mount
+    const storedTheme = localStorage.getItem('theme')
+    if (storedTheme === 'dark') {
+      document.documentElement.classList.add('dark')
+      setEnabled(false)
+    } else {
+      document.documentElement.classList.remove('dark')
+      setEnabled(true)
+    }
+  }, [])
+  
   const toggleTheme = () => {
     const newEnabled = !enabled
     setEnabled(newEnabled)
@@ -14,9 +25,11 @@ const ToggleSwitch = () => {
     if (newEnabled) {
       // Light mode
       document.documentElement.classList.remove('dark')
+      localStorage.setItem('theme', 'light')
     } else {
       // Dark mode
       document.documentElement.classList.add('dark')
+      localStorage.setItem('theme', 'dark')
     }
   }
 
