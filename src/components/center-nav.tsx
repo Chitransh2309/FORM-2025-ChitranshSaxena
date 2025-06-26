@@ -16,18 +16,10 @@ const CenterNav = ({ formId }: { formId?: string }) => {
   );
   const LABELS = ["Builder", "Workflow", "Preview"];
 
-  useEffect(() => {
-    if (currentSection === Section.Builder) {
-      showQues();
-    } else {
-      hideQues();
-    }
-  }, [currentSection]);
-
   return (
     <div className="relative w-full h-full flex flex-col bg-[#F6F8F6] overflow-hidden">
       {/* Top tab nav centered */}
-      <div className="absolute space-y-2 left-1/2 transform -translate-x-1/2 z-10 w-full flex justify-center  ">
+      <div className="mt-5 pr-20 absolute space-y-2 left-1/2 transform -translate-x-1/2 z-10 w-full flex justify-center  ">
         <div className="flex justify-between items-center px-4 w-full max-w-[483px] h-[62px] rounded-[10px] shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45">
           {LABELS.map((label, i) => (
             <button
