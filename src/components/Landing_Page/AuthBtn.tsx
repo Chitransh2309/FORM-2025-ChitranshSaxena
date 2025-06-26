@@ -3,7 +3,7 @@ import { auth,signOut,signIn} from '../../../auth';
 
 export default async function AuthBtn({pos}:{pos:string}) {
     const session= await auth();
-  return (
+  return  (
     <>
       {session&&session?.user?(
                     <form action={async()=>{
@@ -21,5 +21,5 @@ export default async function AuthBtn({pos}:{pos:string}) {
                 </form>
             )}
     </>
-  )
+  )  
 }
