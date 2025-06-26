@@ -1,34 +1,34 @@
-"use server";
+'use server';
 
-import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
-import { auth } from "../../../auth";
-import { Form } from "@/lib/interface";
+import { connectToDB, disconnectFromDB } from '@/lib/mongodb';
+import { auth } from '../../../auth';
+import { Form } from '@/lib/interface';
 
 // Ensures a form exists by form_ID
-export async function createFormIfNotExists(form_ID: string) {
+export async function createFormIfNotExists(form_ID: string, name?: string) {
   try {
     const { db, dbClient } = await connectToDB();
     const session = await auth();
 
-    let userID = "anonymous";
+    let userID = 'anonymous';
 
     if (session?.user?.email) {
       const userDoc = await db
-        .collection("user")
+        .collection('user')
         .findOne({ email: session.user.email });
       if (userDoc && userDoc.user_ID) {
         userID = userDoc.user_ID;
       }
     }
 
-    const collection = db.collection("forms");
+    const collection = db.collection('forms');
 
     const existing = await collection.findOne({ form_ID });
     if (!existing) {
       const newForm: Form = {
         form_ID,
-        title: "Untitled Form",
-        description: "",
+        title: name || 'Untitled Form', 
+        description: '',
         createdAt: new Date(),
         createdBy: userID,
         version: 1.0,
@@ -41,10 +41,10 @@ export async function createFormIfNotExists(form_ID: string) {
     await disconnectFromDB(dbClient);
     return { success: true };
   } catch (err) {
-    console.error("❌ Create Form Error:", err);
+    console.error('❌ Create Form Error:', err);
     return {
       success: false,
-      error: err instanceof Error ? err.message : "Unknown error",
+      error: err instanceof Error ? err.message : 'Unknown error',
     };
   }
 }
@@ -58,12 +58,12 @@ export async function getFormsForUser() {
     if (!session?.user?.email) return [];
 
     const userDoc = await db
-      .collection("user")
+      .collection('user')
       .findOne({ email: session.user.email });
-    const userID = userDoc?.user_ID || "anonymous";
+    const userID = userDoc?.user_ID || 'anonymous';
 
     const forms = await db
-      .collection("forms")
+      .collection('forms')
       .find({ createdBy: userID })
       .toArray();
 
@@ -81,7 +81,7 @@ export async function getFormsForUser() {
 
     return plainForms;
   } catch (error) {
-    console.error("❌ Fetch user forms failed:", error);
+    console.error('❌ Fetch user forms failed:', error);
     return [];
   }
 }
