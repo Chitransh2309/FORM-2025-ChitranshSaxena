@@ -72,8 +72,8 @@ export default function SectionItem({
         <ul className="ml-4 mt-1 text-xs text-gray-600">
           {section.questions.length > 0 ? (
             section.questions.map((q) => (
-              <li key={`sec-${section.section_ID}-q-${q.id}`} className="py-1 truncate">
-                • {q.content || "Untitled"}
+              <li key={`sec-${section.section_ID}-q-${q.question_ID}`} className="py-1 truncate">
+                • {q.questionText || "Untitled"}
               </li>
             ))
           ) : (
