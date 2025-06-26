@@ -13,7 +13,9 @@ export async function createFormIfNotExists(form_ID: string) {
     let userID = "anonymous";
 
     if (session?.user?.email) {
-      const userDoc = await db.collection("user").findOne({ email: session.user.email });
+      const userDoc = await db
+        .collection("user")
+        .findOne({ email: session.user.email });
       if (userDoc && userDoc.user_ID) {
         userID = userDoc.user_ID;
       }
@@ -55,7 +57,9 @@ export async function getFormsForUser() {
 
     if (!session?.user?.email) return [];
 
-    const userDoc = await db.collection("user").findOne({ email: session.user.email });
+    const userDoc = await db
+      .collection("user")
+      .findOne({ email: session.user.email });
     const userID = userDoc?.user_ID || "anonymous";
 
     const forms = await db
@@ -72,6 +76,7 @@ export async function getFormsForUser() {
       description: form.description,
       createdAt: form.createdAt?.toString() || null,
       publishedAt: form.publishedAt || null,
+      isActive: form.isActive || false,
     }));
 
     return plainForms;
