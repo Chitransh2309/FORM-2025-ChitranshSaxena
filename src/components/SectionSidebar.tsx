@@ -16,9 +16,30 @@ export default function LeftSidebar({
   selectedSectionId,
   setSelectedSectionId,
   onAddSection,
-}: Props) {
+  onDeleteSection,
+}: SectionSidebarProps) {
+  // Debug logging - remove in production
+  console.log("Sections:", sections);
+  console.log(
+    "Section IDs:",
+    sections.map((s) => s.section_ID)
+  );
+
+  // Check for duplicates and warn
+  const duplicates = sections.filter(
+    (s, i, arr) =>
+      arr.findIndex((item) => item.section_ID === s.section_ID) !== i
+  );
+
+  if (duplicates.length > 0) {
+    console.warn(
+      "Duplicate section IDs found:",
+      duplicates.map((d) => d.section_ID)
+    );
+  }
+
   return (
-    <div className="flex flex-col bg-[#fefefe] text-black w-1/5 h-full p-4 box-border">
+    <div className="flex flex-col bg-[#fefefe] text-black w-1/5 h-full p-4 box-border font-[Outfit]">
       <div>
         <h2 className="mb-2 mt-8 text-base">SECTIONS</h2>
         <div className="border-t-2 border-black mb-6"></div>
