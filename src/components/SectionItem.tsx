@@ -73,10 +73,10 @@ export default function SectionItem({
           {section.questions.length > 0 ? (
             section.questions.map((q) => (
               <li
-                key={`sec-${section.section_ID}-q-${q.id}`}
+                key={`sec-${section.section_ID}-q-${q.question_ID}`}
                 className="py-1 truncate"
               >
-                • {q.content || "Untitled"}
+                • {q.questionText || "Untitled"}
               </li>
             ))
           ) : (

@@ -1,17 +1,9 @@
 "use server";
 
 import { connectToDB, disconnectFromDB } from "../../lib/mongodb";
+import { Question } from "../../lib/interface";
 
-interface Question {
-  question_ID: string;
-  section_ID: string;
-  form_ID: string;
-  order: number;
-  type: string;
-  questionText: string;
-  isRequired: boolean;
-}
-
+// Save or update an array of questions to the database
 export async function saveQuestionsToDB(questions: Question[]) {
   try {
     const { db, dbClient } = await connectToDB();
@@ -21,6 +13,7 @@ export async function saveQuestionsToDB(questions: Question[]) {
       const existing = await collection.findOne({
         question_ID: question.question_ID,
       });
+
       if (existing) {
         return await collection.updateOne(
           { question_ID: question.question_ID },
@@ -33,6 +26,7 @@ export async function saveQuestionsToDB(questions: Question[]) {
 
     await Promise.all(operations);
     await disconnectFromDB(dbClient);
+
     return { success: true };
   } catch (err) {
     console.error("❌ Save Questions Error:", err);
@@ -43,10 +37,12 @@ export async function saveQuestionsToDB(questions: Question[]) {
   }
 }
 
+// Delete a question from the database
 export async function deleteQuestionFromDB(question_ID: string) {
   try {
     const { db, dbClient } = await connectToDB();
     const result = await db.collection("ques").deleteOne({ question_ID });
+
     await disconnectFromDB(dbClient);
     return { success: result.deletedCount === 1 };
   } catch (err) {
@@ -58,14 +54,21 @@ export async function deleteQuestionFromDB(question_ID: string) {
   }
 }
 
+// Get all sections and their questions for a given form
 export async function getSectionsAndQuestions(form_ID: string) {
   try {
     const { db, dbClient } = await connectToDB();
+
     const sections = await db
       .collection("sections")
       .find({ form_ID })
       .toArray();
-    const questions = await db.collection("ques").find({ form_ID }).toArray();
+
+    const questions = await db
+      .collection("ques")
+      .find({ form_ID })
+      .toArray();
+
     await disconnectFromDB(dbClient);
 
     const sectionsWithQuestions = sections.map((section) => ({
@@ -76,10 +79,10 @@ export async function getSectionsAndQuestions(form_ID: string) {
       questions: questions
         .filter((q) => q.section_ID === section.section_ID)
         .map((q) => ({
-          id: parseInt(q.question_ID.split("-")[1]),
+          id: parseInt(q.question_ID.replace("q-", "")), // extract number
           content: q.questionText,
           required: q.isRequired,
-          label: "",
+          label: "", // add label later if needed
         })),
     }));
 

@@ -2,216 +2,161 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-
 import SectionSidebar from "@/components/SectionSidebar";
 import CenterNav from "@/components/center-nav";
 import RightNav from "@/components/right-nav";
 import SaveButton from "@/components/savebutton";
-import QuestionParent, { QuestionType } from "@/components/question-parent";
-
-import {
-  saveQuestionsToDB,
-  getSectionsAndQuestions,
-  deleteQuestionFromDB,
-} from "@/app/action/questions";
-
-import {
-  createOrUpdateSection,
-  saveSectionsToDB,
-  deleteSection,
-} from "@/app/action/sections";
-
-import { createFormIfNotExists } from "@/app/action/forms";
-
-interface Section {
-  section_ID: string;
-  form_ID: string;
-  title: string;
-  description: string;
-  questions: QuestionType[];
-}
+import QuestionParent from "@/components/question-parent";
+import getFormObject from "@/app/action/getFormObject";
+import { saveFormToDB } from "@/app/action/saveformtodb";
+import { Form, Question, Section } from "@/lib/interface";
 
 export default function BuildPage() {
   const { id: formId } = useParams();
-  const [sections, setSections] = useState<Section[]>([]);
+  const [form, setForm] = useState<Form | null>(null);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
-  const [nextQId, setNextQId] = useState(1);
 
-  const selectedSection = sections.find(
+  // Fixed the typo here: selectedSectaionId -> selectedSectionId
+  const selectedSection = form?.sections.find(
     (s) => s.section_ID === selectedSectionId
   );
 
-  // Load form, sections and questions
   useEffect(() => {
     const loadData = async () => {
       if (!formId || typeof formId !== "string") return;
-
-      // Ensure form exists
-      await createFormIfNotExists(formId);
-
-      const res = await getSectionsAndQuestions(formId);
-      if (res.success && Array.isArray(res.data)) {
-        const loadedSections: Section[] = res.data;
-        setSections(loadedSections);
-        setSelectedSectionId(loadedSections[0]?.section_ID || null);
-
-        const allQs = loadedSections.flatMap((s) => s.questions);
-        const maxId = allQs.reduce((max, q) => Math.max(max, q.id ?? 0), 0);
-        setNextQId(maxId + 1);
-      } else {
-        alert("❌ Failed to load form data");
+      const res = await getFormObject(formId);
+      if (res.success) {
+        setForm(res.data);
+        setSelectedSectionId(res.data.sections?.[0]?.section_ID ?? null);
       }
     };
-
     loadData();
   }, [formId]);
 
-  const addSection = async () => {
-    if (!formId || typeof formId !== "string") return;
-
-    const index = sections.length + 1;
-    const newId = `section-${index}`;
+  const addSection = () => {
+    if (!form) return;
+    
+    // Extract existing section numbers
+    const existingNumbers = form.sections
+      .map(s => {
+        const match = s.section_ID.match(/section-(\d+)/);
+        return match ? parseInt(match[1]) : 0;
+      })
+      .filter(num => num > 0);
+    
+    // Find next available number
+    let nextNumber = 1;
+    while (existingNumbers.includes(nextNumber)) {
+      nextNumber++;
+    }
+    
+    const newId = `section-${nextNumber}`;
     const newSection: Section = {
       section_ID: newId,
-      form_ID: formId,
-      title: `Section ${index}`,
+      title: `Section ${nextNumber}`,
       description: "",
       questions: [],
     };
-
-    const res = await createOrUpdateSection(newSection);
-    if (res.success) {
-      setSections((prev) => [...prev, newSection]);
-      setSelectedSectionId(newId);
-    } else {
-      alert("❌ Failed to add section");
-    }
+  
+    setForm({
+      ...form,
+      sections: [...form.sections, newSection],
+    });
+    setSelectedSectionId(newId);
   };
 
-  const deleteCurrentSection = async () => {
-    if (!selectedSectionId) return;
+  const deleteSection = (sectionId: string) => {
+    if (!form) return;
 
-    const confirm = window.confirm("Are you sure you want to delete this section?");
-    if (!confirm) return;
+    const filteredSections = form.sections.filter(
+      (s) => s.section_ID !== sectionId
+    );
 
-    const res = await deleteSection(selectedSectionId);
-    if (res.success) {
-      setSections((prev) => prev.filter((s) => s.section_ID !== selectedSectionId));
-      const remaining = sections.filter((s) => s.section_ID !== selectedSectionId);
-      setSelectedSectionId(remaining[0]?.section_ID || null);
-    } else {
-      alert("❌ Failed to delete section");
+    setForm({ ...form, sections: filteredSections });
+    
+    // If we're deleting the currently selected section, select the first remaining one
+    if (sectionId === selectedSectionId) {
+      setSelectedSectionId(filteredSections[0]?.section_ID ?? null);
     }
   };
 
   const addQuestion = () => {
-    if (!selectedSectionId) return;
+    if (!form || !selectedSectionId) return;
 
-    const updated = sections.map((section) =>
+    const updatedSections = form.sections.map((section) =>
       section.section_ID === selectedSectionId
         ? {
             ...section,
             questions: [
               ...section.questions,
               {
-                id: nextQId,
-                label: "",
-                content: "",
-                required: false,
+                question_ID: `q-${Date.now()}`,
+                section_ID: section.section_ID,
+                questionText: "",
+                isRequired: false,
+                order: section.questions.length + 1,
               },
             ],
           }
         : section
     );
 
-    setSections(updated);
-    setNextQId((prev) => prev + 1);
+    setForm({ ...form, sections: updatedSections });
   };
 
-  const updateQuestion = (id: number, updates: Partial<QuestionType>) => {
-    if (!selectedSectionId) return;
+  const updateQuestion = (id: string, updates: Partial<Question>) => {
+    if (!form || !selectedSectionId) return;
 
-    const updated = sections.map((section) =>
+    const updatedSections = form.sections.map((section) =>
       section.section_ID === selectedSectionId
         ? {
             ...section,
             questions: section.questions.map((q) =>
-              q.id === id ? { ...q, ...updates } : q
+              q.question_ID === id ? { ...q, ...updates } : q
             ),
           }
         : section
     );
 
-    setSections(updated);
+    setForm({ ...form, sections: updatedSections });
   };
 
-  const handleSave = async () => {
-    if (!formId || !selectedSectionId) return;
+  const deleteQuestion = (id: string) => {
+    if (!form || !selectedSectionId) return;
 
-    const section = sections.find((s) => s.section_ID === selectedSectionId);
-    if (!section) return;
-
-    await saveSectionsToDB([
-      {
-        section_ID: section.section_ID,
-        form_ID: formId as string,
-        title: section.title,
-        description: section.description,
-      },
-    ]);
-
-    const formatted = section.questions.map((q, idx) => ({
-      question_ID: `q-${q.id}`,
-      order: idx + 1,
-      section_ID: section.section_ID,
-      form_ID: formId as string,
-      type: "text",
-      questionText: q.content,
-      isRequired: q.required,
-    }));
-
-    const res = await saveQuestionsToDB(formatted);
-    if (res.success) {
-      alert("✅ Saved to DB");
-    } else {
-      alert("❌ Failed to save questions");
-    }
-  };
-
-  const deleteQuestion = async (id: number) => {
-    if (!selectedSectionId) return;
-
-    const section = sections.find((s) => s.section_ID === selectedSectionId);
-    const question = section?.questions.find((q) => q.id === id);
-    const isUnsaved = !question?.label && !question?.content;
-
-    const updated = sections.map((section) =>
+    const updatedSections = form.sections.map((section) =>
       section.section_ID === selectedSectionId
         ? {
             ...section,
-            questions: section.questions.filter((q) => q.id !== id),
+            questions: section.questions.filter(
+              (q) => q.question_ID !== id
+            ),
           }
         : section
     );
 
-    setSections(updated);
+    setForm({ ...form, sections: updatedSections });
+  };
 
-    if (!isUnsaved) {
-      const res = await deleteQuestionFromDB(`q-${id}`);
-      if (!res.success) {
-        alert("❌ Failed to delete from DB");
-      }
+  const handleSave = async () => {
+    if (!form) return;
+
+    const res = await saveFormToDB(form);
+    if (res.success) {
+      alert("✅ Saved successfully");
+    } else {
+      alert("❌ Failed to save");
     }
   };
 
   return (
     <div className="bg-neutral-100 text-black w-screen h-[92vh] flex font-[Outfit]">
       <SectionSidebar
-        sections={sections}
+        sections={form?.sections || []}
         selectedSectionId={selectedSectionId}
         setSelectedSectionId={setSelectedSectionId}
         onAddSection={addSection}
-        onDeleteSection={deleteCurrentSection}
+        onDeleteSection={deleteSection}
       />
 
       <div className="w-full h-full overflow-auto">
@@ -231,9 +176,9 @@ export default function BuildPage() {
             {selectedSection && (
               <QuestionParent
                 ques={selectedSection.questions}
-                onUpdate={updateQuestion}
-                onDelete={deleteQuestion}
-                onAdd={addQuestion}
+                onUpdate={(id, updates) => updateQuestion(id, updates)}
+                onDelete={(id) => deleteQuestion(id)}
+                onAdd={() => addQuestion()}
               />
             )}
           </div>
