@@ -3,6 +3,11 @@ import Google from "next-auth/providers/google"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [Google],
+  session: {
+    strategy: "jwt",             
+    maxAge: 30 * 24 * 60 * 60,   
+    updateAge: 24 * 60 * 60,   
+  },
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account?.provider === 'google' && profile?.sub) {
