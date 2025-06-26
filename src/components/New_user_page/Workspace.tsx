@@ -7,12 +7,7 @@ import Drafts from "./Drafts";
 import Published from "./Published";
 import Newuser from "./Newuser";
 import { getFormsForUser } from "@/app/action/forms";
-
-interface Form {
-  form_ID: string;
-  title: string;
-  publishedAt: Date | null;
-}
+import { Form } from "@/lib/interface";
 
 export default function Workspace() {
   const [forms, setForms] = useState<Form[]>([]);
@@ -28,8 +23,11 @@ export default function Workspace() {
     fetchForms();
   }, []);
 
-  const drafts = forms.filter((f) => !f.publishedAt);
-  const published = forms.filter((f) => f.publishedAt);
+  const drafts = forms.filter((f) => !f.isActive);
+  const published = forms.filter((f) => f.isActive);
+
+  console.log("Drafts:", drafts);
+  console.log("Published:", published);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
