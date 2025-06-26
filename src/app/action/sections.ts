@@ -1,104 +1,35 @@
-// /app/action/sections.ts
-"use server";
+import { connectToDB } from "@/lib/mongodb";
+import { disconnectFromDB } from "@/lib/mongodb";
+import { Section } from "@/lib/interface";
 
-import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
-
-import {Section} from "@/lib/interface"
-
-// interface Section {
-//   section_ID: string;
-//   form_ID: string;
-//   title: string;
-//   description?: string;
-// }
-
-export async function createOrUpdateSection(section: Section) {
+export async function saveSectionsToDB(formId: string, sections: Section[]) {
+  let dbClient;
   try {
-    const { db, dbClient } = await connectToDB();
+    const { db, dbClient: client } = await connectToDB();
+    dbClient = client;
     const collection = db.collection("sections");
 
-    const existing = await collection.findOne({
-      section_ID: section.section_ID,
-    });
+    // First, remove any existing sections for this form to prevent duplicates
+    await collection.deleteMany({ form_ID: formId });
 
-    if (existing) {
-      await collection.updateOne(
-        { section_ID: section.section_ID },
-        { $set: section }
-      );
-    } else {
-      await collection.insertOne(section);
+    // Then insert all sections with the form_ID
+    const sectionsWithFormId = sections.map(section => ({
+      ...section,
+      form_ID: formId, // Ensure form_ID is included
+      updatedAt: new Date()
+    }));
+
+    if (sectionsWithFormId.length > 0) {
+      await collection.insertMany(sectionsWithFormId);
     }
 
     await disconnectFromDB(dbClient);
     return { success: true };
   } catch (err) {
-    return {
-      success: false,
-      error: err instanceof Error ? err.message : "Unknown error",
-    };
-  }
-}
-
-export async function getSectionsByFormId(form_ID: string) {
-  try {
-    const { db, dbClient } = await connectToDB();
-    const collection = db.collection("sections");
-
-    const sections = await collection.find({ form_ID }).toArray();
-
-    await disconnectFromDB(dbClient);
-    return { success: true, data: sections };
-  } catch (err) {
-    return {
-      success: false,
-      error: err instanceof Error ? err.message : "Unknown error",
-    };
-  }
-}
-
-export async function deleteSection(section_ID: string) {
-  try {
-    const { db, dbClient } = await connectToDB();
-    const result = await db.collection("sections").deleteOne({ section_ID });
-
-    await disconnectFromDB(dbClient);
-    return {
-      success: result.deletedCount === 1,
-      message: result.deletedCount === 1 ? "Section deleted" : "Not found",
-    };
-  } catch (err) {
-    return {
-      success: false,
-      error: err instanceof Error ? err.message : "Unknown error",
-    };
-  }
-}
-
-export async function saveSectionsToDB(sections: Section[]) {
-  try {
-    const { db, dbClient } = await connectToDB();
-    const collection = db.collection("sections");
-
-    const operations = sections.map(async (section) => {
-      const existing = await collection.findOne({
-        section_ID: section.section_ID,
-      });
-      if (existing) {
-        return await collection.updateOne(
-          { section_ID: section.section_ID },
-          { $set: section }
-        );
-      } else {
-        return await collection.insertOne(section);
-      }
-    });
-
-    await Promise.all(operations);
-    await disconnectFromDB(dbClient);
-    return { success: true };
-  } catch (err) {
     console.error("❌ Save Sections Error:", err);
+    if (dbClient) {
+      await disconnectFromDB(dbClient);
+    }
     return {
       success: false,
       error: err instanceof Error ? err.message : "Unknown error",

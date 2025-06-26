@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { FaChevronDown } from "react-icons/fa";
 import { useRouter } from 'next/navigation';
 import { createNewForm } from '@/app/action/createnewform';
+import { getFormsForUser } from '@/app/action/forms'; // ✅ Import server action
 
 interface Form {
   form_ID: string;
@@ -22,19 +23,18 @@ function MainContent() {
     router.push(`/form/${newId}`);
   };
 
-  const fetchForms = async () => {
-    try {
-      const res = await fetch('/api/forms');
-      const data = await res.json();
-      setForms(data.forms || []);
-    } catch (err) {
-      console.error("Failed to fetch forms:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchForms = async () => {
+      try {
+        const data = await getFormsForUser(); // ✅ direct call to server action
+        setForms(data);
+      } catch (err) {
+        console.error("Failed to fetch forms:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchForms();
   }, []);
 

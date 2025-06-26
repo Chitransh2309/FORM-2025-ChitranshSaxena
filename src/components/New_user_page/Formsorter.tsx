@@ -9,11 +9,13 @@ function Formsorter() {
 
   const handleNewForm = async () => {
     const res = await createNewForm();
-    if (res.success) {
-      router.push(`/form/${res.form_ID}`);
-    } else {
-      alert("❌ Failed to create form");
+    if(res) {
+      router.push(`/form/${res}`);
     }
+    else {
+      alert("Failed to create a new form. Please try again.");
+    }
+    console.log("New form created with ID:", res);
   };
 
   return (
