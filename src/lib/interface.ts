@@ -1,35 +1,3 @@
-export interface Question {
-  question_ID: string;
-  order: number;
-  section_ID: string;
-  type: string;
-  questionText: string;
-  isRequired: boolean;
-}
-
-export interface QuestionType {
-  id: number;
-  label: string;
-  content: string;
-  required: boolean;
-}
-
-export interface Section {
-  section_ID: string;
-  form_ID: string;
-  title: string;
-  description: string;
-  questions: QuestionType[];
-}
-
-export interface Form {
-  form_ID: string;
-  title: string;
-  description?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
 export interface User {
   user_ID: string;
   email: string;
@@ -75,11 +43,11 @@ export interface Question {
   question_ID: string;
   order: number;
   section_ID: string;
-  type: QuestionType;
+  type?: QuestionType;
   questionText: string;
-  image?: string;
   isRequired: boolean;
-  config: FieldType;
+  config?: FieldType;
+  image?: string;
   logic?: Record<string, any>;
 }
 
@@ -265,3 +233,4 @@ export const fieldtypes: FieldType[] = [
     ],
   },
 ];
+
