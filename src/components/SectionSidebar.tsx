@@ -19,6 +19,19 @@ export default function SectionSidebar({
   onAddSection,
   onDeleteSection,
 }: SectionSidebarProps) {
+  // Debug logging - remove in production
+  console.log('Sections:', sections);
+  console.log('Section IDs:', sections.map(s => s.section_ID));
+  
+  // Check for duplicates and warn
+  const duplicates = sections.filter((s, i, arr) => 
+    arr.findIndex(item => item.section_ID === s.section_ID) !== i
+  );
+  
+  if (duplicates.length > 0) {
+    console.warn('Duplicate section IDs found:', duplicates.map(d => d.section_ID));
+  }
+
   return (
     <div className="flex flex-col bg-[#fefefe] text-black w-1/5 h-screen p-4 box-border font-[Outfit]">
       <div>
@@ -26,13 +39,13 @@ export default function SectionSidebar({
         <div className="border-t-2 border-black mb-6"></div>
 
         <div className="h-80 overflow-y-auto scrollbar-hidden text-sm">
-          {sections.map((section) => (
+          {sections.map((section, index) => (
             <SectionItem
-              key={section.section_ID}
+              key={`${section.section_ID}-${index}`} // Fallback key with index
               section={section}
               isSelected={section.section_ID === selectedSectionId}
               onClick={() => setSelectedSectionId(section.section_ID)}
-              onDeleteSection={onDeleteSection} // ✅ works now
+              onDeleteSection={onDeleteSection}
             />
           ))}
 
