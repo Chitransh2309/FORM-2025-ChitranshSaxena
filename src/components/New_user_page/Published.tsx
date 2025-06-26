@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 interface Form {
   form_ID: string;
@@ -12,16 +12,18 @@ export default function Published({ forms }: { forms: Form[] }) {
   const router = useRouter();
 
   return (
-    <div className="w-1/2 p-4">
-      <h2 className="text-xl text-black bg-green-300 rounded-lg px-3 py-3 font-semibold mb-4">Published</h2>
-      <div className="space-y-3">
+    <div className="w-1/2 text-black border-r border-gray-200 p-4">
+      <h2 className="text-xl text-black font-semibold mb-4 bg-green-300 rounded-lg px-4 py-3">
+        Published
+      </h2>
+      <div className="space-y-3 border-2 border-black border-dashed rounded-lg overflow-y-auto  h-full">
         {forms.map((form) => (
           <button
             key={form.form_ID}
             onClick={() => router.push(`/form/${form.form_ID}`)}
-            className="w-full text-left px-4 py-3 bg-[#F0F0F0] hover:bg-[#e0e0e0] rounded-lg shadow transition"
+            className="w-[50%] m-2 text-left px-4 py-3 bg-gray-300 hover:bg-[#d1ebdb] rounded-lg shadow transition"
           >
-            {form.title || 'Untitled Form'}
+            {form.title || "Untitled Form"}
           </button>
         ))}
       </div>
