@@ -41,7 +41,7 @@ export default function Workspace() {
       ) : drafts.length === 0 && published.length === 0 ? (
         <Newuser />
       ) : (
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 overflow-hidden h-full">
           <Drafts forms={drafts} />
           <Published forms={published} />
         </div>

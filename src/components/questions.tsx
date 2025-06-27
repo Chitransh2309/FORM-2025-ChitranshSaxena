@@ -47,7 +47,7 @@ export default function Question({ id, data, onDelete, onUpdate }: Props) {
     <div
       ref={containerRef}
       onClick={handleClick}
-      className={`bg-[#FEFEFE] p-6 rounded-xl w-[90%] min-h-[20%] mx-auto mb-10 ${
+      className={`bg-[#FEFEFE] shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl w-[90%] min-h-[20%] mx-auto mb-10 ${
         isSelected ? "ring-4 ring-black" : ""
       }`}
     >
@@ -56,7 +56,7 @@ export default function Question({ id, data, onDelete, onUpdate }: Props) {
           placeholder="Ques Label *"
           className="focus:outline-none font-bold text-xl text-black"
           value={data.questionText || ""} // Use questionText and provide fallback
-          onChange={e => onUpdate(id, { questionText: e.target.value })} // Update questionText
+          onChange={(e) => onUpdate(id, { questionText: e.target.value })} // Update questionText
         />
 
         <div className="flex items-center">
@@ -70,7 +70,7 @@ export default function Question({ id, data, onDelete, onUpdate }: Props) {
               id={toggleId}
               className="sr-only peer"
               checked={data.isRequired || false} // Use isRequired and provide fallback
-              onChange={e => onUpdate(id, { isRequired: e.target.checked })} // Update isRequired
+              onChange={(e) => onUpdate(id, { isRequired: e.target.checked })} // Update isRequired
             />
             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
           </label>
@@ -90,12 +90,13 @@ export default function Question({ id, data, onDelete, onUpdate }: Props) {
           placeholder="Write your question here *"
           className="resize-none focus:outline-none w-[75%] min-h-[10px] overflow-hidden p-0"
           value={data.questionText || ""} // Use questionText and provide fallback
-          onChange={e => onUpdate(id, { questionText: e.target.value })} // Update questionText
+          onChange={(e) => onUpdate(id, { questionText: e.target.value })} // Update questionText
         />
       </div>
 
       <div className="mt-0 bg-[#F6F6F6] rounded-md px-4 py-2 text-black/50">
-        answer type: {data.type || "short text"} {/* Show the actual question type */}
+        answer type: {data.type || "short text"}{" "}
+        {/* Show the actual question type */}
       </div>
 
       <div className="text-black mt-3">
