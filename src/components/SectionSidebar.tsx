@@ -40,7 +40,7 @@ export default function SectionSidebar({
   }
 
   return (
-    <div className="flex flex-col bg-[#fefefe] text-black w-1/5 h-full p-4 box-border font-[Outfit]">
+    <div className="flex flex-col bg-[#FEFEFE] text-black w-1/5 h-full p-4 box-border border-2 border-gray-300 font-[Outfit]">
       <div>
         <h2 className="mb-2 mt-8 text-base">SECTIONS</h2>
         <div className="border-t-2 border-black mb-6"></div>
