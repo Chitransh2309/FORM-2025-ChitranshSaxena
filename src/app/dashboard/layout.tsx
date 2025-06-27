@@ -21,14 +21,10 @@ export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
-    </html>
+    <div className="bg-gradient-to-r from-green-100 via-[#f1f8f5] to-green-100  min-h-screen w-full">
+      {children}
+    </div>
   );
 }
