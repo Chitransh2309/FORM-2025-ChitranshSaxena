@@ -21,7 +21,7 @@ function Formsorter() {
   };
 
   return (
-    <div className="bg-gradient-to-r from-green-100 via-[#f1f8f5] to-green-100 bg-[#FFFFFF] px-8 py-6">
+    <div className="bg-gradient-to-r from-green-100/50 via-[#f1f8f5] to-green-100/50 bg-[#FFFFFF] px-8 py-6">
       <div className="flex justify-between items-start relative">
         <button className="flex gap-2 items-center bg-[#61A986] text-lg px-6 py-3 text-white rounded-lg cursor-pointer hover:bg-[#4d8a6b] transition-all duration-300 hover:scale-[1.02] shadow-md hover:shadow-lg">
           My Workspace

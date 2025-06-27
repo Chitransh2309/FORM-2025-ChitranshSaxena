@@ -4,7 +4,7 @@ import ToggleSwitch from "./Toggle";
 
 function Navbar() {
   return (
-    <div className="bg-gradient-to-r from-green-100 via-[#f1f8f5] to-green-100  flex justify-end items-center gap-4 px-6 py-4">
+    <div className="bg-gradient-to-r from-green-100/50 via-[#f1f8f5] to-green-100/50  flex justify-end items-center gap-4 px-6 py-4">
       <ToggleSwitch />
       <button className="cursor-pointer text-gray-600 hover:text-gray-800">
         <HiOutlineQuestionMarkCircle size={24} />
