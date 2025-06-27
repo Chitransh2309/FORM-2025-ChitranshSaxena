@@ -12,8 +12,8 @@ export default function Navbar() {
         <Link href="/">
             <p className="px-8">F.O.R.M</p>
         </Link>
-        <div className='flex items-center gap-5 text-black'>
-            <Link href='/'>
+        <div className='flex items-center gap-5 text-black dark:text-[#ffffff]'>
+            <Link href='/dashboard'>
                 <span>Home</span>
             </Link>
             <Link href='/about'>

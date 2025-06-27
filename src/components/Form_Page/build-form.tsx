@@ -2,10 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import SectionSidebar from "@/components/SectionSidebar";
-import RightNav from "@/components/right-nav";
-import SaveButton from "@/components/savebutton";
-import QuestionParent from "@/components/question-parent";
+import SectionSidebar from "@/components/Form_Page/SectionSidebar";
+import RightNav from "@/components/Form_Page/right-nav";
+import SaveButton from "@/components/Form_Page/savebutton";
+import QuestionParent from "@/components/Form_Page/question-parent";
 import getFormObject from "@/app/action/getFormObject";
 import { saveFormToDB } from "@/app/action/saveformtodb";
 import { Form, Question, Section } from "@/lib/interface";
