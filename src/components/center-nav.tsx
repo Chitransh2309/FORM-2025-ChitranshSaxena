@@ -38,7 +38,7 @@ const CenterNav = ({ formId }: { formId?: string }) => {
       </div>
 
       {/* Main builder or preview area */}
-      <div className="">
+      <div>
         {currentSection === Section.Builder && <BuildForm />}
         {currentSection === Section.Workflow && (
           <div className="p-6">
