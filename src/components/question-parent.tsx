@@ -13,14 +13,19 @@ type Props = {
   onUpdate: (id: string, updates: Partial<QuestionInterface>) => void;
 };
 
-export default function QuestionSet({ ques, onAdd, onDelete, onUpdate }: Props) {
+export default function QuestionSet({
+  ques,
+  onAdd,
+  onDelete,
+  onUpdate,
+}: Props) {
   return (
     <div>
       {ques.map((q) => (
         <Question
-          key={q.question_ID}  // Use the correct property name
-          id={q.question_ID}   // Use the correct property name
-          data={q}             // Pass the whole question object
+          key={q.question_ID} // Use the correct property name
+          id={q.question_ID} // Use the correct property name
+          data={q} // Pass the whole question object
           onUpdate={onUpdate}
           onDelete={onDelete}
         />

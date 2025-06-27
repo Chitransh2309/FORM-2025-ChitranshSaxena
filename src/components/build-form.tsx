@@ -13,7 +13,9 @@ import { Form, Question, Section } from "@/lib/interface";
 export default function BuildPage() {
   const { id: formId } = useParams();
   const [form, setForm] = useState<Form | null>(null);
-  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
+    null
+  );
 
   // Fixed the typo here: selectedSectaionId -> selectedSectionId
   const selectedSection = form?.sections.find(
@@ -34,21 +36,21 @@ export default function BuildPage() {
 
   const addSection = () => {
     if (!form) return;
-    
+
     // Extract existing section numbers
     const existingNumbers = form.sections
-      .map(s => {
+      .map((s) => {
         const match = s.section_ID.match(/section-(\d+)/);
         return match ? parseInt(match[1]) : 0;
       })
-      .filter(num => num > 0);
-    
+      .filter((num) => num > 0);
+
     // Find next available number
     let nextNumber = 1;
     while (existingNumbers.includes(nextNumber)) {
       nextNumber++;
     }
-    
+
     const newId = `section-${nextNumber}`;
     const newSection: Section = {
       section_ID: newId,
@@ -56,7 +58,7 @@ export default function BuildPage() {
       description: "",
       questions: [],
     };
-  
+
     setForm({
       ...form,
       sections: [...form.sections, newSection],
@@ -72,7 +74,7 @@ export default function BuildPage() {
     );
 
     setForm({ ...form, sections: filteredSections });
-    
+
     // If we're deleting the currently selected section, select the first remaining one
     if (sectionId === selectedSectionId) {
       setSelectedSectionId(filteredSections[0]?.section_ID ?? null);
@@ -127,9 +129,7 @@ export default function BuildPage() {
       section.section_ID === selectedSectionId
         ? {
             ...section,
-            questions: section.questions.filter(
-              (q) => q.question_ID !== id
-            ),
+            questions: section.questions.filter((q) => q.question_ID !== id),
           }
         : section
     );
@@ -149,7 +149,7 @@ export default function BuildPage() {
   };
 
   return (
-    <div className="bg-[#F6F8F6] text-black w-screen h-[92vh] flex font-[Outfit] z-index-1">
+    <div className="bg-[#F6F8F6] text-black w-screen h-full flex font-[Outfit]">
       <SectionSidebar
         sections={form?.sections || []}
         selectedSectionId={selectedSectionId}
@@ -161,12 +161,11 @@ export default function BuildPage() {
       <div className="w-full h-full overflow-auto">
         <div className="flex bg-[#F6F8F6] h-screen overflow-hidden">
           <div className="w-full h-full overflow-auto">
-
             <div className="flex flex-row justify-between items-center">
-              <div className="text-2xl font-bold ml-[5%] mb-3 mt-9 p-4">
+              <div className="text-2xl font-bold ml-[5%] mb-3 mt-20 p-4">
                 {selectedSection?.title || "No Section Selected"}
               </div>
-              <div className="mr-5 mt-9 mb-3 p-4">
+              <div className="mr-5 mt-20 mb-3 p-4">
                 <SaveButton onClick={handleSave} />
               </div>
             </div>
@@ -181,7 +180,7 @@ export default function BuildPage() {
             )}
           </div>
 
-          <div className="w-[34vw] h-[92vh] bg-white border-l-2 border-black-200">
+          <div className="border-gray-300 border-2 w-[34vw] h-[92vh] bg-[#fefefe]">
             <RightNav />
           </div>
         </div>

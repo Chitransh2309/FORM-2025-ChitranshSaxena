@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { FaChevronDown } from 'react-icons/fa';
-import { useRouter } from 'next/navigation';
-import { createNewForm } from '@/app/action/createnewform';
+import { useState } from "react";
+import { FaChevronDown } from "react-icons/fa";
+import { useRouter } from "next/navigation";
+import { createNewForm } from "@/app/action/createnewform";
 
 function Formsorter() {
   const router = useRouter();
   const [showDialog, setShowDialog] = useState(false);
-  const [formName, setFormName] = useState('');
+  const [formName, setFormName] = useState("");
 
   const handleCreate = async () => {
-    if (!formName.trim()) return alert('Please enter a form name');
+    if (!formName.trim()) return alert("Please enter a form name");
     const res = await createNewForm(formName);
     if (res) {
       router.push(`/form/${res}`);
     } else {
-      alert('Failed to create a new form. Try again.');
+      alert("Failed to create a new form. Try again.");
     }
   };
 
   return (
-    <div className="bg-[#FFFFFF] px-8 py-6 shadow-sm">
+    <div className="bg-gradient-to-r from-green-100/50 via-[#f1f8f5] to-green-100/50 bg-[#FFFFFF] px-8 py-6">
       <div className="flex justify-between items-start relative">
         <button className="flex gap-2 items-center bg-[#61A986] text-lg px-6 py-3 text-white rounded-lg cursor-pointer hover:bg-[#4d8a6b] transition-all duration-300 hover:scale-[1.02] shadow-md hover:shadow-lg">
           My Workspace
