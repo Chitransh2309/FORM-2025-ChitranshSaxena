@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import getFormObject from "@/app/action/getFormObject";
+import getFormObject from "@/app/action/GetFormObject";
 import { Form, Section } from "@/lib/interface";
 
 export default function PreviewForm() {
@@ -69,9 +69,7 @@ export default function PreviewForm() {
     <div className="relative flex justify-center items-center min-h-screen bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full overeflow-scroll h-full">
       <div
         className={`w-full ${
-          selectedDevice === "mobile"
-            ? "max-w-[375px] scale-[0.95]"
-            : "w-[80%]"
+          selectedDevice === "mobile" ? "max-w-[375px] scale-[0.95]" : "w-[80%]"
         } mx-auto px-2 sm:px-4 transition-all duration-300 ease-in-out`}
       >
         {/* Device Switcher */}

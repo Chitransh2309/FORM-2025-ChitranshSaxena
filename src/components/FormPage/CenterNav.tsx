@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import PreviewForm from "@/components/Form_Page/preview-form";
-import BuildForm from "@/components/Form_Page/build-form";
+import PreviewForm from "@/components/FormPage/PreviewForm";
+import BuildForm from "@/components/FormPage/BuildForm";
 
 enum Section {
   Builder,

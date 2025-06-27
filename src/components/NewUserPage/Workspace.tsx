@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Navbar from "./Navbar";
-import Formsorter from "./Formsorter";
+import Navbar from "./NavBar";
+import Formsorter from "./FormSorter";
 import Drafts from "./Drafts";
 import Published from "./Published";
-import Newuser from "./Newuser";
-import { getFormsForUser } from "@/app/action/forms";
+import Newuser from "./NewUser";
+import { getFormsForUser } from "@/app/action/Forms";
 import { Form } from "@/lib/interface";
 
 export default function Workspace() {

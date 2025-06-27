@@ -3,7 +3,10 @@
 import style from "./layout.module.css";
 import { useTransition } from "react";
 import { useParams } from "next/navigation";
-import { publishForm } from "@/app/action/publish";
+import { publishForm } from "@/app/action/Publish";
+// import { Link } from "lucide-react";
+import { useRouter } from "next/navigation";
+
 
 export default function FormLayout({
   children,
@@ -12,23 +15,29 @@ export default function FormLayout({
 }) {
   const { id: formId } = useParams();
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   // ✅ Define this inside the component
   const handlePublish = () => {
-    if (!formId || typeof formId !== "string") {
-      alert("Form ID is missing or invalid");
-      return;
+  if (!formId || typeof formId !== "string") {
+    alert("Form ID is missing or invalid");
+    return;
+  }
+
+  startTransition(async () => {
+    const result = await publishForm(formId);
+
+    if (result.success) {
+      alert("✅ Form published successfully!");
+      router.push("/dashboard"); // ✅ Navigate to dashboard
+    } else {
+      alert(`❌ Failed to publish form: ${result.error}`);
     }
+  });
+};
 
-    startTransition(async () => {
-      const result = await publishForm(formId);
-
-      if (result.success) {
-        alert("✅ Form published successfully!");
-      } else {
-        alert(`❌ Failed to publish form: ${result.error}`);
-      }
-    });
+  const handleWorkspace = () => {
+    router.push("/dashboard"); // ✅ Navigate to dashboard
   };
 
   return (
@@ -36,7 +45,9 @@ export default function FormLayout({
       <nav className="fixed top-0 left-0 w-full h-[75px] bg-neutral-600 text-white px-8 flex flex-row justify-between items-center text-lg z-50">
         {/* Left: Back Button */}
         <div className="flex-1">
-          <h2 className="font-semibold">&lt; Back to Workspace</h2>
+          <button onClick={handleWorkspace}>
+            &lt; Back to Workspace
+          </button>
         </div>
 
         {/* Center: Title */}

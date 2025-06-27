@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Dropdown from "./right-nav-dropdown";
+import Dropdown from "./RightNavDropdown";
 
 export default function RightNav() {
   // const [type, isType] = useState("Text");
