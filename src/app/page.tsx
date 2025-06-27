@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -104,6 +105,13 @@ export default function Page() {
   };
 
   const selectedSection = sections.find((s) => s.section_ID === selectedSectionId) || null;
+=======
+import Footer from "../components/LandingPage/Footer";
+import Hero from "../components/LandingPage/Hero";
+import Navbar from "../components/LandingPage/Navbar";
+import { insertUser } from "./action/user";
+import Image from 'next/image';
+>>>>>>> 46f7001 (Made the casing everywhere as PascalCasing, made the publish and back to workspace button redirect back to dashboard)
 
   return (
     <div className="flex items-center justify-center w-full h-screen">

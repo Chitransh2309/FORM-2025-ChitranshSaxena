@@ -1,12 +1,17 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+<<<<<<< HEAD:src/components/Form_Page/center-nav.tsx
 <<<<<<< HEAD:src/components/center-nav.tsx
 import PreviewForm from "@/components/preview-form";
 =======
 import PreviewForm from "@/components/Form_Page/preview-form";
 import BuildForm from "@/components/Form_Page/build-form";
 >>>>>>> 96613d5 (better organization of components and fixed home button on landing page):src/components/Form_Page/center-nav.tsx
+=======
+import PreviewForm from "@/components/FormPage/PreviewForm";
+import BuildForm from "@/components/FormPage/BuildForm";
+>>>>>>> 46f7001 (Made the casing everywhere as PascalCasing, made the publish and back to workspace button redirect back to dashboard):src/components/FormPage/CenterNav.tsx
 
 enum Section {
   Builder,

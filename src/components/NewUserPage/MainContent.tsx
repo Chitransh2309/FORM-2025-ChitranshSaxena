@@ -1,5 +1,18 @@
 import { FaChevronDown } from "react-icons/fa";
+<<<<<<< HEAD:src/components/New_user_page/MainContent.tsx
 import Link from 'next/link';
+=======
+import { useRouter } from "next/navigation";
+import { createNewForm } from "@/app/action/CreateNewForm";
+import { getFormsForUser } from "@/app/action/Forms"; // ✅ Import server action
+
+interface Form {
+  form_ID: string;
+  title: string;
+  createdAt: string;
+  publishedAt?: string;
+}
+>>>>>>> 46f7001 (Made the casing everywhere as PascalCasing, made the publish and back to workspace button redirect back to dashboard):src/components/NewUserPage/MainContent.tsx
 
 function MainContent() {
     return (
