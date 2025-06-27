@@ -13,7 +13,7 @@ export default function Navbar() {
             <p className="px-8 dark:text-[#ffffff]">F.O.R.M</p>
         </Link>
         <div className='flex items-center gap-5 text-black dark:text-[#ffffff]'>
-            <Link href='/'>
+            <Link href='/dashboard'>
                 <span>Home</span>
             </Link>
             <Link href='/about'>
