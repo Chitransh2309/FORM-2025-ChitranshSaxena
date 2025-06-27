@@ -16,7 +16,7 @@ export default function Drafts({ forms }: { forms: Form[] }) {
       <h2 className="text-xl text-black font-semibold mb-4 bg-green-300 rounded-lg px-4 py-3">
         Drafts
       </h2>
-      <div className="space-y-3 border-2 border-black border-dashed rounded-lg overflow-y-auto  h-full ">
+      <div className="space-y-3 border-2 border-black border-dashed rounded-lg overflow-y-auto  h-[90%] ">
         {forms.map((form) => (
           <button
             key={form.form_ID}

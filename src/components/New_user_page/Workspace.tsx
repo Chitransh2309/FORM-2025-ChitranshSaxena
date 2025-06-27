@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import Navbar from "./Navbar";
-import Formsorter from "./Formsorter";
-import Drafts from "./Drafts";
-import Published from "./Published";
-import Newuser from "./Newuser";
-import { getFormsForUser } from "@/app/action/forms";
-import { Form } from "@/lib/interface";
+import { useEffect, useState } from 'react';
+import Navbar from './Navbar';
+import Formsorter from './Formsorter';
+import Drafts from './Drafts';
+import Published from './Published';
+import Newuser from './Newuser';
+import { getFormsForUser } from '@/app/action/forms';
+import { Form } from '@/lib/interface';
 
 export default function Workspace() {
   const [forms, setForms] = useState<Form[]>([]);
@@ -26,8 +26,8 @@ export default function Workspace() {
   const drafts = forms.filter((f) => !f.isActive);
   const published = forms.filter((f) => f.isActive);
 
-  console.log("Drafts:", drafts);
-  console.log("Published:", published);
+  console.log('Drafts:', drafts);
+  console.log('Published:', published);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -41,7 +41,7 @@ export default function Workspace() {
       ) : drafts.length === 0 && published.length === 0 ? (
         <Newuser />
       ) : (
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 overflow-hidden h-full">
           <Drafts forms={drafts} />
           <Published forms={published} />
         </div>

@@ -26,10 +26,10 @@ export default function Footer() {
           <AuthBtn pos='footer'/>
         </div>
       </div>
-      <hr className='mt-3 align-center border border-1 mx-8 mb-2 dark: stroke-[#000000]' />
+      <hr className='mt-3 align-center border border-1 mx-8 mb-2 dark:border-[#191719]' />
       <div className='flex justify-between mx-9'>
         <div>
-          <Copyright className='dark: stroke-[#000000]'/>
+          <Copyright className='dark:stroke-[#000000]'/>
         </div>
         <div className='flex justify-between gap-5'>
           <InstagramIcon className='dark:stroke-[#000000]'/>
