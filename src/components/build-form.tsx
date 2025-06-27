@@ -180,7 +180,7 @@ export default function BuildPage() {
             )}
           </div>
 
-          <div className="w-[34vw] h-[92vh] bg-white">
+          <div className="border-gray-300 border-2 w-[34vw] h-[92vh] bg-[#fefefe]">
             <RightNav />
           </div>
         </div>
