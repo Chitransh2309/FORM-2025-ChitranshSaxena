@@ -42,19 +42,21 @@ const CenterNav = ({ formId, showQues, hideQues }: CenterNavProps) => {
         </div>
       </div>
 
-      {currentSection === Section.Workflow && (
-        <div className="w-full max-w-2xl bg-white rounded-[10px] shadow px-6 py-8">
-          <h2 className="text-xl font-semibold mb-4">🔁 Workflow View</h2>
-          <p>This is the form workflow configuration.</p>
-          {/* Add your workflow config UI here */}
-        </div>
-      )}
-
-      {currentSection === Section.Preview && (
-        <div className="w-full max-w-2xl bg-white rounded-[10px] shadow px-6 py-8">
-          <PreviewForm formId={formId} />
-        </div>
-      )}
+      {/* Main builder or preview area */}
+      <div>
+        {currentSection === Section.Builder && <BuildForm />}
+        {currentSection === Section.Workflow && (
+          <div className="p-6">
+            <h2 className="text-xl font-semibold mb-4">🔁 Workflow View</h2>
+            <p>This is the form workflow configuration.</p>
+          </div>
+        )}
+        {currentSection === Section.Preview && (
+          <div className="p-6 h-full">
+            <PreviewForm formId={formId} />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

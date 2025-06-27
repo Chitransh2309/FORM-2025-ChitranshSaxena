@@ -149,7 +149,7 @@ export default function BuildPage() {
   };
 
   return (
-    <div className="bg-[#F6F8F6] text-black w-screen h-full flex font-[Outfit]">
+    <div className="bg-[#F6F8F6] text-black w-screen h-[92vh] flex font-[Outfit]">
       <SectionSidebar
         sections={form?.sections || []}
         selectedSectionId={selectedSectionId}
@@ -158,9 +158,9 @@ export default function BuildPage() {
         onDeleteSection={deleteSection}
       />
 
-      <div className="w-full h-full overflow-auto">
-        <div className="flex bg-[#F6F8F6] h-screen overflow-hidden">
-          <div className="w-full h-full overflow-auto">
+      <div className="w-full  overflow-auto">
+        <div className="flex bg-[#F6F8F6]   overflow-hidden">
+          <div className="w-full h-[92vh] overflow-auto">
             <div className="flex flex-row justify-between items-center">
               <div className="text-2xl font-bold ml-[5%] mb-3 mt-20 p-4">
                 {selectedSection?.title || "No Section Selected"}
