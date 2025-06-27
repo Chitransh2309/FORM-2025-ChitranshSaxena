@@ -37,7 +37,7 @@ export default function FormLayout({ children }: { children: React.ReactNode }) 
         </div>
       </nav>
 
-      <div className="pt-[75px] bg-neutral-600">
+      <div className="h-screen overflow-hidden pt-[75px] bg-neutral-600">
         <div className="bg-neutral-100 text-black w-screen h-[92vh] flex">
           <div className="w-full h-full overflow-auto">
             {children}

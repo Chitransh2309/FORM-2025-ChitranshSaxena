@@ -149,7 +149,7 @@ export default function BuildPage() {
   };
 
   return (
-    <div className="bg-[#F6F8F6] text-black w-screen h-[92vh] flex font-[Outfit]">
+    <div className="bg-[#F6F8F6] text-black w-screen h-[90vh] flex font-[Outfit]">
       <SectionSidebar
         sections={form?.sections || []}
         selectedSectionId={selectedSectionId}
@@ -159,8 +159,8 @@ export default function BuildPage() {
       />
 
       <div className="w-full  overflow-auto">
-        <div className="flex bg-[#F6F8F6]   overflow-hidden">
-          <div className="w-full h-[92vh] overflow-auto">
+        <div className="flex bg-[#F6F8F6]  overflow-hidden">
+          <div className="w-full h-[90vh] overflow-auto">
             <div className="flex flex-row justify-between items-center">
               <div className="text-2xl font-bold ml-[5%] mb-3 mt-20 p-4">
                 {selectedSection?.title || "No Section Selected"}
@@ -180,7 +180,7 @@ export default function BuildPage() {
             )}
           </div>
 
-          <div className="border-gray-300 border-2 w-[34vw] h-[92vh] bg-[#fefefe]">
+          <div className="border-gray-300 border-2 w-[30vw] h-[90vh] bg-[#fefefe]">
             <RightNav />
           </div>
         </div>
