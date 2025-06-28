@@ -26,7 +26,7 @@ export default function BottomNav() {
           <li key={label}>
             <Link
               href={href}
-              className="flex flex-col items-center py-2 text-xs text-black hover:text-[#56A37D]"
+              className="flex flex-col items-center py-3 text-xs text-black hover:text-[#56A37D]"
             >
               {icon}
               <span className="mt-1">{label}</span>
