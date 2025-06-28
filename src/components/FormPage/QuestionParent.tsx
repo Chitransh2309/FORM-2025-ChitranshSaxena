@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import Question from "./questions";
-import AddQues from "./add-question";
-import { v4 as uuidv4 } from "uuid";
+import Question from "./Questions";
+import AddQues from "./AddQuestion";
+// import { v4 as uuidv4 } from "uuid";
 import { Question as QuestionInterface } from "@/lib/interface"; // Import your actual interface
 
 type Props = {
@@ -13,14 +13,19 @@ type Props = {
   onUpdate: (id: string, updates: Partial<QuestionInterface>) => void;
 };
 
-export default function QuestionSet({ ques, onAdd, onDelete, onUpdate }: Props) {
+export default function QuestionSet({
+  ques,
+  onAdd,
+  onDelete,
+  onUpdate,
+}: Props) {
   return (
     <div>
       {ques.map((q) => (
         <Question
-          key={q.question_ID}  // Use the correct property name
-          id={q.question_ID}   // Use the correct property name
-          data={q}             // Pass the whole question object
+          key={q.question_ID} // Use the correct property name
+          id={q.question_ID} // Use the correct property name
+          data={q} // Pass the whole question object
           onUpdate={onUpdate}
           onDelete={onDelete}
         />

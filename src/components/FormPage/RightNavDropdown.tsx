@@ -1,7 +1,6 @@
 "use client";
 
-
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const questionTypes = [
   "Text",
@@ -15,7 +14,6 @@ const questionTypes = [
 ];
 
 export default function QuestionTypeDropdown() {
-
   const [selectedType, setSelectedType] = useState("Text");
   const [isOpen, setIsOpen] = useState(false);
   const [minChar, setMinChar] = useState(15);
@@ -59,10 +57,12 @@ export default function QuestionTypeDropdown() {
             </div>
           </div>
         );
-      default: 
+      default:
         return (
           <div className="bg-white p-4 text-black">
-          <p className="text-sm italic">Config UI for <strong>{selectedType}</strong> coming soon.</p>
+            <p className="text-sm italic">
+              Config UI for <strong>{selectedType}</strong> coming soon.
+            </p>
           </div>
         );
     }
@@ -103,8 +103,8 @@ export default function QuestionTypeDropdown() {
       )}
 
       <div className="mt-5">
-      {/* Custom Config */}
-      {typeSelector()}
+        {/* Custom Config */}
+        {typeSelector()}
       </div>
     </div>
   );

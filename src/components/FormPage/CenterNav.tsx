@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import PreviewForm from "@/components/preview-form";
-import BuildForm from "@/components/build-form";
+import React, { useState, useEffect } from "react";
+import PreviewForm from "@/components/FormPage/PreviewForm";
+import BuildForm from "@/components/FormPage/BuildForm";
 
 enum Section {
   Builder,
@@ -19,7 +19,7 @@ const CenterNav = ({ formId }: { formId?: string }) => {
   return (
     <div className="relative w-full h-full flex flex-col bg-[#F6F8F6] overflow-hidden">
       {/* Top tab nav centered */}
-      <div className="absolute space-y-2 left-1/2 transform -translate-x-1/2 z-10 w-full flex justify-center  ">
+      <div className="mt-5 pr-20 absolute space-y-2 left-1/2 transform -translate-x-1/2 z-10 w-full flex justify-center  ">
         <div className="flex justify-between items-center px-4 w-full max-w-[483px] h-[62px] rounded-[10px] shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45">
           {LABELS.map((label, i) => (
             <button
@@ -38,7 +38,7 @@ const CenterNav = ({ formId }: { formId?: string }) => {
       </div>
 
       {/* Main builder or preview area */}
-      <div className="">
+      <div>
         {currentSection === Section.Builder && <BuildForm />}
         {currentSection === Section.Workflow && (
           <div className="p-6">

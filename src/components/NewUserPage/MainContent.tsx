@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
-import { useRouter } from 'next/navigation';
-import { createNewForm } from '@/app/action/createnewform';
-import { getFormsForUser } from '@/app/action/forms'; // ✅ Import server action
+import { useRouter } from "next/navigation";
+import { createNewForm } from "@/app/action/CreateNewForm";
+import { getFormsForUser } from "@/app/action/Forms"; // ✅ Import server action
 
 interface Form {
   form_ID: string;
@@ -67,15 +67,19 @@ function MainContent() {
                 onClick={() => router.push(`/form/${form.form_ID}`)}
                 className="bg-[#61A986] hover:bg-[#4d8a6b] text-white px-6 py-4 rounded-md shadow-md transition-all"
               >
-                {form.title || 'Untitled Form'}
+                {form.title || "Untitled Form"}
               </button>
             ))}
           </div>
         ) : (
           <div className="flex justify-center items-center h-full">
             <div className="border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center p-12 max-w-md w-full text-center">
-              <h3 className="text-lg text-gray-600 mb-2">You have not created any forms yet.</h3>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-6">Create Your First Form Today!</h2>
+              <h3 className="text-lg text-gray-600 mb-2">
+                You have not created any forms yet.
+              </h3>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+                Create Your First Form Today!
+              </h2>
               <button
                 onClick={handleCreateForm}
                 className="bg-[#56A37D] text-white px-6 py-3 rounded-lg hover:bg-[#4a9470] font-medium"

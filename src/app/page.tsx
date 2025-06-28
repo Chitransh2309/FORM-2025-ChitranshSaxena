@@ -1,6 +1,6 @@
-import Footer from "../components/Landing_Page/Footer";
-import Hero from "../components/Landing_Page/Hero";
-import Navbar from "../components/Landing_Page/Navbar";
+import Footer from "../components/LandingPage/Footer";
+import Hero from "../components/LandingPage/Hero";
+import Navbar from "../components/LandingPage/Navbar";
 import { insertUser } from "./action/user";
 import Image from 'next/image';
 
