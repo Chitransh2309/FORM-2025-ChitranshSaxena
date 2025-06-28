@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import Question from "./questions";
-import AddQues from "./add-question";
-import { v4 as uuidv4 } from "uuid";
+import Question from "./Questions";
+import AddQues from "./AddQuestion";
+// import { v4 as uuidv4 } from "uuid";
 import { Question as QuestionInterface } from "@/lib/interface"; // Import your actual interface
 
 type Props = {

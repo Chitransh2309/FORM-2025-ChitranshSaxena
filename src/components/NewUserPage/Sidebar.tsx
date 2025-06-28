@@ -4,7 +4,7 @@ import { GrDocument } from "react-icons/gr";
 import { FaRegStar } from "react-icons/fa";
 import { LuTrash2 } from "react-icons/lu";
 import { CiCirclePlus } from "react-icons/ci";
-import Searchbar from "./Searchbar";
+import Searchbar from "./SearchBar";
 
 export default function Sidebar() {
   return (
