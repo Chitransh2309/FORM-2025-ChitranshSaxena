@@ -1,6 +1,6 @@
 "use client";
 
-import { createNewForm } from "@/app/action/CreateNewForm";
+import { createNewForm } from "@/app/action/createnewform";
 // import { useRouter } from "next/navigation";
 
 function Newuser() {
@@ -16,7 +16,7 @@ function Newuser() {
   // };
 
   return (
-    <div className="flex-1 border-2 border-dashed border-gray-300 flex flex-col justify-center items-center gap-6 m-10 px-8 py-7">
+    <div className="w-[995px] h-[775px] border border-dashed border-gray-300 mx-auto mt-[193px] flex flex-col justify-center items-center gap-6 px-8 py-7 bg-transparent">
       <h4 className="text-xl text-gray-600">
         You have not created any forms yet.
       </h4>
