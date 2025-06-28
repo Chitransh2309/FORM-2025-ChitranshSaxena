@@ -2,12 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import SectionSidebar from "@/components/SectionSidebar";
-import RightNav from "@/components/right-nav";
-import SaveButton from "@/components/savebutton";
-import QuestionParent from "@/components/question-parent";
-import getFormObject from "@/app/action/getFormObject";
-import { saveFormToDB } from "@/app/action/saveformtodb";
+import SectionSidebar from "@/components/FormPage/SectionSidebar";
+import RightNav from "@/components/FormPage/RightNav";
+import SaveButton from "@/components/FormPage/SaveButton";
+import QuestionParent from "@/components/FormPage/QuestionParent";
+import getFormObject from "@/app/action/GetFormObject";
+import { saveFormToDB } from "@/app/action/SaveFormToDB";
 import { Form, Question, Section } from "@/lib/interface";
 
 export default function BuildPage() {

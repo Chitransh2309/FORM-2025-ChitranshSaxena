@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
-import CenterNav from "@/components/center-nav";
+import CenterNav from "@/components/FormPage/CenterNav";
 import { auth } from "../../../../auth";
 
 export default async function FormPage(props: { params: { id: string } }) {
