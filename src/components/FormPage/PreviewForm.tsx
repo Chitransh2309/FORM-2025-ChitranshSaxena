@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import getFormObject from "@/app/action/GetFormObject";
+import getFormObject from "@/app/action/getFormObject";
 import { Form, Section } from "@/lib/interface";
 
 export default function PreviewForm() {
