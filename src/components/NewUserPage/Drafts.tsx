@@ -12,19 +12,46 @@ export default function Drafts({ forms }: { forms: Form[] }) {
   const router = useRouter();
 
   return (
-    <div className="w-1/2 text-black p-4  ">
-      <h2 className="text-xl text-black font-semibold px-4 py-3">Drafts</h2>
-      <div className="space-y-3 border-2 border-black border-dashed rounded-lg overflow-y-auto  h-[90%] ">
-        {forms.map((form) => (
-          <button
-            key={form.form_ID}
-            onClick={() => router.push(`/form/${form.form_ID}`)}
-            className="w-45 h-45 m-2 text-left px-4 py-3 bg-gray-300 hover:bg-[#d1ebdb] rounded-lg shadow transition"
-          >
-            {form.title || "Untitled Form"}
-          </button>
-        ))}
+    <section className="w-full md:w-1/2 text-black p-4">
+      <h2 className="text-xl font-semibold px-4 py-3">Drafts</h2>
+
+      {/* dashed frame — auto height on mobile, ≥ 775 px on md+ */}
+      <div className="border-2 border-gray border-dashed rounded-lg p-4
+                      overflow-visible md:min-h-[775px]">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {forms.map((form) => (
+            <div key={form.form_ID} className="flex flex-col">
+              {/* grey thumbnail */}
+              <button
+                onClick={() => router.push(`/form/${form.form_ID}`)}
+                className="w-full aspect-square bg-gray-300 hover:bg-[#d1ebdb]
+                           rounded-lg shadow transition text-left p-3"
+              >
+                {form.title || "Untitled Form"}
+              </button>
+
+              {/* action buttons */}
+              <div className="flex gap-2 mt-2">
+                <button
+                  onClick={() => router.push(`/form/${form.form_ID}`)}
+                  className="flex-1 rounded bg-[#56A37D] text-white text-xs py-1"
+                >
+                  Edit Form
+                </button>
+                <button
+                  onClick={() => {
+                    /* TODO: hook up discard logic */
+                    console.log("Discard Draft clicked");
+                  }}
+                  className="flex-1 rounded bg-black text-white text-xs py-1"
+                >
+                  Discard Draft
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
