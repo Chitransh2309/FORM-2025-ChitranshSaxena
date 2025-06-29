@@ -31,20 +31,22 @@ export default async function Home() {
           Features That Make You Come Back
         </p>
 
-        <div className="flex flex-col md:flex-row gap-6 w-full justify-center">
-          <div className="w-full md:w-1/3 max-w-sm bg-[#61A986] dark:bg-[#E1F4E6] rounded-xl p-6 text-white dark:text-[#61A986] flex flex-col items-center">
-            <div className="w-full h-40 bg-[#F8F8F6] dark:bg-[#61A986] rounded-xl mb-4"></div>
-            <p className="text-xl font-bold">FEATURE</p>
-          </div>
+        <div className="w-full flex justify-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl w-full place-items-center">
+            <div className="w-full max-w-sm bg-[#61A986] dark:bg-[#E1F4E6] rounded-xl p-6 text-white dark:text-[#61A986] flex flex-col items-center">
+              <div className="w-full h-40 bg-[#F8F8F6] dark:bg-[#61A986] rounded-xl mb-4"></div>
+              <p className="text-xl font-bold">FEATURE</p>
+            </div>
 
-          <div className="w-full md:w-1/3 max-w-sm bg-[#E6AD00] dark:bg-[#F8F5EA] rounded-xl p-6 text-white dark:text-[#E6AD00] flex flex-col items-center">
-            <div className="w-full h-40 bg-[#F6F8F6] dark:bg-[#C69D1F] rounded-xl mb-4"></div>
-            <p className="text-xl font-bold">FEATURE</p>
-          </div>
+            <div className="w-full max-w-sm bg-[#E6AD00] dark:bg-[#F8F5EA] rounded-xl p-6 text-white dark:text-[#E6AD00] flex flex-col items-center">
+              <div className="w-full h-40 bg-[#F6F8F6] dark:bg-[#C69D1F] rounded-xl mb-4"></div>
+              <p className="text-xl font-bold">FEATURE</p>
+            </div>
 
-          <div className="w-full md:w-1/3 max-w-sm bg-[#3D3D3D] dark:bg-[#E9E6E9] rounded-xl p-6 text-white dark:text-[#3D3D3D] flex flex-col items-center">
-            <div className="w-full h-40 bg-[#F4F3F4] dark:bg-[#3D3D3D] rounded-xl mb-4"></div>
-            <p className="text-xl font-bold">FEATURE</p>
+            <div className="w-full max-w-sm bg-[#3D3D3D] dark:bg-[#E9E6E9] rounded-xl p-6 text-white dark:text-[#3D3D3D] flex flex-col items-center">
+              <div className="w-full h-40 bg-[#F4F3F4] dark:bg-[#3D3D3D] rounded-xl mb-4"></div>
+              <p className="text-xl font-bold">FEATURE</p>
+            </div>
           </div>
         </div>
       </div>
