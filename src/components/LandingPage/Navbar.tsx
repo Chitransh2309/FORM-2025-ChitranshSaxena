@@ -7,7 +7,7 @@ import { Outfit } from 'next/font/google';
 const out_font= Outfit({subsets:['latin'],weight:['400','800']})
 export default function Navbar() {
   return (
-    <header className={`px-9 py-6 text-black text-2xl font-bold sticky top-0 absolute bg-[#F6F8F6] ${out_font.className} dark:bg-[#191719] dark:text-#ffffff`}>
+    <header className={`px-9 py-6 text-black text-2xl font-bold bg-[#F6F8F6] ${out_font.className} dark:bg-[#191719] dark:text-#ffffff`}>
       <nav className='flex justify-between items-center h-9 '>
         <Link href="/">
             <p className="px-8 dark:text-[#ffffff]">F.O.R.M</p>

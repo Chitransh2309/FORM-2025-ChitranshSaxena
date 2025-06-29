@@ -1,7 +1,7 @@
 "use server";
 
 import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
-import { Form } from "@/lib/interface";
+import { Form, FormResponse } from "@/lib/interface";
 
 export async function saveFormToDB(form: Form) {
   try {
@@ -30,5 +30,16 @@ export async function saveFormToDB(form: Form) {
       success: false,
       error: err instanceof Error ? err.message : "Unknown error",
     };
+  }
+}
+
+export async function saveFormResponse(response: FormResponse): Promise<boolean> {
+  try {
+    const {db,dbClient} = await connectToDB();
+    await db.collection("response").insertOne(response);
+    return true;
+  } catch (err) {
+    console.error("Error saving form response:", err);
+    return false;
   }
 }

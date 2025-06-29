@@ -6,8 +6,8 @@ import SectionSidebar from "@/components/FormPage/SectionSidebar";
 import RightNav from "@/components/FormPage/RightNav";
 import SaveButton from "@/components/FormPage/SaveButton";
 import QuestionParent from "@/components/FormPage/QuestionParent";
-import getFormObject from "@/app/action/GetFormObject";
-import { saveFormToDB } from "@/app/action/SaveFormToDB";
+import getFormObject from "@/app/action/getFormObject";
+import { saveFormToDB } from "@/app/action/saveformtodb";
 import { Form, Question, Section } from "@/lib/interface";
 import { Menu } from "lucide-react";
 
