@@ -76,7 +76,7 @@ export interface FormResponse {
   submittedAt: Date;
   status: string;
   answers: Answer[];
-  reportedFlags: ReportedFlag[];
+  //reportedFlags: ReportedFlag[];
   version: number;
 }
 
