@@ -1,51 +1,141 @@
 "use client";
-
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { FaChevronDown, FaSearch } from "react-icons/fa";
+import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
+import { FaRegCircleUser } from "react-icons/fa6";
+import Newuser from "./NewUser";
 import Navbar from "./NavBar";
 import Formsorter from "./FormSorter";
 import Drafts from "./Drafts";
 import Published from "./Published";
-import Newuser from "./NewUser";
-import { getFormsForUser } from "@/app/action/Forms";
+import ToggleSwitch from "./Toggle";
+import Image from "next/image";
+import { getFormsForUser } from "@/app/action/forms";
+import { createNewForm } from "@/app/action/createnewform";
 import { Form } from "@/lib/interface";
 
 export default function Workspace() {
+  const router = useRouter();
   const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchForms() {
+    (async () => {
       const res = await getFormsForUser();
       setForms(res);
       setLoading(false);
-    }
-
-    fetchForms();
+    })();
   }, []);
 
   const drafts = forms.filter((f) => !f.isActive);
   const published = forms.filter((f) => f.isActive);
+  const isEmpty = drafts.length === 0 && published.length === 0;
 
-  console.log("Drafts:", drafts);
-  console.log("Published:", published);
+  const handleCreateForm = async () => {
+    const id = await createNewForm();
+    router.push(`/form/${id}`);
+  };
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="h-screen flex flex-col overflow-hidden ">
+      {/* Green Header for mobile */}
       <Navbar />
-      <Formsorter />
 
-      {loading ? (
-        <div className="flex-1 flex items-center justify-center">
-          Loading...
+      {/* Desktop Topbar (Logo + Toggle + Help + Profile) */}
+      <div className="hidden md:flex items-center  justify-between px-6 py-4">
+        {/* Left: Logo + Title */}
+        <div className="flex items-center gap-2">
+          <Image
+            src="/main-icon.png"
+            alt="F.O.R.M logo"
+            width={24}
+            height={24}
+            className="w-6 h-6 opacity-80 flex-shrink-0"
+          />
+          <span className="font-bold text-lg text-black">F.O.R.M</span>
         </div>
-      ) : drafts.length === 0 && published.length === 0 ? (
-        <Newuser />
-      ) : (
-        <div className="flex flex-1 overflow-hidden h-full">
-          <Drafts forms={drafts} />
-          <Published forms={published} />
+
+        {/* Right: Toggle + Help + Profile */}
+        <div className="flex items-center gap-4">
+          <ToggleSwitch />
+          <HiOutlineQuestionMarkCircle
+            size={26}
+            className="text-black hover:text-gray-700"
+          />
+          <FaRegCircleUser
+            size={22}
+            className="text-black hover:text-gray-700"
+          />
         </div>
-      )}
+      </div>
+
+      {/* Desktop Sorter */}
+      <div className="hidden md:block">
+        <Formsorter />
+      </div>
+
+      {/* Mobile Top Buttons */}
+      <div className="md:hidden w-full bg-white border-b px-4 py-3">
+        <div className="flex items-center gap-2">
+          <button className="flex items-center gap-1 bg-[#56A37D] text-black text-sm px-4 py-2 rounded-lg">
+            My Workspace <FaChevronDown size={12} />
+          </button>
+
+          {/* Search Input */}
+          <div className="flex items-center bg-[#3D3D3D] rounded-lg px-3 py-2 flex-1 min-w-0">
+            <FaSearch size={14} className="text-white flex-shrink-0" />
+            <input
+              placeholder="Search"
+              className="flex-1 bg-transparent outline-none placeholder-white text-sm ml-2"
+            />
+          </div>
+
+          <button
+            onClick={handleCreateForm}
+            className="bg-[#3D3D3D] text-white text-sm px-4 py-2 rounded-lg whitespace-nowrap"
+          >
+            + New Form
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 pb-20">
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            Loading…
+          </div>
+        ) : isEmpty ? (
+          <>
+            {/* Mobile Empty State */}
+            <div className="md:hidden flex flex-col items-center justify-center h-full text-center">
+              <p className="text-gray-600 mb-2">
+                You have not created any forms yet.
+              </p>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+                Create Your First Form Today!
+              </h2>
+              <button
+                onClick={handleCreateForm}
+                className="bg-[#56A37D] text-white px-6 py-3 rounded-lg"
+              >
+                Create Now
+              </button>
+            </div>
+
+            {/* Desktop Empty State */}
+            <div className="hidden md:block h-full">
+              <Newuser />
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col md:flex-row flex-1 overflow-hidden gap-4">
+            <Drafts forms={drafts} />
+            <Published forms={published} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
