@@ -27,8 +27,8 @@ const CenterNav = ({ formId }: { formId?: string }) => {
               onClick={() => setCurrentSection(i as Section)}
               className={`flex-1 mx-1 text-[15px] dark:text-white sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
                 currentSection === i
-                  ? "bg-[#61A986] text-black"
-                  : "text-black hover:bg-[#b9d9c8]"
+                  ? "bg-[#61A986] text-black dark:text-white"
+                  : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
               }`}
             >
               {label}
@@ -42,12 +42,16 @@ const CenterNav = ({ formId }: { formId?: string }) => {
         {currentSection === Section.Builder && <BuildForm />}
         {currentSection === Section.Workflow && (
           <div className="p-4 sm:p-6">
-            <h2 className="text-xl font-semibold mb-4">🔁 Workflow View</h2>
-            <p>This is the form workflow configuration.</p>
+            <h2 className="text-xl font-semibold mb-4 dark:text-white">
+              🔁 Workflow View
+            </h2>
+            <p className="dark:text-white">
+              This is the form workflow configuration.
+            </p>
           </div>
         )}
         {currentSection === Section.Preview && (
-          <div className="p-4 sm:p-6">
+          <div className="p-4 sm:p-6 dark:text-white">
             <PreviewForm formId={formId} />
           </div>
         )}

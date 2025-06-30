@@ -20,13 +20,13 @@ const items: Item[] = [
 export default function BottomNav() {
   return (
     /* hidden on ≥ md screens */
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t shadow-md">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t shadow-md dark:bg-[#2B2A2A] dark:border-gray-500">
       <ul className="flex justify-around">
         {items.map(({ href, icon, label }) => (
           <li key={label}>
             <Link
               href={href}
-              className="flex flex-col items-center py-3 text-xs text-black hover:text-[#56A37D]"
+              className="flex flex-col items-center py-3 text-xs text-black hover:text-[#56A37D] dark:text-white"
             >
               {icon}
               <span className="mt-1">{label}</span>

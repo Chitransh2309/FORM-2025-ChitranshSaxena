@@ -9,7 +9,7 @@ export default async function FormPage({ params }: { params: { id: string } }) {
 
   const session = await auth();
   if (!session?.user?.email) {
-    redirect(`/form/${formId}/response`);
+    redirect("/");
   }
 
   const { dbClient, db } = await connectToDB();

@@ -9,11 +9,11 @@ import Navbar from "./NavBar";
 import Formsorter from "./FormSorter";
 import Drafts from "./Drafts";
 import Published from "./Published";
-import ToggleSwitch from "./Toggle";
 import Image from "next/image";
 import { getFormsForUser } from "@/app/action/forms";
 import { createNewForm } from "@/app/action/createnewform";
 import { Form } from "@/lib/interface";
+import ToggleSwitch from "../LandingPage/ToggleSwitch";
 
 export default function Workspace() {
   const router = useRouter();
@@ -53,7 +53,7 @@ export default function Workspace() {
             height={24}
             className="w-6 h-6 opacity-80 flex-shrink-0"
           />
-          <span className="font-bold text-lg text-black">F.O.R.M</span>
+          <span className="font-bold text-lg text-black dark:text-white">F.O.R.M</span>
         </div>
 
         {/* Right: Toggle + Help + Profile */}
@@ -61,11 +61,11 @@ export default function Workspace() {
           <ToggleSwitch />
           <HiOutlineQuestionMarkCircle
             size={26}
-            className="text-black hover:text-gray-700"
+            className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
           />
           <FaRegCircleUser
             size={22}
-            className="text-black hover:text-gray-700"
+            className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
           />
         </div>
       </div>
@@ -76,9 +76,9 @@ export default function Workspace() {
       </div>
 
       {/* Mobile Top Buttons */}
-      <div className="md:hidden w-full bg-white border-b px-4 py-3">
+      <div className="md:hidden w-full bg-white border-b px-4 py-3 dark:bg-[#2B2A2A] dark:border-gray-500">
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1 bg-[#56A37D] text-black text-sm px-4 py-2 rounded-lg">
+          <button className="flex items-center gap-1 bg-[#56A37D] text-black text-xs px-4 py-2 rounded-lg dark:text-white">
             My Workspace <FaChevronDown size={12} />
           </button>
 
@@ -87,13 +87,13 @@ export default function Workspace() {
             <FaSearch size={14} className="text-white flex-shrink-0" />
             <input
               placeholder="Search"
-              className="flex-1 bg-transparent outline-none placeholder-white text-sm ml-2"
+              className="flex-1 bg-transparent outline-none placeholder-white text-xs ml-2"
             />
           </div>
 
           <button
             onClick={handleCreateForm}
-            className="bg-[#3D3D3D] text-white text-sm px-4 py-2 rounded-lg whitespace-nowrap"
+            className="bg-[#3D3D3D] text-white text-xs px-4 py-2 rounded-lg whitespace-nowrap"
           >
             + New Form
           </button>
@@ -101,7 +101,7 @@ export default function Workspace() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto px-4 md:px-6 pb-20">
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 pb-2">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             Loading…
@@ -110,10 +110,10 @@ export default function Workspace() {
           <>
             {/* Mobile Empty State */}
             <div className="md:hidden flex flex-col items-center justify-center h-full text-center">
-              <p className="text-gray-600 mb-2">
+              <p className="text-gray-600 mb-2 dark:text-white">
                 You have not created any forms yet.
               </p>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4 dark:text-white">
                 Create Your First Form Today!
               </h2>
               <button

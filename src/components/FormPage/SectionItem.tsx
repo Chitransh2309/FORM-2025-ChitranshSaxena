@@ -32,7 +32,7 @@ export default function SectionItem({
       >
         {/* Section Info */}
         <div className="flex-1 pr-2">
-          <div className="text-base sm:text-[15px] font-semibold truncate">
+          <div className="text-base sm:text-[15px] font-semibold truncate dark:text-white">
             {section.title || "Section Name"}
           </div>
           <div className="text-xs text-gray-500 dark:text-white">
@@ -57,7 +57,7 @@ export default function SectionItem({
           )}
 
           <button
-            className="text-gray-600 p-1"
+            className="text-gray-600 p-1 dark:text-white"
             onClick={(e) => {
               e.stopPropagation();
               setIsOpen((prev) => !prev);
@@ -75,7 +75,7 @@ export default function SectionItem({
 
       {/* Expandable Question List */}
       {isOpen && (
-        <ul className="ml-4 mt-1 text-sm text-gray-600 dark:text-white space-y-1">
+        <ul className="ml-4 mt-1 text-sm text-gray-600 space-y-1 dark:text-white">
           {section.questions.length > 0 ? (
             section.questions.map((q) => (
               <li
@@ -86,7 +86,7 @@ export default function SectionItem({
               </li>
             ))
           ) : (
-            <li className="italic text-gray-400  dark:text-white py-1">
+            <li className="italic text-gray-400 py-1 dark:text-white">
               No questions
             </li>
           )}

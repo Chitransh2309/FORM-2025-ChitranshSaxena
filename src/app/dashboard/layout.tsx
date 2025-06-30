@@ -5,7 +5,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="dark:bg-gradient-to-r from-green-100/50 via-[#f1f8f5] to-green-100/50  min-h-screen w-full">
+    <div className="bg-gradient-to-r from-green-100/50 via-[#f1f8f5] to-green-100/50  min-h-screen w-full dark:bg-none dark:bg-[#2B2A2A]">
       {children}
     </div>
   );

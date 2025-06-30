@@ -31,7 +31,7 @@ export default function QuestionTypeDropdown() {
                   type="number"
                   value={minChar}
                   onChange={(e) => setMinChar(Number(e.target.value))}
-                  className="w-16 px-2 py-1 rounded bg-[#8CC7AA] text-center outline-none"
+                  className="w-16 px-2 py-1 rounded bg-[#8CC7AA] dark:bg-[#353434] text-center outline-none"
                 />
               </label>
 
@@ -41,14 +41,14 @@ export default function QuestionTypeDropdown() {
                   type="number"
                   value={maxChar}
                   onChange={(e) => setMaxChar(Number(e.target.value))}
-                  className="w-16 px-2 py-1 rounded bg-[#8CC7AA] text-center outline-none"
+                  className="w-16 px-2 py-1 rounded bg-[#8CC7AA] dark:bg-[#353434] text-center outline-none"
                 />
               </label>
             </div>
 
             <div className="flex justify-between items-center text-sm">
               <span>Photo/File/Video</span>
-              <button className="w-6 h-6 border border-black dark:border-white rounded-full flex items-center justify-center">
+              <button className="w-6 h-6 border border-black rounded-full flex items-center justify-center dark:border-white">
                 {/* Add icon if needed */}
               </button>
             </div>

@@ -51,10 +51,10 @@ export default function Question({ id, data, onDelete, onUpdate }: Props) {
         isSelected ? "ring-4 ring-black" : ""
       }`}
     >
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center dark:text-white">
         <input
           placeholder="Ques Label *"
-          className="focus:outline-none font-bold text-xl dark:text-white text-black"
+          className="focus:outline-none font-bold text-xl text-black dark:text-white dark:placeholder-white"
           value={data.questionText || ""} // Use questionText and provide fallback
           onChange={(e) => onUpdate(id, { questionText: e.target.value })} // Update questionText
         />
@@ -75,7 +75,7 @@ export default function Question({ id, data, onDelete, onUpdate }: Props) {
             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
           </label>
           <button
-            className="text-gray-700 dark:text-white hover:text-red-500 hover:bg-gray-300 ml-4 px-2 py-2 rounded cursor-pointer"
+            className="text-gray-700 hover:text-red-500 hover:bg-gray-300 ml-4 px-2 py-2 rounded cursor-pointer dark:text-white dark:hover:bg-[#494949]"
             onClick={() => onDelete(id)}
           >
             <Trash2 size={18} />
@@ -88,7 +88,7 @@ export default function Question({ id, data, onDelete, onUpdate }: Props) {
           ref={textareaRef}
           onInput={handleInput}
           placeholder="Write your question here *"
-          className="resize-none focus:outline-none w-[75%] min-h-[10px] overflow-hidden p-0"
+          className="resize-none focus:outline-none w-[75%] min-h-[10px] overflow-hidden p-0 dark:text-white dark:placeholder-white"
           value={data.questionText || ""} // Use questionText and provide fallback
           onChange={(e) => onUpdate(id, { questionText: e.target.value })} // Update questionText
         />

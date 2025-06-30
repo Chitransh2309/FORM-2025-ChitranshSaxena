@@ -169,7 +169,7 @@ export default function BuildPage() {
       {/* Toggle RightNav for mobile */}
       <div className="lg:hidden flex items-center justify-start px-4 mt-2">
         <button
-          className="flex items-center gap-2 bg-[#8cc7aa] text-black py-1 px-3 rounded-md shadow"
+          className="flex items-center gap-2 bg-[#8cc7aa] text-black py-1 px-3 rounded-md shadow dark:bg-[#353434] dark:text-white"
           onClick={() => setShowRightNav(!showRightNav)}
         >
           <Menu className="w-4 h-4" />
@@ -178,7 +178,7 @@ export default function BuildPage() {
       </div>
 
       {/* Main content */}
-      <div className="w-full flex-1 overflow-auto">
+      <div className="w-full flex-1 overflow-auto dark:text-white">
         <div className="flex flex-col lg:flex-row h-full">
           {/* Left content */}
           <div className="w-full lg:w-full px-4 lg:px-10 mt-4">
@@ -202,14 +202,14 @@ export default function BuildPage() {
           </div>
 
           {/* RightNav */}
-          <div className="hidden lg:block lg:w-[30vw] h-full dark:bg-[#363535] bg-[#fefefe] shadow-md">
+          <div className="hidden lg:block lg:w-[30vw] h-full border-l border-gray-300 bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500">
             <RightNav />
           </div>
 
           {/* Mobile RightNav Overlay */}
           {showRightNav && (
-            <div className="lg:hidden fixed top-0 left-0 w-full h-full bg-white z-50 overflow-y-auto">
-              <div className="flex justify-between items-center p-4 border-b">
+            <div className="lg:hidden fixed top-0 left-0 w-full h-full bg-white z-50 overflow-y-auto dark:bg-[#2a2b2b]">
+              <div className="flex justify-between items-center p-4 border-b dark:border-gray-500">
                 <h2 className="text-lg font-semibold">Edit Question</h2>
                 <button
                   onClick={() => setShowRightNav(false)}

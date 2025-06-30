@@ -1,7 +1,5 @@
 "use client";
 
-import "./globals.css";
-
 import Sidebar from "../../components/NewUserPage/Sidebar";
 import Formlist from "../../components/NewUserPage/FormList";
 import BottomNav from "../../components/NewUserPage/bottomNav";

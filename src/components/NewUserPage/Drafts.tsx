@@ -12,12 +12,12 @@ export default function Drafts({ forms }: { forms: Form[] }) {
   const router = useRouter();
 
   return (
-    <section className="w-full md:w-1/2 text-black p-4">
+    <section className="w-full md:w-1/2 text-black p-4 dark:text-white">
       <h2 className="text-xl font-semibold px-4 py-3">Drafts</h2>
 
       {/* dashed frame — auto height on mobile, ≥ 775 px on md+ */}
       <div className="border-2 border-gray border-dashed rounded-lg p-4
-                      overflow-visible md:min-h-[775px]">
+                      overflow-visible md:min-h-90 dark:border-white">
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {forms.map((form) => (
             <div key={form.form_ID} className="flex flex-col">
@@ -25,7 +25,7 @@ export default function Drafts({ forms }: { forms: Form[] }) {
               <button
                 onClick={() => router.push(`/form/${form.form_ID}`)}
                 className="w-full aspect-square bg-gray-300 hover:bg-[#d1ebdb]
-                           rounded-lg shadow transition text-left p-3"
+                           rounded-lg shadow transition text-left p-3 dark:bg-[#353434] dark:hover:bg-[#3f3d3d]"
               >
                 {form.title || "Untitled Form"}
               </button>
@@ -43,7 +43,7 @@ export default function Drafts({ forms }: { forms: Form[] }) {
                     /* TODO: hook up discard logic */
                     console.log("Discard Draft clicked");
                   }}
-                  className="flex-1 rounded bg-black text-white text-xs py-1"
+                  className="flex-1 rounded bg-[#3D3D3D] text-white text-xs py-1"
                 >
                   Discard Draft
                 </button>
