@@ -70,7 +70,7 @@ export default function SectionSidebar({
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex flex-col bg-[#FEFEFE] text-black w-[260px] h-[90vh] p-4 box-border border-r border-gray-300 font-[Outfit]">
+      <div className="hidden md:flex flex-col bg-[#FEFEFE] dark:bg-[#363535] dark:text-white text-black w-[260px] h-[90vh] p-4 box-border font-[Outfit]">
         {SidebarContent}
       </div>
 

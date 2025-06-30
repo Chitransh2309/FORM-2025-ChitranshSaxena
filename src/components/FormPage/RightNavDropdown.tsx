@@ -66,7 +66,7 @@ export default function QuestionTypeDropdown() {
   };
 
   return (
-    <div className="w-full max-w-sm sm:max-w-xs mx-auto relative rounded-xl bg-white dark:bg-[#363535] shadow">
+    <div className="w-full h-full max-w-sm sm:max-w-xs mx-auto relative rounded-xl bg-white dark:bg-[#363535]">
       {/* Dropdown Header */}
       <div
         className="bg-[#8CC7AA] dark:bg-[#5A5959] dark:text-white rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer"

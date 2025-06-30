@@ -156,7 +156,7 @@ export default function BuildPage() {
   return (
     <div className="dark:bg-[#2B2A2A] bg-[#F6F8F6] text-black dark:text-white w-screen h-[90vh] font-[Outfit] flex flex-col lg:flex-row">
       {/* Sidebar always visible */}
-      <div className="dark:bg-[#363535] ">
+      <div className="dark:bg-[#363535] shadow-md">
         <SectionSidebar
           sections={form?.sections || []}
           selectedSectionId={selectedSectionId}
@@ -202,7 +202,7 @@ export default function BuildPage() {
           </div>
 
           {/* RightNav */}
-          <div className="hidden lg:block lg:w-[30vw] h-full border-l dark:bg-[#363535] bg-[#fefefe]">
+          <div className="hidden lg:block lg:w-[30vw] h-full dark:bg-[#363535] bg-[#fefefe] shadow-md">
             <RightNav />
           </div>
 
