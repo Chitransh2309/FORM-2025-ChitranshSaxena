@@ -147,7 +147,6 @@ export const fieldtypes: FieldType[] = [
           { name: "doesnotContain", type: "string" },
         ],
       },
-      { name: "required", type: "boolean" },
     ],
   },
   {
@@ -159,13 +158,13 @@ export const fieldtypes: FieldType[] = [
       { name: "min", type: "number" },
       { name: "max", type: "number" },
     ],
-    validations: [{ name: "required", type: "boolean" }],
+    validations: [],
   },
   {
     name: "dropdown",
     type: "string",
     params: [{ name: "options", type: "array[string]" }],
-    validations: [{ name: "required", type: "boolean" }],
+    validations: [],
   },
   {
     name: "date",
@@ -179,7 +178,6 @@ export const fieldtypes: FieldType[] = [
           { name: "maxDate", type: "string" },
         ],
       },
-      { name: "required", type: "boolean" },
     ],
   },
   {
@@ -191,7 +189,7 @@ export const fieldtypes: FieldType[] = [
       { name: "minLabel", type: "string" },
       { name: "maxLabel", type: "string" },
     ],
-    validations: [{ name: "required", type: "boolean" }],
+    validations: [],
   },
   {
     name: "file_upload",
@@ -201,7 +199,7 @@ export const fieldtypes: FieldType[] = [
       { name: "maxFileSizeMB", type: "number" },
       { name: "maxFiles", type: "number" },
     ],
-    validations: [{ name: "required", type: "boolean" }],
+    validations: [],
   },
   {
     name: "email",
@@ -217,7 +215,6 @@ export const fieldtypes: FieldType[] = [
         type: "string",
         value: "^[\\w.-]+@[\\w-]+(\\.[\\w-]+)+$",
       },
-      { name: "required", type: "boolean" },
     ],
   },
   {
@@ -233,8 +230,7 @@ export const fieldtypes: FieldType[] = [
       {
         name: "format",
         params: [{ name: "type", type: "string", value: "url" }],
-      },
-      { name: "required", type: "boolean" },
+      }
     ],
   },
 ];
