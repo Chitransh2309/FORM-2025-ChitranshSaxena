@@ -1,22 +1,22 @@
 "use client";
 
-import style from "./layout.module.css";
-import { useTransition, useState } from "react";
 import { useParams, usePathname, useRouter } from "next/navigation";
+import { useTransition, useState } from "react";
 import { publishForm } from "@/app/action/publish";
 import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";
-import FormPublishModal from "@/components/FormPage/FormPublish";
+import FormPublishModal from "./FormPublish";
 
-export default function FormLayout({
+export default function FormWrapper({
   children,
+  formId,
 }: {
   children: React.ReactNode;
+  formId: string;
 }) {
-  const { id: formId } = useParams();
   const pathname = usePathname();
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [formLink, setFormLink] = useState<string | null>(null);
-  const router = useRouter();
 
   const isResponsePage = pathname.endsWith("/response");
 
@@ -28,9 +28,8 @@ export default function FormLayout({
 
     startTransition(async () => {
       const result = await publishForm(formId);
-
       if (result.success && result.formLink) {
-        setFormLink(result.formLink); // Show modal
+        setFormLink(result.formLink);
       } else {
         alert(`❌ Failed to publish form: ${result.error}`);
       }
@@ -49,7 +48,6 @@ export default function FormLayout({
 export default function FormLayout({ children }: { children: React.ReactNode }) {
   return (
     <div>
-      {/* Navigation Bar */}
       {!isResponsePage && (
         <nav className="fixed top-0 left-0 w-full h-[75px] bg-neutral-600 text-white px-8 flex justify-between items-center text-lg z-50">
           <div className="flex-1">
@@ -70,7 +68,6 @@ export default function FormLayout({ children }: { children: React.ReactNode }) 
         </nav>
       )}
 
-      {/* Main content area */}
       <div className={`h-screen overflow-hidden ${!isResponsePage ? "pt-[75px]" : ""} bg-neutral-600`}>
         <div className="bg-neutral-100 text-black w-screen h-[92vh] flex">
           <div className="w-full h-full overflow-auto">
@@ -79,10 +76,7 @@ export default function FormLayout({ children }: { children: React.ReactNode }) 
         </div>
       </div>
 
-      {/* Modal after publish */}
-      {formLink && (
-        <FormPublishModal formLink={formLink} onClose={handleCloseModal} />
-      )}
+      {formLink && <FormPublishModal formLink={formLink} onClose={handleCloseModal} />}
     </div>
   );
 }
