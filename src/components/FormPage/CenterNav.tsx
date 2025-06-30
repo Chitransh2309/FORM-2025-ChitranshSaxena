@@ -15,18 +15,18 @@ const CenterNav = ({ formId }: { formId?: string }) => {
   const LABELS = ["Builder", "Workflow", "Preview"];
 
   return (
-    <div className="relative w-full min-h-screen flex flex-col bg-[#F6F8F6] overflow-hidden font-[Outfit]">
+    <div className="relative w-full min-h-screen flex flex-col bg-[#F6F8F6] overflow-hidden font-[Outfit] dark:bg-[#2B2A2A]">
       {/* Top tab nav */}
       <div className="w-full flex justify-center mt-6 px-4 sm:px-0">
-        <div className="flex justify-between items-center w-full max-w-[480px] h-[58px] rounded-[10px] shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 px-2 sm:px-4">
+        <div className="flex justify-between items-center w-full max-w-[480px] h-[58px] rounded-[10px] shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 px-2 sm:px-4 dark:bg-[#414141]">
           {LABELS.map((label, i) => (
             <button
               key={label}
               onClick={() => setCurrentSection(i as Section)}
               className={`flex-1 mx-1 text-[15px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
                 currentSection === i
-                  ? "bg-[#61A986] text-black"
-                  : "text-black hover:bg-[#b9d9c8]"
+                  ? "bg-[#61A986] text-black dark:text-white"
+                  : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
               }`}
             >
               {label}
@@ -40,12 +40,12 @@ const CenterNav = ({ formId }: { formId?: string }) => {
         {currentSection === Section.Builder && <BuildForm />}
         {currentSection === Section.Workflow && (
           <div className="p-4 sm:p-6">
-            <h2 className="text-xl font-semibold mb-4">🔁 Workflow View</h2>
-            <p>This is the form workflow configuration.</p>
+            <h2 className="text-xl font-semibold mb-4 dark:text-white">🔁 Workflow View</h2>
+            <p className="dark:text-white">This is the form workflow configuration.</p>
           </div>
         )}
         {currentSection === Section.Preview && (
-          <div className="p-4 sm:p-6">
+          <div className="p-4 sm:p-6 dark:text-white">
             <PreviewForm formId={formId} />
           </div>
         )}

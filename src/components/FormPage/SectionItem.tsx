@@ -23,15 +23,15 @@ export default function SectionItem({
     <div className="mb-1 w-full">
       <div
         className={`flex justify-between items-start sm:items-center px-3 py-3 rounded-lg cursor-pointer w-full transition-all
-          ${isSelected ? "bg-[#8cc7aa] text-black" : "hover:bg-gray-100 text-gray-700"}`}
+          ${isSelected ? "bg-[#8cc7aa] dark:bg-[#494949] text-black" : "hover:bg-gray-100 dark:hover:bg-[#6d6d6d] text-gray-700"} dark:text-white`}
         onClick={onClick}
       >
         {/* Section Info */}
         <div className="flex-1 pr-2">
-          <div className="text-base sm:text-[15px] font-semibold truncate">
+          <div className="text-base sm:text-[15px] font-semibold truncate dark:text-white">
             {section.title || "Section Name"}
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-gray-500 dark:text-white">
             {section.questions.length} question{section.questions.length !== 1 ? "s" : ""}
           </div>
         </div>
@@ -52,7 +52,7 @@ export default function SectionItem({
           )}
 
           <button
-            className="text-gray-600 p-1"
+            className="text-gray-600 p-1 dark:text-white"
             onClick={(e) => {
               e.stopPropagation();
               setIsOpen((prev) => !prev);
@@ -70,7 +70,7 @@ export default function SectionItem({
 
       {/* Expandable Question List */}
       {isOpen && (
-        <ul className="ml-4 mt-1 text-sm text-gray-600 space-y-1">
+        <ul className="ml-4 mt-1 text-sm text-gray-600 space-y-1 dark:text-white">
           {section.questions.length > 0 ? (
             section.questions.map((q) => (
               <li
@@ -81,7 +81,7 @@ export default function SectionItem({
               </li>
             ))
           ) : (
-            <li className="italic text-gray-400 py-1">No questions</li>
+            <li className="italic text-gray-400 py-1 dark:text-white">No questions</li>
           )}
         </ul>
       )}

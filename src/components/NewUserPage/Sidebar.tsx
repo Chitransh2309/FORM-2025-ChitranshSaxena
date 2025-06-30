@@ -8,7 +8,7 @@ import Searchbar from "./SearchBar";
 
 export default function Sidebar() {
   return (
-    <div className="bg-[#56A37D] w-64 h-screen flex text-black flex-col px-6 py-6">
+    <div className="bg-[#56A37D] w-64 h-screen flex text-black flex-col px-6 py-6 dark:text-white dark:bg-[#414141]">
       <div className="flex items-center gap-3 mb-8">
         <Image src="/main-icon.png" alt="icon" width={33} height={33} />
         <h1 className=" text-2xl font-bold">F.O.R.M</h1>
@@ -17,12 +17,12 @@ export default function Sidebar() {
       <div className="mb-6">
         <p className=" text-lg font-semibold mb-4">My workspace</p>
 
-        <div className="bg-[#D9D9D9] rounded-lg mb-4 px-4 py-3">
+        <div className="bg-[#D9D9D9] rounded-lg mb-4 px-4 py-3 dark:bg-[#2B2A2A]">
           <Searchbar />
         </div>
 
-        <div className="bg-[#D9D9D9] rounded-lg mb-4">
-          <button className="w-full text-left px-4 py-3 text-black flex items-center gap-3 text-lg">
+        <div className="bg-[#D9D9D9] rounded-lg mb-4 dark:bg-[#2B2A2A]">
+          <button className="w-full text-left px-4 py-3 text-black flex items-center gap-3 text-lg dark:text-[#61A986] text-center">
             <CiCirclePlus size={24} />
             New label
           </button>
@@ -30,22 +30,22 @@ export default function Sidebar() {
       </div>
 
       <div className="flex-1 space-y-2">
-        <button className="w-full text-left px-4 py-3  flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded">
+        <button className="w-full text-left px-4 py-3  flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded dark:hover:bg-[#333333]">
           <TbShare3 size={20} />
           Shared with me
         </button>
 
-        <button className="w-full text-left px-4 py-3  flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded">
+        <button className="w-full text-left px-4 py-3  flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded dark:hover:bg-[#333333]">
           <GrDocument size={20} />
           Drafts
         </button>
 
-        <button className="w-full text-left px-4 py-3  flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded">
+        <button className="w-full text-left px-4 py-3  flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded dark:hover:bg-[#333333]">
           <FaRegStar size={20} />
           Starred
         </button>
 
-        <button className="w-full text-left px-4 py-3  flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded">
+        <button className="w-full text-left px-4 py-3  flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded dark:hover:bg-[#333333]">
           <LuTrash2 size={20} />
           Trash
         </button>
