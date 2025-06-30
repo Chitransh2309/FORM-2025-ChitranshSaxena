@@ -73,24 +73,16 @@ export default function QuestionTypeDropdown() {
         className="bg-[#8CC7AA] dark:bg-[#5A5959] dark:text-white rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="text-black font-medium text-base">{selectedType}</span>
+        <span className="text-black dark:text-white font-medium text-base">
+          {selectedType}
+        </span>
         <span className="text-lg">{isOpen ? "▲" : "▼"}</span>
       </div>
 
       {/* Dropdown Options */}
       {isOpen && (
-<<<<<<< HEAD
-<<<<<<< HEAD
-        <div className="absolute z-10 bg-[#8CC7AA] text-black rounded-b-xl shadow-lg">
-          <hr className="border-gray-400" />
-          <ul className="py-2 px-4 space-y-2">
-=======
-        <div className="absolute z-10 w-full bg-[#8CC7AA] text-black rounded-b-xl shadow-lg mt-1">
-=======
-        <div className="absolute z-10 w-full bg-[#8CC7AA] text-black rounded-b-xl shadow-lg mt-1 dark:text-white dark:bg-[#494949]">
->>>>>>> b595afc (fix: dark and light theme)
-          <ul className="py-2 px-4 space-y-2 max-h-[200px] overflow-y-auto text-sm">
->>>>>>> 1da22d4 (Added responsiveness for form builder)
+        <div className="absolute z-10 w-full bg-[#8CC7AA] text-black dark:text-white rounded-b-xl shadow-lg mt-1">
+          <ul className="py-2 px-4 space-y-2 max-h-[200px] overflow-y-auto dark:text-white text-sm">
             {questionTypes.map((type) => (
               <li
                 key={type}

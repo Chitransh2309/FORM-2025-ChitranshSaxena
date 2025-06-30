@@ -40,10 +40,14 @@ export default function SectionItem({
             {section.title || "Section Name"}
           </div>
 <<<<<<< HEAD
+<<<<<<< HEAD
           <div className="text-xs text-gray-500 dark:text-white">
             {section.questions.length} question{section.questions.length !== 1 ? "s" : ""}
 =======
           <div className="text-xs text-gray-500">
+=======
+          <div className="text-xs text-gray-500 dark:text-white">
+>>>>>>> 8a431a9 (fixes for better visibility in dark mode.)
             {section.questions.length} question
             {section.questions.length !== 1 ? "s" : ""}
 >>>>>>> f5bb73a (dark mode added to build page)
@@ -96,7 +100,11 @@ export default function SectionItem({
 
       {/* Expandable Question List */}
       {isOpen && (
+<<<<<<< HEAD
         <ul className="ml-4 mt-1 text-sm text-gray-600 space-y-1 dark:text-white">
+=======
+        <ul className="ml-4 mt-1 text-sm text-gray-600 dark:text-white space-y-1">
+>>>>>>> 8a431a9 (fixes for better visibility in dark mode.)
           {section.questions.length > 0 ? (
             section.questions.map((q) => (
 <<<<<<< HEAD
@@ -112,7 +120,13 @@ export default function SectionItem({
               </li>
             ))
           ) : (
+<<<<<<< HEAD
             <li className="italic text-gray-400 py-1 dark:text-white">No questions</li>
+=======
+            <li className="italic text-gray-400  dark:text-white py-1">
+              No questions
+            </li>
+>>>>>>> 8a431a9 (fixes for better visibility in dark mode.)
           )}
         </ul>
       )}
