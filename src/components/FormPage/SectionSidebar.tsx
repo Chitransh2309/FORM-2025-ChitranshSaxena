@@ -52,7 +52,7 @@ export default function SectionSidebar({
       <div className="mt-10 h-30">
         <h2 className="mb-2 text-base font-semibold">ENDINGS</h2>
         <div className="border-t-2 border-black mb-2 dark:border-white"></div>
-        <div className="py-2 rounded text-black bg-[#8cc7aa] text-sm pl-2">
+        <div className="py-2 rounded text-black bg-[#8cc7aa] dark:bg-[#5A5959] dark:text-white text-sm pl-2">
           Thank You Page
         </div>
       </div>
