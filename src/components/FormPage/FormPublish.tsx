@@ -9,7 +9,7 @@ interface FormPublishModalProps {
 
 export default function FormPublishModal({ formLink, onClose }: FormPublishModalProps) {
   return (
-    <div className="fixed inset-0 flex justify-center items-center z-50 pointer-events-none backdrop-blur-sm">
+    <div className="fixed inset-0 flex justify-center items-center z-50 pointer-events-none backdrop-blur-[3px]">
       <div className="bg-white dark:bg-neutral-800 text-black dark:text-white w-[90%] sm:w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-xl p-6 sm:p-8 shadow-2xl border border-gray-200 dark:border-neutral-700 relative pointer-events-auto">
         
         {/* Close Button */}

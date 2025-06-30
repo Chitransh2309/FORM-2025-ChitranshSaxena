@@ -1,15 +1,15 @@
 import { redirect } from "next/navigation";
 import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
-import CenterNav from "@/components/FormPage/CenterNav";
 import { auth } from "../../../../auth";
+import CenterNav from "@/components/FormPage/CenterNav";
+import FormWrapper from "@/components/FormPage/FormWrapper"; // 👈 we move client logic here
 
 export default async function FormPage({ params }: { params: { id: string } }) {
   const formId = params.id;
-  console.log(formId)
 
   const session = await auth();
   if (!session?.user?.email) {
-    redirect("/")
+    redirect("/");
   }
 
   const { dbClient, db } = await connectToDB();
@@ -31,14 +31,15 @@ export default async function FormPage({ params }: { params: { id: string } }) {
     );
   }
 
-  if(form.createdBy !== userID)
-  {
-    redirect(`/form/${formId}/response`)
+  if (form.createdBy !== userID) {
+    redirect(`/form/${formId}/response`);
   }
 
   return (
-    <div className="bg-[#e8ede8]">
-      <CenterNav formId={formId} />
-    </div>
+    <FormWrapper formId={formId}>
+      <div className="bg-[#e8ede8]">
+        <CenterNav formId={formId} />
+      </div>
+    </FormWrapper>
   );
 }
