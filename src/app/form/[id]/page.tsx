@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
 import { auth } from "../../../../auth";
 import CenterNav from "@/components/FormPage/CenterNav";
-import FormWrapper from "@/components/FormPage/FormWrapper"; // 👈 we move client logic here
+import FormWrapper from "@/components/FormPage/FormHeader";
 
 export default async function FormPage({ params }: { params: { id: string } }) {
   const formId = params.id;

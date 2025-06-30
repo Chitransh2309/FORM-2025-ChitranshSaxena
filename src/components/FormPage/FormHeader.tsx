@@ -6,7 +6,7 @@ import { publishForm } from "@/app/action/publish";
 import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";
 import FormPublishModal from "./FormPublish";
 
-export default function FormWrapper({
+export default function FormHeader({
   children,
   formId,
 }: {
