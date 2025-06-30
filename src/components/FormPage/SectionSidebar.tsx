@@ -21,11 +21,11 @@ export default function LeftSidebar({
   const [openMobile, setOpenMobile] = useState(false);
 
   const SidebarContent = (
-    <>
+    <div className="dark:bg-[#363535] dark:text-white h-full">
       {/* Sections */}
-      <div className="flex-1">
+      <div className="flex-1 h-80 ">
         <h2 className="mb-2 mt-8 text-base font-semibold">SECTIONS</h2>
-        <div className="border-t-2 border-black mb-4 dark:border-white"></div>
+        <div className="border-t-2 border-black dark:border-white mb-4"></div>
 
 <<<<<<< HEAD
   if (duplicates.length > 0) {
@@ -67,10 +67,10 @@ export default function LeftSidebar({
       </div>
 
       {/* Endings */}
-      <div className="mt-6">
+      <div className="mt-10 h-30">
         <h2 className="mb-2 text-base font-semibold">ENDINGS</h2>
         <div className="border-t-2 border-black mb-2 dark:border-white"></div>
-        <div className="py-2 rounded text-black bg-[#8cc7aa] text-sm pl-2 dark:bg-[#494949] dark:text-white">
+        <div className="py-2 rounded text-black bg-[#8cc7aa] text-sm pl-2">
           Thank You Page
         </div>
       </div>
@@ -82,7 +82,7 @@ export default function LeftSidebar({
           <span className="text-sm">UserName</span>
         </div>
       </div>
-    </>
+    </div>
   );
 
   return (

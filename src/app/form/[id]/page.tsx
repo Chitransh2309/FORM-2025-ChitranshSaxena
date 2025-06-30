@@ -6,10 +6,11 @@ import FormWrapper from "@/components/FormPage/FormHeader";
 
 export default async function FormPage({ params }: { params: { id: string } }) {
   const formId = params.id;
+  console.log(formId);
 
   const session = await auth();
   if (!session?.user?.email) {
-    redirect("/");
+    redirect(`/form/${formId}/response`);
   }
 
   const { dbClient, db } = await connectToDB();
@@ -36,10 +37,8 @@ export default async function FormPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <FormWrapper formId={formId}>
-      <div className="bg-[#e8ede8]">
-        <CenterNav formId={formId} />
-      </div>
-    </FormWrapper>
+    <div className="bg-[#2B2A2A] dark:bg-[#e8ede8]">
+      <CenterNav formId={formId} />
+    </div>
   );
 }

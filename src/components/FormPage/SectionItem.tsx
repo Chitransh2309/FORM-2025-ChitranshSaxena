@@ -20,10 +20,18 @@ export default function SectionItem({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="mb-1 w-full">
+    <div className="mb-1 w-full ">
       <div
         className={`flex justify-between items-start sm:items-center px-3 py-3 rounded-lg cursor-pointer w-full transition-all
+<<<<<<< HEAD
           ${isSelected ? "bg-[#8cc7aa] dark:bg-[#494949] text-black" : "hover:bg-gray-100 dark:hover:bg-[#6d6d6d] text-gray-700"} dark:text-white`}
+=======
+          ${
+            isSelected
+              ? "bg-[#8cc7aa] dark:bg-[#5A5959] dark:text-white text-black"
+              : "hover:bg-gray-100 text-gray-700 dark:text-white dark:hover:bg-gray-700"
+          }`}
+>>>>>>> f5bb73a (dark mode added to build page)
         onClick={onClick}
       >
         {/* Section Info */}
@@ -31,8 +39,14 @@ export default function SectionItem({
           <div className="text-base sm:text-[15px] font-semibold truncate dark:text-white">
             {section.title || "Section Name"}
           </div>
+<<<<<<< HEAD
           <div className="text-xs text-gray-500 dark:text-white">
             {section.questions.length} question{section.questions.length !== 1 ? "s" : ""}
+=======
+          <div className="text-xs text-gray-500">
+            {section.questions.length} question
+            {section.questions.length !== 1 ? "s" : ""}
+>>>>>>> f5bb73a (dark mode added to build page)
           </div>
         </div>
 
@@ -58,7 +72,7 @@ export default function SectionItem({
               className="text-red-500 hover:text-red-700 p-1"
               title="Delete section"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className=" w-4 h-4" />
             </button>
           )}
 >>>>>>> 1da22d4 (Added responsiveness for form builder)
@@ -72,9 +86,9 @@ export default function SectionItem({
             title="Toggle Questions"
           >
             {isOpen ? (
-              <ChevronDown className="w-5 h-5" />
+              <ChevronDown className="dark:text-white w-5 h-5" />
             ) : (
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="dark:text-white w-5 h-5" />
             )}
           </button>
         </div>
