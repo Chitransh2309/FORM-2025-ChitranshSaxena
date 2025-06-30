@@ -66,14 +66,14 @@ export default function PreviewForm() {
   }
 
   return (
-    <div className="relative flex justify-center items-center min-h-screen bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full overeflow-scroll h-full">
+    <div className="relative flex justify-center items-center min-h-screen bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full overeflow-scroll h-full dark:bg-[#2B2A2A]">
       <div
         className={`w-full ${
           selectedDevice === "mobile" ? "max-w-[375px] scale-[0.95]" : "w-[80%]"
         } mx-auto px-2 sm:px-4 transition-all duration-300 ease-in-out`}
       >
         {/* Device Switcher */}
-        <div className="flex items-center justify-between px-2 mb-6 w-full max-w-[200px] h-[62px] rounded-[10px] mx-auto shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45">
+        <div className="flex items-center justify-between px-2 mb-6 w-full max-w-[200px] h-[62px] rounded-[10px] mx-auto shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 dark:bg-[#414141]">
           {["desktop", "mobile"].map((device) => (
             <button
               key={device}
@@ -96,40 +96,35 @@ export default function PreviewForm() {
         </div>
 
         {/* === FORM HEADER === */}
-        {sectionIndex === 0 && (
-          <div className="w-full bg-white rounded-[8px] shadow-[0px_0px_4px_0px_#00000040] px-4 sm:px-6 py-6 flex flex-col justify-between mb-6">
-            <h2 className="text-black mb-1 font-[Outfit] font-semibold text-[25px] leading-[100%] tracking-[0%]">
+          <div className="w-full bg-white rounded-[8px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 sm:px-6 py-6 flex flex-col justify-between mb-6 dark:bg-[#5A5959] dark:text-white">
+            <h2 className="text-black mb-1 font-[Outfit] font-semibold text-[25px] leading-[100%] tracking-[0%] dark:text-white">
               {form.title || "Untitled Form"}
             </h2>
             <p
-              className="text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-6 sm:mb-12"
-              style={{ textShadow: "0.5px 1px 1.5px rgba(0, 0, 0, 0.20)" }}
+              className="text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-6 sm:mb-12 dark:text-white"
             >
               {form.description || "No description provided"}
             </p>
-            <hr className="border-t border-black mb-2" />
+            <hr className="border-t border-black mb-2 dark:border-white" />
             <p
-              className="text-[#676767] font-[Outfit] font-normal text-[20px] leading-[100%] tracking-[0%]"
-              style={{ textShadow: "0px 0px 4px rgba(0, 0, 0, 0.25)" }}
+              className="text-[#676767] font-[Outfit] font-normal text-[20px] leading-[100%] tracking-[0%] dark:text-white"
             >
               <span className="text-red-500">*</span> implies compulsory
             </p>
           </div>
-        )}
-
         {/* === SECTION BODY === */}
-        <div className="w-full bg-white px-4 sm:px-6 py-6 shadow-[0px_0px_4px_0px_#00000040] rounded-[8px]">
-          <h3 className="text-lg sm:text-xl font-semibold mb-6 text-black font-[Outfit]">
+        <div className="w-full bg-white px-4 sm:px-6 py-6 shadow-[0_0_10px_rgba(0,0,0,0.3)] rounded-[8px] dark:bg-[#5A5959] dark:text-white">
+          <h3 className="text-lg sm:text-xl font-semibold mb-6 text-black font-[Outfit] dark:text-white">
             {section.title}
           </h3>
 
           {section.questions.map((q) => (
             <div
               key={q.question_ID}
-              className="mb-6 w-full bg-white rounded-[10px] shadow-[0px_0px_4px_0px_#00000040] px-4 py-3"
+              className="mb-6 w-full bg-white rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 py-3 dark:bg-[#353434]"
             >
               <label
-                className="block text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-2 font-[Outfit]"
+                className="block text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-2 font-[Outfit] dark:text-white"
                 style={{ textShadow: "0.3px 0.6px 1px rgba(0, 0, 0, 0.1)" }}
               >
                 {q.questionText}{" "}
@@ -138,7 +133,7 @@ export default function PreviewForm() {
               <input
                 type="text"
                 placeholder="Type your answer"
-                className="w-full h-[42px] px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black placeholder:text-[#676767] outline-none border border-transparent focus:border-gray-300 font-[Outfit]"
+                className="w-full h-[42px] px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black placeholder:text-[#676767] outline-none border border-transparent focus:border-gray-300 font-[Outfit] dark:text-white dark:placeholder-white dark:bg-[#494949]"
               />
             </div>
           ))}

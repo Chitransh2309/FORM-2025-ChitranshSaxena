@@ -17,6 +17,24 @@ const ToggleSwitch = () => {
       setEnabled(true)
     }
   }, [])
+
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'theme') {
+        const newTheme = e.newValue
+        if (newTheme === 'dark') {
+          document.documentElement.classList.add('dark')
+          setEnabled(false)
+        } else {
+          document.documentElement.classList.remove('dark')
+          setEnabled(true)
+        }
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [])
   
   const toggleTheme = () => {
     const newEnabled = !enabled

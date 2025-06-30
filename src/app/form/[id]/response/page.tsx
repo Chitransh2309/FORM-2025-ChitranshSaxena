@@ -83,7 +83,7 @@ export default function ResponsesPage({ params }: { params: Promise<{ id: string
     }
 
     const response: FormResponse = {
-      response_ID: crypto.randomUUID(),
+      response_ID: nanoid(),
       form_ID: formId,
       userId,
       startedAt: startedAt.current,
@@ -115,36 +115,36 @@ export default function ResponsesPage({ params }: { params: Promise<{ id: string
   return (
     <>
     {showConfetti && <Confetti width={width} height={height} />}
-    <div className="relative flex justify-center items-center min-h-screen bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full overflow-scroll h-full">
-      <div className="w-full w-[80%] mx-auto px-2 sm:px-4 transition-all duration-300 ease-in-out">
-          <div className="w-full bg-white rounded-[8px] shadow px-4 sm:px-6 py-6 mb-6">
-            <h2 className="text-black mb-1 font-semibold text-[25px]">{form.title || "Untitled Form"}</h2>
-            <p className="text-black text-[16px] sm:text-[20px] mb-6 sm:mb-12">{form.description || "No description provided"}</p>
-            <hr className="border-t border-black mb-2" />
-            <p className="text-[#676767] text-[20px]">
+    <div className="relative flex justify-center items-start bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full h-screen dark:bg-[#2B2A2A]">
+      <div className="w-full w-[80%] mx-auto px-2 sm:px-4 transition-all duration-300 ease-in-out dark:bg-[#2B2A2A]">
+          <div className="w-full bg-white rounded-[8px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 sm:px-6 py-6 mb-6 dark:bg-[#5A5959] dark:text-white">
+            <h2 className="text-black mb-1 font-semibold text-[25px] dark:text-white">{form.title || "Untitled Form"}</h2>
+            <p className="text-black text-[16px] sm:text-[20px] mb-6 sm:mb-12 dark:text-white">{form.description || "No description provided"}</p>
+            <hr className="border-t border-black mb-2 dark:border-white" />
+            <p className="text-[#676767] text-[20px] dark:text-white">
               <span className="text-red-500">*</span> implies compulsory
             </p>
           </div>
 
-        <div className="w-full bg-white px-4 sm:px-6 py-6 shadow rounded-[8px]">
-          <h3 className="text-lg sm:text-xl font-semibold mb-6 text-black">{section.title}</h3>
+        <div className="w-full bg-white px-4 sm:px-6 py-6 shadow-[0_0_10px_rgba(0,0,0,0.3)] rounded-[8px] dark:bg-[#5A5959] dark:text-white">
+          <h3 className="text-lg sm:text-xl font-semibold mb-6 text-black dark:text-white">{section.title}</h3>
 
           {section.questions.map((q) => (
-            <div key={q.question_ID} className="mb-6 bg-white rounded-[10px] shadow px-4 py-3">
-              <label className="block text-black text-[16px] sm:text-[20px] mb-2">
+            <div key={q.question_ID} className="mb-6 bg-white rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 py-3 dark:bg-[#353434]">
+              <label className="block text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-2 font-[Outfit] dark:text-white">
                 {q.questionText} {q.isRequired && <span className="text-red-500">*</span>}
               </label>
               <input
                 type="text"
                 placeholder="Type your answer"
-                className="w-full h-[42px] px-3 py-2 rounded bg-[#F6F8F6] text-black"
+                className="w-full h-[42px] px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black placeholder:text-[#676767] outline-none border border-transparent focus:border-gray-300 font-[Outfit] dark:text-white dark:placeholder-white dark:bg-[#494949]"
                 value={answers.find((a) => a.question_ID === q.question_ID)?.value || ""}
                 onChange={(e) => handleInputChange(q.question_ID, e.target.value)}
               />
             </div>
           ))}
 
-          <div className="flex justify-between mt-4 gap-3">
+          <div className="flex justify-between mt-4 gap-3 text-black">
             {sectionIndex > 0 && (
               <button onClick={goBack} className="min-w-[90px] bg-[#91C4AB] rounded px-4 py-2">Back</button>
             )}
