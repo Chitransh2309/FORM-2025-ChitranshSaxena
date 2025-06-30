@@ -2,22 +2,21 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import SectionSidebar from "@/components/SectionSidebar";
-import RightNav from "@/components/right-nav";
-import SaveButton from "@/components/savebutton";
-import QuestionParent from "@/components/question-parent";
+import SectionSidebar from "@/components/FormPage/SectionSidebar";
+import RightNav from "@/components/FormPage/RightNav";
+import SaveButton from "@/components/FormPage/SaveButton";
+import QuestionParent from "@/components/FormPage/QuestionParent";
 import getFormObject from "@/app/action/getFormObject";
 import { saveFormToDB } from "@/app/action/saveformtodb";
 import { Form, Question, Section } from "@/lib/interface";
+import { Menu } from "lucide-react";
 
 export default function BuildPage() {
   const { id: formId } = useParams();
   const [form, setForm] = useState<Form | null>(null);
-  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
-    null
-  );
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  const [showRightNav, setShowRightNav] = useState(false);
 
-  // Fixed the typo here: selectedSectaionId -> selectedSectionId
   const selectedSection = form?.sections.find(
     (s) => s.section_ID === selectedSectionId
   );
@@ -37,7 +36,6 @@ export default function BuildPage() {
   const addSection = () => {
     if (!form) return;
 
-    // Extract existing section numbers
     const existingNumbers = form.sections
       .map((s) => {
         const match = s.section_ID.match(/section-(\d+)/);
@@ -45,7 +43,6 @@ export default function BuildPage() {
       })
       .filter((num) => num > 0);
 
-    // Find next available number
     let nextNumber = 1;
     while (existingNumbers.includes(nextNumber)) {
       nextNumber++;
@@ -68,14 +65,10 @@ export default function BuildPage() {
 
   const deleteSection = (sectionId: string) => {
     if (!form) return;
-
     const filteredSections = form.sections.filter(
       (s) => s.section_ID !== sectionId
     );
-
     setForm({ ...form, sections: filteredSections });
-
-    // If we're deleting the currently selected section, select the first remaining one
     if (sectionId === selectedSectionId) {
       setSelectedSectionId(filteredSections[0]?.section_ID ?? null);
     }
@@ -149,23 +142,39 @@ export default function BuildPage() {
   };
 
   return (
-    <div className="bg-[#F6F8F6] text-black w-screen h-[90vh] flex font-[Outfit]">
-      <SectionSidebar
-        sections={form?.sections || []}
-        selectedSectionId={selectedSectionId}
-        setSelectedSectionId={setSelectedSectionId}
-        onAddSection={addSection}
-        onDeleteSection={deleteSection}
-      />
+    <div className="bg-[#F6F8F6] text-black w-full h-[90vh] font-[Outfit] flex flex-col lg:flex-row">
+      {/* Sidebar always visible */}
+      <div className="lg:w-[20vw] w-full border-b lg:border-b-0 border-gray-300">
+        <SectionSidebar
+          sections={form?.sections || []}
+          selectedSectionId={selectedSectionId}
+          setSelectedSectionId={setSelectedSectionId}
+          onAddSection={addSection}
+          onDeleteSection={deleteSection}
+        />
+      </div>
 
-      <div className="w-full  overflow-auto">
-        <div className="flex bg-[#F6F8F6]  overflow-hidden">
-          <div className="w-full h-[90vh] overflow-auto">
+      {/* Toggle RightNav for mobile */}
+      <div className="lg:hidden flex items-center justify-start px-4 mt-2">
+        <button
+          className="flex items-center gap-2 bg-[#8cc7aa] text-black py-1 px-3 rounded-md shadow"
+          onClick={() => setShowRightNav(!showRightNav)}
+        >
+          <Menu className="w-4 h-4" />
+          Edit Question
+        </button>
+      </div>
+
+      {/* Main content */}
+      <div className="w-full flex-1 overflow-auto">
+        <div className="flex flex-col lg:flex-row h-full">
+          {/* Left content */}
+          <div className="w-full lg:w-full px-4 lg:px-10 mt-4">
             <div className="flex flex-row justify-between items-center">
-              <div className="text-2xl font-bold ml-[5%] mb-3 mt-20 p-4">
+              <div className="text-2xl font-bold mb-3 mt-6">
                 {selectedSection?.title || "No Section Selected"}
               </div>
-              <div className="mr-5 mt-20 mb-3 p-4">
+              <div className="mr-2">
                 <SaveButton onClick={handleSave} />
               </div>
             </div>
@@ -180,9 +189,28 @@ export default function BuildPage() {
             )}
           </div>
 
-          <div className="border-gray-300 border-2 w-[30vw] h-[90vh] bg-[#fefefe]">
+          {/* RightNav */}
+          <div className="hidden lg:block lg:w-[30vw] h-full border-l border-gray-300 bg-[#fefefe]">
             <RightNav />
           </div>
+
+          {/* Mobile RightNav Overlay */}
+          {showRightNav && (
+            <div className="lg:hidden fixed top-0 left-0 w-full h-full bg-white z-50 overflow-y-auto">
+              <div className="flex justify-between items-center p-4 border-b">
+                <h2 className="text-lg font-semibold">Edit Question</h2>
+                <button
+                  onClick={() => setShowRightNav(false)}
+                  className="text-red-500 font-semibold"
+                >
+                  Close
+                </button>
+              </div>
+              <div className="p-4">
+                <RightNav />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

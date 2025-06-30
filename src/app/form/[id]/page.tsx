@@ -1,15 +1,15 @@
 import { redirect } from "next/navigation";
 import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
-import CenterNav from "@/components/center-nav";
+import CenterNav from "@/components/FormPage/CenterNav";
 import { auth } from "../../../../auth";
 
-export default async function FormPage(props: { params: { id: string } }) {
-  const { params } = props;
+export default async function FormPage({ params }: { params: { id: string } }) {
   const formId = params.id;
+  console.log(formId)
 
   const session = await auth();
   if (!session?.user?.email) {
-    redirect("/");
+    redirect(`/form/${formId}/response`)
   }
 
   const { dbClient, db } = await connectToDB();
@@ -23,12 +23,17 @@ export default async function FormPage(props: { params: { id: string } }) {
 
   await disconnectFromDB(dbClient);
 
-  if (!form || form.createdBy !== userID) {
+  if (!form) {
     return (
       <div className="text-center mt-20 text-xl text-red-600 font-bold">
         🚫 Access Denied: You don't own this form.
       </div>
     );
+  }
+
+  if(form.createdBy !== userID)
+  {
+    redirect(`/form/${formId}/response`)
   }
 
   return (
