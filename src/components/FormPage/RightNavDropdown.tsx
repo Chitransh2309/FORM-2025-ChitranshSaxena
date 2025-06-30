@@ -23,7 +23,7 @@ export default function QuestionTypeDropdown() {
     switch (selectedType) {
       case "Text":
         return (
-          <div className="bg-white p-4 text-black space-y-4 text-sm">
+          <div className="bg-white p-4 text-black space-y-4 text-sm dark:text-white dark:bg-[#5A5959]">
             <div className="flex justify-between items-center gap-4 flex-wrap">
               <label className="flex items-center gap-2">
                 <span>Min char:</span>
@@ -31,7 +31,7 @@ export default function QuestionTypeDropdown() {
                   type="number"
                   value={minChar}
                   onChange={(e) => setMinChar(Number(e.target.value))}
-                  className="w-16 px-2 py-1 rounded bg-[#8CC7AA] text-center outline-none"
+                  className="w-16 px-2 py-1 rounded bg-[#8CC7AA] dark:bg-[#353434] text-center outline-none"
                 />
               </label>
 
@@ -41,14 +41,14 @@ export default function QuestionTypeDropdown() {
                   type="number"
                   value={maxChar}
                   onChange={(e) => setMaxChar(Number(e.target.value))}
-                  className="w-16 px-2 py-1 rounded bg-[#8CC7AA] text-center outline-none"
+                  className="w-16 px-2 py-1 rounded bg-[#8CC7AA] dark:bg-[#353434] text-center outline-none"
                 />
               </label>
             </div>
 
             <div className="flex justify-between items-center text-sm">
               <span>Photo/File/Video</span>
-              <button className="w-6 h-6 border border-black rounded-full flex items-center justify-center">
+              <button className="w-6 h-6 border border-black rounded-full flex items-center justify-center dark:border-white">
                 {/* Add icon if needed */}
               </button>
             </div>
@@ -56,8 +56,8 @@ export default function QuestionTypeDropdown() {
         );
       default:
         return (
-          <div className="bg-white p-4 text-black text-sm">
-            <p className="italic">
+          <div className="bg-white p-4 text-black text-sm dark:bg-[#5A5959]">
+            <p className="italic dark:text-white">
               Config UI for <strong>{selectedType}</strong> coming soon.
             </p>
           </div>
@@ -67,17 +67,21 @@ export default function QuestionTypeDropdown() {
 
   return (
 <<<<<<< HEAD
+<<<<<<< HEAD
     <div className="w-65 relative rounded-xl bg-white">
       {/* Dropdown header */}
 =======
     <div className="w-full max-w-sm sm:max-w-xs mx-auto relative rounded-xl bg-white shadow">
+=======
+    <div className="w-full max-w-sm sm:max-w-xs mx-auto relative rounded-xl bg-white shadow dark:bg-[#5A5959] dark:text-white">
+>>>>>>> b595afc (fix: dark and light theme)
       {/* Dropdown Header */}
 >>>>>>> 1da22d4 (Added responsiveness for form builder)
       <div
-        className="bg-[#8CC7AA] rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer"
+        className="bg-[#8CC7AA] rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer dark:bg-[#5A5959] dark:text-white"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="text-black font-medium text-base">
+        <span className="text-black font-medium text-base dark:text-white">
           {selectedType}
         </span>
         <span className="text-lg">{isOpen ? "▲" : "▼"}</span>
@@ -86,11 +90,15 @@ export default function QuestionTypeDropdown() {
       {/* Dropdown Options */}
       {isOpen && (
 <<<<<<< HEAD
+<<<<<<< HEAD
         <div className="absolute z-10 bg-[#8CC7AA] text-black rounded-b-xl shadow-lg">
           <hr className="border-gray-400" />
           <ul className="py-2 px-4 space-y-2">
 =======
         <div className="absolute z-10 w-full bg-[#8CC7AA] text-black rounded-b-xl shadow-lg mt-1">
+=======
+        <div className="absolute z-10 w-full bg-[#8CC7AA] text-black rounded-b-xl shadow-lg mt-1 dark:text-white dark:bg-[#494949]">
+>>>>>>> b595afc (fix: dark and light theme)
           <ul className="py-2 px-4 space-y-2 max-h-[200px] overflow-y-auto text-sm">
 >>>>>>> 1da22d4 (Added responsiveness for form builder)
             {questionTypes.map((type) => (

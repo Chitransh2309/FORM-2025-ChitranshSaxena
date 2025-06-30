@@ -10,8 +10,7 @@ export default function RightNav() {
       <p className="mb-5 font-semibold">Description</p>
 =======
     <div className="p-6 w-full h-full overflow-y-auto">
-      <p className="mb-4 font-semibold text-lg">Description</p>
->>>>>>> 1da22d4 (Added responsiveness for form builder)
+      <p className="mb-4 font-semibold text-lg dark:text-white">Description</p>
       <Dropdown />
     </div>
   );

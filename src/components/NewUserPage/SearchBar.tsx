@@ -8,7 +8,7 @@ const Searchbar = () => {
             <input 
                 placeholder="Search" 
                 type="text" 
-                className="flex-1 bg-transparent outline-none text-black placeholder-gray-500"
+                className="flex-1 bg-transparent outline-none text-black placeholder-gray-500 dark:placeholder-white dark:text-white"
             />
             <RiExpandUpDownLine size={16}/>
         </div>

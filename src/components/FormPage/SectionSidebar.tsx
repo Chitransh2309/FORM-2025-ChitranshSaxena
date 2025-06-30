@@ -25,7 +25,7 @@ export default function LeftSidebar({
       {/* Sections */}
       <div className="flex-1">
         <h2 className="mb-2 mt-8 text-base font-semibold">SECTIONS</h2>
-        <div className="border-t-2 border-black mb-4"></div>
+        <div className="border-t-2 border-black mb-4 dark:border-white"></div>
 
 <<<<<<< HEAD
   if (duplicates.length > 0) {
@@ -59,7 +59,7 @@ export default function LeftSidebar({
 
           <button
             onClick={onAddSection}
-            className="mt-4 w-full py-2 text-sm text-gray-700 bg-gray-200 hover:bg-gray-300 rounded"
+            className="mt-4 w-full py-2 text-sm text-gray-700 bg-gray-200 hover:bg-gray-300 rounded dark:bg-[#494949] dark:text-white dark:hover:bg-[#6d6d6d]"
           >
             + Add New Section
           </button>
@@ -69,8 +69,8 @@ export default function LeftSidebar({
       {/* Endings */}
       <div className="mt-6">
         <h2 className="mb-2 text-base font-semibold">ENDINGS</h2>
-        <div className="border-t-2 border-black mb-2"></div>
-        <div className="py-2 rounded text-black bg-[#8cc7aa] text-sm pl-2">
+        <div className="border-t-2 border-black mb-2 dark:border-white"></div>
+        <div className="py-2 rounded text-black bg-[#8cc7aa] text-sm pl-2 dark:bg-[#494949] dark:text-white">
           Thank You Page
         </div>
       </div>
@@ -88,14 +88,14 @@ export default function LeftSidebar({
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex flex-col bg-[#FEFEFE] text-black w-[260px] h-[90vh] p-4 box-border border-r border-gray-300 font-[Outfit]">
+      <div className="hidden md:flex flex-col bg-[#FEFEFE] text-black w-[260px] h-[90vh] p-4 box-border border-r border-gray-300 font-[Outfit] dark:bg-[#363535] dark:border-gray-500 dark:text-white">
         {SidebarContent}
       </div>
 
       {/* Mobile Toggle Button */}
-      <div className="flex md:hidden px-4 py-2 justify-between items-center bg-white border-b">
+      <div className="flex md:hidden px-4 py-2 justify-between items-center bg-white dark:bg-[#353434] dark:text-white">
         <button onClick={() => setOpenMobile(true)}>
-          <Menu className="w-6 h-6 text-gray-800" />
+          <Menu className="w-6 h-6 text-gray-800 dark:text-white" />
         </button>
         <div className="text-sm font-semibold">Sections</div>
       </div>
@@ -103,9 +103,9 @@ export default function LeftSidebar({
       {/* Mobile Slide-over Drawer */}
       {openMobile && (
         <div className="fixed inset-0 z-50 bg-black/50 flex md:hidden">
-          <div className="w-4/5 max-w-xs bg-[#FEFEFE] text-black h-full p-4 overflow-auto">
+          <div className="w-4/5 max-w-xs bg-[#FEFEFE] text-black h-full p-4 overflow-auto dark:bg-[#363535] dark:text-white">
             <button
-              className="text-sm text-gray-600 mb-4 underline"
+              className="text-sm text-gray-600 mb-4 underline dark:text-white"
               onClick={() => setOpenMobile(false)}
             >
               Close

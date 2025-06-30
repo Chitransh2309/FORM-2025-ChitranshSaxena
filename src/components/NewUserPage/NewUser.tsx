@@ -14,17 +14,17 @@ function Newuser() {
   //     alert("❌ Failed to create form");
   //   }
   // };
-
+  
   return (
-    <div className="w-[995px] h-[775px] border border-dashed border-gray-300 mx-auto mt-[193px] flex flex-col justify-center items-center gap-6 px-8 py-7 bg-transparent">
-      <h4 className="text-xl text-gray-600">
+    <div className="w-[995px] h-full border border-dashed border-black mx-auto flex flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white">
+      <h4 className="text-xl text-gray-600 dark:text-white">
         You have not created any forms yet.
       </h4>
-      <h2 className="text-3xl font-semibold text-gray-800">
+      <h2 className="text-3xl font-semibold text-gray-800 dark:text-white">
         Create Your First Form Today!
       </h2>
       <button
-        className="bg-[#61A986] px-6 py-3 text-white text-lg rounded-lg cursor-pointer hover:bg-[#4d8a6b] transition-colors"
+        className="bg-[#61A986] px-6 py-3 text-white text-lg rounded-lg cursor-pointer hover:bg-[#4d8a6b] transition-colors dark:text-black"
         onClick={createNewForm}
       >
         Create Now
