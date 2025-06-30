@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { publishForm } from "@/app/action/Publish";
 // import { Link } from "lucide-react";
 import { useRouter } from "next/navigation";
+import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";
 
 export default function FormLayout({
   children,
@@ -54,11 +55,14 @@ export default function FormLayout({
 
         {/* Right: Controls */}
         <div className="flex-1 flex flex-row justify-end items-center space-x-4">
-          <label className={style.switch}>
-            {/* Toggle UI */}
+          {/* <label className={style.switch}>
+         
             <input type="checkbox" className={style.input} />
             <span className={style.slider}></span>
-          </label>
+          </label>*/}
+
+          <ToggleSwitch />
+
           <button className="px-3">Setting</button>
           <button onClick={handlePublish} disabled={isPending}>
             {isPending ? "Publishing..." : "Publish"}

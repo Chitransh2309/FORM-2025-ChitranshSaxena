@@ -66,7 +66,7 @@ export default function QuestionTypeDropdown() {
   };
 
   return (
-    <div className="w-full max-w-sm sm:max-w-xs mx-auto relative rounded-xl bg-white dark:bg-[#363535] shadow">
+    <div className="w-full h-full max-w-sm sm:max-w-xs mx-auto relative rounded-xl bg-white dark:bg-[#363535]">
       {/* Dropdown Header */}
 >>>>>>> 1da22d4 (Added responsiveness for form builder)
       <div
