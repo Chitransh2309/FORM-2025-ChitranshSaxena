@@ -23,7 +23,7 @@ export default function QuestionTypeDropdown() {
     switch (selectedType) {
       case "Text":
         return (
-          <div className="bg-white p-4 text-black space-y-4 text-sm">
+          <div className="bg-white dark:bg-[#363535] dark:text-white p-4 text-black space-y-4 text-sm">
             <div className="flex justify-between items-center gap-4 flex-wrap">
               <label className="flex items-center gap-2">
                 <span>Min char:</span>
@@ -48,7 +48,7 @@ export default function QuestionTypeDropdown() {
 
             <div className="flex justify-between items-center text-sm">
               <span>Photo/File/Video</span>
-              <button className="w-6 h-6 border border-black rounded-full flex items-center justify-center">
+              <button className="w-6 h-6 border border-black dark:border-white rounded-full flex items-center justify-center">
                 {/* Add icon if needed */}
               </button>
             </div>
@@ -56,7 +56,7 @@ export default function QuestionTypeDropdown() {
         );
       default:
         return (
-          <div className="bg-white p-4 text-black text-sm">
+          <div className="bg-white dark:bg-[#363535] p-4 text-black dark:text-white text-sm">
             <p className="italic">
               Config UI for <strong>{selectedType}</strong> coming soon.
             </p>
@@ -66,15 +66,13 @@ export default function QuestionTypeDropdown() {
   };
 
   return (
-    <div className="w-full max-w-sm sm:max-w-xs mx-auto relative rounded-xl bg-white shadow">
+    <div className="w-full max-w-sm sm:max-w-xs mx-auto relative rounded-xl bg-white dark:bg-[#363535] shadow">
       {/* Dropdown Header */}
       <div
-        className="bg-[#8CC7AA] rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer"
+        className="bg-[#8CC7AA] dark:bg-[#5A5959] dark:text-white rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="text-black font-medium text-base">
-          {selectedType}
-        </span>
+        <span className="text-black font-medium text-base">{selectedType}</span>
         <span className="text-lg">{isOpen ? "▲" : "▼"}</span>
       </div>
 
