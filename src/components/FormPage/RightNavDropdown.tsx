@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { fieldtypes, FieldType, ParamType } from "@/lib/interface";
 
 const questionTypes = [
   "Text",
@@ -16,53 +17,118 @@ const questionTypes = [
 export default function QuestionTypeDropdown() {
   const [selectedType, setSelectedType] = useState("Text");
   const [isOpen, setIsOpen] = useState(false);
-  const [minChar, setMinChar] = useState(15);
-  const [maxChar, setMaxChar] = useState(30);
+  
+  const paramInputType = (param: any, key: number) => {
+  const cls = "w-full px-2 py-2 rounded bg-yellow-500 outline-none";
+
+  const input = (type: string) => (
+    <input
+      key={key}
+      type={type}
+      placeholder={param.name}
+      defaultValue={param.value ?? ""}
+      className={cls}
+    />
+  );
+
+  switch (param.type) {
+    case "string":
+    case "number":
+      return input(param.type);
+
+    case "boolean":
+      return (
+        <label key={key} className="flex items-center gap-2">
+          <input type="checkbox" defaultChecked={!!param.value} className="accent-[#8CC7AA]" />
+          <span>{param.name}</span>
+        </label>
+      );
+
+    case "array[string]":
+      return (
+        <input
+          key={key}
+          type="text"
+          placeholder={`${param.name} (comma-separated)`}
+          defaultValue={Array.isArray(param.value) ? param.value.join(", ") : ""}
+          className={cls}
+        />
+      );
+
+    case "file":
+      return (
+        <label key={key} className="flex flex-col gap-1">
+          <span>{param.name}</span>
+          <input type="file" multiple className={cls} />
+        </label>
+      );
+
+    case "date":
+      return (
+        <label key={key} className="flex items-center gap-2">
+          <span>{param.name}</span>
+          <input type="date" defaultValue={param.value ?? ""} className={cls} />
+        </label>
+      );
+
+    case "checkBox":
+      return (
+        <div key={key} className="flex flex-col gap-1">
+          <span>{param.name}</span>
+          {[1, 2, 3].map((n) => (
+            <label key={n} className="flex items-center gap-2">
+              <input type="checkbox" />
+              <span>Option {n}</span>
+            </label>
+          ))}
+        </div>
+      );
+
+    default:
+      return <div key={key}>Unsupported type: {param.type}</div>;
+  }
+};
 
   const typeSelector = () => {
-    switch (selectedType) {
-      case "Text":
-        return (
-          <div className="bg-white p-4 text-black space-y-4 text-sm dark:text-white dark:bg-[#5A5959]">
-            <div className="flex justify-between items-center gap-4 flex-wrap">
-              <label className="flex items-center gap-2">
-                <span>Min char:</span>
-                <input
-                  type="number"
-                  value={minChar}
-                  onChange={(e) => setMinChar(Number(e.target.value))}
-                  className="w-16 px-2 py-1 rounded bg-[#8CC7AA] dark:bg-[#353434] text-center outline-none"
-                />
-              </label>
+    const selectedField = fieldtypes.find(
+      (f) => f.name.toLowerCase() === selectedType.toLowerCase()
+    );
 
-              <label className="flex items-center gap-2">
-                <span>Max char:</span>
-                <input
-                  type="number"
-                  value={maxChar}
-                  onChange={(e) => setMaxChar(Number(e.target.value))}
-                  className="w-16 px-2 py-1 rounded bg-[#8CC7AA] dark:bg-[#353434] text-center outline-none"
-                />
-              </label>
-            </div>
+    if (!selectedField)
+      return (
+        <div className="bg-white p-4 text-black text-sm">
+          <p className="italic">
+            Config UI for <strong>{selectedType}</strong> coming soon.
+          </p>
+        </div>
+      );
 
-            <div className="flex justify-between items-center text-sm">
-              <span>Photo/File/Video</span>
-              <button className="w-6 h-6 border border-black rounded-full flex items-center justify-center dark:border-white">
-                {/* Add icon if needed */}
-              </button>
+    return (
+      <div className="bg-white p-4 text-black space-y-4 text-sm">
+        {selectedField.params.length > 0 && (
+          <>
+            <h4 className="font-semibold">Params</h4>
+            <div className="space-y-2">
+              {selectedField.params.map((p, i) => paramInputType(p, i))}
             </div>
-          </div>
-        );
-      default:
-        return (
-          <div className="bg-white p-4 text-black text-sm dark:bg-[#5A5959]">
-            <p className="italic dark:text-white">
-              Config UI for <strong>{selectedType}</strong> coming soon.
-            </p>
-          </div>
-        );
-    }
+          </>
+        )}
+
+        {selectedField.validations.length > 0 && (
+          <>
+            <h4 className="font-semibold pt-4 border-t">Validations</h4>
+            <div className="space-y-2">
+              {selectedField.validations.map((v, i) => (
+                <div key={i} className="pt-2 border-t">
+                  <p className="font-semibold text-sm">{v.name}</p>
+                  {v.params?.map((p, j) => paramInputType(p, j))}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    );
   };
 
   return (
