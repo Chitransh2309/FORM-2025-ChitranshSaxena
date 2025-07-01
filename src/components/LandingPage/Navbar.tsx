@@ -17,7 +17,9 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
           <MobileMenu />
           <Link href="/">
-            <p className="text-xl font-bold dark:text-white">F.O.R.M</p>
+            <p className="lg:pl-20 md:pl-5 text-xl font-bold dark:text-white">
+              F.O.R.M
+            </p>
           </Link>
         </div>
 
@@ -27,7 +29,7 @@ export default function Navbar() {
         </div>
 
         {/* RIGHT: Toggle + Auth */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 lg:pr-5">
           <NavbarToggle />
           <AuthBtn pos="nav" />
         </div>
