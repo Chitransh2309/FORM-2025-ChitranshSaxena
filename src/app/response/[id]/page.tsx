@@ -18,7 +18,7 @@ export default async function ResponsePage({
       .find({ form_ID: formId })
       .toArray();
 
-    console.log(responses);
+    console.log("Responses:", responses);
 
     await disconnectFromDB(dbClient);
 
