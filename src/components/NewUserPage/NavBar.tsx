@@ -9,7 +9,7 @@ import ToggleSwitch from "../LandingPage/ToggleSwitch";
 export default function Navbar() {
   return (
     /* mobile‑only green bar */
-    <div className="md:hidden w-full flex items-center justify-between px-4 py-3 bg-[#56A37D] dark:bg-[#2B2A2A]">
+    <div className="xl:hidden w-full flex items-center justify-between px-4 py-3 bg-[#56A37D] dark:bg-[#2B2A2A]">
 
       {/* left: logo + title */}
       <div className="flex items-center gap-2">
