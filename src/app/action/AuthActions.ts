@@ -7,5 +7,5 @@ export async function handleSignOut() {
 }
 
 export async function handleSignIn() {
-  await signIn("google", { redirectTo: "/" });
+  await signIn("google", { redirectTo: "/dashboard" });
 }
