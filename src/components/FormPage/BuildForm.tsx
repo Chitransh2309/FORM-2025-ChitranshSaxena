@@ -154,9 +154,9 @@ export default function BuildPage() {
   }, []);
 
   return (
-    <div className="dark:bg-[#2B2A2A] bg-[#F6F8F6] text-black dark:text-white w-screen h-[90vh] font-[Outfit] flex flex-col lg:flex-row">
+    <div className="dark:bg-[#2B2A2A] bg-[#F6F8F6] text-black dark:text-white w-full h-full font-[Outfit] flex flex-col lg:flex-row">
       {/* Sidebar always visible */}
-      <div className="dark:bg-[#363535] shadow-md">
+      <div className="dark:bg-[#363535] w-[1/5] shadow-md">
         <SectionSidebar
           sections={form?.sections || []}
           selectedSectionId={selectedSectionId}

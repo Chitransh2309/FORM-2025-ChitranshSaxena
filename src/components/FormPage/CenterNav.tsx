@@ -19,7 +19,7 @@ const CenterNav = ({ formId }: { formId?: string }) => {
   return (
     <div className="relative w-full min-h-screen flex flex-col bg-[#F6F8F6] dark:bg-[#2B2A2A] dark:text-white overflow-hidden font-[Outfit]">
       {/* Top tab nav */}
-      <div className="w-full flex justify-center mt-6 px-4 sm:px-0">
+      <div className="flex justify-center mt-6 px-4 sm:px-0">
         <div className="flex justify-between items-center w-full max-w-[480px] h-[58px] rounded-[10px] dark:bg-[#414141] shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 px-2 sm:px-4">
           {LABELS.map((label, i) => (
             <button

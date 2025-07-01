@@ -2,7 +2,7 @@ import Footer from "../components/LandingPage/Footer";
 import Hero from "../components/LandingPage/Hero";
 import Navbar from "../components/LandingPage/Navbar";
 import { insertUser } from "./action/user";
-import Image from 'next/image';
+import Image from "next/image";
 
 export default async function Home() {
   await insertUser();
