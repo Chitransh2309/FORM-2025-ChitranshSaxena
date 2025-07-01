@@ -20,7 +20,7 @@ const items: Item[] = [
 export default function BottomNav() {
   return (
     /* hidden on ≥ md screens */
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t shadow-md dark:bg-[#2B2A2A] dark:border-gray-500">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 xl:hidden bg-white border-t shadow-md dark:bg-[#2B2A2A] dark:border-gray-500">
       <ul className="flex justify-around">
         {items.map(({ href, icon, label }) => (
           <li key={label}>

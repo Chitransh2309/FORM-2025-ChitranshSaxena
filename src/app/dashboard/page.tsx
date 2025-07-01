@@ -1,14 +1,14 @@
-"use client";
-
 import Sidebar from "../../components/NewUserPage/Sidebar";
 import Formlist from "../../components/NewUserPage/FormList";
 import BottomNav from "../../components/NewUserPage/bottomNav";
+import { insertUser } from "../action/user";
 
-export default function Home() {
+export default async function Home() {
+  await insertUser();
   return (
     <div className="min-h-screen w-screen overflow-x-hidden font-[Outfit]">
       {/* ---------- Desktop Layout ---------- */}
-      <div className="hidden md:flex h-screen">
+      <div className="hidden xl:flex h-screen">
         <aside className="w-1/5 h-full">
           <Sidebar />
         </aside>
@@ -19,7 +19,7 @@ export default function Home() {
       </div>
 
       {/* ---------- Mobile Layout ---------- */}
-      <div className="block md:hidden h-screen flex flex-col">
+      <div className="block xl:hidden h-screen flex flex-col">
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto">       {/* ← keep or remove as you prefer */}
           <Formlist />
