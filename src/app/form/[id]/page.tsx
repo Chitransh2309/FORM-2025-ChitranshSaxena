@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
-import CenterNav from "@/components/FormPage/CenterNav";
 import { auth } from "../../../../auth";
+import CenterNav from "@/components/FormPage/CenterNav";
+import FormWrapper from "@/components/FormPage/FormHeader";
 
 export default async function FormPage({ params }: { params: { id: string } }) {
   const formId = params.id;
-  console.log(formId);
 
   const session = await auth();
   if (!session?.user?.email) {
@@ -36,8 +36,10 @@ export default async function FormPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="bg-[#2B2A2A] dark:bg-[#e8ede8]">
-      <CenterNav formId={formId} />
-    </div>
+    <FormWrapper formId={formId}>
+      <div className="bg-[#e8ede8]">
+        <CenterNav formId={formId} />
+      </div>
+    </FormWrapper>
   );
 }
