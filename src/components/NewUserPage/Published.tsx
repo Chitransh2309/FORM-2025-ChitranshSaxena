@@ -12,18 +12,18 @@ export default function Published({ forms }: { forms: Form[] }) {
   const router = useRouter();
 
   return (
-    <section className="w-full md:w-1/2 text-black p-4 dark:text-white mb-20 md:mb-0">
+    <section className="w-full xl:w-1/2 text-black p-4 dark:text-white mb-20 xl:mb-0">
       <h2 className="text-xl font-semibold px-4 py-3">Published</h2>
 
       <div className="border-2 border-gray border-dashed rounded-lg p-4
-                      overflow-visible md:min-h-90  dark:border-white">
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                      overflow-visible xl:min-h-90 lg:min-h-120 dark:border-white">
+        <div className="grid grid-cols-2 gap-3">
           {forms.map((form) => (
             <div key={form.form_ID} className="flex flex-col">
               <button
                 onClick={() => router.push(`/form/${form.form_ID}`)}
                 className="w-full aspect-square bg-gray-300 hover:bg-[#d1ebdb]
-                           rounded-lg shadow transition text-left p-3 dark:bg-[#353434] dark:hover:bg-[#3f3d3d]"
+                           rounded-lg shadow transition p-3 dark:bg-[#353434] dark:hover:bg-[#3f3d3d] text-center"
               >
                 {form.title || "Untitled Form"}
               </button>
