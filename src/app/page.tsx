@@ -14,20 +14,34 @@ export default async function Home() {
           Build Forms Like Never Before
         </p>
         <div className="w-full flex justify-center">
-          <Image
-            src="/form builder-dark mode.svg"
-            height={1063}
-            width={750}
-            alt="form-builder"
-            className="w-full max-w-[1063px] h-auto hidden dark:block"
-          />
-          <Image 
-            src="/form builder -default 1.svg"
-            alt="dark mode"
-            height={1063}
-            width={750}
-            className="w-full max-w-[1063px] h-auto block dark:hidden"
-          />
+          <>
+            {/* Desktop - Light Mode */}
+            <Image
+              src="/form builder -default 1.svg"
+              alt="light mode"
+              height={1063}
+              width={750}
+              className="w-full max-w-[1063px] dark:hidden h-auto block hidden md:block"
+            />
+
+            {/* Desktop - Dark Mode */}
+            <Image
+              src="/form builder-dark mode.svg"
+              height={1063}
+              width={750}
+              alt="form-builder"
+              className="w-full max-w-[1063px] h-auto hidden dark:md:block "
+            />
+
+            {/* Mobile only */}
+            <Image
+              src="/iPhone 15 Green.svg"
+              alt="mobile view"
+              height={700}
+              width={700}
+              className="w-full max-w-[345px] h-auto block md:hidden"
+            />
+          </>
         </div>
       </div>
 
