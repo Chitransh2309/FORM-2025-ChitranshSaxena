@@ -7,12 +7,12 @@ const tilt = Tilt_Warp({ subsets: ["latin"], weight: ["400"] });
 export default function Hero() {
   return (
     <div
-      className={`min-h-screen flex lg:mt-10 items-center w-full ${tilt.className} dark:bg-[#191719] px-4 sm:px-6 lg:px-8`}
+      className={`min-h-screen flex items-center w-full ${tilt.className} dark:bg-[#191719] px-4 sm:px-6 lg:px-8`}
     >
       <div className="max-w-7xl mx-auto w-full">
         <div className="flex flex-col lg:hidden space-y-6 sm:space-y-8">
           <div className="text-left ml-4 sm:ml-6 md:ml-8 -mt-4 sm:-mt-8 md:-mt-12">
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-4xl font-extrabold text-[#61A986]">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-[#61A986]">
               EFFORTLESS
               <br />
               FORMS,
@@ -45,7 +45,7 @@ export default function Hero() {
         </div>
         <div className="hidden lg:flex lg:items-center lg:space-x-12 xl:space-x-16">
           <div className="flex-1 max-w-2xl ml-8 xl:ml-12 lg:-mt-12 xl:-mt-16 2xl:-mt-20">
-            <h1 className="text-7xl xl:text-8xl 2xl:text-9xl font-extrabold text-[#61A986] leading-tight xl:leading-normal">
+            <h1 className="text-6xl xl:text-7xl 2xl:text-8xl font-extrabold text-[#61A986] leading-tight xl:leading-normal">
               EFFORTLESS
               <br />
               FORMS,
