@@ -96,22 +96,18 @@ export default function PreviewForm() {
         </div>
 
         {/* === FORM HEADER === */}
-          <div className="w-full bg-white rounded-[8px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 sm:px-6 py-6 flex flex-col justify-between mb-6 dark:bg-[#5A5959] dark:text-white">
-            <h2 className="text-black mb-1 font-[Outfit] font-semibold text-[25px] leading-[100%] tracking-[0%] dark:text-white">
-              {form.title || "Untitled Form"}
-            </h2>
-            <p
-              className="text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-6 sm:mb-12 dark:text-white"
-            >
-              {form.description || "No description provided"}
-            </p>
-            <hr className="border-t border-black mb-2 dark:border-white" />
-            <p
-              className="text-[#676767] font-[Outfit] font-normal text-[20px] leading-[100%] tracking-[0%] dark:text-white"
-            >
-              <span className="text-red-500">*</span> implies compulsory
-            </p>
-          </div>
+        <div className="w-full bg-white rounded-[8px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 sm:px-6 py-6 flex flex-col justify-between mb-6 dark:bg-[#5A5959] dark:text-white">
+          <h2 className="text-black mb-1 font-[Outfit] font-semibold text-[25px] leading-[100%] tracking-[0%] dark:text-white">
+            {form.title || "Untitled Form"}
+          </h2>
+          <p className="text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-6 sm:mb-12 dark:text-white">
+            {form.description || "No description provided"}
+          </p>
+          <hr className="border-t border-black mb-2 dark:border-white" />
+          <p className="text-[#676767] font-[Outfit] font-normal text-[20px] leading-[100%] tracking-[0%] dark:text-white">
+            <span className="text-red-500">*</span> implies compulsory
+          </p>
+        </div>
         {/* === SECTION BODY === */}
         <div className="w-full bg-white px-4 sm:px-6 py-6 shadow-[0_0_10px_rgba(0,0,0,0.3)] rounded-[8px] dark:bg-[#5A5959] dark:text-white">
           <h3 className="text-lg sm:text-xl font-semibold mb-6 text-black font-[Outfit] dark:text-white">
