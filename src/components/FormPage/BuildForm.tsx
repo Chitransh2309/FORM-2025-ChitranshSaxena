@@ -8,7 +8,7 @@ import SaveButton from "@/components/FormPage/SaveButton";
 import QuestionParent from "@/components/FormPage/QuestionParent";
 import getFormObject from "@/app/action/getFormObject";
 import { saveFormToDB } from "@/app/action/saveformtodb";
-import { Form, Question, Section } from "@/lib/interface";
+import { Form, Question, Section, QuestionType } from "@/lib/interface";
 import { Menu } from "lucide-react";
 
 export default function BuildPage() {
@@ -18,14 +18,15 @@ export default function BuildPage() {
     null
   );
   const [showRightNav, setShowRightNav] = useState(false);
-
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
+  
   const selectedSection = form?.sections.find(
     (s) => s.section_ID === selectedSectionId
   );
 
   useEffect(() => {
     const loadData = async () => {
-      if (!formId || typeof formId !== "string") return;
+      if (!formId || typeof formId !== "string") return;  
       const res = await getFormObject(formId);
       if (res.success) {
         setForm(res.data);
@@ -34,6 +35,11 @@ export default function BuildPage() {
     };
     loadData();
   }, [formId]);
+
+  // Clear selected question when section changes
+  useEffect(() => {
+    setSelectedQuestion(null);
+  }, [selectedSectionId]);
 
   const addSection = () => {
     if (!form) return;
@@ -79,25 +85,28 @@ export default function BuildPage() {
   const addQuestion = () => {
     if (!form || !selectedSectionId) return;
 
+    const newQuestion: Question = {
+      question_ID: `q-${Date.now()}`,
+      section_ID: selectedSectionId,
+      questionText: "",
+      isRequired: false,
+      order: (selectedSection?.questions.length || 0) + 1,
+      type: QuestionType.TEXT, // Default type
+    };
+
     const updatedSections = form.sections.map((section) =>
       section.section_ID === selectedSectionId
         ? {
             ...section,
-            questions: [
-              ...section.questions,
-              {
-                question_ID: `q-${Date.now()}`,
-                section_ID: section.section_ID,
-                questionText: "",
-                isRequired: false,
-                order: section.questions.length + 1,
-              },
-            ],
+            questions: [...section.questions, newQuestion],
           }
         : section
     );
 
     setForm({ ...form, sections: updatedSections });
+    
+    // Auto-select the new question
+    setSelectedQuestion(newQuestion);
   };
 
   const updateQuestion = (id: string, updates: Partial<Question>) => {
@@ -107,9 +116,19 @@ export default function BuildPage() {
       section.section_ID === selectedSectionId
         ? {
             ...section,
-            questions: section.questions.map((q) =>
-              q.question_ID === id ? { ...q, ...updates } : q
-            ),
+            questions: section.questions.map((q) => {
+              if (q.question_ID === id) {
+                const updatedQuestion = { ...q, ...updates };
+                
+                // Update selected question if it's the one being updated
+                if (selectedQuestion?.question_ID === id) {
+                  setSelectedQuestion(updatedQuestion);
+                }
+                
+                return updatedQuestion;
+              }
+              return q;
+            }),
           }
         : section
     );
@@ -130,6 +149,11 @@ export default function BuildPage() {
     );
 
     setForm({ ...form, sections: updatedSections });
+    
+    // Clear selected question if it was deleted
+    if (selectedQuestion?.question_ID === id) {
+      setSelectedQuestion(null);
+    }
   };
 
   const handleSave = async () => {
@@ -197,13 +221,18 @@ export default function BuildPage() {
                 onUpdate={(id, updates) => updateQuestion(id, updates)}
                 onDelete={(id) => deleteQuestion(id)}
                 onAdd={() => addQuestion()}
+                selectedQuestion={selectedQuestion}
+                setSelectedQuestion={setSelectedQuestion}
               />
             )}
           </div>
 
           {/* RightNav */}
           <div className="hidden lg:block lg:w-[30vw] h-full border-l border-gray-300 bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500">
-            <RightNav />
+            <RightNav 
+              selectedQuestion={selectedQuestion}
+              onUpdate={updateQuestion}
+            />
           </div>
 
           {/* Mobile RightNav Overlay */}
@@ -219,7 +248,10 @@ export default function BuildPage() {
                 </button>
               </div>
               <div className="p-4">
-                <RightNav />
+                <RightNav 
+                  selectedQuestion={selectedQuestion}
+                  onUpdate={updateQuestion}
+                />
               </div>
             </div>
           )}
