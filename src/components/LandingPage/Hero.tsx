@@ -56,7 +56,7 @@ export default function Hero() {
               <AuthBtn pos={"hero"} />
             </div>
           </div>
-          <div className="flex-1 max-w-2xl">
+          <div className="flex-1 max-w-2xl mt-10">
             <div className="grid grid-cols-2 grid-rows-8 gap-4 xl:gap-6 h-[600px] xl:h-[700px] 2xl:h-[800px]">
               <div className="col-span-1 row-span-2">
                 <div className="w-full h-full border-6 xl:border-8 border-[#61A986] rounded-2xl xl:rounded-3xl p-3 xl:p-4 flex flex-col"></div>

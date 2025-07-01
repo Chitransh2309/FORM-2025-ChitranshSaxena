@@ -125,17 +125,10 @@ export default async function Home() {
         <div className="w-full flex justify-center">
           <Image
             src="/form builder-dark mode.svg"
-            height={1063}
-            width={750}
+            height={900}
+            width={1200}
             alt="form-builder"
-            className="w-full max-w-[1063px] h-auto hidden dark:block"
-          />
-          <Image 
-            src="/form builder -default 1.svg"
-            alt="dark mode"
-            height={1063}
-            width={750}
-            className="w-full max-w-[1063px] h-auto block dark:hidden"
+            className=""
           />
         </div>
       </div>
