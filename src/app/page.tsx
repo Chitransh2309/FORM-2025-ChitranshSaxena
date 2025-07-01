@@ -109,8 +109,8 @@ export default function Page() {
 import Footer from "../components/LandingPage/Footer";
 import Hero from "../components/LandingPage/Hero";
 import Navbar from "../components/LandingPage/Navbar";
-import Image from 'next/image';
->>>>>>> 46f7001 (Made the casing everywhere as PascalCasing, made the publish and back to workspace button redirect back to dashboard)
+import { insertUser } from "./action/user";
+import Image from "next/image";
 
 export default async function Home() {
   return (
