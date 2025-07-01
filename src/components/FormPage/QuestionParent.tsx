@@ -1,47 +1,43 @@
 "use client";
 
-<<<<<<< HEAD:src/components/Form_Page/question-parent.tsx
-import React from "react";
-import Question from "./questions";
-import AddQues from "./add-question";
-=======
 import React, { useState } from "react";
 import Question from "./Questions";
 import AddQues from "./AddQuestion";
-// import { v4 as uuidv4 } from "uuid";
-import { Question as QuestionInterface } from "@/lib/interface"; // Import your actual interface
->>>>>>> 46f7001 (Made the casing everywhere as PascalCasing, made the publish and back to workspace button redirect back to dashboard):src/components/FormPage/QuestionParent.tsx
+import { Question as QuestionInterface } from "@/lib/interface";
 
 type Props = {
-  ques: QuestionType[];
+  ques: QuestionInterface[];
   onAdd: () => void;
-  onDelete: (id: number) => void;
-  onUpdate: (id: number, updates: Partial<QuestionType>) => void;
+  onDelete: (id: string) => void;
+  onUpdate: (id: string, updates: Partial<QuestionInterface>) => void;
+  selectedQuestion?: QuestionInterface | null;
+  setSelectedQuestion?: (question: QuestionInterface) => void;
 };
 
-export type QuestionType = {
-  id: number;
-  label: string;
-  content: string;
-  required: boolean;
-};
-
-export default function QuestionSet({
+export default function QuestionParent({
   ques,
   onAdd,
   onDelete,
   onUpdate,
+  selectedQuestion,
+  setSelectedQuestion,
 }: Props) {
   return (
     <div>
       {ques.map((q) => (
-        <Question
-          key={q.id}
-          id={q.id}
-          data={q}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-        />
+        <div 
+          key={q.question_ID}
+          onClick={() => setSelectedQuestion?.(q)} 
+          className="cursor-pointer"
+        >
+          <Question
+            id={q.question_ID}
+            data={q}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+            isSelected={selectedQuestion?.question_ID === q.question_ID}
+          />
+        </div>
       ))}
       <AddQues onClick={onAdd} />
     </div>

@@ -60,7 +60,6 @@ export enum QuestionType {
   TEXT = "TEXT",
   DATE = "DATE",
   MCQ = "MCQ",
-  CHECKBOX = "CHECKBOX",
   DROPDOWN = "DROPDOWN",
   FILE_UPLOAD = "FILE_UPLOAD",
   EMAIL = "EMAIL",
