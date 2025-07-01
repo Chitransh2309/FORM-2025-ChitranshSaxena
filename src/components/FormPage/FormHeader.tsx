@@ -67,13 +67,19 @@ export default function FormHeader({
         </nav>
       )}
 
-      <div className={`h-screen overflow-hidden ${!isResponsePage ? "pt-[75px]" : ""} bg-neutral-600`}>
+      <div
+        className={`h-screen overflow-hidden ${
+          !isResponsePage ? "pt-[75px]" : ""
+        } bg-neutral-600`}
+      >
         <div className="bg-neutral-100 text-black w-screen h-[92vh] flex">
           <div className="w-full h-full overflow-auto">{children}</div>
         </div>
       </div>
 
-      {formLink && <FormPublishModal formLink={formLink} onClose={handleCloseModal} />}
+      {formLink && (
+        <FormPublishModal formLink={formLink} onClose={handleCloseModal} />
+      )}
     </div>
   );
 }

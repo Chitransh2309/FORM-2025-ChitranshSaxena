@@ -1,7 +1,7 @@
 import Footer from "../components/LandingPage/Footer";
 import Hero from "../components/LandingPage/Hero";
 import Navbar from "../components/LandingPage/Navbar";
-import Image from 'next/image';
+import Image from "next/image";
 
 export default async function Home() {
   return (
@@ -16,10 +16,10 @@ export default async function Home() {
         <div className="w-full flex justify-center">
           <Image
             src="/form builder-dark mode.svg"
-            height={700}
-            width={700}
+            height={900}
+            width={1200}
             alt="form-builder"
-            className="w-full max-w-[600px] h-auto"
+            className=""
           />
         </div>
       </div>

@@ -47,9 +47,9 @@ export default function Question({ id, data, onDelete, onUpdate }: Props) {
     <div
       ref={containerRef}
       onClick={handleClick}
-      className={`bg-[#FEFEFE] shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl w-[90%] min-h-[20%] mx-auto mb-10 ${
-        isSelected ? "ring-4 ring-black dark:ring-[#353434]" : ""
-      } dark:bg-[#5A5959] dark:text-white`}
+      className={`bg-[#FEFEFE] dark:bg-[#5A5959]  dark:text-white shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl w-[90%] min-h-[20%] mx-auto mb-10 ${
+        isSelected ? "ring-4 ring-black" : ""
+      }`}
     >
       <div className="flex justify-between items-center dark:text-white">
         <input
@@ -60,7 +60,7 @@ export default function Question({ id, data, onDelete, onUpdate }: Props) {
         />
 
         <div className="flex items-center">
-          <label className="text-gray-700 mr-1 dark:text-white">Required</label>
+          <label className="text-gray-700 dark:text-white mr-1">required</label>
           <label
             htmlFor={toggleId}
             className="relative inline-flex items-center cursor-pointer"
@@ -83,7 +83,7 @@ export default function Question({ id, data, onDelete, onUpdate }: Props) {
         </div>
       </div>
 
-      <div className="mt-2 text-black text-lg dark:text-white">
+      <div className="mt-2 text-black  dark:text-white text-lg">
         <textarea
           ref={textareaRef}
           onInput={handleInput}
@@ -94,12 +94,12 @@ export default function Question({ id, data, onDelete, onUpdate }: Props) {
         />
       </div>
 
-      <div className="mt-0 bg-[#F6F6F6] rounded-md px-4 py-2 text-black/50 dark:bg-[#494949] dark:text-white">
+      <div className="mt-0 bg-[#F6F6F6] dark:bg-[#494949] rounded-md px-4 py-2 text-black/50 dark:text-white">
         answer type: {data.type || "short text"}{" "}
         {/* Show the actual question type */}
       </div>
 
-      <div className="text-black mt-3 dark:text-white">
+      <div className="text-black dark:text-white mt-3">
         Order: {data.order} {/* Show other relevant info */}
       </div>
     </div>

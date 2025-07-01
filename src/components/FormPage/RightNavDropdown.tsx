@@ -23,7 +23,7 @@ export default function QuestionTypeDropdown() {
     switch (selectedType) {
       case "Text":
         return (
-          <div className="bg-white p-4 text-black space-y-4 text-sm dark:text-white dark:bg-[#5A5959]">
+          <div className="bg-white dark:bg-[#363535] dark:text-white p-4 text-black space-y-4 text-sm">
             <div className="flex justify-between items-center gap-4 flex-wrap">
               <label className="flex items-center gap-2">
                 <span>Min char:</span>
@@ -56,8 +56,8 @@ export default function QuestionTypeDropdown() {
         );
       default:
         return (
-          <div className="bg-white p-4 text-black text-sm dark:bg-[#5A5959]">
-            <p className="italic dark:text-white">
+          <div className="bg-white dark:bg-[#363535] p-4 text-black dark:text-white text-sm">
+            <p className="italic">
               Config UI for <strong>{selectedType}</strong> coming soon.
             </p>
           </div>
@@ -66,13 +66,13 @@ export default function QuestionTypeDropdown() {
   };
 
   return (
-    <div className="w-full max-w-sm sm:max-w-xs mx-auto relative rounded-xl bg-white shadow dark:bg-[#5A5959] dark:text-white">
+    <div className="w-full h-full max-w-sm sm:max-w-xs mx-auto relative rounded-xl bg-white dark:bg-[#363535]">
       {/* Dropdown Header */}
       <div
-        className="bg-[#8CC7AA] rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer dark:bg-[#5A5959] dark:text-white"
+        className="bg-[#8CC7AA] dark:bg-[#5A5959] dark:text-white rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="text-black font-medium text-base dark:text-white">
+        <span className="text-black dark:text-white font-medium text-base">
           {selectedType}
         </span>
         <span className="text-lg">{isOpen ? "▲" : "▼"}</span>
@@ -80,8 +80,8 @@ export default function QuestionTypeDropdown() {
 
       {/* Dropdown Options */}
       {isOpen && (
-        <div className="absolute z-10 w-full bg-[#8CC7AA] text-black rounded-b-xl shadow-lg mt-1 dark:text-white dark:bg-[#494949]">
-          <ul className="py-2 px-4 space-y-2 max-h-[200px] overflow-y-auto text-sm">
+        <div className="absolute z-10 w-full bg-[#8CC7AA] text-black dark:text-white rounded-b-xl shadow-lg mt-1">
+          <ul className="py-2 px-4 space-y-2 max-h-[200px] overflow-y-auto dark:text-white text-sm">
             {questionTypes.map((type) => (
               <li
                 key={type}
