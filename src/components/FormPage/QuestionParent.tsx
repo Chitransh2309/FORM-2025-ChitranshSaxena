@@ -3,32 +3,41 @@
 import React, { useState } from "react";
 import Question from "./Questions";
 import AddQues from "./AddQuestion";
-// import { v4 as uuidv4 } from "uuid";
-import { Question as QuestionInterface } from "@/lib/interface"; // Import your actual interface
+import { Question as QuestionInterface } from "@/lib/interface";
 
 type Props = {
-  ques: QuestionInterface[]; // Use your actual Question interface
-  onAdd: () => void; // Changed to match your usage
+  ques: QuestionInterface[];
+  onAdd: () => void;
   onDelete: (id: string) => void;
   onUpdate: (id: string, updates: Partial<QuestionInterface>) => void;
+  selectedQuestion?: QuestionInterface | null;
+  setSelectedQuestion?: (question: QuestionInterface) => void;
 };
 
-export default function QuestionSet({
+export default function QuestionParent({
   ques,
   onAdd,
   onDelete,
   onUpdate,
+  selectedQuestion,
+  setSelectedQuestion,
 }: Props) {
   return (
     <div>
       {ques.map((q) => (
-        <Question
-          key={q.question_ID} // Use the correct property name
-          id={q.question_ID} // Use the correct property name
-          data={q} // Pass the whole question object
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-        />
+        <div 
+          key={q.question_ID}
+          onClick={() => setSelectedQuestion?.(q)} 
+          className="cursor-pointer"
+        >
+          <Question
+            id={q.question_ID}
+            data={q}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+            isSelected={selectedQuestion?.question_ID === q.question_ID}
+          />
+        </div>
       ))}
       <AddQues onClick={onAdd} />
     </div>
