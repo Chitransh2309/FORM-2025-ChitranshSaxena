@@ -19,6 +19,7 @@ export async function publishForm(formId: string) {
     const formsCollection = db.collection<Form>("forms");
 
     const publishedAt = new Date();
+    const formLink = `http://localhost:3000/form/${formId}`;
 
     const result = await formsCollection.updateOne(
       { form_ID: formId },
@@ -26,12 +27,13 @@ export async function publishForm(formId: string) {
         $set: {
           isActive: true,
           publishedAt,
+          formLink,
         },
       }
     );
 
     if (result.modifiedCount === 1) {
-      return { success: true };
+      return { success: true, formLink };
     } else {
       return { success: false, error: "No form was updated. Check form_ID." };
     }

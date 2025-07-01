@@ -43,7 +43,7 @@ export default function Workspace() {
       <Navbar />
 
       {/* Desktop Topbar (Logo + Toggle + Help + Profile) */}
-      <div className="hidden md:flex items-center  justify-between px-6 py-4">
+      <div className="hidden xl:flex items-center  justify-between px-6 py-4">
         {/* Left: Logo + Title */}
         <div className="flex items-center gap-2">
           <Image
@@ -71,12 +71,12 @@ export default function Workspace() {
       </div>
 
       {/* Desktop Sorter */}
-      <div className="hidden md:block">
+      <div className="hidden xl:block">
         <Formsorter />
       </div>
 
       {/* Mobile Top Buttons */}
-      <div className="md:hidden w-full bg-white border-b px-4 py-3 dark:bg-[#2B2A2A] dark:border-gray-500">
+      <div className="xl:hidden w-full bg-white border-b px-4 py-3 dark:bg-[#2B2A2A] dark:border-gray-500">
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-1 bg-[#56A37D] text-black text-xs px-4 py-2 rounded-lg dark:text-white">
             My Workspace <FaChevronDown size={12} />
@@ -109,28 +109,28 @@ export default function Workspace() {
         ) : isEmpty ? (
           <>
             {/* Mobile Empty State */}
-            <div className="md:hidden flex flex-col items-center justify-center h-full text-center">
-              <p className="text-gray-600 mb-2 dark:text-white">
+            <div className="xl:hidden flex flex-col items-center justify-center h-full text-center">
+              <p className="text-gray-600 mb-2 dark:text-white md:text-3xl">
                 You have not created any forms yet.
               </p>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4 dark:text-white">
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4 dark:text-white md:text-5xl md:leading-20">
                 Create Your First Form Today!
               </h2>
               <button
                 onClick={handleCreateForm}
-                className="bg-[#56A37D] text-white px-6 py-3 rounded-lg"
+                className="bg-[#56A37D] text-white px-6 py-3 rounded-lg md:text-2xl"
               >
                 Create Now
               </button>
             </div>
 
             {/* Desktop Empty State */}
-            <div className="hidden md:block h-full">
+            <div className="hidden lg:block h-full">
               <Newuser />
             </div>
           </>
         ) : (
-          <div className="flex flex-col md:flex-row flex-1 overflow-hidden gap-4">
+          <div className="flex flex-col lg:flex-row flex-1 overflow-hidden gap-4">
             <Drafts forms={drafts} />
             <Published forms={published} />
           </div>
