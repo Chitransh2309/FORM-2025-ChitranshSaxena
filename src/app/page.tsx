@@ -1,7 +1,7 @@
 import Footer from "../components/LandingPage/Footer";
 import Hero from "../components/LandingPage/Hero";
 import Navbar from "../components/LandingPage/Navbar";
-import Image from 'next/image';
+import Image from "next/image";
 
 export default async function Home() {
   return (
@@ -16,10 +16,17 @@ export default async function Home() {
         <div className="w-full flex justify-center">
           <Image
             src="/form builder-dark mode.svg"
-            height={700}
-            width={700}
+            height={1063}
+            width={750}
             alt="form-builder"
-            className="w-full max-w-[600px] h-auto"
+            className="w-full max-w-[1063px] h-auto hidden dark:block"
+          />
+          <Image 
+            src="/form builder -default 1.svg"
+            alt="dark mode"
+            height={1063}
+            width={750}
+            className="w-full max-w-[1063px] h-auto block dark:hidden"
           />
         </div>
       </div>
@@ -31,18 +38,18 @@ export default async function Home() {
 
         <div className="w-full flex justify-center">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl w-full place-items-center">
-            <div className="w-full max-w-sm bg-[#61A986] dark:bg-[#E1F4E6] rounded-xl p-6 text-white dark:text-[#61A986] flex flex-col items-center">
-              <div className="w-full h-40 bg-[#F8F8F6] dark:bg-[#61A986] rounded-xl mb-4"></div>
+            <div className="w-full max-w-[345px] bg-[#61A986] dark:bg-[#E1F4E6] rounded-xl p-6 text-white dark:text-[#61A986] flex flex-col items-center">
+              <div className="w-full max-w-[303px] h-40 bg-[#F8F8F6] dark:bg-[#61A986] rounded-xl mb-4"></div>
               <p className="text-xl font-bold">FEATURE</p>
             </div>
 
-            <div className="w-full max-w-sm bg-[#E6AD00] dark:bg-[#F8F5EA] rounded-xl p-6 text-white dark:text-[#E6AD00] flex flex-col items-center">
-              <div className="w-full h-40 bg-[#F6F8F6] dark:bg-[#C69D1F] rounded-xl mb-4"></div>
+            <div className="w-full max-w-[345px] bg-[#E6AD00] dark:bg-[#F8F5EA] rounded-xl p-6 text-white dark:text-[#E6AD00] flex flex-col items-center">
+              <div className="w-full max-w-[303px] h-40 bg-[#F6F8F6] dark:bg-[#C69D1F] rounded-xl mb-4"></div>
               <p className="text-xl font-bold">FEATURE</p>
             </div>
 
-            <div className="w-full max-w-sm bg-[#3D3D3D] dark:bg-[#E9E6E9] rounded-xl p-6 text-white dark:text-[#3D3D3D] flex flex-col items-center">
-              <div className="w-full h-40 bg-[#F4F3F4] dark:bg-[#3D3D3D] rounded-xl mb-4"></div>
+            <div className="w-full max-w-[345px] bg-[#3D3D3D] dark:bg-[#E9E6E9] rounded-xl p-6 text-white dark:text-[#3D3D3D] flex flex-col items-center">
+              <div className="w-full max-w-[303px] h-40 bg-[#F4F3F4] dark:bg-[#3D3D3D] rounded-xl mb-4"></div>
               <p className="text-xl font-bold">FEATURE</p>
             </div>
           </div>

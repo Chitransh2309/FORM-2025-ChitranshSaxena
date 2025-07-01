@@ -1,36 +1,39 @@
-import Link from 'next/link'
-import React from 'react'
-import ToggleSwitch from './ToggleSwitch'
-import AuthBtn from './AuthBtn'
-import { Outfit } from 'next/font/google';
+// app/components/Navbar.tsx
+import Link from "next/link";
+import AuthBtn from "./AuthBtn";
+import { MobileMenu, Links } from "./NavbarClient"; // ✅ named imports
+import NavbarToggle from "./NavbarToggle";
+import { Outfit } from "next/font/google";
 
-const out_font= Outfit({subsets:['latin'],weight:['400','800']})
+const out_font = Outfit({ subsets: ["latin"], weight: ["400", "800"] });
+
 export default function Navbar() {
   return (
-    <header className={`px-9 py-6 text-black text-2xl font-bold bg-[#F6F8F6] ${out_font.className} dark:bg-[#191719] dark:text-#ffffff`}>
-      <nav className='flex justify-between items-center h-9 '>
-        <Link href="/">
-            <p className="px-8 dark:text-[#ffffff]">F.O.R.M</p>
-        </Link>
-        <div className='flex items-center gap-5 text-black dark:text-[#ffffff]'>
-            <Link href='/dashboard'>
-                <span>Home</span>
-            </Link>
-            <Link href='/about'>
-                <span>About</span>
-            </Link>
-            <Link href='/features'>
-                <span>Features</span>
-            </Link>
-            <Link href='/contact'>
-                <span>Contact</span>
-            </Link>
+    <header
+      className={`px-4 py-4 text-black text-2xl font-bold bg-[#F6F8F6] ${out_font.className} dark:bg-[#191719] dark:text-white`}
+    >
+      <nav className="flex items-center justify-between relative">
+        {/* LEFT: Hamburger + Logo */}
+        <div className="flex items-center gap-3">
+          <MobileMenu />
+          <Link href="/">
+            <p className="lg:pl-20 md:pl-5 text-xl font-bold dark:text-white">
+              F.O.R.M
+            </p>
+          </Link>
         </div>
-        <div className='flex items-center gap-5 text-black'>
-            <ToggleSwitch />
-            <AuthBtn pos="nav"/>
+
+        {/* CENTER: Links (visible only on desktop) */}
+        <div className="hidden sm:flex gap-6">
+          <Links />
+        </div>
+
+        {/* RIGHT: Toggle + Auth */}
+        <div className="flex items-center gap-3 lg:pr-5">
+          <NavbarToggle />
+          <AuthBtn pos="nav" />
         </div>
       </nav>
     </header>
-  )
+  );
 }

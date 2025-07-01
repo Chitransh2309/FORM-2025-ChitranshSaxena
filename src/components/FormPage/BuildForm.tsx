@@ -14,7 +14,9 @@ import { Menu } from "lucide-react";
 export default function BuildPage() {
   const { id: formId } = useParams();
   const [form, setForm] = useState<Form | null>(null);
-  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
+    null
+  );
   const [showRightNav, setShowRightNav] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
   
@@ -165,10 +167,20 @@ export default function BuildPage() {
     }
   };
 
+  useEffect(() => {
+    // Check saved theme on initial mount
+    const storedTheme = localStorage.getItem("theme");
+    if (storedTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+
   return (
-    <div className="bg-[#F6F8F6] text-black w-full h-[90vh] font-[Outfit] flex flex-col lg:flex-row dark:bg-[#2B2A2A]">
+    <div className="dark:bg-[#2B2A2A] bg-[#F6F8F6] text-black dark:text-white w-full h-full font-[Outfit] flex flex-col lg:flex-row">
       {/* Sidebar always visible */}
-      <div className="lg:w-[20vw] w-full border-b lg:border-b-0 border-gray-500">
+      <div className="dark:bg-[#363535] w-[1/5] shadow-md">
         <SectionSidebar
           sections={form?.sections || []}
           selectedSectionId={selectedSectionId}

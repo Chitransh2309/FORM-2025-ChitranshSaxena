@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { QuestionType, fieldtypes, FieldType, ParamType, Question } from "@/lib/interface";
-import MCQ from "./FieldType/MCQ";
-
 
 const questionTypes = [
   "Text",
@@ -243,13 +241,13 @@ export default function QuestionTypeDropdown({
   };
 
   return (
-    <div className="w-full max-w-sm sm:max-w-xs mx-auto relative rounded-xl bg-white shadow dark:bg-[#5A5959] dark:text-white">
+    <div className="w-full h-full max-w-sm sm:max-w-xs mx-auto relative rounded-xl bg-white dark:bg-[#363535]">
       {/* Dropdown Header */}
       <div
-        className="bg-[#8CC7AA] rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer dark:bg-[#5A5959] dark:text-white"
+        className="bg-[#8CC7AA] dark:bg-[#5A5959] dark:text-white rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="text-black font-medium text-base dark:text-white">
+        <span className="text-black dark:text-white font-medium text-base">
           {selectedType}
         </span>
         <span className="text-lg">{isOpen ? "▲" : "▼"}</span>

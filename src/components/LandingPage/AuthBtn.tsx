@@ -1,17 +1,13 @@
-import React from "react";
-import { auth, signOut, signIn } from "../../../auth";
+import { auth } from "../../../auth";
+import { handleSignIn, handleSignOut } from "@/app/action/AuthActions";
 
 export default async function AuthBtn({ pos }: { pos: string }) {
   const session = await auth();
+
   return (
     <>
-      {session && session?.user ? (
-        <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/" });
-          }}
-        >
+      {session?.user ? (
+        <form action={handleSignOut}>
           <button
             type="submit"
             className={`cursor-pointer w-[100px] mb-2 rounded-2xl border-solid border-3 box-border h-7 text-sm ${
@@ -26,12 +22,7 @@ export default async function AuthBtn({ pos }: { pos: string }) {
           </button>
         </form>
       ) : (
-        <form
-          action={async () => {
-            "use server";
-            await signIn("google", { redirectTo: "/dashboard" });
-          }}
-        >
+        <form action={handleSignIn}>
           <button
             type="submit"
             className={`cursor-pointer w-[100px] mb-2 rounded-2xl border-solid border-3 box-border h-7 text-sm ${
