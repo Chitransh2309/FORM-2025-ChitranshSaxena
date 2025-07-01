@@ -1,7 +1,8 @@
 "use client";
 
 import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";
-import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import ResponseNavigator from "@/components/ResponseViewerPage/ResponseNavigator";
+import ViewModeDropdown from "@/components/ResponseViewerPage/ViewModeDropdown";
 import { useState } from "react";
 
 interface HeaderProps {
@@ -13,6 +14,7 @@ interface HeaderProps {
   submittedAt: Date;
   onUserChange: (index: number) => void;
   onViewModeChange: (mode: "Individual response" | "Grouped response") => void;
+  viewMode: "Individual response" | "Grouped response";
 }
 
 export default function HeaderSection({
@@ -24,29 +26,28 @@ export default function HeaderSection({
   submittedAt,
   onUserChange,
   onViewModeChange,
+  viewMode,
 }: HeaderProps) {
-  const [activeTab, setActiveTab] = useState<"Individual" | "Analytics">("Individual");
-  const [viewMode, setViewMode] = useState<"Individual response" | "Grouped response">("Individual response");
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [activeTab, setActiveTab] = useState<"Individual" | "Analytics">(
+    "Individual"
+  );
 
   return (
     <>
-      {/* Toggle Switch */}
       <div className="flex justify-end pt-5 pr-8">
         <ToggleSwitch />
       </div>
 
-      {/* Tab Switch */}
-      <div className="flex justify-center mb-6">
-        <div className="flex bg-[#e4f2ea] rounded-md p-1 space-x-1">
+      <div className="flex justify-center mt-6 px-4 sm:px-0">
+        <div className="flex justify-between items-center w-full max-w-[480px] h-[58px] rounded-[10px] dark:bg-[#414141] shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 px-2 sm:px-4">
           {["Individual", "Analytics"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab as "Individual" | "Analytics")}
-              className={`px-4 py-2 rounded font-semibold text-sm ${
+              className={`flex-1 mx-1 text-[15px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
                 activeTab === tab
-                  ? "bg-[#1C3C34] text-white"
-                  : "text-[#1C3C34]"
+                  ? "bg-[#61A986] text-black dark:text-white"
+                  : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
               }`}
             >
               {tab}
@@ -55,73 +56,29 @@ export default function HeaderSection({
         </div>
       </div>
 
-      {/* Form Info */}
       <div className="flex justify-between items-center mb-4 px-4">
         <h2 className="text-xl font-semibold">Responses: {total}</h2>
-        <div className="text-sm text-gray-600 dark:text-gray-300">
-          Submitted by <strong>{userName ?? "Anonymous"}</strong> at{" "}
-          {submittedAt ? new Date(submittedAt).toLocaleString() : "N/A"}
-        </div>
+        <ViewModeDropdown
+          viewMode={viewMode}
+          onViewModeChange={onViewModeChange}
+        />
       </div>
 
-      {/* Navigation & View Dropdown */}
-      <div className="flex justify-center items-center gap-4 mb-6 flex-wrap px-4">
-        <div className="flex items-center gap-2">
-          <button onClick={onPrev} disabled={currentIndex === 0} className="p-1">
-            <ChevronLeft />
-          </button>
-
-          <div className="flex items-center gap-2">
-            <span>User</span>
-            <input
-              type="number"
-              min={1}
-              max={total}
-              value={currentIndex + 1}
-              onChange={(e) => {
-                const val = Math.max(1, Math.min(total, Number(e.target.value)));
-                onUserChange(val - 1);
-              }}
-              className="w-12 text-center border rounded px-1 py-0.5 text-sm"
-            />
-            <span>of {total}</span>
-          </div>
-
-          <button onClick={onNext} disabled={currentIndex === total - 1} className="p-1">
-            <ChevronRight />
-          </button>
+      {viewMode === "Individual response" ? (
+        <ResponseNavigator
+          currentIndex={currentIndex}
+          total={total}
+          onPrev={onPrev}
+          onNext={onNext}
+          userName={userName}
+          submittedAt={submittedAt}
+          onUserChange={onUserChange}
+        />
+      ) : (
+        <div className="text-center text-sm text-gray-700 dark:text-gray-300 mb-6 px-4">
+          You are viewing all responses to one question together.
         </div>
-
-        {/* View Mode Dropdown */}
-        <div className="relative">
-          <button
-            onClick={() => setShowDropdown(!showDropdown)}
-            className="flex items-center gap-1 border border-gray-300 px-3 py-1 rounded-md text-sm bg-white shadow-sm dark:bg-[#444] dark:border-gray-600 dark:text-white"
-          >
-            {viewMode} <ChevronDown size={16} />
-          </button>
-
-          {showDropdown && (
-            <div className="absolute right-0 mt-1 w-48 bg-white dark:bg-[#333] shadow-lg rounded-md border dark:border-gray-600 z-10">
-              {["Individual response", "Grouped response"].map((mode) => (
-                <button
-                  key={mode}
-                  onClick={() => {
-                    setViewMode(mode as typeof viewMode);
-                    onViewModeChange(mode as typeof viewMode);
-                    setShowDropdown(false);
-                  }}
-                  className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-[#444] ${
-                    viewMode === mode ? "bg-[#1C3C34] text-white font-semibold" : ""
-                  }`}
-                >
-                  {mode}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+      )}
     </>
   );
 }
