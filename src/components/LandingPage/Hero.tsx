@@ -9,7 +9,7 @@ export default function Hero() {
     <div
       className={`min-h-screen flex items-center w-full ${tilt.className} dark:bg-[#191719] px-4 sm:px-6 lg:px-8`}
     >
-      <div className="max-w-7xl mx-auto w-full">
+      <div className=" mx-auto w-full md:mt-20 lg:mt-0">
         <div className="flex flex-col lg:hidden space-y-6 sm:space-y-8">
           <div className="text-left ml-4 sm:ml-6 md:ml-8 -mt-4 sm:-mt-8 md:-mt-12">
             <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-[#61A986]">
