@@ -1,115 +1,6 @@
-<<<<<<< HEAD
-'use client';
-
-import React, { useEffect, useState } from 'react';
-import SectionSidebar from '../components/SectionSidebar';
-import SectionEditor from '../components/SectionEditor';
-import { Section, Question, QuestionType } from '../lib/interface';
-
-export default function Page() {
-  const [sections, setSections] = useState<Section[]>([]);
-  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
-
-  // Load sections from MongoDB when the page loads
-  useEffect(() => {
-    async function fetchSections() {
-      try {
-        const res = await fetch('/api/sections');
-        const data = await res.json();
-        setSections(data);
-      } catch (err) {
-        console.error('Failed to load sections:', err);
-      }
-    }
-    fetchSections();
-  }, []);
-
-  // Add new section and save to MongoDB
-  const addSection = async () => {
-    const newSection: Section = {
-      section_ID: Date.now().toString(),
-      title: `Section ${sections.length + 1}`,
-      description: '',
-      questions: [],
-    };
-
-    setSections((prev) => [...prev, newSection]);
-    setSelectedSectionId(newSection.section_ID);
-
-    // Save to MongoDB
-    try {
-      await fetch('/api/sections', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newSection),
-      });
-    } catch (err) {
-      console.error('Failed to save section:', err);
-    }
-  };
-
-  const updateQuestion = (
-    sectionId: string,
-    questionId: string,
-    updated: Partial<Question>
-  ) => {
-    const updatedSections = sections.map((section) => {
-      if (section.section_ID === sectionId) {
-        const updatedQuestions = section.questions.map((q) =>
-          q.question_ID === questionId ? { ...q, ...updated } : q
-        );
-        return { ...section, questions: updatedQuestions };
-      }
-      return section;
-    });
-    setSections(updatedSections);
-  };
-
-  const deleteQuestion = (sectionId: string, questionId: string) => {
-    const updatedSections = sections.map((section) => {
-      if (section.section_ID === sectionId) {
-        return {
-          ...section,
-          questions: section.questions.filter((q) => q.question_ID !== questionId),
-        };
-      }
-      return section;
-    });
-    setSections(updatedSections);
-  };
-
-  const addQuestion = (sectionId: string) => {
-    const newQuestion: Question = {
-      question_ID: Date.now().toString() + Math.floor(Math.random() * 1000),
-      order: 0,
-      section_ID: sectionId,
-      type: QuestionType.TEXT,
-      questionText: '',
-      isRequired: false,
-      config: {
-        name: 'text',
-        type: 'string',
-        params: [],
-        validations: [],
-      },
-    };
-
-    const updatedSections = sections.map((section) => {
-      if (section.section_ID === sectionId) {
-        return { ...section, questions: [...section.questions, newQuestion] };
-      }
-      return section;
-    });
-
-    setSections(updatedSections);
-  };
-
-  const selectedSection = sections.find((s) => s.section_ID === selectedSectionId) || null;
-=======
 import Footer from "../components/LandingPage/Footer";
 import Hero from "../components/LandingPage/Hero";
 import Navbar from "../components/LandingPage/Navbar";
-import { insertUser } from "./action/user";
 import Image from "next/image";
 
 export default async function Home() {
@@ -123,13 +14,34 @@ export default async function Home() {
           Build Forms Like Never Before
         </p>
         <div className="w-full flex justify-center">
-          <Image
-            src="/form builder-dark mode.svg"
-            height={900}
-            width={1200}
-            alt="form-builder"
-            className=""
-          />
+          <>
+            {/* Desktop - Light Mode */}
+            <Image
+              src="/form builder -default 1.svg"
+              alt="light mode"
+              height={1063}
+              width={750}
+              className="w-full max-w-[1063px] dark:hidden h-auto block hidden md:block"
+            />
+
+            {/* Desktop - Dark Mode */}
+            <Image
+              src="/form builder-dark mode.svg"
+              height={1063}
+              width={750}
+              alt="form-builder"
+              className="w-full max-w-[1063px] h-auto hidden dark:md:block "
+            />
+
+            {/* Mobile only */}
+            <Image
+              src="/iPhone 15 Green.svg"
+              alt="mobile view"
+              height={700}
+              width={700}
+              className="w-full max-w-[345px] h-auto block md:hidden"
+            />
+          </>
         </div>
       </div>
 
@@ -157,6 +69,8 @@ export default async function Home() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }
