@@ -1,21 +1,15 @@
 "use client";
 import React from "react";
 
-interface Props {
-  value?: string;
-  onChange: (val: string) => void;
-  disabled?: boolean;
-}
-
-export default function UrlField({ value = "", onChange, disabled = false }: Props) {
+export default function Url({ disabled = false }: { disabled?: boolean }) {
   return (
-    <input
-      type="url"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      disabled={disabled}
-      placeholder="https://example.com"
-      className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-[#494949] dark:border-gray-600 dark:text-white"
-    />
+    <div className="space-y-2 mt-4">
+      <input
+        type="url"
+        placeholder="https://example.com"
+        className="border px-2 py-1 rounded w-full dark:bg-[#5A5959] dark:text-white"
+        disabled={disabled}
+      />
+    </div>
   );
 }
