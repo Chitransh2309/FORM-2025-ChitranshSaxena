@@ -76,7 +76,7 @@ export enum QuestionType {
   FILE_UPLOAD = "FILE_UPLOAD",
   EMAIL = "EMAIL",
   URL = "URL",
-  RATING = "RATING",
+  LINEARSCALE = "Linearscale",
 }
 
 export interface FormResponse {
@@ -119,14 +119,16 @@ export type ParamType =
 export interface Param {
   name: string;
   type: ParamType;
-  value?: string | number | boolean;
+  value?: string | number | boolean | string[];
 }
+
 
 export interface Validation {
   name: string;
   type?: ParamType;
   params?: Param[];
   value?: string | number | boolean;
+  validationName?: string
 }
 
 export interface FieldType {

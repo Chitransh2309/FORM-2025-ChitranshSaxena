@@ -108,4 +108,4 @@ export default function MCQ({ options, onOptionsChange, disabled = false }: MCQP
       </button>
     </div>
   );
-}
+} 

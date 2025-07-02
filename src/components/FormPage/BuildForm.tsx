@@ -110,31 +110,38 @@ export default function BuildPage() {
   };
 
   const updateQuestion = (id: string, updates: Partial<Question>) => {
-    if (!form || !selectedSectionId) return;
+  if (!form || !selectedSectionId) return;
 
-    const updatedSections = form.sections.map((section) =>
-      section.section_ID === selectedSectionId
-        ? {
-            ...section,
-            questions: section.questions.map((q) => {
-              if (q.question_ID === id) {
-                const updatedQuestion = { ...q, ...updates };
-                
-                // Update selected question if it's the one being updated
-                if (selectedQuestion?.question_ID === id) {
-                  setSelectedQuestion(updatedQuestion);
-                }
-                
-                return updatedQuestion;
+  let newSelected: Question | null = null;
+
+  const updatedSections = form.sections.map((section) =>
+    section.section_ID === selectedSectionId
+      ? {
+          ...section,
+          questions: section.questions.map((q) => {
+            if (q.question_ID === id) {
+              const updated = { ...q, ...updates };
+              // Track the new selected question
+              if (selectedQuestion?.question_ID === id) {
+                newSelected = updated;
               }
-              return q;
-            }),
-          }
-        : section
-    );
+              return updated;
+            }
+            return q;
+          }),
+        }
+      : section
+  );
 
-    setForm({ ...form, sections: updatedSections });
-  };
+  // Apply updates to the form
+  setForm({ ...form, sections: updatedSections });
+
+  // Also update the selectedQuestion so RightNav reflects the latest data
+  if (newSelected) {
+    setSelectedQuestion(newSelected);
+  }
+};
+
 
   const deleteQuestion = (id: string) => {
     if (!form || !selectedSectionId) return;

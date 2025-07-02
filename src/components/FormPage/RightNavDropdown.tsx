@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { QuestionType, fieldtypes, FieldType, ParamType, Question } from "@/lib/interface";
+import { QuestionType, fieldtypes, FieldType, Question } from "@/lib/interface";
 
 const questionTypes = [
   "Text",
@@ -28,7 +28,6 @@ export default function QuestionTypeDropdown({
   const [selectedType, setSelectedType] = useState("Text");
   const [isOpen, setIsOpen] = useState(false);
 
-  // Update selected type when selectedQuestion changes
   useEffect(() => {
     if (selectedQuestion?.type) {
       const typeMap: { [key in QuestionType]: string } = {
@@ -36,7 +35,7 @@ export default function QuestionTypeDropdown({
         [QuestionType.MCQ]: "MCQ",
         [QuestionType.DROPDOWN]: "Dropdown",
         [QuestionType.DATE]: "Date",
-        [QuestionType.RATING]: "Linear Scale",
+        [QuestionType.LINEARSCALE]: "Linear Scale",
         [QuestionType.FILE_UPLOAD]: "File Upload",
         [QuestionType.EMAIL]: "Email",
         [QuestionType.URL]: "Url",
@@ -46,32 +45,71 @@ export default function QuestionTypeDropdown({
   }, [selectedQuestion]);
 
   const handleTypeChange = (type: string) => {
-    console.log("Changing type to:", type); // Debug log
     setSelectedType(type);
     setIsOpen(false);
-    
-    // Map display name to QuestionType enum
+
     const typeMap: { [key: string]: QuestionType } = {
       "Text": QuestionType.TEXT,
       "MCQ": QuestionType.MCQ,
       "Dropdown": QuestionType.DROPDOWN,
       "Date": QuestionType.DATE,
-      "Linear Scale": QuestionType.RATING,
+      "Linear Scale": QuestionType.LINEARSCALE,
       "File Upload": QuestionType.FILE_UPLOAD,
       "Email": QuestionType.EMAIL,
       "Url": QuestionType.URL,
     };
-    
+
     const questionType = typeMap[type];
-    console.log("Mapped question type:", questionType); // Debug log
-    
     if (questionType && onChangeType) {
       onChangeType(questionType);
     }
   };
+  
 
   const paramInputType = (param: any, key: number) => {
     const cls = "w-full px-2 py-2 rounded bg-white outline-none dark:bg-[#5A5959] dark:text-white border-black-500";
+
+    const handleParamChange = (value: any) => {
+      if (!selectedQuestion || !onUpdateConfig) return;
+
+      const oldConfig = selectedQuestion.config || {};
+      const isValidationParam = !!param.validationName;
+
+      if (isValidationParam) {
+        const updatedValidations = (oldConfig.validations || []).map((v) => {
+          if (v.name !== param.validationName) return v;
+
+          // If it uses direct value instead of param[]
+          if (!v.params || v.params.length === 0) {
+            return { ...v, value };
+          }
+
+          // If it uses param[]
+          const updatedParams = v.params.map((p: any) =>
+            p.name === param.name ? { ...p, value } : p
+          );
+
+          return {
+            ...v,
+            params: updatedParams,
+          };
+        });
+
+        onUpdateConfig({
+          ...oldConfig,
+          validations: updatedValidations,
+        });
+      } else {
+        const updatedParams = (oldConfig.params || []).map((p: any) =>
+          p.name === param.name ? { ...p, value } : p
+        );
+
+        onUpdateConfig({
+          ...oldConfig,
+          params: updatedParams,
+        });
+      }
+    };
 
     const input = (type: string) => (
       <input
@@ -80,23 +118,11 @@ export default function QuestionTypeDropdown({
         placeholder={param.name}
         defaultValue={param.value ?? ""}
         className={cls}
-        onChange={e => {
+        onChange={(e) => {
           let value: any = e.target.value;
           if (type === "number") value = parseInt(value) || 0;
           if (type === "boolean") value = e.target.checked;
-          // Handle parameter updates for non-MCQ types
-          if (onUpdateConfig && selectedQuestion) {
-            const fieldType = fieldtypes.find(f => f.name.toLowerCase() === selectedType.toLowerCase());
-            if (fieldType) {
-              const updatedParams = fieldType.params.map(p => 
-                p.name === param.name ? { ...p, value } : p
-              );
-              onUpdateConfig({
-                ...fieldType,
-                params: updatedParams,
-              });
-            }
-          }
+          handleParamChange(value);
         }}
       />
     );
@@ -113,20 +139,7 @@ export default function QuestionTypeDropdown({
               type="checkbox"
               defaultChecked={!!param.value}
               className="accent-[#8CC7AA]"
-              onChange={e => {
-                if (onUpdateConfig && selectedQuestion) {
-                  const fieldType = fieldtypes.find(f => f.name.toLowerCase() === selectedType.toLowerCase());
-                  if (fieldType) {
-                    const updatedParams = fieldType.params.map(p => 
-                      p.name === param.name ? { ...p, value: e.target.checked } : p
-                    );
-                    onUpdateConfig({
-                      ...fieldType,
-                      params: updatedParams,
-                    });
-                  }
-                }
-              }}
+              onChange={(e) => handleParamChange(e.target.checked)}
             />
             <span>{param.name}</span>
           </label>
@@ -140,20 +153,9 @@ export default function QuestionTypeDropdown({
             placeholder={`${param.name} (comma-separated)`}
             defaultValue={Array.isArray(param.value) ? param.value.join(", ") : ""}
             className={cls}
-            onChange={e => {
-              const value = e.target.value.split(",").map((s: string) => s.trim());
-              if (onUpdateConfig && selectedQuestion) {
-                const fieldType = fieldtypes.find(f => f.name.toLowerCase() === selectedType.toLowerCase());
-                if (fieldType) {
-                  const updatedParams = fieldType.params.map(p => 
-                    p.name === param.name ? { ...p, value } : p
-                  );
-                  onUpdateConfig({
-                    ...fieldType,
-                    params: updatedParams,
-                  });
-                }
-              }
+            onChange={(e) => {
+              const value = e.target.value.split(",").map((s) => s.trim());
+              handleParamChange(value);
             }}
           />
         );
@@ -174,20 +176,7 @@ export default function QuestionTypeDropdown({
               type="date"
               defaultValue={param.value ?? ""}
               className={cls}
-              onChange={e => {
-                if (onUpdateConfig && selectedQuestion) {
-                  const fieldType = fieldtypes.find(f => f.name.toLowerCase() === selectedType.toLowerCase());
-                  if (fieldType) {
-                    const updatedParams = fieldType.params.map(p => 
-                      p.name === param.name ? { ...p, value: e.target.value } : p
-                    );
-                    onUpdateConfig({
-                      ...fieldType,
-                      params: updatedParams,
-                    });
-                  }
-                }
-              }}
+              onChange={(e) => handleParamChange(e.target.value)}
             />
           </label>
         );
@@ -198,7 +187,6 @@ export default function QuestionTypeDropdown({
   };
 
   const typeSelector = () => {
-
     const selectedField = fieldtypes.find(
       (f) => f.name.toLowerCase() === selectedType.toLowerCase()
     );
@@ -230,7 +218,11 @@ export default function QuestionTypeDropdown({
               {selectedField.validations.map((v, i) => (
                 <div key={i} className="pt-2 border-t">
                   <p className="font-semibold text-sm">{v.name}</p>
-                  {v.params?.map((p, j) => paramInputType(p, j))}
+                  {v.params?.map((p, j) =>
+                    paramInputType({ ...p, validationName: v.name }, j)
+                  )}
+                  {v.value !== undefined &&
+                    paramInputType({ name: v.name, value: v.value, type: "string", validationName: v.name }, 999)}
                 </div>
               ))}
             </div>
@@ -276,7 +268,7 @@ export default function QuestionTypeDropdown({
         </div>
       )}
 
-      {/* Config */}
+      {/* Config Panel */}
       <div className="mt-5">{typeSelector()}</div>
     </div>
   );

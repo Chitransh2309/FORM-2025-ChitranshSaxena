@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Section } from "../lib/interface";
+import { Section } from "@/lib/interface";
 import SectionItem from "./SectionItem";
 import { CircleUser, Menu } from "lucide-react";
 

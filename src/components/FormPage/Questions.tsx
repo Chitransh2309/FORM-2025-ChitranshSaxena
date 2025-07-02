@@ -9,6 +9,10 @@ import {
 import MCQ from "./FieldType/MCQ"; // Import the MCQ component
 import Dropdown from "./FieldType/DROPDOWN";
 import LinearScale from "./FieldType/linearscale";
+import DateField from "./FieldType/DATE";
+import EmailField from "./FieldType/EMAIL";
+import UrlField from "./FieldType/URL";
+import TextField from "./FieldType/TEXT"; // Import the new TEXT component
 
 interface Props {
   id: string;
@@ -75,17 +79,22 @@ export default function Question({
       onUpdate(id, { config: newConfig });
     }
   };
+
   const getDropdownOptions = (): string[] => {
-    const config = data.config as any;
-    if (config?.params) {
-      const optionsParam = config.params.find((p: any) => p.name === "options");
-      if (optionsParam?.value) {
-        return Array.isArray(optionsParam.value)
-          ? optionsParam.value
-          : optionsParam.value.split(", ");
+    if (data.type === QuestionType.DROPDOWN && data.config) {
+      const config = data.config as any;
+      if (config.params) {
+        const optionsParam = config.params.find(
+          (p: any) => p.name === "options"
+        );
+        if (optionsParam?.value) {
+          return Array.isArray(optionsParam.value)
+            ? optionsParam.value
+            : optionsParam.value.split(", ");
+        }
       }
     }
-    return ["Option 1"];
+    return ["Option 1", "Option 2"]; // Match the default in dropdown component
   };
 
   const handleDropdownOptionsChange = (options: string[]) => {
@@ -101,8 +110,44 @@ export default function Question({
       };
 
       onUpdate(id, { config: newConfig });
+    } else {
+      // Fallback if fieldType is not found
+      const newConfig = {
+        name: "dropdown",
+        params: [
+          {
+            name: "options",
+            value: options,
+          },
+        ],
+      };
+      onUpdate(id, { config: newConfig });
     }
   };
+
+  // Get text field parameters from config
+  const getTextParams = () => {
+    const config = data.config;
+    const params = config?.params ?? [];
+    const get = (name: string) => params.find((p) => p.name === name)?.value;
+
+    return {
+      placeholder: get("placeholder") || "Your answer",
+      multiline: Boolean(get("multiline")) || false,
+    };
+  };
+
+  // Handle text field changes
+  const handleTextChange = (value: string) => {
+    onUpdate(id, {
+      config: {
+        ...data.config,
+        value: value, // Store the current value
+        params: data.config?.params || [],
+      },
+    });
+  };
+
   const getLinearScaleParams = () => {
     const config = data.config;
     const params = config?.params ?? [];
@@ -149,12 +194,22 @@ export default function Question({
         );
 
       case QuestionType.DATE:
+        const includeTime = data.config?.params?.find((p) => p.name === "includeTime")?.value === true;
         return (
           <div className="mt-4">
-            <input
-              type="date"
-              disabled
-              className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-[#494949] dark:border-gray-600 dark:text-white"
+            <DateField
+              value={(data.config as any)?.selectedDate}
+              includeTime={includeTime}
+              onChange={(val) =>
+                onUpdate(id, {
+                  config: {
+                    ...data.config!,
+                    selectedDate: val,
+                    params: data.config?.params || [],
+                  },
+                })
+              }
+              disabled={!isSelected}
             />
           </div>
         );
@@ -170,7 +225,7 @@ export default function Question({
           </div>
         );
 
-      case QuestionType.RATING:
+      case QuestionType.LINEARSCALE:
         const scale = getLinearScaleParams();
         return (
           <LinearScale
@@ -186,11 +241,18 @@ export default function Question({
       case QuestionType.EMAIL:
         return (
           <div className="mt-4">
-            <input
-              type="email"
-              disabled
-              placeholder="example@email.com"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-[#494949] dark:border-gray-600 dark:text-white"
+            <EmailField
+              value={(data.config as any)?.value || ""}
+              onChange={(val) =>
+                onUpdate(id, {
+                  config: {
+                    ...data.config!,
+                    value: val,
+                    params: data.config?.params || [],
+                  },
+                })
+              }
+              disabled={!isSelected}
             />
           </div>
         );
@@ -198,21 +260,33 @@ export default function Question({
       case QuestionType.URL:
         return (
           <div className="mt-4">
-            <input
-              type="url"
-              disabled
-              placeholder="https://example.com"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-[#494949] dark:border-gray-600 dark:text-white"
+            <UrlField
+              value={(data.config as any)?.value || ""}
+              onChange={(val) =>
+                onUpdate(id, {
+                  config: {
+                    ...data.config!,
+                    value: val,
+                    params: data.config?.params || [],
+                  },
+                })
+              }
+              disabled={!isSelected}
             />
           </div>
         );
 
       case QuestionType.TEXT:
       default:
+        const textParams = getTextParams();
         return (
-          <div className="mt-4 bg-[#F6F6F6] rounded-md px-4 py-2 text-black/50 dark:bg-[#494949] dark:text-white">
-            Short answer text
-          </div>
+          <TextField
+            value={(data.config as any)?.value || ""}
+            placeholder={textParams.placeholder}
+            multiline={textParams.multiline}
+            onChange={handleTextChange}
+            disabled={!isSelected}
+          />
         );
     }
   };

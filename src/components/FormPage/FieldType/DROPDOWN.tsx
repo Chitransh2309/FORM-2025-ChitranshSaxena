@@ -14,18 +14,22 @@ export default function Dropdown({
   onOptionsChange,
   disabled = false,
 }: DropdownProps) {
-  const [localOptions, setLocalOptions] = useState<string[]>(options.length > 0 ? options : ["Option 1"]);
+  const [localOptions, setLocalOptions] = useState<string[]>(
+    options.length > 0 ? options : ["Option 1", "Option 2"]
+  );
 
   useEffect(() => {
-    if (options.length === 0) {
-      const defaultOptions = ["Option 1","Option 2"];
+    if (!options || options.length === 0) {
+      const defaultOptions = ["Option 1", "Option 2"];
       setLocalOptions(defaultOptions);
       onOptionsChange(defaultOptions);
     }
-  }, []);
+  }, [onOptionsChange]); // Added missing dependency
 
   useEffect(() => {
-    setLocalOptions(options);
+    if (options.length > 0) {
+      setLocalOptions(options);
+    }
   }, [options]);
 
   const handleChange = (index: number, value: string) => {
