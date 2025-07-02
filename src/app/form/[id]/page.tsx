@@ -36,7 +36,7 @@ export default async function FormPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <FormWrapper formId={formId}>
+    <FormWrapper form={form}>
       <div className="bg-[#e8ede8]">
         <CenterNav formId={formId} />
       </div>

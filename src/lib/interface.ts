@@ -30,6 +30,7 @@ export interface FormSettings {
   timer?: number;
   autoSubmit?: boolean;
   cameraRequired: boolean;
+  copy_via_email?: boolean;
 }
 
 export interface Section {

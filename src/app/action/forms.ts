@@ -2,7 +2,7 @@
 
 import { connectToDB, disconnectFromDB } from '@/lib/mongodb';
 import { auth } from '../../../auth';
-import { Form } from '@/lib/interface';
+import { Form, FormSettings } from '@/lib/interface';
 
 // Ensures a form exists by form_ID
 export async function createFormIfNotExists(form_ID: string, name?: string) {
@@ -27,7 +27,7 @@ export async function createFormIfNotExists(form_ID: string, name?: string) {
     if (!existing) {
       const newForm: Form = {
         form_ID,
-        title: name || 'Untitled Form', 
+        title: name || 'Untitled Form',
         description: '',
         createdAt: new Date(),
         createdBy: userID,
@@ -83,5 +83,39 @@ export async function getFormsForUser() {
   } catch (error) {
     console.error('❌ Fetch user forms failed:', error);
     return [];
+  }
+}
+export async function updateFormSettings(
+  formId: string,
+  settings: FormSettings
+) {
+  console.log('Updating form settings for formId:', formId);
+  const { db, dbClient } = await connectToDB();
+
+  try {
+    // Step 1: Find the existing form
+    console.log('Fetching existing form with ID:', formId);
+    const existingForm = await db
+      .collection('forms')
+      .findOne({ form_ID: formId });
+
+    if (!existingForm) {
+      throw new Error(`Form with ID ${formId} not found`);
+    }
+
+    // Step 2: Add or update the settings field
+    const updatedForm = {
+      ...existingForm,
+      settings, // overwrite or add the settings field
+    };
+
+    // Step 3: Update the entire document
+    await db.collection('forms').replaceOne({ form_ID: formId }, updatedForm);
+
+    return {
+      data: updatedForm,
+    };
+  } finally {
+    await disconnectFromDB(dbClient);
   }
 }
