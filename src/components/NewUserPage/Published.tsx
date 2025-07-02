@@ -15,8 +15,10 @@ export default function Published({ forms }: { forms: Form[] }) {
     <section className="w-full xl:w-1/2 text-black p-4 dark:text-white mb-20 xl:mb-0">
       <h2 className="text-xl font-semibold px-4 py-3">Published</h2>
 
-      <div className="border-2 border-gray border-dashed rounded-lg p-4
-                      overflow-visible xl:min-h-90 lg:min-h-120 dark:border-white">
+      <div
+        className="border-2 border-gray border-dashed rounded-lg p-4
+                      overflow-visible xl:min-h-90 lg:min-h-120 dark:border-white"
+      >
         <div className="grid grid-cols-2 gap-3">
           {forms.map((form) => (
             <div key={form.form_ID} className="flex flex-col">
@@ -36,9 +38,7 @@ export default function Published({ forms }: { forms: Form[] }) {
                   Edit Form
                 </button>
                 <button
-                  onClick={() =>
-                    router.push(`/form/${form.form_ID}/responses`)
-                  }
+                  onClick={() => router.push(`/response/${form.form_ID}`)}
                   className="flex-1 rounded bg-[#3D3D3D] text-white text-xs py-1"
                 >
                   View Response

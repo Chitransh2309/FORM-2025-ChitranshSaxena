@@ -67,6 +67,7 @@ export interface FormResponse {
   response_ID: string;
   form_ID: string;
   userId: string;
+  userName?: string; // Optional, can be derived from user_ID
   startedAt: Date;
   submittedAt: Date;
   status: string;
@@ -229,4 +230,3 @@ export const fieldtypes: FieldType[] = [
     ],
   },
 ];
-
