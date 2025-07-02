@@ -4,6 +4,7 @@ import { auth } from "../../../../auth";
 import CenterNav from "@/components/FormPage/CenterNav";
 import FormWrapper from "@/components/FormPage/FormHeader";
 import { Form } from "@/lib/interface";
+
 export default async function FormPage({ params }: { params: { id: string } }) {
   const formId = params.id;
 
@@ -35,8 +36,11 @@ export default async function FormPage({ params }: { params: { id: string } }) {
     redirect(`/form/${formId}/response`);
   }
 
+  // ✅ FIX HERE: Convert to plain JSON-safe object
+  const safeForm = JSON.parse(JSON.stringify(form));
+
   return (
-    <FormWrapper form={form}>
+    <FormWrapper form={safeForm}>
       <div className="bg-[#e8ede8]">
         <CenterNav formId={formId} />
       </div>

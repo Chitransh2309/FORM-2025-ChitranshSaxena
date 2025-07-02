@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Section, Question } from '../lib/interface';
+import { Section, Question } from '@/lib/interface';
 
 interface Props {
   section: Section | null;
