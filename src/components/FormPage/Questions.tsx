@@ -3,16 +3,19 @@ import React, { useEffect, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Question as QuestionInterface, QuestionType, fieldtypes } from "@/lib/interface";
 import MCQ from "./FieldType/MCQ"; // Import the MCQ component
+import Dropdown from "./FieldType/DROPDOWN";
+import LinearScale from "./FieldType/linearscale";
 
 interface Props {
   id: string;
   data: QuestionInterface;
   onDelete: (id: string) => void;
   onUpdate: (id: string, updatedFields: Partial<QuestionInterface>) => void;
-  isSelected?: boolean; // Add this prop to know if question is selected
+  isSelected?: boolean;
+  isDuplicate?: boolean;
 }
 
-export default function Question({ id, data, onDelete, onUpdate, isSelected = false }: Props) {
+export default function Question({ id, data, onDelete, onUpdate, isSelected = false, isDuplicate = false }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -57,6 +60,58 @@ export default function Question({ id, data, onDelete, onUpdate, isSelected = fa
       onUpdate(id, { config: newConfig });
     }
   };
+  const getDropdownOptions = (): string[] => {
+  const config = data.config as any;
+  if (config?.params) {
+    const optionsParam = config.params.find((p: any) => p.name === "options");
+    if (optionsParam?.value) {
+      return Array.isArray(optionsParam.value)
+        ? optionsParam.value
+        : optionsParam.value.split(", ");
+    }
+  }
+  return ["Option 1"];
+};
+
+const handleDropdownOptionsChange = (options: string[]) => {
+  const fieldType = fieldtypes.find((f) => f.name === "dropdown");
+  if (fieldType) {
+    const updatedParams = fieldType.params.map((param) =>
+      param.name === "options" ? { ...param, value: options } : param
+    );
+
+    const newConfig = {
+      ...fieldType,
+      params: updatedParams,
+    };
+
+    onUpdate(id, { config: newConfig });
+  }
+};
+const getLinearScaleParams = () => {
+  const config = data.config;
+  const params = config?.params ?? [];
+  const get = (name: string) =>
+    params.find((p) => p.name === name)?.value;
+
+  return {
+    min: Number(get("min")) || 1,
+    max: Number(get("max")) || 5,
+    minLabel: get("minLabel") || "Low",
+    maxLabel: get("maxLabel") || "High",
+  };
+};
+
+
+const handleLinearScaleChange = (value: number) => {
+  onUpdate(id, {
+    config: {
+      ...data.config,
+      selected: value, // You can store this value separately
+      params: data.config?.params || [],
+    },
+  });
+};
 
   const toggleId = `title-toggle-${id}`;
 
@@ -72,12 +127,14 @@ export default function Question({ id, data, onDelete, onUpdate, isSelected = fa
         );
       
       case QuestionType.DROPDOWN:
-        // You can add dropdown component here later
-        return (
-          <div className="mt-4 bg-[#F6F6F6] rounded-md px-4 py-2 text-black/50 dark:bg-[#494949] dark:text-white">
-            Dropdown options (coming soon)
-          </div>
-        );
+  return (
+    <Dropdown
+      options={getDropdownOptions()}
+      onOptionsChange={handleDropdownOptionsChange}
+      disabled={!isSelected}
+    />
+  );
+
       
       case QuestionType.DATE:
         return (
@@ -100,15 +157,19 @@ export default function Question({ id, data, onDelete, onUpdate, isSelected = fa
         );
       
       case QuestionType.RATING:
-        return (
-          <div className="mt-4 flex items-center gap-2">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-              <button key={num} disabled className="w-8 h-8 border border-gray-300 rounded-full text-sm dark:border-gray-600 dark:text-white">
-                {num}
-              </button>
-            ))}
-          </div>
-        );
+  const scale = getLinearScaleParams();
+  return (
+    <LinearScale
+      min={scale.min}
+      max={scale.max}
+      minLabel={String(scale.minLabel)}
+      maxLabel={String(scale.maxLabel)}
+      
+      onSelect={handleLinearScaleChange}
+      disabled={!isSelected}
+    />
+  );
+
       
       case QuestionType.EMAIL:
         return (
@@ -146,11 +207,13 @@ export default function Question({ id, data, onDelete, onUpdate, isSelected = fa
 
   return (
     <div
-      ref={containerRef}
-      className={`bg-[#FEFEFE] shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl w-[90%] min-h-[20%] mx-auto mb-10 transition-all duration-200 ${
-        isSelected ? "ring-4 ring-black dark:ring-[#64ad8b]" : ""
-      } dark:bg-[#5A5959] dark:text-white hover:shadow-lg`}
-    >
+  ref={containerRef}
+  className={`bg-[#FEFEFE] shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl w-[90%] min-h-[20%] mx-auto mb-10 transition-all duration-200 
+    ${isSelected ? "ring-4 ring-black dark:ring-[#64ad8b]" : ""}
+    ${isDuplicate ? "border-2 border-red-500" : ""}
+    dark:bg-[#5A5959] dark:text-white hover:shadow-lg`}
+>
+
       <div className="flex justify-between items-center dark:text-white">
         <input
           placeholder="Question Title *"

@@ -71,7 +71,7 @@ export default function QuestionTypeDropdown({
   };
 
   const paramInputType = (param: any, key: number) => {
-    const cls = "w-full px-2 py-2 rounded bg-white outline-none dark:bg-[#5A5959] dark:text-white border-black";
+    const cls = "w-full px-2 py-2 rounded bg-white outline-none dark:bg-[#5A5959] dark:text-white border-black-500";
 
     const input = (type: string) => (
       <input
