@@ -18,6 +18,8 @@ import ReactFlow, {
 import CustomNode from "./CustomNode"; // ✅ Your custom node
 import { useMemo } from "react";
 
+import { saveFormLogic } from "@/app/action/saveFormLogic";
+
 type Condition = {
   fieldId: string;
   op: "equal";
@@ -102,7 +104,7 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
     setTargetSection("");
   };
 
-  const handleAddLogic = () => {
+  const handleAddLogic = async () => {
     if (
       !selectedSectionId ||
       !selectedQuestion ||
@@ -124,8 +126,19 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
       },
     };
 
-    setLogicRules((prev) => [...prev, newRule]);
+    const updatedRules = [...logicRules, newRule]; // ✅ use this for saving and updating state
+    setLogicRules(updatedRules);
     setShowModal(false);
+
+    const saveResult = await saveFormLogic(form_ID, updatedRules);
+    console.log("Save result:", saveResult);
+
+    if (!saveResult.success) {
+      toast.error("Failed to save logic.");
+    } else {
+      toast.success("Logic saved!");
+      setShowModal(false);
+    }
   };
 
   const selectedSection = sections.find(
