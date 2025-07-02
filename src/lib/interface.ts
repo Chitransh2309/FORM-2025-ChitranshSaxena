@@ -26,7 +26,7 @@ export interface FormSettings {
   maxResponses?: number;
   startDate: Date;
   endDate?: Date;
-  tab_switch_count?: number;
+  tab_switch_count?: boolean;
   timer?: number;
   autoSubmit?: boolean;
   cameraRequired: boolean;

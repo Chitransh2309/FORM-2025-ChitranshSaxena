@@ -6,7 +6,7 @@ import { publishForm } from '@/app/action/publish';
 import ToggleSwitch from '@/components/LandingPage/ToggleSwitch';
 import FormPublishModal from './FormPublish';
 import FormSettings from './FormSettings';
-import { Form } from '@/lib/interface';
+import { Form, FormSettings as FormSettingsType } from '@/lib/interface';
 export default function FormHeader({
   children,
   form,
@@ -46,7 +46,7 @@ export default function FormHeader({
     setFormLink(null);
     router.push('/dashboard');
   };
-
+const [ formSettings, setFormSettings ] = useState<FormSettingsType>(form.settings);
   return (
     <div>
       {!isResponsePage && (
@@ -67,7 +67,8 @@ export default function FormHeader({
             {showSettings && (
               <FormSettings
                 formId={form.form_ID}
-                initialSettings={form.settings}
+                formSettings={formSettings}
+                setFormSettings={setFormSettings}
                 onClose={() => setShowSettings(false)}
               />
             )}
