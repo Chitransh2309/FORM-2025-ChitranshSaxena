@@ -1,29 +1,22 @@
-'use client';
+"use client";
 
-<<<<<<< HEAD:src/components/New_user_page/Formsorter.tsx
-import { useState } from 'react';
-import { FaChevronDown } from 'react-icons/fa';
-import { useRouter } from 'next/navigation';
-import { createNewForm } from '@/app/action/createnewform';
-=======
 import { useState } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-import { createNewForm } from "@/app/action/CreateNewForm";
->>>>>>> 46f7001 (Made the casing everywhere as PascalCasing, made the publish and back to workspace button redirect back to dashboard):src/components/NewUserPage/FormSorter.tsx
+import { createNewForm } from "@/app/action/createnewform";
 
 function Formsorter() {
   const router = useRouter();
   const [showDialog, setShowDialog] = useState(false);
-  const [formName, setFormName] = useState('');
+  const [formName, setFormName] = useState("");
 
   const handleCreate = async () => {
-    if (!formName.trim()) return alert('Please enter a form name');
+    if (!formName.trim()) return alert("Please enter a form name");
     const res = await createNewForm(formName);
     if (res) {
       router.push(`/form/${res}`);
     } else {
-      alert('Failed to create a new form. Try again.');
+      alert("Failed to create a new form. Try again.");
     }
   };
 
@@ -82,4 +75,4 @@ function Formsorter() {
   );
 }
 
-export default Formsorter;
+export default Formsorter;

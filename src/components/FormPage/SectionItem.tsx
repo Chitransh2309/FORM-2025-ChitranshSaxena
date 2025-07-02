@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Section } from "../lib/interface";
+import { Section } from "@/lib/interface";
 import { Trash2, ChevronRight, ChevronDown } from "lucide-react";
 
 interface Props {
