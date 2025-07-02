@@ -235,5 +235,3 @@ export const fieldtypes: FieldType[] = [
     ],
   },
 ];
-
-export interface FormLogic {}

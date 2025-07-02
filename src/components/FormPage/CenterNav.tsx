@@ -3,8 +3,7 @@
 import React, { useState } from "react";
 import PreviewForm from "@/components/FormPage/PreviewForm";
 import BuildForm from "@/components/FormPage/BuildForm";
->>>>>>> 46f7001 (Made the casing everywhere as PascalCasing, made the publish and back to workspace button redirect back to dashboard):src/components/FormPage/CenterNav.tsx
-
+import WorkflowPage from "./Workflow/WorkflowPage";
 enum Section {
   Builder,
   Workflow,
@@ -42,10 +41,15 @@ const CenterNav = ({ formId }: { formId?: string }) => {
       <div className="w-full flex-grow overflow-auto mt-6 px-2 sm:px-4">
         {currentSection === Section.Builder && <BuildForm />}
         {currentSection === Section.Workflow && (
-          <div className="p-4 sm:p-6">
-            <h2 className="text-xl font-semibold mb-4 dark:text-white">🔁 Workflow View</h2>
-            <p className="dark:text-white">This is the form workflow configuration.</p>
-          </div>
+          <WorkflowPage form_ID={formId} />
+          // <div className="p-4 sm:p-6">
+          //   <h2 className="text-xl font-semibold mb-4 dark:text-white">
+          //     🔁 Workflow View
+          //   </h2>
+          //   <p className="dark:text-white">
+          //     This is the form workflow configuration.
+          //   </p>
+          // </div>
         )}
         {currentSection === Section.Preview && (
           <div className="p-4 sm:p-6 dark:text-white">
