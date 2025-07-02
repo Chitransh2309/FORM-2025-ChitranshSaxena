@@ -3,22 +3,23 @@ import { Handle, NodeProps, Position } from "react-flow-renderer";
 
 export default function CustomNode({ data }: NodeProps) {
   const handleLogicClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // ⛔ Prevent drag
-    e.preventDefault(); // 🛑 Prevent flow canvas interactions
-    data.onClick?.(data.id); // ✅ Trigger your modal
+    e.stopPropagation(); // 🔒 Stop drag/pan
+    data.onClick?.(data.id);
   };
 
   return (
-    <div className="bg-white border rounded p-3 shadow-md w-48 text-center relative">
-      <div className="text-sm font-semibold mb-2">{data.label}</div>
+    <div className="bg-white border rounded shadow-md w-48 text-center relative">
+      <div className="p-3 cursor-move font-semibold text-sm">{data.label}</div>
 
-      {/* 🧠 Non-draggable center control */}
-      <button
-        className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-        onClick={handleLogicClick}
-      >
-        + Add Logic
-      </button>
+      {/* Clickable Zone (not draggable) */}
+      <div className="pb-2">
+        <button
+          onClick={handleLogicClick}
+          className="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          + Add Logic
+        </button>
+      </div>
 
       <Handle type="source" position={Position.Right} />
       <Handle type="target" position={Position.Left} />

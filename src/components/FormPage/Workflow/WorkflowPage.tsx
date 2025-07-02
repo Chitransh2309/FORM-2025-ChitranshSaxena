@@ -11,7 +11,12 @@ import ReactFlow, {
   MiniMap,
   Node,
   Edge,
+  applyNodeChanges,
+  applyEdgeChanges,
+  NodeTypes,
 } from "react-flow-renderer";
+import CustomNode from "./CustomNode"; // ✅ Your custom node
+import { useMemo } from "react";
 
 type Condition = {
   fieldId: string;
@@ -29,6 +34,8 @@ type LogicRule = {
 };
 
 export default function WorkflowPage({ form_ID }: { form_ID: string }) {
+  const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
+
   const [sections, setSections] = useState<Section[]>([]);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
@@ -54,8 +61,13 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
 
         const flowNodes: Node[] = formSections.map((section, idx) => ({
           id: section.section_ID,
-          data: { label: section.title || `Section ${idx + 1}` },
+          type: "custom",
           position: { x: 300 * idx, y: 100 },
+          data: {
+            label: section.title || `Section ${idx + 1}`,
+            id: section.section_ID,
+            onClick: handleOpenModal, // ✅ Must be here
+          },
         }));
 
         setNodes(flowNodes);
@@ -125,25 +137,20 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
 
   return (
     <div className="text-black w-full h-[90vh] p-4 flex gap-6">
-      <div className="flex-1 border rounded-md">
+      <div className="flex-1 rounded-md">
         <ReactFlowProvider>
           <ReactFlow
-            nodes={nodes.map((n) => ({
-              ...n,
-              data: {
-                label: (
-                  <div
-                    className="cursor-pointer hover:underline"
-                    onClick={() => handleOpenModal(n.id)}
-                  >
-                    {n.data.label}
-                  </div>
-                ),
-              },
-            }))}
+            nodes={nodes}
             edges={edges}
+            onNodesChange={(changes) =>
+              setNodes((nds) => applyNodeChanges(changes, nds))
+            }
+            onEdgesChange={(changes) =>
+              setEdges((eds) => applyEdgeChanges(changes, eds))
+            }
+            nodeTypes={nodeTypes} // ✅ Register custom node
             fitView
-            style={{ background: "#E0E0E0" }}
+            style={{ background: "#2B2A2A" }}
           >
             <Background />
             <MiniMap />
@@ -152,7 +159,6 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
         </ReactFlowProvider>
       </div>
 
-      {/* 🔧 Condition Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-[400px] shadow-lg">
