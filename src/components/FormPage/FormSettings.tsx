@@ -150,7 +150,7 @@ const FormSettings = ({
               <input
                 type="checkbox"
                 className="scale-125"
-                checked={formSettings.tab_switch_count || false}
+                checked={formSettings?.tab_switch_count || false}
                 onChange={(e) =>
                   handleChange({
                     target: {
@@ -170,7 +170,7 @@ const FormSettings = ({
               <input
                 type="checkbox"
                 className="scale-125"
-                checked={formSettings.copy_via_email || false}
+                checked={formSettings?.copy_via_email || false}
                 onChange={(e) =>
                   handleChange({
                     target: {
