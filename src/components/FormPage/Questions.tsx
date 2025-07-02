@@ -1,18 +1,18 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef } from "react";
 import { Trash2 } from "lucide-react";
 import {
   Question as QuestionInterface,
   QuestionType,
   fieldtypes,
 } from "@/lib/interface";
-import MCQ from "./FieldType/MCQ"; // Import the MCQ component
+import MCQ from "./FieldType/MCQ";
+import Text from "./FieldType/TEXT";
 import Dropdown from "./FieldType/DROPDOWN";
-import LinearScale from "./FieldType/linearscale";
 import DateField from "./FieldType/DATE";
-import EmailField from "./FieldType/EMAIL";
-import UrlField from "./FieldType/URL";
-import TextField from "./FieldType/TEXT"; // Import the new TEXT component
+import LinearScale from "./FieldType/linearscale";
+import Email from "./FieldType/EMAIL";
+import Url from "./FieldType/URL";
 
 interface Props {
   id: string;
@@ -47,9 +47,7 @@ export default function Question({
     if (data.type === QuestionType.MCQ && data.config) {
       const config = data.config as any;
       if (config.params) {
-        const optionsParam = config.params.find(
-          (p: any) => p.name === "options"
-        );
+        const optionsParam = config.params.find((p: any) => p.name === "options");
         if (optionsParam?.value) {
           return Array.isArray(optionsParam.value)
             ? optionsParam.value
@@ -60,33 +58,12 @@ export default function Question({
     return ["Option 1", "Option 2"];
   };
 
-  // Handle MCQ options change
-  const handleMcqOptionsChange = (options: string[]) => {
-    const fieldType = fieldtypes.find((f) => f.name === "mcq");
-    if (fieldType) {
-      const updatedParams = fieldType.params.map((param) => {
-        if (param.name === "options") {
-          return { ...param, value: options };
-        }
-        return param;
-      });
-
-      const newConfig = {
-        ...fieldType,
-        params: updatedParams,
-      };
-
-      onUpdate(id, { config: newConfig });
-    }
-  };
-
+  // Get Dropdown options from config
   const getDropdownOptions = (): string[] => {
     if (data.type === QuestionType.DROPDOWN && data.config) {
       const config = data.config as any;
       if (config.params) {
-        const optionsParam = config.params.find(
-          (p: any) => p.name === "options"
-        );
+        const optionsParam = config.params.find((p: any) => p.name === "options");
         if (optionsParam?.value) {
           return Array.isArray(optionsParam.value)
             ? optionsParam.value
@@ -94,81 +71,138 @@ export default function Question({
         }
       }
     }
-    return ["Option 1", "Option 2"]; // Match the default in dropdown component
+    return ["Option 1", "Option 2"];
   };
 
-  const handleDropdownOptionsChange = (options: string[]) => {
-    const fieldType = fieldtypes.find((f) => f.name === "dropdown");
-    if (fieldType) {
-      const updatedParams = fieldType.params.map((param) =>
-        param.name === "options" ? { ...param, value: options } : param
-      );
+  // Get Date config
+  const getDateConfig = () => {
+    if (data.type === QuestionType.DATE && data.config) {
+      const config = data.config as any;
+      const includeTime = !!config.params?.find((p: any) => p.name === "includeTime")?.value;
+      const dateRange = config.validations?.find((v: any) => v.name === "dateRange");
+      let minDate, maxDate;
+      if (dateRange?.params) {
+        minDate = dateRange.params.find((p: any) => p.name === "minDate")?.value;
+        maxDate = dateRange.params.find((p: any) => p.name === "maxDate")?.value;
+      }
+      return { includeTime, minDate, maxDate };
+    }
+    return { includeTime: false };
+  };
 
+  // Get Linear Scale config
+  const getLinearScaleConfig = () => {
+    if (data.type === QuestionType.LINEARSCALE && data.config) {
+      const config = data.config as any;
+      const min = Number(config.params?.find((p: any) => p.name === "min")?.value ?? 1);
+      const max = Number(config.params?.find((p: any) => p.name === "max")?.value ?? 5);
+      const minLabel = config.params?.find((p: any) => p.name === "minLabel")?.value ?? "";
+      const maxLabel = config.params?.find((p: any) => p.name === "maxLabel")?.value ?? "";
+      return { min, max, minLabel, maxLabel };
+    }
+    return { min: 1, max: 5, minLabel: "", maxLabel: "" };
+  };
+
+  // Get Text configuration from config
+  const getTextConfig = () => {
+    if (data.type === QuestionType.TEXT && data.config) {
+      const config = data.config as any;
+      const placeholder = config.params?.find((p: any) => p.name === "placeholder")?.value || "Enter your answer...";
+      let charlimit: { min?: number; max?: number } | undefined;
+      const charlimitValidation = config.validations?.find((v: any) => v.name === "charlimit");
+      if (charlimitValidation?.params) {
+        const minParam = charlimitValidation.params.find((p: any) => p.name === "min");
+        const maxParam = charlimitValidation.params.find((p: any) => p.name === "max");
+        charlimit = {
+          min: minParam?.value ? Number(minParam.value) : undefined,
+          max: maxParam?.value ? Number(maxParam.value) : undefined,
+        };
+      }
+      let keywordChecker: { contains?: string[]; doesnotContain?: string[] } | undefined;
+      const keywordValidation = config.validations?.find((v: any) => v.name === "keywordChecker");
+      if (keywordValidation?.params) {
+        const containsParam = keywordValidation.params.find((p: any) => p.name === "contains");
+        const doesnotContainParam = keywordValidation.params.find((p: any) => p.name === "doesnotContain");
+        keywordChecker = {
+          contains: containsParam?.value
+            ? Array.isArray(containsParam.value)
+              ? containsParam.value
+              : [containsParam.value]
+            : undefined,
+          doesnotContain: doesnotContainParam?.value
+            ? Array.isArray(doesnotContainParam.value)
+              ? doesnotContainParam.value
+              : [doesnotContainParam.value]
+            : undefined,
+        };
+      }
+      return { placeholder, charlimit, keywordChecker };
+    }
+    return { placeholder: "Enter your answer..." };
+  };
+
+  // Handle MCQ options change
+  const handleMcqOptionsChange = (options: string[]) => {
+    if (data.config && data.config.params) {
+      const updatedParams = data.config.params.map((param: any) => {
+        if (param.name === "options") {
+          return { ...param, value: options };
+        }
+        return param;
+      });
       const newConfig = {
-        ...fieldType,
+        ...data.config,
         params: updatedParams,
       };
-
       onUpdate(id, { config: newConfig });
     } else {
-      // Fallback if fieldType is not found
-      const newConfig = {
-        name: "dropdown",
-        params: [
-          {
-            name: "options",
-            value: options,
-          },
-        ],
-      };
-      onUpdate(id, { config: newConfig });
+      const fieldType = fieldtypes.find((f) => f.name === "mcq");
+      if (fieldType) {
+        const updatedParams = fieldType.params.map((param) => {
+          if (param.name === "options") {
+            return { ...param, value: options };
+          }
+          return param;
+        });
+        const newConfig = {
+          ...fieldType,
+          params: updatedParams,
+        };
+        onUpdate(id, { config: newConfig });
+      }
     }
   };
 
-  // Get text field parameters from config
-  const getTextParams = () => {
-    const config = data.config;
-    const params = config?.params ?? [];
-    const get = (name: string) => params.find((p) => p.name === name)?.value;
-
-    return {
-      placeholder: get("placeholder") || "Your answer",
-      multiline: Boolean(get("multiline")) || false,
-    };
-  };
-
-  // Handle text field changes
-  const handleTextChange = (value: string) => {
-    onUpdate(id, {
-      config: {
+  // Handle Dropdown options change
+  const handleDropdownOptionsChange = (options: string[]) => {
+    if (data.config && data.config.params) {
+      const updatedParams = data.config.params.map((param: any) => {
+        if (param.name === "options") {
+          return { ...param, value: options };
+        }
+        return param;
+      });
+      const newConfig = {
         ...data.config,
-        value: value, // Store the current value
-        params: data.config?.params || [],
-      },
-    });
-  };
-
-  const getLinearScaleParams = () => {
-    const config = data.config;
-    const params = config?.params ?? [];
-    const get = (name: string) => params.find((p) => p.name === name)?.value;
-
-    return {
-      min: Number(get("min")) || 1,
-      max: Number(get("max")) || 5,
-      minLabel: get("minLabel") || "Low",
-      maxLabel: get("maxLabel") || "High",
-    };
-  };
-
-  const handleLinearScaleChange = (value: number) => {
-    onUpdate(id, {
-      config: {
-        ...data.config,
-        selected: value, // You can store this value separately
-        params: data.config?.params || [],
-      },
-    });
+        params: updatedParams,
+      };
+      onUpdate(id, { config: newConfig });
+    } else {
+      const fieldType = fieldtypes.find((f) => f.name === "dropdown");
+      if (fieldType) {
+        const updatedParams = fieldType.params.map((param) => {
+          if (param.name === "options") {
+            return { ...param, value: options };
+          }
+          return param;
+        });
+        const newConfig = {
+          ...fieldType,
+          params: updatedParams,
+        };
+        onUpdate(id, { config: newConfig });
+      }
+    }
   };
 
   const toggleId = `title-toggle-${id}`;
@@ -180,10 +214,20 @@ export default function Question({
           <MCQ
             options={getMcqOptions()}
             onOptionsChange={handleMcqOptionsChange}
-            disabled={!isSelected} // Only allow editing when selected
+            disabled={!isSelected}
           />
         );
-
+      case QuestionType.TEXT: {
+        const textConfig = getTextConfig();
+        return (
+          <Text
+            placeholder={textConfig.placeholder}
+            charlimit={textConfig.charlimit}
+            keywordChecker={textConfig.keywordChecker}
+            disabled={!isSelected}
+          />
+        );
+      }
       case QuestionType.DROPDOWN:
         return (
           <Dropdown
@@ -192,102 +236,35 @@ export default function Question({
             disabled={!isSelected}
           />
         );
-
-      case QuestionType.DATE:
-        const includeTime = data.config?.params?.find((p) => p.name === "includeTime")?.value === true;
+      case QuestionType.DATE: {
+        const { includeTime, minDate, maxDate } = getDateConfig();
         return (
-          <div className="mt-4">
-            <DateField
-              value={(data.config as any)?.selectedDate}
-              includeTime={includeTime}
-              onChange={(val) =>
-                onUpdate(id, {
-                  config: {
-                    ...data.config!,
-                    selectedDate: val,
-                    params: data.config?.params || [],
-                  },
-                })
-              }
-              disabled={!isSelected}
-            />
-          </div>
+          <DateField
+            includeTime={includeTime}
+            minDate={minDate}
+            maxDate={maxDate}
+            disabled={!isSelected}
+          />
         );
-
-      case QuestionType.FILE_UPLOAD:
-        return (
-          <div className="mt-4">
-            <div className="border-2 border-dashed border-gray-300 rounded-md px-4 py-6 text-center dark:border-gray-600">
-              <span className="text-gray-500 dark:text-gray-400">
-                Click to upload or drag and drop
-              </span>
-            </div>
-          </div>
-        );
-
-      case QuestionType.LINEARSCALE:
-        const scale = getLinearScaleParams();
+      }
+      case QuestionType.LINEARSCALE: {
+        const { min, max, minLabel, maxLabel } = getLinearScaleConfig();
         return (
           <LinearScale
-            min={scale.min}
-            max={scale.max}
-            minLabel={String(scale.minLabel)}
-            maxLabel={String(scale.maxLabel)}
-            onSelect={handleLinearScaleChange}
+            min={min}
+            max={max}
+            minLabel={minLabel}
+            maxLabel={maxLabel}
             disabled={!isSelected}
           />
         );
-
+      }
       case QuestionType.EMAIL:
-        return (
-          <div className="mt-4">
-            <EmailField
-              value={(data.config as any)?.value || ""}
-              onChange={(val) =>
-                onUpdate(id, {
-                  config: {
-                    ...data.config!,
-                    value: val,
-                    params: data.config?.params || [],
-                  },
-                })
-              }
-              disabled={!isSelected}
-            />
-          </div>
-        );
-
+        return <Email disabled={!isSelected} />;
       case QuestionType.URL:
-        return (
-          <div className="mt-4">
-            <UrlField
-              value={(data.config as any)?.value || ""}
-              onChange={(val) =>
-                onUpdate(id, {
-                  config: {
-                    ...data.config!,
-                    value: val,
-                    params: data.config?.params || [],
-                  },
-                })
-              }
-              disabled={!isSelected}
-            />
-          </div>
-        );
-
-      case QuestionType.TEXT:
+        return <Url disabled={!isSelected} />;
       default:
-        const textParams = getTextParams();
-        return (
-          <TextField
-            value={(data.config as any)?.value || ""}
-            placeholder={textParams.placeholder}
-            multiline={textParams.multiline}
-            onChange={handleTextChange}
-            disabled={!isSelected}
-          />
-        );
+        return null;
     }
   };
 
@@ -347,12 +324,11 @@ export default function Question({
         />
       </div>
 
-      {/* Answer Section */}
       {renderAnswerSection()}
 
       <div className="mt-4 flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
         <div className="bg-[#F6F6F6] rounded-md px-3 py-1 dark:bg-[#494949]">
-          Type: {data.type || "TEXT"}
+          Type: {data.type || "MCQ"}
         </div>
         <div>Order: {data.order}</div>
       </div>

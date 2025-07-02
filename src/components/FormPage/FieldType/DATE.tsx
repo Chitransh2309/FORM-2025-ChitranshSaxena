@@ -1,48 +1,33 @@
 "use client";
+import React from "react";
 
-import React, { useState, useEffect } from "react";
-
-interface Props {
-  selectedDate?: string; // ISO string
+interface DateProps {
   includeTime?: boolean;
-  onChange: (value: string) => void;
+  minDate?: string; // Should be in "YYYY-MM-DD" or "YYYY-MM-DDTHH:MM" format
+  maxDate?: string;
   disabled?: boolean;
 }
 
 export default function DateField({
-  selectedDate,
   includeTime = false,
-  onChange,
+  minDate,
+  maxDate,
   disabled = false,
-}: Props) {
-  const [value, setValue] = useState<string>("");
-
-  useEffect(() => {
-    if (selectedDate) {
-      const formatted = includeTime
-        ? selectedDate.slice(0, 16) // yyyy-MM-ddTHH:mm
-        : selectedDate.slice(0, 10); // yyyy-MM-dd
-      setValue(formatted);
-    }
-  }, [selectedDate, includeTime]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value);
-    const iso = includeTime
-      ? new Date(e.target.value).toISOString()
-      : new Date(`${e.target.value}T00:00:00`).toISOString();
-    onChange(iso);
-  };
-
+}: DateProps) {
   return (
-    <div className="mt-4">
+    <div className="space-y-2 mt-4">
       <input
         type={includeTime ? "datetime-local" : "date"}
-        value={value}
-        onChange={handleChange}
+        className="border px-2 py-1 rounded dark:bg-[#5A5959] dark:text-white"
+        min={minDate}
+        max={maxDate}
         disabled={disabled}
-        className="px-3 py-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-[#494949] dark:border-gray-600 dark:text-white"
       />
+      <div className="text-xs text-gray-500 dark:text-gray-400">
+        {minDate && <span>Earliest selectable: {minDate} </span>}
+        {maxDate && <span>Latest selectable: {maxDate}</span>}
+        {includeTime && <span> (Includes Time)</span>}
+      </div>
     </div>
   );
 }
