@@ -226,7 +226,9 @@ export const fieldtypes: FieldType[] = [
       {
         name: "format",
         params: [{ name: "type", type: "string", value: "url" }],
-      }
+      },
     ],
   },
 ];
+
+export interface FormLogic {}

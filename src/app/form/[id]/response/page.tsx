@@ -28,9 +28,34 @@ export default function ResponsesPage({
 
   const startedAt = React.useRef(new Date());
 
+  const hasUserSubmitted = (formId: string, userId: string) => {
+    const submittedForms = JSON.parse(
+      localStorage.getItem("submittedForms") || "{}"
+    );
+    return submittedForms[`${formId}_${userId}`];
+  };
+
+  const markFormAsSubmitted = (formId: string, userId: string) => {
+    const submittedForms = JSON.parse(
+      localStorage.getItem("submittedForms") || "{}"
+    );
+    submittedForms[`${formId}_${userId}`] = true;
+    localStorage.setItem("submittedForms", JSON.stringify(submittedForms));
+  };
+
   useEffect(() => {
     const loadForm = async () => {
       if (!formId || typeof formId !== "string") return;
+
+      // Wait for session
+      if (!session) return;
+
+      // Check if already submitted
+      const alreadySubmitted = hasUserSubmitted(formId, userId);
+      if (alreadySubmitted) {
+        setLoading(false);
+        return;
+      }
 
       setLoading(true);
       const res = await getFormObject(formId);
@@ -44,7 +69,7 @@ export default function ResponsesPage({
     };
 
     loadForm();
-  }, [formId]);
+  }, [formId, session]);
 
   const handleInputChange = (questionId: string, value: string) => {
     setAnswers((prev) => {
@@ -104,13 +129,22 @@ export default function ResponsesPage({
     const success = await saveFormResponse(response);
 
     if (success) {
+      markFormAsSubmitted(formId, userId); // ✅ Mark it in localStorage
+      toast.success("Form Submitted Successfully");
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 4000);
-      toast.success("Form Submitted Succesfully");
     } else {
       toast.error("Failed to submit form.");
     }
   };
+
+  if (!loading && hasUserSubmitted(formId, userId) && !showConfetti) {
+    return (
+      <div className="text-center mt-20 text-lg font-semibold">
+        Your response has been submitted.
+      </div>
+    );
+  }
 
   if (loading) {
     return (
