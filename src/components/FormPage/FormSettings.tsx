@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { updateFormSettings } from '@/app/action/forms';
-import { FormSettings as FormSettingsType } from '@/lib/interface';
+import { useState } from "react";
+import { updateFormSettings } from "@/app/action/forms";
+import { FormSettings as FormSettingsType } from "@/lib/interface";
 
 interface FormSettingsProps {
   formId: string;
@@ -28,7 +28,7 @@ const FormSettings = ({
     const { name, value, type, checked } = e.target;
     setFormSettings((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -40,7 +40,7 @@ const FormSettings = ({
     };
 
     const result = await updateFormSettings(formId, updatedSettings);
-    console.log('Settings updated:', result.data.settings);
+    console.log("Settings updated:", result.data.settings);
     setFormSettings(result.data.settings);
     onClose();
   };
@@ -70,12 +70,15 @@ const FormSettings = ({
                 <input
                   type="date"
                   className="w-full bg-transparent border-none outline-none"
-                  value={startDate.toISOString().split('T')[0]}
+                  value={startDate.toISOString().split("T")[0]}
                   onChange={(e) =>
-                    setStartDate((prev) =>
-                      new Date(
-                        `${e.target.value}T${prev.toTimeString().split(' ')[0]}`
-                      )
+                    setStartDate(
+                      (prev) =>
+                        new Date(
+                          `${e.target.value}T${
+                            prev.toTimeString().split(" ")[0]
+                          }`
+                        )
                     )
                   }
                 />
@@ -86,10 +89,10 @@ const FormSettings = ({
                 <input
                   type="time"
                   className="w-full bg-transparent border-none outline-none"
-                  value={startDate.toTimeString().split(' ')[0].slice(0, 5)}
+                  value={startDate.toTimeString().split(" ")[0].slice(0, 5)}
                   onChange={(e) =>
                     setStartDate((prev) => {
-                      const datePart = prev.toISOString().split('T')[0];
+                      const datePart = prev.toISOString().split("T")[0];
                       return new Date(`${datePart}T${e.target.value}`);
                     })
                   }
@@ -104,12 +107,15 @@ const FormSettings = ({
                 <input
                   type="date"
                   className="w-full bg-transparent border-none outline-none"
-                  value={endDate.toISOString().split('T')[0]}
+                  value={endDate.toISOString().split("T")[0]}
                   onChange={(e) =>
-                    setEndDate((prev) =>
-                      new Date(
-                        `${e.target.value}T${prev.toTimeString().split(' ')[0]}`
-                      )
+                    setEndDate(
+                      (prev) =>
+                        new Date(
+                          `${e.target.value}T${
+                            prev.toTimeString().split(" ")[0]
+                          }`
+                        )
                     )
                   }
                 />
@@ -120,10 +126,10 @@ const FormSettings = ({
                 <input
                   type="time"
                   className="w-full bg-transparent border-none outline-none"
-                  value={endDate.toTimeString().split(' ')[0].slice(0, 5)}
+                  value={endDate.toTimeString().split(" ")[0].slice(0, 5)}
                   onChange={(e) =>
                     setEndDate((prev) => {
-                      const datePart = prev.toISOString().split('T')[0];
+                      const datePart = prev.toISOString().split("T")[0];
                       return new Date(`${datePart}T${e.target.value}`);
                     })
                   }
@@ -148,8 +154,8 @@ const FormSettings = ({
                 onChange={(e) =>
                   handleChange({
                     target: {
-                      name: 'tab_switch_count',
-                      type: 'checkbox',
+                      name: "tab_switch_count",
+                      type: "checkbox",
                       checked: e.target.checked,
                     },
                   })
@@ -168,8 +174,8 @@ const FormSettings = ({
                 onChange={(e) =>
                   handleChange({
                     target: {
-                      name: 'copy_via_email',
-                      type: 'checkbox',
+                      name: "copy_via_email",
+                      type: "checkbox",
                       checked: e.target.checked,
                     },
                   })
