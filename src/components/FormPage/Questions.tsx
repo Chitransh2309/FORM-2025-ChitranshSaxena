@@ -1,7 +1,11 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { Trash2 } from "lucide-react";
-import { Question as QuestionInterface, QuestionType, fieldtypes } from "@/lib/interface";
+import {
+  Question as QuestionInterface,
+  QuestionType,
+  fieldtypes,
+} from "@/lib/interface";
 import MCQ from "./FieldType/MCQ"; // Import the MCQ component
 import Dropdown from "./FieldType/DROPDOWN";
 import LinearScale from "./FieldType/linearscale";
@@ -11,10 +15,18 @@ interface Props {
   data: QuestionInterface;
   onDelete: (id: string) => void;
   onUpdate: (id: string, updatedFields: Partial<QuestionInterface>) => void;
-  isSelected?: boolean; // Add this prop to know if question is selected
+  isSelected?: boolean;
+  isDuplicate?: boolean;
 }
 
-export default function Question({ id, data, onDelete, onUpdate, isSelected = false }: Props) {
+export default function Question({
+  id,
+  data,
+  onDelete,
+  onUpdate,
+  isSelected = false,
+  isDuplicate = false,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -31,9 +43,13 @@ export default function Question({ id, data, onDelete, onUpdate, isSelected = fa
     if (data.type === QuestionType.MCQ && data.config) {
       const config = data.config as any;
       if (config.params) {
-        const optionsParam = config.params.find((p: any) => p.name === "options");
+        const optionsParam = config.params.find(
+          (p: any) => p.name === "options"
+        );
         if (optionsParam?.value) {
-          return Array.isArray(optionsParam.value) ? optionsParam.value : optionsParam.value.split(", ");
+          return Array.isArray(optionsParam.value)
+            ? optionsParam.value
+            : optionsParam.value.split(", ");
         }
       }
     }
@@ -42,77 +58,73 @@ export default function Question({ id, data, onDelete, onUpdate, isSelected = fa
 
   // Handle MCQ options change
   const handleMcqOptionsChange = (options: string[]) => {
-    const fieldType = fieldtypes.find(f => f.name === "mcq");
+    const fieldType = fieldtypes.find((f) => f.name === "mcq");
     if (fieldType) {
-      const updatedParams = fieldType.params.map(param => {
+      const updatedParams = fieldType.params.map((param) => {
         if (param.name === "options") {
           return { ...param, value: options };
         }
         return param;
       });
-      
+
       const newConfig = {
         ...fieldType,
         params: updatedParams,
       };
-      
+
       onUpdate(id, { config: newConfig });
     }
   };
   const getDropdownOptions = (): string[] => {
-  const config = data.config as any;
-  if (config?.params) {
-    const optionsParam = config.params.find((p: any) => p.name === "options");
-    if (optionsParam?.value) {
-      return Array.isArray(optionsParam.value)
-        ? optionsParam.value
-        : optionsParam.value.split(", ");
+    const config = data.config as any;
+    if (config?.params) {
+      const optionsParam = config.params.find((p: any) => p.name === "options");
+      if (optionsParam?.value) {
+        return Array.isArray(optionsParam.value)
+          ? optionsParam.value
+          : optionsParam.value.split(", ");
+      }
     }
-  }
-  return ["Option 1"];
-};
-
-const handleDropdownOptionsChange = (options: string[]) => {
-  const fieldType = fieldtypes.find((f) => f.name === "dropdown");
-  if (fieldType) {
-    const updatedParams = fieldType.params.map((param) =>
-      param.name === "options" ? { ...param, value: options } : param
-    );
-
-    const newConfig = {
-      ...fieldType,
-      params: updatedParams,
-    };
-
-    onUpdate(id, { config: newConfig });
-  }
-};
-const getLinearScaleParams = () => {
-  const config = data.config;
-  const params = config?.params ?? [];
-  const get = (name: string) =>
-    params.find((p) => p.name === name)?.value;
-
-  return {
-    min: Number(get("min")) || 1,
-    max: Number(get("max")) || 5,
-    minLabel: get("minLabel") || "Low",
-    maxLabel: get("maxLabel") || "High",
+    return ["Option 1"];
   };
-};
 
+  const handleDropdownOptionsChange = (options: string[]) => {
+    const fieldType = fieldtypes.find((f) => f.name === "dropdown");
+    if (fieldType) {
+      const updatedParams = fieldType.params.map((param) =>
+        param.name === "options" ? { ...param, value: options } : param
+      );
 
-const handleLinearScaleChange = (value: number) => {
-  onUpdate(id, {
-    config: {
-      ...data.config,
-      selected: value, // You can store this value separately
-      params: data.config?.params || [],
-    },
-  });
-};
+      const newConfig = {
+        ...fieldType,
+        params: updatedParams,
+      };
 
+      onUpdate(id, { config: newConfig });
+    }
+  };
+  const getLinearScaleParams = () => {
+    const config = data.config;
+    const params = config?.params ?? [];
+    const get = (name: string) => params.find((p) => p.name === name)?.value;
 
+    return {
+      min: Number(get("min")) || 1,
+      max: Number(get("max")) || 5,
+      minLabel: get("minLabel") || "Low",
+      maxLabel: get("maxLabel") || "High",
+    };
+  };
+
+  const handleLinearScaleChange = (value: number) => {
+    onUpdate(id, {
+      config: {
+        ...data.config,
+        selected: value, // You can store this value separately
+        params: data.config?.params || [],
+      },
+    });
+  };
 
   const toggleId = `title-toggle-${id}`;
 
@@ -126,17 +138,16 @@ const handleLinearScaleChange = (value: number) => {
             disabled={!isSelected} // Only allow editing when selected
           />
         );
-      
-      case QuestionType.DROPDOWN:
-  return (
-    <Dropdown
-      options={getDropdownOptions()}
-      onOptionsChange={handleDropdownOptionsChange}
-      disabled={!isSelected}
-    />
-  );
 
-      
+      case QuestionType.DROPDOWN:
+        return (
+          <Dropdown
+            options={getDropdownOptions()}
+            onOptionsChange={handleDropdownOptionsChange}
+            disabled={!isSelected}
+          />
+        );
+
       case QuestionType.DATE:
         return (
           <div className="mt-4">
@@ -147,31 +158,31 @@ const handleLinearScaleChange = (value: number) => {
             />
           </div>
         );
-      
+
       case QuestionType.FILE_UPLOAD:
         return (
           <div className="mt-4">
             <div className="border-2 border-dashed border-gray-300 rounded-md px-4 py-6 text-center dark:border-gray-600">
-              <span className="text-gray-500 dark:text-gray-400">Click to upload or drag and drop</span>
+              <span className="text-gray-500 dark:text-gray-400">
+                Click to upload or drag and drop
+              </span>
             </div>
           </div>
         );
-      
-      case QuestionType.RATING:
-  const scale = getLinearScaleParams();
-  return (
-    <LinearScale
-      min={scale.min}
-      max={scale.max}
-      minLabel={scale.minLabel}
-      maxLabel={scale.maxLabel}
-      
-      onSelect={handleLinearScaleChange}
-      disabled={!isSelected}
-    />
-  );
 
-      
+      case QuestionType.RATING:
+        const scale = getLinearScaleParams();
+        return (
+          <LinearScale
+            min={scale.min}
+            max={scale.max}
+            minLabel={String(scale.minLabel)}
+            maxLabel={String(scale.maxLabel)}
+            onSelect={handleLinearScaleChange}
+            disabled={!isSelected}
+          />
+        );
+
       case QuestionType.EMAIL:
         return (
           <div className="mt-4">
@@ -183,7 +194,7 @@ const handleLinearScaleChange = (value: number) => {
             />
           </div>
         );
-      
+
       case QuestionType.URL:
         return (
           <div className="mt-4">
@@ -195,7 +206,7 @@ const handleLinearScaleChange = (value: number) => {
             />
           </div>
         );
-      
+
       case QuestionType.TEXT:
       default:
         return (
@@ -209,9 +220,10 @@ const handleLinearScaleChange = (value: number) => {
   return (
     <div
       ref={containerRef}
-      className={`bg-[#FEFEFE] shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl w-[90%] min-h-[20%] mx-auto mb-10 transition-all duration-200 ${
-        isSelected ? "ring-4 ring-black dark:ring-[#64ad8b]" : ""
-      } dark:bg-[#5A5959] dark:text-white hover:shadow-lg`}
+      className={`bg-[#FEFEFE] shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl w-[90%] min-h-[20%] mx-auto mb-10 transition-all duration-200 
+    ${isSelected ? "ring-4 ring-black dark:ring-[#64ad8b]" : ""}
+    ${isDuplicate ? "border-2 border-red-500" : ""}
+    dark:bg-[#5A5959] dark:text-white hover:shadow-lg`}
     >
       <div className="flex justify-between items-center dark:text-white">
         <input
@@ -220,10 +232,12 @@ const handleLinearScaleChange = (value: number) => {
           value={data.questionText || ""}
           onChange={(e) => onUpdate(id, { questionText: e.target.value })}
         />
-        
+
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <label className="text-gray-700 text-sm dark:text-white">Required</label>
+            <label className="text-gray-700 text-sm dark:text-white">
+              Required
+            </label>
             <label
               htmlFor={toggleId}
               className="relative inline-flex items-center cursor-pointer"
@@ -238,7 +252,7 @@ const handleLinearScaleChange = (value: number) => {
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
             </label>
           </div>
-          
+
           <button
             className="text-gray-700 hover:text-red-500 hover:bg-gray-100 p-2 rounded-full transition-colors cursor-pointer dark:text-white dark:hover:bg-[#494949]"
             onClick={() => onDelete(id)}
@@ -266,9 +280,7 @@ const handleLinearScaleChange = (value: number) => {
         <div className="bg-[#F6F6F6] rounded-md px-3 py-1 dark:bg-[#494949]">
           Type: {data.type || "TEXT"}
         </div>
-        <div>
-          Order: {data.order}
-        </div>
+        <div>Order: {data.order}</div>
       </div>
     </div>
   );
