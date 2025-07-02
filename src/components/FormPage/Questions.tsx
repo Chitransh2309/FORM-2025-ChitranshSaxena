@@ -11,10 +11,11 @@ interface Props {
   data: QuestionInterface;
   onDelete: (id: string) => void;
   onUpdate: (id: string, updatedFields: Partial<QuestionInterface>) => void;
-  isSelected?: boolean; // Add this prop to know if question is selected
+  isSelected?: boolean;
+  isDuplicate?: boolean;
 }
 
-export default function Question({ id, data, onDelete, onUpdate, isSelected = false }: Props) {
+export default function Question({ id, data, onDelete, onUpdate, isSelected = false, isDuplicate = false }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -112,8 +113,6 @@ const handleLinearScaleChange = (value: number) => {
   });
 };
 
-
-
   const toggleId = `title-toggle-${id}`;
 
   const renderAnswerSection = () => {
@@ -163,8 +162,8 @@ const handleLinearScaleChange = (value: number) => {
     <LinearScale
       min={scale.min}
       max={scale.max}
-      minLabel={scale.minLabel}
-      maxLabel={scale.maxLabel}
+      minLabel={String(scale.minLabel)}
+      maxLabel={String(scale.maxLabel)}
       
       onSelect={handleLinearScaleChange}
       disabled={!isSelected}
@@ -208,11 +207,13 @@ const handleLinearScaleChange = (value: number) => {
 
   return (
     <div
-      ref={containerRef}
-      className={`bg-[#FEFEFE] shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl w-[90%] min-h-[20%] mx-auto mb-10 transition-all duration-200 ${
-        isSelected ? "ring-4 ring-black dark:ring-[#64ad8b]" : ""
-      } dark:bg-[#5A5959] dark:text-white hover:shadow-lg`}
-    >
+  ref={containerRef}
+  className={`bg-[#FEFEFE] shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl w-[90%] min-h-[20%] mx-auto mb-10 transition-all duration-200 
+    ${isSelected ? "ring-4 ring-black dark:ring-[#64ad8b]" : ""}
+    ${isDuplicate ? "border-2 border-red-500" : ""}
+    dark:bg-[#5A5959] dark:text-white hover:shadow-lg`}
+>
+
       <div className="flex justify-between items-center dark:text-white">
         <input
           placeholder="Question Title *"
