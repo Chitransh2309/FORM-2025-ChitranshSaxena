@@ -3,7 +3,7 @@ import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
 import { auth } from "../../../../auth";
 import CenterNav from "@/components/FormPage/CenterNav";
 import FormWrapper from "@/components/FormPage/FormHeader";
-
+import { Form } from "@/lib/interface";
 export default async function FormPage({ params }: { params: { id: string } }) {
   const formId = params.id;
 
@@ -19,7 +19,7 @@ export default async function FormPage({ params }: { params: { id: string } }) {
     .findOne({ email: session.user.email });
   const userID = user?.user_ID;
 
-  const form = await db.collection("forms").findOne({ form_ID: formId });
+  const form = await db.collection("forms").findOne({ form_ID: formId }) as Form;
 
   await disconnectFromDB(dbClient);
 
@@ -36,7 +36,7 @@ export default async function FormPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <FormWrapper formId={formId}>
+    <FormWrapper form={form}>
       <div className="bg-[#e8ede8]">
         <CenterNav formId={formId} />
       </div>
