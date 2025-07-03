@@ -210,7 +210,7 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
             }
             nodeTypes={nodeTypes}
             fitView
-            style={{ background: "#2B2A2A" }}
+            style={{ background: "#FFF dark:#2B2A2A" }}
           >
             <Background />
             <MiniMap />
@@ -268,12 +268,14 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
       )}
 
       <div className="px-2 mt-2 max-h-60 overflow-auto w-[300px]">
-        <h3 className="text-sm text-white font-medium mb-2">Saved Logic:</h3>
+        <h3 className="text-sm dark:text-white font-medium mb-2">
+          Saved Logic:
+        </h3>
         <div className="space-y-1">
           {logicRules.map((rule, idx) => (
             <div
               key={idx}
-              className="bg-gray-100 px-2 py-1 rounded text-sm break-words"
+              className="bg-[#E0E0E0] px-2 py-1 rounded text-sm break-words"
             >
               <p className="text-gray-700 mb-1 leading-snug">
                 If section <strong>{rule.triggerSectionId}</strong> →{" "}
