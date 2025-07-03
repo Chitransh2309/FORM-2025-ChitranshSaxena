@@ -9,7 +9,7 @@ export default async function Home() {
       <Navbar />
       <Hero />
 
-      <div className="w-full px-4 py-10 flex flex-col items-center text-center">
+      <div className="w-full px-4 py-10 flex flex-col items-center text-center" id="features">
         <p className="text-2xl font-bold text-[#3D3D3D] dark:text-white mb-8">
           Build Forms Like Never Before
         </p>

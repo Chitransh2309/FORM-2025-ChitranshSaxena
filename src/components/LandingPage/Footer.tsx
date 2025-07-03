@@ -8,23 +8,7 @@ const out_fit = Outfit({subsets:['latin'], weight:['400','800']});
 
 export default function Footer() {
   return (
-<<<<<<< HEAD
-    <div className='h-40 w-full p-3 bg-[#61A986]'>
-      <div className='flex justify-between'>
-        <div className='ml-10'>
-          <p className={`text-2xl text-#F6F8F6 font-bold ${out_fit.className}`}>
-            "Forms that hustle, so you don't have to."
-          </p>
-          <p className={`text-xl text-#F6F8F6 font-bold mt-4 ${out_fit.className}`}>
-            F.O.R.M
-          </p>
-          <div className='flex justify-start text-sm gap-3'>
-              <Link href="/">Product</Link>
-              <Link href="/">Contact Us</Link>
-              <Link href="/">Privacy Policy</Link>
-              <Link href="/">About Us</Link>
-=======
-    <div className='min-h-40 w-full p-3 sm:p-6 bg-[#61A986]'>
+    <div className='min-h-40 w-full p-3 sm:p-6 bg-[#61A986]' id='contact'>
       {/* Main content section */}
       <div className='flex flex-col lg:flex-row lg:justify-between gap-4 lg:gap-0'>
         {/* Left section - Brand and links */}
@@ -41,7 +25,6 @@ export default function Footer() {
             <Link href="/" className='hover:underline'>Contact Us</Link>
             <Link href="/" className='hover:underline'>Privacy Policy</Link>
             <Link href="/" className='hover:underline'>About Us</Link>
->>>>>>> 20f2af5 (made landing page responsive)
           </div>
         </div>
 
@@ -63,19 +46,12 @@ export default function Footer() {
             2025 F.O.R.M
           </span>
         </div>
-<<<<<<< HEAD
-        <div className='flex justify-between gap-5'>
-          <InstagramIcon />
-          <TwitterIcon className='stroke-none fill-white' />
-          <FacebookIcon className='stroke-none fill-white' />
-=======
         
         {/* Social icons */}
         <div className='flex justify-center gap-4 sm:gap-5'>
           <InstagramIcon className='w-5 h-5 sm:w-6 sm:h-6 text-[#F6F8F6] dark:stroke-[#000000] hover:opacity-80 cursor-pointer transition-opacity' />
           <TwitterIcon className='w-5 h-5 sm:w-6 sm:h-6 stroke-none fill-[#F6F8F6] dark:stroke-none dark:fill-[#000000] hover:opacity-80 cursor-pointer transition-opacity' />
           <FacebookIcon className='w-5 h-5 sm:w-6 sm:h-6 stroke-none fill-[#F6F8F6] dark:stroke-none dark:fill-[#000000] hover:opacity-80 cursor-pointer transition-opacity' />
->>>>>>> 20f2af5 (made landing page responsive)
         </div>
       </div>
     </div>
