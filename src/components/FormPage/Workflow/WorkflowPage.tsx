@@ -3,7 +3,13 @@
 import { useEffect, useState, useMemo } from "react";
 import toast from "react-hot-toast";
 import getFormObject from "@/app/action/getFormObject";
-import { LogicRule, Section, ConditionGroup as ConditionGroupType, NestedCondition, BaseCondition } from "@/lib/interface";
+import {
+  LogicRule,
+  Section,
+  ConditionGroupType,
+  NestedCondition,
+  BaseCondition,
+} from "@/lib/interface";
 import ReactFlow, {
   ReactFlowProvider,
   Background,
@@ -17,6 +23,7 @@ import ReactFlow, {
 import CustomNode from "./CustomNode";
 import { saveFormLogic } from "@/app/action/saveFormLogic";
 import ConditionGroup from "./ConditionGroup";
+import ConditionBlock from "./ConditionBlock";
 
 export default function WorkflowPage({ form_ID }: { form_ID: string }) {
   const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
@@ -29,14 +36,14 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
     null
   );
   const [showModal, setShowModal] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState<string>("");
-  const [selectedOp, setSelectedOp] = useState<"equal">("equal");
-  const [conditionValue, setConditionValue] = useState<string>("");
   const [targetSection, setTargetSection] = useState<string>("");
 
-  const [logicCondition, setLogicCondition] = useState<ConditionGroupType>({
-    op: "AND",
-    conditions: [],
+  const [logicCondition, setLogicCondition] = useState<
+    BaseCondition | ConditionGroupType
+  >({
+    fieldId: "", // default blank BaseCondition
+    op: "equal",
+    value: "",
   });
 
   useEffect(() => {
@@ -48,16 +55,18 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
         const formSections = res.data.sections;
         setSections(formSections);
 
-        const flowNodes: Node[] = formSections.map((section:any, idx:any) => ({
-          id: section.section_ID,
-          type: "custom",
-          position: { x: 300 * idx, y: 100 },
-          data: {
-            label: section.title || `Section ${idx + 1}`,
+        const flowNodes: Node[] = formSections.map(
+          (section: any, idx: any) => ({
             id: section.section_ID,
-            onClick: handleOpenModal,
-          },
-        }));
+            type: "custom",
+            position: { x: 300 * idx, y: 100 },
+            data: {
+              label: section.title || `Section ${idx + 1}`,
+              id: section.section_ID,
+              onClick: handleOpenModal,
+            },
+          })
+        );
 
         setNodes(flowNodes);
 
@@ -122,9 +131,14 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
     setSelectedSectionId(sectionId);
     setShowModal(true);
     setTargetSection("");
+
+    const firstQuestion = sections.find((s) => s.section_ID === sectionId)
+      ?.questions?.[0];
+
     setLogicCondition({
-      op: "AND",
-      conditions: [],
+      fieldId: firstQuestion?.question_ID || "",
+      op: "equal",
+      value: "",
     });
   };
 
@@ -204,15 +218,37 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-[400px] shadow-lg">
+          <div className="bg-white rounded-lg p-6 w-[1000px] max-h-[500px] overflow-auto shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Add Logic Condition</h2>
 
-            {/* Render nested condition builder */}
-            <ConditionGroup
-              group={logicCondition}
-              onUpdate={setLogicCondition}
-              allQuestions={selectedSection?.questions || []}
-            />
+            {"fieldId" in logicCondition ? (
+              <ConditionBlock
+                allQuestions={selectedSection?.questions || []}
+                condition={logicCondition}
+                onChange={(newCond) => setLogicCondition(newCond)}
+                onRemove={() => {}}
+              />
+            ) : (
+              <ConditionGroup
+                group={logicCondition}
+                onUpdate={setLogicCondition}
+                allQuestions={selectedSection?.questions || []}
+              />
+            )}
+
+            {"fieldId" in logicCondition && (
+              <button
+                onClick={() =>
+                  setLogicCondition({
+                    op: "AND",
+                    conditions: [logicCondition], // wrap existing block in group
+                  })
+                }
+                className="mt-2 text-sm text-blue-600 hover:underline"
+              >
+                ➕ Convert to Group
+              </button>
+            )}
 
             <div className="mb-3">
               <label className="block mb-1 text-sm font-medium">

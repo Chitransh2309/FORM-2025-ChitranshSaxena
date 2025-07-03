@@ -47,7 +47,7 @@ export type BaseCondition = {
   value: string;
 };
 
-export type ConditionGroup = {
+export type ConditionGroupType = {
   op: "AND" | "OR";
   conditions: (BaseCondition | ConditionGroup)[];
 };
@@ -68,7 +68,7 @@ export interface Section {
   title: string;
   description: string;
   questions: Question[];
-  logic:LogicRule;
+  logic: LogicRule;
 }
 
 export interface Question {
@@ -137,13 +137,12 @@ export interface Param {
   value?: string | number | boolean | string[];
 }
 
-
 export interface Validation {
   name: string;
   type?: ParamType;
   params?: Param[];
   value?: string | number | boolean;
-  validationName?: string
+  validationName?: string;
 }
 
 export interface FieldType {
@@ -157,9 +156,7 @@ export const fieldtypes: FieldType[] = [
   {
     name: "text",
     type: "string",
-    params: [
-      { name: "placeholder", type: "string" },
-    ],
+    params: [{ name: "placeholder", type: "string" }],
     validations: [
       {
         name: "charlimit",
