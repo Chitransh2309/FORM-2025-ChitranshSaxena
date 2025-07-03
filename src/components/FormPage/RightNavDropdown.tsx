@@ -50,9 +50,15 @@ export default function QuestionTypeDropdown({
       if (onUpdateConfig) {
         const selectedField = fieldtypes.find(f => f.name === found.field);
         if (selectedField) {
-          const newConfig = {
+          let newConfig = {
             ...selectedField,
-            params: selectedField.params.map(param => ({ ...param })),
+            params: selectedField.params.map(param => {
+              if (param.name === "options") {
+                // Always initialize with at least two options
+                return { ...param, value: ["Option 1", "Option 2"] };
+              }
+              return { ...param };
+            }),
             validations: selectedField.validations.map(validation => ({
               ...validation,
               params: validation.params?.map(param => ({ ...param })) || [],

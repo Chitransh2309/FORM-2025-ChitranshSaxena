@@ -15,16 +15,19 @@ import { useSession } from "next-auth/react";
 import { nanoid } from "nanoid";
 import toast from "react-hot-toast";
 import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";
+import { validateAnswer } from "@/lib/validateAnswer";
 
 // Dynamic Input Component based on question type
 const DynamicInput = ({
   question,
   value,
   onChange,
+  error,
 }: {
   question: Question;
   value: string;
   onChange: (value: string) => void;
+  error?: string;
 }) => {
   const baseInputClass =
     "w-full px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black placeholder:text-[#676767] outline-none border border-transparent focus:border-gray-300 font-[Outfit] dark:text-white dark:placeholder-white dark:bg-[#494949]";
@@ -36,47 +39,59 @@ const DynamicInput = ({
       )?.value;
       if (isMultiline) {
         return (
-          <textarea
-            placeholder="Type your answer"
-            className={`${baseInputClass} min-h-[100px] resize-vertical`}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-          />
+          <>
+            <textarea
+              placeholder="Type your answer"
+              className={`${baseInputClass} min-h-[100px] resize-vertical`}
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+            />
+            {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
+          </>
         );
       }
       return (
-        <input
-          type="text"
-          placeholder={
-            (question.config?.params?.find((p) => p.name === "placeholder")
-              ?.value as string) || "Type your answer"
-          }
-          className={`${baseInputClass} h-[42px]`}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
+        <>
+          <input
+            type="text"
+            placeholder={
+              (question.config?.params?.find((p) => p.name === "placeholder")
+                ?.value as string) || "Type your answer"
+            }
+            className={`${baseInputClass} h-[42px]`}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+          {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
+        </>
       );
 
     case QuestionType.EMAIL:
       return (
-        <input
-          type="email"
-          placeholder="Enter your email address"
-          className={`${baseInputClass} h-[42px]`}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
+        <>
+          <input
+            type="email"
+            placeholder="Enter your email address"
+            className={`${baseInputClass} h-[42px]`}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+          {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
+        </>
       );
 
     case QuestionType.URL:
       return (
-        <input
-          type="url"
-          placeholder="Enter a URL (e.g., https://example.com)"
-          className={`${baseInputClass} h-[42px]`}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
+        <>
+          <input
+            type="url"
+            placeholder="Enter a URL (e.g., https://example.com)"
+            className={`${baseInputClass} h-[42px]`}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+          {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
+        </>
       );
 
     case QuestionType.DATE:
@@ -84,12 +99,15 @@ const DynamicInput = ({
         (p) => p.name === "includeTime"
       )?.value;
       return (
-        <input
-          type={includeTime ? "datetime-local" : "date"}
-          className={`${baseInputClass} h-[42px]`}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
+        <>
+          <input
+            type={includeTime ? "datetime-local" : "date"}
+            className={`${baseInputClass} h-[42px]`}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+          {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
+        </>
       );
 
     case QuestionType.MCQ:
@@ -154,6 +172,7 @@ const DynamicInput = ({
                 : "Please select an option"}
             </p>
           )}
+          {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
         </div>
       );
 
@@ -162,18 +181,21 @@ const DynamicInput = ({
         (question.config?.params?.find((p) => p.name === "options")
           ?.value as unknown as string[]) || [];
       return (
-        <select
-          className={`${baseInputClass} h-[42px]`}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        >
-          <option value="">Select an option</option>
-          {dropdownOptions.map((option, index) => (
-            <option key={index} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
+        <>
+          <select
+            className={`${baseInputClass} h-[42px]`}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          >
+            <option value="">Select an option</option>
+            {dropdownOptions.map((option, index) => (
+              <option key={index} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+          {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
+        </>
       );
 
     case QuestionType.LINEARSCALE:
@@ -223,18 +245,22 @@ const DynamicInput = ({
               {scaleValue}
             </span>
           </div>
+          {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
         </div>
       );
 
     default:
       return (
-        <input
-          type="text"
-          placeholder="Type your answer"
-          className={`${baseInputClass} h-[42px]`}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
+        <>
+          <input
+            type="text"
+            placeholder="Type your answer"
+            className={`${baseInputClass} h-[42px]`}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+          {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
+        </>
       );
   }
 };
@@ -251,6 +277,7 @@ export default function ResponsesPage({
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [sectionIndex, setSectionIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const section = form?.sections?.[sectionIndex];
   const { data: session } = useSession();
   const userId = session?.user?.id ?? "anonymous";
@@ -275,17 +302,12 @@ export default function ResponsesPage({
   useEffect(() => {
     const loadForm = async () => {
       if (!formId || typeof formId !== "string") return;
-
-      // Wait for session
       if (!session) return;
-
-      // Check if already submitted
       const alreadySubmitted = hasUserSubmitted(formId, userId);
       if (alreadySubmitted) {
         setLoading(false);
         return;
       }
-
       setLoading(true);
       const res = await getFormObject(formId);
       if (res.success && res.data && res.data.isActive) {
@@ -300,6 +322,7 @@ export default function ResponsesPage({
     loadForm();
   }, [formId, session]);
 
+  // Real-time validation on input change
   const handleInputChange = (questionId: string, value: string) => {
     setAnswers((prev) => {
       const filtered = prev.filter((a) => a.question_ID !== questionId);
@@ -313,67 +336,63 @@ export default function ResponsesPage({
         },
       ];
     });
+
+    // Find the question
+    const question = section?.questions.find((q) => q.question_ID === questionId);
+    if (question) {
+      const answer: Answer = {
+        answer_ID: nanoid(),
+        question_ID: questionId,
+        value,
+        updatedAt: new Date(),
+      };
+      const result = validateAnswer(question, answer);
+      setErrors((prev) => ({
+        ...prev,
+        [questionId]: result.errors.length > 0 ? result.errors[0] : "",
+      }));
+    }
   };
 
   const goNext = () => {
     if (form && sectionIndex < form.sections.length - 1) {
       setSectionIndex(sectionIndex + 1);
+      setErrors({}); // Reset errors for new section
     }
   };
 
   const goBack = () => {
     if (sectionIndex > 0) {
       setSectionIndex(sectionIndex - 1);
+      setErrors({}); // Reset errors for previous section
     }
   };
 
   const isLastSection = form && sectionIndex === form.sections.length - 1;
 
+  // Validate all answers in the current section
   const validateAnswers = () => {
     if (!section) return { isValid: true, errors: [] };
 
-    const errors: string[] = [];
-
+    const errorsObj: Record<string, string> = {};
+    let hasError = false;
     for (const question of section.questions) {
-      const answer = answers.find(
-        (a) => a.question_ID === question.question_ID
-      );
-      const value = answer?.value || "";
-
-      // Check required fields
-      if (question.isRequired && !value.trim()) {
-        errors.push(`${question.questionText} is required`);
-        continue;
+      const answer = answers.find((a) => a.question_ID === question.question_ID);
+      const result = validateAnswer(question, answer);
+      if (!result.isValid) {
+        errorsObj[question.question_ID] = result.errors[0];
+        hasError = true;
       }
-
-      // Validate MCQ minimum selections
-      if (question.type === QuestionType.MCQ && value.trim()) {
-        const minSelections =
-          (question.config?.params?.find((p) => p.name === "min")
-            ?.value as number) || 0;
-        const selectedCount = value.split(",").filter((v) => v.trim()).length;
-        if (minSelections > 0 && selectedCount < minSelections) {
-          errors.push(
-            `${
-              question.questionText
-            } requires at least ${minSelections} selection${
-              minSelections > 1 ? "s" : ""
-            }`
-          );
-        }
-      }
-
-      // Add more validation rules as needed
     }
-
-    return { isValid: errors.length === 0, errors };
+    setErrors(errorsObj);
+    return { isValid: !hasError, errors: Object.values(errorsObj).filter(Boolean) };
   };
 
   const handleSubmit = async () => {
     const validation = validateAnswers();
 
     if (!validation.isValid) {
-      toast.error(validation.errors[0]); // Show first error
+      toast.error(validation.errors[0]);
       return;
     }
 
@@ -392,11 +411,10 @@ export default function ResponsesPage({
     const success = await saveFormResponse(response);
 
     if (success) {
-      markFormAsSubmitted(formId, userId); // ✅ Mark it in localStorage
+      markFormAsSubmitted(formId, userId);
       toast.success("Form Submitted Successfully");
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 4000);
-      toast.success("Form Submitted Successfully");
     } else {
       toast.error("Failed to submit form.");
     }
@@ -469,6 +487,7 @@ export default function ResponsesPage({
                       ?.value || ""
                   }
                   onChange={(value) => handleInputChange(q.question_ID, value)}
+                  error={errors[q.question_ID]}
                 />
               </div>
             ))}
