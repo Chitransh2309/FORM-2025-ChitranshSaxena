@@ -20,23 +20,32 @@ export interface Form {
   share_url: string;
   settings: FormSettings;
   sections: Section[];
-  logic: FormLogic[];
 }
 
-export interface FormLogic {
-  triggerSectionId: string; //section which will trigger this logic when clicked next button
+export type NestedCondition = {
+  op: "AND" | "OR";
+  conditions: (BaseCondition | NestedCondition)[];
+};
+
+export type LogicRule = {
+  triggerSectionId: string;
   action: {
     type: "jump";
-    to: string; //destination section
-    condition: [
-      {
-        fieldId: string; //question whose answer will be compared
-        op: "equal";
-        value: string | number;
-      }
-    ];
+    to: string;
+    condition: NestedCondition;
   };
-}
+};
+
+export type BaseCondition = {
+  fieldId: string;
+  op: "equal";
+  value: string;
+};
+
+export type ConditionGroupType = {
+  op: "AND" | "OR";
+  conditions: (BaseCondition | ConditionGroup)[];
+};
 
 export interface FormSettings {
   maxResponses?: number;
@@ -54,6 +63,7 @@ export interface Section {
   title: string;
   description: string;
   questions: Question[];
+  logic: LogicRule;
 }
 
 export interface Question {
@@ -123,13 +133,12 @@ export interface Param {
   value?: string | number | boolean | string[];
 }
 
-
 export interface Validation {
   name: string;
   type?: ParamType;
   params?: Param[];
   value?: string | number | boolean;
-  validationName?: string
+  validationName?: string;
 }
 
 export interface FieldType {
@@ -143,9 +152,7 @@ export const fieldtypes: FieldType[] = [
   {
     name: "TEXT",
     type: "string",
-    params: [
-      { name: "placeholder", type: "string" },
-    ],
+    params: [{ name: "placeholder", type: "string" }],
     validations: [
       {
         name: "charlimit",

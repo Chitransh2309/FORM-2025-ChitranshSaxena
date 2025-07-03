@@ -1,12 +1,7 @@
 // components/FormPage/Workflow/ConditionBlock.tsx
 import React from "react";
 import { Question } from "@/lib/interface";
-
-export type BaseCondition = {
-  fieldId: string;
-  op: "equal";
-  value: string;
-};
+import { BaseCondition } from "@/lib/interface";
 
 type Props = {
   allQuestions: Question[];
@@ -30,7 +25,7 @@ export default function ConditionBlock({
       : [];
 
   return (
-    <div className="flex items-center gap-2 border p-2 rounded">
+    <div className="overflow-x-auto flex items-center gap-2 border p-2 rounded">
       <select
         value={condition.fieldId}
         onChange={(e) =>
@@ -53,7 +48,7 @@ export default function ConditionBlock({
         }
         className="border px-2 py-1 rounded"
       >
-        <option value="equal">=</option>
+        <option value="equal">equals</option>
       </select>
 
       {options.length ? (
