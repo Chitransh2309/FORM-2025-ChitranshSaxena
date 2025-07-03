@@ -161,7 +161,8 @@ export default function Question({
       };
       onUpdate(id, { config: newConfig });
     } else {
-      const fieldType = fieldtypes.find((f) => f.name === "mcq");
+      // FIX: Changed "mcq" to "MCQ" to match the case in fieldtypes array from interface.ts
+      const fieldType = fieldtypes.find((f) => f.name === "MCQ");
       if (fieldType) {
         const updatedParams = fieldType.params.map((param) => {
           if (param.name === "options") {
@@ -193,7 +194,8 @@ export default function Question({
       };
       onUpdate(id, { config: newConfig });
     } else {
-      const fieldType = fieldtypes.find((f) => f.name === "dropdown");
+      // FIX: Changed "dropdown" to "DROPDOWN" to match the case in fieldtypes array from interface.ts
+      const fieldType = fieldtypes.find((f) => f.name === "DROPDOWN");
       if (fieldType) {
         const updatedParams = fieldType.params.map((param) => {
           if (param.name === "options") {
@@ -276,7 +278,7 @@ export default function Question({
   return (
     <div
       ref={containerRef}
-      className={`bg-[#FEFEFE] shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl w-[90%] min-h-[20%] mx-auto mb-10 transition-all duration-200 
+      className={`bg-[#FEFEFE] shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl w-[90%] min-h-[20%] mx-auto mb-10 transition-all duration-200
     ${isSelected ? "ring-4 ring-black dark:ring-[#64ad8b]" : ""}
     ${isDuplicate ? "border-2 border-red-500" : ""}
     dark:bg-[#5A5959] dark:text-white hover:shadow-lg`}

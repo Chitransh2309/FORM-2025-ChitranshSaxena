@@ -4,13 +4,13 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import getFormObject from "@/app/action/getFormObject";
-import { Form, Section } from "@/lib/interface";
+import { Form, Section, QuestionType, FieldType, Param } from "@/lib/interface"; // Ensure FieldType and Param are imported
 
 export default function PreviewForm() {
   const { id: formId } = useParams();
   const [form, setForm] = useState<Form | null>(null);
   const [sectionIndex, setSectionIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Corrected: useState(true)
   const [selectedDevice, setSelectedDevice] = useState<"desktop" | "mobile">(
     "desktop"
   );
@@ -64,6 +64,23 @@ export default function PreviewForm() {
       </div>
     );
   }
+
+  // >>>>>> THIS IS THE CORRECTED getOptions FUNCTION <<<<<<
+  const getOptions = (config: FieldType | undefined): string[] => {
+    if (!config || !config.params) {
+      return [];
+    }
+    const optionsParam = config.params.find(
+      (p: Param) => p.name === "options"
+    );
+    // Ensure optionsParam exists and its value is an array of strings
+    if (optionsParam && Array.isArray(optionsParam.value)) {
+      return optionsParam.value as string[];
+    }
+    return [];
+  };
+  // >>>>>> END OF CORRECTED getOptions FUNCTION <<<<<<
+
 
   return (
     <div className="relative flex justify-center items-center min-h-screen bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full overeflow-scroll h-full dark:bg-[#2B2A2A]">
@@ -126,11 +143,116 @@ export default function PreviewForm() {
                 {q.questionText}{" "}
                 {q.isRequired && <span className="text-red-500">*</span>}
               </label>
-              <input
-                type="text"
-                placeholder="Type your answer"
-                className="w-full h-[42px] px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black placeholder:text-[#676767] outline-none border border-transparent focus:border-gray-300 font-[Outfit] dark:text-white dark:placeholder-white dark:bg-[#494949]"
-              />
+
+              {/* TEXT TYPE */}
+              {q.type === "TEXT" && (
+                <input
+                  type="text"
+                  placeholder="Type your answer"
+                  className="w-full h-[42px] px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black placeholder:text-[#676767] outline-none border border-transparent focus:border-gray-300 font-[Outfit] dark:text-white dark:placeholder-white dark:bg-[#494949]"
+                />
+              )}
+
+              {/* DATE TYPE */}
+              {q.type === "DATE" && (
+                <input
+                  type="date"
+                  className="w-full h-[42px] px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black outline-none font-[Outfit] dark:text-white dark:bg-[#494949]"
+                />
+              )}
+
+              {/* EMAIL TYPE */}
+              {q.type === "EMAIL" && (
+                <input
+                  type="email"
+                  placeholder="example@email.com"
+                  className="w-full h-[42px] px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black placeholder:text-[#676767] outline-none border border-transparent focus:border-gray-300 font-[Outfit] dark:text-white dark:placeholder-white dark:bg-[#494949]"
+                />
+             )}
+
+              {/* URL TYPE */}
+              {q.type === "URL" && (
+                <input
+                  type="url"
+                  placeholder="https://example.com"
+                  className="w-full h-[42px] px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black placeholder:text-[#676767] outline-none border border-transparent focus:border-gray-300 font-[Outfit] dark:text-white dark:placeholder-white dark:bg-[#494949]"
+                />
+              )}
+
+
+              {q.type === "LINEARSCALE" && (
+  <div className="space-y-2 mt-4">
+    
+    {/* Min and Max Labels */}
+
+    {/* Radio Inputs */}
+    <div className="flex items-center gap-4 px-2">
+      {(() => {
+        const min = Number(q.params?.find(p => p.name === "min")?.value ?? 1)
+        const max = Number(q.params?.find(p => p.name === "max")?.value ?? 5)
+        return Array.from({ length: max - min + 1 }, (_, i) => min + i).map((num) => (
+          <label
+            key={num}
+            className="flex flex-col items-center cursor-pointer"
+            style={{ userSelect: "none" }}
+          >
+            <input
+              type="radio"
+              name={q.question_ID}
+              value={num}
+              className="hidden peer"
+            />
+            <span
+              className={`
+                w-8 h-8 rounded-full flex items-center justify-center border-2
+                bg-white border-gray-400 peer-checked:bg-[#8CC7AA] peer-checked:border-[#64ad8b]
+                hover:border-[#8CC7AA] transition-all
+              `}
+            >
+              <span className="w-4 h-4 bg-white rounded-full hidden peer-checked:block" />
+            </span>
+            <span className="text-xs mt-1 text-black dark:text-white">{num}</span>
+          </label>
+        ))
+      })()}
+    </div>
+  </div>
+)}
+
+
+
+              {/* MCQ TYPE */}
+              {q.type === "MCQ" && (
+                <div className="flex flex-col gap-2">
+                  {getOptions(q.config).map((opt: string, idx: number) => (
+                    <label key={idx} className="flex items-center gap-2 dark:text-white">
+                      <input
+                        type="radio" // Keeping "radio" as per your current setup for MCQ
+                        name={q.question_ID}
+                        value={opt}
+                        className="form-radio h-4 w-4 text-green-600 transition duration-150 ease-in-out dark:bg-[#494949] dark:border-gray-600"
+                      />
+                      <span>{opt}</span>
+                    </label>
+                  ))}
+                  {getOptions(q.config).length === 0 && (
+                    <p className="text-red-500 text-xs italic">No options configured for this MCQ.</p>
+                  )}
+                </div>
+              )}
+
+              {/* DROPDOWN TYPE */}
+              {q.type === "DROPDOWN" && (
+                <select className="w-full h-[42px] px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black font-[Outfit] outline-none dark:text-white dark:bg-[#494949]">
+                  <option value="" disabled selected>Select an option</option>
+                  {getOptions(q.config).map((opt: string, idx: number) => (
+                    <option key={idx} value={opt}>{opt}</option>
+                  ))}
+                  {getOptions(q.config).length === 0 && (
+                    <option value="" disabled>No options available</option>
+                  )}
+                </select>
+              )}
             </div>
           ))}
 
