@@ -4,8 +4,17 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import getFormObject from "@/app/action/getFormObject";
-import { Form, Question, QuestionType, FieldType, Param, Answer } from "@/lib/interface";
+import {
+  Form,
+  Question,
+  QuestionType,
+  FieldType,
+  Param,
+  Answer,
+} from "@/lib/interface";
 import { validateAnswer } from "@/lib/validation";
+import FAQs from "../NewUserPage/FAQs";
+import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
 
 // Dynamic Input Renderer (Preview Mode, with validation)
 const DynamicPreviewInput = ({
@@ -22,31 +31,30 @@ const DynamicPreviewInput = ({
   const baseInputClass =
     "w-full px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black placeholder:text-[#676767] outline-none border border-transparent focus:border-gray-300 font-[Outfit] dark:text-white dark:placeholder-white dark:bg-[#494949]";
 
+  const [selected, setSelected] = useState<number | null>(null);
+
   // MCQ Options
   const options =
-    (question.config?.params?.find((p) => p.name === "options")?.value as string[]) || [];
+    (question.config?.params?.find((p) => p.name === "options")
+      ?.value as string[]) || [];
 
   // MCQ min/max
   const minSelections =
-    (question.config?.params?.find((p) => p.name === "min")?.value as number) || 0;
+    (question.config?.params?.find((p) => p.name === "min")?.value as number) ||
+    0;
   const maxSelections =
-    (question.config?.params?.find((p) => p.name === "max")?.value as number) || options.length;
+    (question.config?.params?.find((p) => p.name === "max")?.value as number) ||
+    options.length;
 
   // Date config
-  const includeTime = !!question.config?.params?.find((p) => p.name === "includeTime")?.value;
-  const dateRange = question.config?.validations?.find((v) => v.name === "dateRange");
+  const includeTime = !!question.config?.params?.find(
+    (p) => p.name === "includeTime"
+  )?.value;
+  const dateRange = question.config?.validations?.find(
+    (v) => v.name === "dateRange"
+  );
   const minDate = dateRange?.params?.find((p) => p.name === "minDate")?.value;
   const maxDate = dateRange?.params?.find((p) => p.name === "maxDate")?.value;
-
-  // Linear scale
-  // const min =
-  //   (question.config?.params?.find((p) => p.name === "min")?.value as number) || 1;
-  // const max =
-  //   (question.config?.params?.find((p) => p.name === "max")?.value as number) || 5;
-  // const minLabel =
-  //   (question.config?.params?.find((p) => p.name === "minLabel")?.value as string) || "";
-  // const maxLabel =
-  //   (question.config?.params?.find((p) => p.name === "maxLabel")?.value as string) || "";
 
   switch (question.type) {
     case QuestionType.TEXT:
@@ -55,8 +63,8 @@ const DynamicPreviewInput = ({
           <input
             type="text"
             placeholder={
-              (question.config?.params?.find((p) => p.name === "placeholder")?.value as string) ||
-              "Type your answer"
+              (question.config?.params?.find((p) => p.name === "placeholder")
+                ?.value as string) || "Type your answer"
             }
             className={`${baseInputClass} h-[42px]`}
             value={value}
@@ -106,7 +114,9 @@ const DynamicPreviewInput = ({
         </>
       );
     case QuestionType.MCQ: {
-      const selectedValues = value ? value.split(",").filter((v) => v.trim()) : [];
+      const selectedValues = value
+        ? value.split(",").filter((v) => v.trim())
+        : [];
       const isMultiSelect = maxSelections > 1;
 
       const handleOptionChange = (option: string, checked: boolean) => {
@@ -147,7 +157,9 @@ const DynamicPreviewInput = ({
           {minSelections > 0 && (
             <p className="text-xs text-gray-500 dark:text-gray-400">
               {isMultiSelect
-                ? `Select at least ${minSelections} option${minSelections > 1 ? "s" : ""}`
+                ? `Select at least ${minSelections} option${
+                    minSelections > 1 ? "s" : ""
+                  }`
                 : "Please select an option"}
             </p>
           )}
@@ -182,18 +194,20 @@ const DynamicPreviewInput = ({
 
     case QuestionType.LINEARSCALE: {
       const min =
-        (question.config?.params?.find((p) => p.name === "min")?.value as number) || 1;
+        (question.config?.params?.find((p) => p.name === "min")
+          ?.value as number) || 1;
       const max =
-        (question.config?.params?.find((p) => p.name === "max")?.value as number) || 5;
+        (question.config?.params?.find((p) => p.name === "max")
+          ?.value as number) || 5;
       const minLabel =
-        (question.config?.params?.find((p) => p.name === "minLabel")?.value as string) || "";
+        (question.config?.params?.find((p) => p.name === "minLabel")
+          ?.value as string) || "";
       const maxLabel =
-        (question.config?.params?.find((p) => p.name === "maxLabel")?.value as string) || "";
-
-      // For preview, allow selection but don't persist (or use value/onChange if you want to simulate)
-      const [selected, setSelected] = useState<number | null>(null);
+        (question.config?.params?.find((p) => p.name === "maxLabel")
+          ?.value as string) || "";
 
       const range = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+      const selected = value ? Number(value) : null;
 
       return (
         <div className="space-y-2 mt-4">
@@ -210,13 +224,17 @@ const DynamicPreviewInput = ({
                   name={`linear-scale-${question.question_ID}`}
                   value={val}
                   checked={selected === val}
-                  onChange={() => setSelected(val)}
+                  onChange={() => onChange(val.toString())}
                   className="hidden"
                 />
                 <span
                   className={`w-8 h-8 rounded-full flex items-center justify-center border-2
-                    ${selected === val ? "bg-[#8CC7AA] border-[#64ad8b]" : "bg-white border-gray-400"}
-                    hover:border-[#8CC7AA] transition-all`}
+                ${
+                  selected === val
+                    ? "bg-[#8CC7AA] border-[#64ad8b]"
+                    : "bg-white border-gray-400"
+                }
+                hover:border-[#8CC7AA] transition-all`}
                   style={{ fontSize: "1.1rem" }}
                 >
                   {selected === val ? (
@@ -229,7 +247,8 @@ const DynamicPreviewInput = ({
             {maxLabel && <span className="text-xs">{maxLabel}</span>}
           </div>
           <div className="text-xs text-gray-500 dark:text-gray-400">
-            Scale: {min} to {max} {selected !== null && `| Selected: ${selected}`}
+            Scale: {min} to {max}{" "}
+            {selected !== null && `| Selected: ${selected}`}
           </div>
         </div>
       );
@@ -253,10 +272,13 @@ const DynamicPreviewInput = ({
 
 export default function PreviewForm() {
   const { id: formId } = useParams();
+  const [showFaq, setShowFaq] = useState(false);
   const [form, setForm] = useState<Form | null>(null);
   const [sectionIndex, setSectionIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [selectedDevice, setSelectedDevice] = useState<"desktop" | "mobile">("desktop");
+  const [selectedDevice, setSelectedDevice] = useState<"desktop" | "mobile">(
+    "desktop"
+  );
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -296,7 +318,9 @@ export default function PreviewForm() {
     });
 
     // Find the question
-    const question = section?.questions.find((q) => q.question_ID === questionId);
+    const question = section?.questions.find(
+      (q) => q.question_ID === questionId
+    );
     if (question) {
       const answer: Answer = {
         answer_ID: questionId + "-preview",
@@ -408,7 +432,10 @@ export default function PreviewForm() {
               </label>
               <DynamicPreviewInput
                 question={q}
-                value={answers.find((a) => a.question_ID === q.question_ID)?.value || ""}
+                value={
+                  answers.find((a) => a.question_ID === q.question_ID)?.value ||
+                  ""
+                }
                 onChange={(value) => handleInputChange(q.question_ID, value)}
                 error={errors[q.question_ID]}
               />
@@ -417,16 +444,20 @@ export default function PreviewForm() {
                 <span className="italic">Type: {q.type}</span>
                 {q.type === "DATE" && (
                   <>
-                    {q.config?.validations?.find((v) => v.name === "dateRange") && (
+                    {q.config?.validations?.find(
+                      (v) => v.name === "dateRange"
+                    ) && (
                       <>
                         {" | Range: "}
                         {q.config.validations
                           .find((v) => v.name === "dateRange")
-                          ?.params?.find((p) => p.name === "minDate")?.value || "Any"}
+                          ?.params?.find((p) => p.name === "minDate")?.value ||
+                          "Any"}
                         {" to "}
                         {q.config.validations
                           .find((v) => v.name === "dateRange")
-                          ?.params?.find((p) => p.name === "maxDate")?.value || "Any"}
+                          ?.params?.find((p) => p.name === "maxDate")?.value ||
+                          "Any"}
                       </>
                     )}
                   </>
@@ -434,10 +465,14 @@ export default function PreviewForm() {
                 {q.type === "MCQ" && (
                   <span>
                     {" | Min: "}
-                    {q.config?.params?.find((p) => p.name === "min")?.value || 0}
+                    {q.config?.params?.find((p) => p.name === "min")?.value ||
+                      0}
                     {", Max: "}
                     {q.config?.params?.find((p) => p.name === "max")?.value ||
-                      (q.config?.params?.find((p) => p.name === "options")?.value as string[])?.length ||
+                      (
+                        q.config?.params?.find((p) => p.name === "options")
+                          ?.value as string[]
+                      )?.length ||
                       0}
                   </span>
                 )}
@@ -465,18 +500,17 @@ export default function PreviewForm() {
         </div>
       </div>
       {/* FAQ Button - Mobile Only */}
-<div className="fixed bottom-6 right-6 z-40">
-  <button
-    className="flex items-center justify-center w-12 h-12 text-black rounded-full dark:text-white hover:shadow-xl transition-shadow"
-    onClick={() => setShowFaq(true)}
-  >
-    <HiOutlineQuestionMarkCircle className="w-6 h-6" />
-  </button>
-</div>
+      <div className="fixed bottom-6 right-6 z-40">
+        <button
+          className="flex items-center justify-center w-12 h-12 text-black rounded-full dark:text-white hover:shadow-xl transition-shadow"
+          onClick={() => setShowFaq(true)}
+        >
+          <HiOutlineQuestionMarkCircle className="w-6 h-6" />
+        </button>
+      </div>
 
-{/* FAQ Modal Component */}
-<FAQs showFaq={showFaq} setShowFaq={setShowFaq} />
-
+      {/* FAQ Modal Component */}
+      <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />
     </div>
   );
 }

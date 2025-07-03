@@ -13,7 +13,9 @@ type Props = {
 };
 
 export default function RightNav({ selectedQuestion, onUpdate }: Props) {
-  const [currentQuestionId, setCurrentQuestionId] = useState<string | null>(null);
+  const [currentQuestionId, setCurrentQuestionId] = useState<string | null>(
+    null
+  );
   const [showFaq, setShowFaq] = useState(false);
   useEffect(() => {
     if (selectedQuestion?.question_ID !== currentQuestionId) {
@@ -26,7 +28,10 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
   const handleChangeType = (newType: QuestionType) => {
     if (selectedQuestion) {
       // Clear config when type changes
-      onUpdate(selectedQuestion.question_ID, { type: newType, config: undefined });
+      onUpdate(selectedQuestion.question_ID, {
+        type: newType,
+        config: undefined,
+      });
     }
   };
 
@@ -100,20 +105,21 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
             </svg>
           </div>
           <p className="text-lg font-medium">No Question Selected</p>
-          <p className="text-sm mt-2">Select a question to edit its properties</p>
+          <p className="text-sm mt-2">
+            Select a question to edit its properties
+          </p>
         </div>
-        
+
         {/* Bottom Right FAQ Icon */}
         <div className="fixed bottom-6 right-6 z-40">
-  <button
-    className="flex items-center justify-center w-12 h-12 text-black rounded-full dark:text-white hover:shadow-xl transition-shadow"
-    onClick={() => setShowFaq(true)}
-  >
-    <HiOutlineQuestionMarkCircle className="w-6 h-6" />
-  </button>
-</div>
+          <button
+            className="flex items-center justify-center w-12 h-12 text-black rounded-full dark:text-white hover:shadow-xl transition-shadow"
+            onClick={() => setShowFaq(true)}
+          >
+            <HiOutlineQuestionMarkCircle className="w-6 h-6" />
+          </button>
+        </div>
 
-        
         {showFaq && <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />}
       </div>
     );
@@ -136,7 +142,9 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
         </div>
       </div>
 
-      <div className="space-y-4 md:space-y-6 pb-20 md:pb-24"> {/* Responsive padding bottom */}
+      <div className="space-y-4 md:space-y-6 pb-20 md:pb-24">
+        {" "}
+        {/* Responsive padding bottom */}
         {/* Question Type Configuration */}
         <div className="bg-white dark:bg-[#494949] rounded-lg p-3 md:p-4 shadow-sm">
           <h3 className="font-medium mb-3 md:mb-4 dark:text-white text-sm uppercase tracking-wide text-gray-700">
@@ -149,7 +157,6 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
             onUpdateConfig={handleUpdateConfig}
           />
         </div>
-
         {/* Advanced Settings */}
         <div className="bg-white dark:bg-[#494949] rounded-lg p-3 md:p-4 shadow-sm">
           <h3 className="font-medium mb-3 md:mb-4 dark:text-white text-sm uppercase tracking-wide text-gray-700">
@@ -172,7 +179,6 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
             </p>
           </div>
         </div>
-
         {/* Question Summary */}
         <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 md:p-4 border border-blue-200 dark:border-blue-800">
           <h3 className="font-medium mb-2 dark:text-white text-blue-800">
@@ -187,7 +193,8 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
               {selectedQuestion.isRequired ? "Yes" : "No"}
             </p>
             <p>
-              <span className="font-medium">Order:</span> {selectedQuestion.order}
+              <span className="font-medium">Order:</span>{" "}
+              {selectedQuestion.order}
             </p>
             {selectedQuestion.config && (
               <p>
@@ -200,7 +207,7 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
 
       {/* Bottom Right FAQ Icon - Fixed Position */}
       <div className="fixed bottom-4 right-4 md:absolute md:bottom-6 md:right-6 z-50">
-        <button 
+        <button
           onClick={() => setShowFaq(true)}
           className="p-3 md:p-2 rounded-full bg-white dark:bg-gray-700 shadow-lg hover:shadow-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200 border border-gray-200 dark:border-gray-600"
         >
@@ -210,7 +217,7 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
           />
         </button>
       </div>
-      
+
       {showFaq && <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />}
     </div>
   );
