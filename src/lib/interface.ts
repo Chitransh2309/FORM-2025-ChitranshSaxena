@@ -20,23 +20,32 @@ export interface Form {
   share_url: string;
   settings: FormSettings;
   sections: Section[];
-  logic: FormLogic[];
 }
 
-export interface FormLogic {
-  triggerSectionId: string; //section which will trigger this logic when clicked next button
+export type NestedCondition = {
+  op: "AND" | "OR";
+  conditions: (BaseCondition | NestedCondition)[];
+};
+
+export type LogicRule = {
+  triggerSectionId: string;
   action: {
     type: "jump";
-    to: string; //destination section
-    condition: [
-      {
-        fieldId: string; //question whose answer will be compared
-        op: "equal";
-        value: string | number;
-      }
-    ];
+    to: string;
+    condition: NestedCondition;
   };
-}
+};
+
+export type BaseCondition = {
+  fieldId: string;
+  op: "equal";
+  value: string;
+};
+
+export type ConditionGroup = {
+  op: "AND" | "OR";
+  conditions: (BaseCondition | ConditionGroup)[];
+};
 
 export interface FormSettings {
   maxResponses?: number;
@@ -54,6 +63,7 @@ export interface Section {
   title: string;
   description: string;
   questions: Question[];
+  logic:LogicRule;
 }
 
 export interface Question {

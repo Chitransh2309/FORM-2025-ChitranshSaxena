@@ -1,10 +1,8 @@
-import { Section } from "@/lib/interface";
-import ConditionBlock, { BaseCondition } from "./ConditionBlock";
+import { useState } from "react";
+import type { Section, ConditionGroup, BaseCondition } from "@/lib/interface";
+import ConditionBlock from "./ConditionBlock";
 
-export type ConditionGroup = {
-  op: "AND" | "OR";
-  conditions: (BaseCondition | ConditionGroup)[];
-};
+
 
 interface Props {
   group: ConditionGroup;
@@ -88,7 +86,7 @@ export default function ConditionGroup({
             <div>
               <ConditionGroup
                 group={cond}
-                onUpdate={(updatedGroup) => updateCondition(idx, updatedGroup)}
+                onUpdate={(newGroup:any) => updateCondition(idx, newGroup)}
                 allQuestions={allQuestions}
               />
               <button
