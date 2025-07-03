@@ -49,14 +49,19 @@ export default function Question({
       if (config.params) {
         const optionsParam = config.params.find((p: any) => p.name === "options");
         if (optionsParam?.value) {
-          return Array.isArray(optionsParam.value)
+          let opts = Array.isArray(optionsParam.value)
             ? optionsParam.value
             : optionsParam.value.split(", ");
+          if (opts.length < 2) {
+            opts = ["Option 1", "Option 2"];
+          }
+          return opts;
         }
       }
     }
     return ["Option 1", "Option 2"];
   };
+
 
   // Get Dropdown options from config
   const getDropdownOptions = (): string[] => {
