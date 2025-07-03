@@ -131,13 +131,11 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
     setShowModal(false);
 
     const saveResult = await saveFormLogic(form_ID, updatedRules);
-    console.log("Save result:", saveResult);
 
     if (!saveResult.success) {
       toast.error("Failed to save logic.");
     } else {
       toast.success("Logic saved!");
-      setShowModal(false);
     }
   };
 
@@ -146,6 +144,10 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
   );
   const otherSections = sections.filter(
     (s) => s.section_ID !== selectedSectionId
+  );
+
+  const selectedQuestionObj = selectedSection?.questions.find(
+    (q) => q.question_ID === selectedQuestion
   );
 
   return (
@@ -195,13 +197,32 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
 
             <div className="mb-3">
               <label className="block mb-1 text-sm font-medium">Value</label>
-              <input
-                type="text"
-                className="w-full border rounded px-2 py-1"
-                placeholder="e.g., Yes"
-                value={conditionValue}
-                onChange={(e) => setConditionValue(e.target.value)}
-              />
+
+              {selectedQuestionObj?.type === "DROPDOWN" ||
+              selectedQuestionObj?.type === "MCQ" ? (
+                <select
+                  className="w-full border rounded px-2 py-1"
+                  value={conditionValue}
+                  onChange={(e) => setConditionValue(e.target.value)}
+                >
+                  <option value="">Select an option</option>
+                  {selectedQuestionObj?.config?.params
+                    ?.find((p) => p.name === "options")
+                    ?.value?.map((opt: string, idx: number) => (
+                      <option key={idx} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  className="w-full border rounded px-2 py-1"
+                  placeholder="e.g., Yes"
+                  value={conditionValue}
+                  onChange={(e) => setConditionValue(e.target.value)}
+                />
+              )}
             </div>
 
             <div className="mb-3">
