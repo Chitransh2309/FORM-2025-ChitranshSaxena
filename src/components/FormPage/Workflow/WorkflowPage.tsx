@@ -146,7 +146,7 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
     if (
       !selectedSectionId ||
       !targetSection ||
-      logicCondition.conditions.length === 0
+      ("conditions" in logicCondition && logicCondition.conditions.length === 0)
     ) {
       toast.error("Please fill all fields");
       return;
