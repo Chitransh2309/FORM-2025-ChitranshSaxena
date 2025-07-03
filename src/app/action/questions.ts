@@ -57,6 +57,8 @@ export async function deleteQuestionFromDB(question_ID: string) {
 // Get all sections and their questions for a given form
 export async function getSectionsAndQuestions(form_ID: string) {
   try {
+    console.log("🔥 Fetching for form_ID:", form_ID);
+
     const { db, dbClient } = await connectToDB();
 
     const sections = await db
@@ -64,10 +66,7 @@ export async function getSectionsAndQuestions(form_ID: string) {
       .find({ form_ID })
       .toArray();
 
-    const questions = await db
-      .collection("ques")
-      .find({ form_ID })
-      .toArray();
+    const questions = await db.collection("ques").find({ form_ID }).toArray();
 
     await disconnectFromDB(dbClient);
 
@@ -85,6 +84,7 @@ export async function getSectionsAndQuestions(form_ID: string) {
           label: "", // add label later if needed
         })),
     }));
+    console.log("🧾 Sections found:", sections);
 
     return { success: true, data: sectionsWithQuestions };
   } catch (err) {

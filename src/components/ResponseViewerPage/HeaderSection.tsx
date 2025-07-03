@@ -38,7 +38,7 @@ export default function HeaderSection({
         <ToggleSwitch />
       </div>
 
-      <div className="flex justify-center mt-6 px-4 sm:px-0">
+      <div className="mb-5 flex justify-center mt-6 px-4 sm:px-0">
         <div className="flex justify-between items-center w-full max-w-[480px] h-[58px] rounded-[10px] dark:bg-[#414141] shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 px-2 sm:px-4">
           {["Individual", "Analytics"].map((tab) => (
             <button
@@ -56,7 +56,7 @@ export default function HeaderSection({
         </div>
       </div>
 
-      <div className="flex justify-between items-center mb-4 px-4">
+      <div className="mb-5 flex justify-between items-center px-4">
         <h2 className="text-xl font-semibold">Responses: {total}</h2>
         <ViewModeDropdown
           viewMode={viewMode}

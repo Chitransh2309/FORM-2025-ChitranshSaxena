@@ -20,6 +20,22 @@ export interface Form {
   share_url: string;
   settings: FormSettings;
   sections: Section[];
+  logic: FormLogic[];
+}
+
+export interface FormLogic {
+  triggerSectionId: string; //section which will trigger this logic when clicked next button
+  action: {
+    type: "jump";
+    to: string; //destination section
+    condition: [
+      {
+        fieldId: string; //question whose answer will be compared
+        op: "equal";
+        value: string | number;
+      }
+    ];
+  };
 }
 
 export interface FormSettings {
@@ -227,7 +243,7 @@ export const fieldtypes: FieldType[] = [
       {
         name: "format",
         params: [{ name: "type", type: "string", value: "url" }],
-      }
+      },
     ],
   },
 ];
