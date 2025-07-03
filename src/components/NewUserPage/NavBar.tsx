@@ -5,9 +5,11 @@ import { FaRegCircleUser } from "react-icons/fa6";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
 import ToggleSwitch from "../LandingPage/ToggleSwitch";
 import FAQs from "./FAQs";
+import Profile from "./Profile";
 
-export default function Navbar() {
+export default function Navbar({image,name,email}:{image:string,name:string,email:string}) {
   const [showFaq, setShowFaq] = useState(false);
+  const [showProfile,setShowProfile]=useState(false);
   return (
     /* mobile‑only green bar */
     <div className="xl:hidden w-full flex items-center justify-between px-4 py-3 bg-[#56A37D] dark:bg-[#2B2A2A]">
@@ -29,16 +31,16 @@ export default function Navbar() {
       <div className="flex items-center gap-4">
         <ToggleSwitch />
         <button onClick={() => setShowFaq(true)}>
-          <HiOutlineQuestionMarkCircle
-            size={26}
-            className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
-          />
+           <HiOutlineQuestionMarkCircle
+             size={26}
+             className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
+           />
+         </button>
+        <button onClick={()=>setShowProfile(!showProfile)}>
+          {image!==""?<Image src={image} width={26} height={26} alt="profile_image" className="text-black rounded-full hover:text-gray-700 dark:text-white dark:hover:text-gray-300"/>:<FaRegCircleUser size={20} className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300" />}
         </button>
-        <FaRegCircleUser
-          size={20}
-          className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
-        />
       </div>
+      {showProfile && <Profile name={name} email={email}/>}
       {showFaq && <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />}
     </div>
   );

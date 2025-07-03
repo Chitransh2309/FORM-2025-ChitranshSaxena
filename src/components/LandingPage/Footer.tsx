@@ -8,7 +8,7 @@ const out_fit = Outfit({subsets:['latin'], weight:['400','800']});
 
 export default function Footer() {
   return (
-    <div className='min-h-40 w-full p-3 sm:p-6 bg-[#61A986]'>
+    <div className='min-h-40 w-full p-3 sm:p-6 bg-[#61A986]' id='contact'>
       {/* Main content section */}
       <div className='flex flex-col lg:flex-row lg:justify-between gap-4 lg:gap-0'>
         {/* Left section - Brand and links */}
