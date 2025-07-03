@@ -10,6 +10,8 @@ import getFormObject from "@/app/action/getFormObject";
 import { saveFormToDB } from "@/app/action/saveformtodb";
 import { Form, Question, Section, QuestionType } from "@/lib/interface";
 import { Menu } from "lucide-react";
+import FAQs from "../NewUserPage/FAQs";
+import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
 
 export default function BuildPage() {
   const { id: formId } = useParams();
@@ -19,6 +21,7 @@ export default function BuildPage() {
   );
   const [showRightNav, setShowRightNav] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
+  const [showFAQ, setShowFAQ] = useState(false);
   
   const selectedSection = form?.sections.find(
     (s) => s.section_ID === selectedSectionId
@@ -197,7 +200,7 @@ export default function BuildPage() {
         />
       </div>
 
-      {/* Toggle RightNav for mobile */}
+      {/* Mobile controls */}
       <div className="lg:hidden flex items-center justify-start px-4 mt-2">
         <button
           className="flex items-center gap-2 bg-[#8cc7aa] text-black py-1 px-3 rounded-md shadow dark:bg-[#353434] dark:text-white"
@@ -205,6 +208,16 @@ export default function BuildPage() {
         >
           <Menu className="w-4 h-4" />
           Edit Question
+        </button>
+      </div>
+
+      {/* FAQ Icon - (Mobile Only) */}
+      <div className="lg:hidden fixed bottom-6 right-6 z-40">
+        <button
+          className="flex items-center justify-center w-12 h-12 text-black rounded-full dark:text-white hover:shadow-xl transition-shadow"
+          onClick={() => setShowFAQ(true)}
+        >
+          <HiOutlineQuestionMarkCircle className="w-6 h-6" />
         </button>
       </div>
 
@@ -262,6 +275,9 @@ export default function BuildPage() {
               </div>
             </div>
           )}
+
+          {/* FAQ Component */}
+          <FAQs showFaq={showFAQ} setShowFaq={setShowFAQ} />
         </div>
       </div>
     </div>
