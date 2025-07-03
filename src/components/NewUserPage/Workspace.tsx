@@ -54,13 +54,18 @@ export default function Workspace({
   const drafts = forms.filter((f) => !f.isActive);
   const published = forms.filter((f) => f.isActive);
 
-  const filteredDrafts = drafts.filter((form) =>
-    form.title?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const filteredDrafts = !searchTerm
+  ? drafts
+  : drafts.filter((form) =>
+      form.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-  const filteredPublished = published.filter((form) =>
-    form.title?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const filteredPublished = !searchTerm
+  ? published
+  : published.filter((form) =>
+      form.title?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
 
   const isEmpty = drafts.length === 0 && published.length === 0;
 
