@@ -29,7 +29,7 @@ function Newuser() {
   // };
   
   return (
-    <div className="w-[995px] h-full border border-dashed border-black mx-auto flex flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white">
+    <div className="w-full h-full border border-dashed border-black mx-auto flex flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white">
       <h4 className="text-xl text-gray-600 dark:text-white">
         You have not created any forms yet.
       </h4>

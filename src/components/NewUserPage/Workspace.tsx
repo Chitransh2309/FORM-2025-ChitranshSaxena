@@ -1,31 +1,22 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaChevronDown, FaSearch } from "react-icons/fa";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
 import { FaRegCircleUser } from "react-icons/fa6";
-import Image from "next/image";
-
 import Newuser from "./NewUser";
 import Navbar from "./NavBar";
 import Formsorter from "./FormSorter";
 import Drafts from "./Drafts";
 import Published from "./Published";
-import FAQs from "./FAQs";
-import ToggleSwitch from "../LandingPage/ToggleSwitch";
-
+import Image from "next/image";
 import { getFormsForUser } from "@/app/action/forms";
 import { createNewForm } from "@/app/action/createnewform";
 import { Form } from "@/lib/interface";
+import ToggleSwitch from "../LandingPage/ToggleSwitch";
+import FAQs from "./FAQs";
 
-export default function Workspace({
-  searchTerm,
-  setSearchTerm,
-}: {
-  searchTerm: string;
-  setSearchTerm?: (term: string) => void;
-}) {
+export default function Workspace() {
   const router = useRouter();
   const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,19 +44,10 @@ export default function Workspace({
 
   const drafts = forms.filter((f) => !f.isActive);
   const published = forms.filter((f) => f.isActive);
-
-  const filteredDrafts = drafts.filter((form) =>
-    form.title?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const filteredPublished = published.filter((form) =>
-    form.title?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   const isEmpty = drafts.length === 0 && published.length === 0;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="h-screen flex flex-col">
       {/* Green Header for mobile */}
       <Navbar />
 
@@ -114,11 +96,8 @@ export default function Workspace({
           <div className="flex items-center bg-[#3D3D3D] rounded-lg px-3 py-2 flex-1 min-w-0">
             <FaSearch size={14} className="text-white flex-shrink-0" />
             <input
-              type="text"
               placeholder="Search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm?.(e.target.value)}
-              className="flex-1 bg-transparent outline-none placeholder-white text-xs ml-2 text-white"
+              className="flex-1 bg-transparent outline-none placeholder-white text-xs ml-2"
             />
           </div>
 
@@ -164,17 +143,19 @@ export default function Workspace({
       )}
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto px-4 md:px-6 pb-4">
+      <div className="flex-1 px-4 md:px-6 pb-4 min-h-0">
         {loading ? (
-          <div className="flex items-center justify-center h-full">Loading…</div>
+          <div className="h-full border border-dashed border-black mx-auto flex flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white">
+            <div className="text-xl text-gray-600 dark:text-white">Loading…</div>
+          </div>
         ) : isEmpty ? (
           <>
             {/* Mobile Empty State */}
-            <div className="xl:hidden flex flex-col items-center justify-center h-full text-center">
-              <p className="text-gray-600 mb-2 dark:text-white md:text-3xl">
+            <div className="xl:hidden h-full border border-dashed border-black mx-auto flex flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white">
+              <p className="text-gray-600 text-center dark:text-white md:text-3xl">
                 You have not created any forms yet.
               </p>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4 dark:text-white md:text-5xl md:leading-20">
+              <h2 className="text-2xl font-semibold text-gray-800 text-center dark:text-white md:text-5xl md:leading-20">
                 Create Your First Form Today!
               </h2>
               <button
@@ -186,14 +167,27 @@ export default function Workspace({
             </div>
 
             {/* Desktop Empty State */}
-            <div className="hidden lg:block h-full">
-              <Newuser />
+            <div className="hidden lg:flex h-full border border-dashed border-black mx-auto flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white">
+              <h4 className="text-xl text-gray-600 dark:text-white text-center">
+                You have not created any forms yet.
+              </h4>
+              <h2 className="text-3xl font-semibold text-gray-800 dark:text-white text-center">
+                Create Your First Form Today!
+              </h2>
+              <button
+                onClick={() => setShowDialog(true)}
+                className="bg-[#61A986] px-6 py-3 text-white text-lg rounded-lg cursor-pointer hover:bg-[#4d8a6b] transition-colors dark:text-black"
+              >
+                Create Now
+              </button>
             </div>
           </>
         ) : (
-          <div className="flex flex-col lg:flex-row flex-1 overflow-hidden gap-4">
-            <Drafts forms={filteredDrafts} />
-            <Published forms={filteredPublished} />
+          <div className="h-full border border-dashed border-black mx-auto flex flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white overflow-y-auto">
+            <div className="flex flex-col lg:flex-row flex-1 w-full gap-4">
+              <Drafts forms={drafts} />
+              <Published forms={published} />
+            </div>
           </div>
         )}
       </div>
