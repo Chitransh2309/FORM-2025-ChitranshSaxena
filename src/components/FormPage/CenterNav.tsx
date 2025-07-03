@@ -40,17 +40,9 @@ const CenterNav = ({ formId }: { formId?: string }) => {
       {/* Main content area */}
       <div className="w-full flex-grow overflow-auto mt-6 px-2 sm:px-4">
         {currentSection === Section.Builder && <BuildForm />}
-        {/* {currentSection === Section.Workflow && (
+        {currentSection === Section.Workflow && (
           <WorkflowPage form_ID={formId} />
-          // <div className="p-4 sm:p-6">
-          //   <h2 className="text-xl font-semibold mb-4 dark:text-white">
-          //     🔁 Workflow View
-          //   </h2>
-          //   <p className="dark:text-white">
-          //     This is the form workflow configuration.
-          //   </p>
-          // </div>
-        )} */}
+        )}
         {currentSection === Section.Preview && (
           <div className="p-4 sm:p-6 dark:text-white">
             <PreviewForm formId={formId} />

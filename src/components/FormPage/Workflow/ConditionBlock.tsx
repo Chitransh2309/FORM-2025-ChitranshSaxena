@@ -53,7 +53,7 @@ export default function ConditionBlock({
         }
         className="border px-2 py-1 rounded"
       >
-        <option value="equal">=</option>
+        <option value="equal">equals</option>
       </select>
 
       {options.length ? (
