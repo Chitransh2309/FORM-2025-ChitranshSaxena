@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import toast from "react-hot-toast";
 import getFormObject from "@/app/action/getFormObject";
 import { Section } from "@/lib/interface";
@@ -13,17 +13,17 @@ import ReactFlow, {
   Edge,
   applyNodeChanges,
   applyEdgeChanges,
-  NodeTypes,
 } from "react-flow-renderer";
-import CustomNode from "./CustomNode"; // ✅ Your custom node
-import { useMemo } from "react";
-
+import CustomNode from "./CustomNode";
 import { saveFormLogic } from "@/app/action/saveFormLogic";
+import ConditionGroup, {
+  BaseCondition,
+  ConditionGroup as ConditionGroupType,
+} from "./ConditionGroup";
 
-type Condition = {
-  fieldId: string;
-  op: "equal";
-  value: string;
+type NestedCondition = {
+  op: "AND" | "OR";
+  conditions: (BaseCondition | NestedCondition)[];
 };
 
 type LogicRule = {
@@ -31,7 +31,7 @@ type LogicRule = {
   action: {
     type: "jump";
     to: string;
-    condition: Condition[];
+    condition: NestedCondition;
   };
 };
 
@@ -45,12 +45,16 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
     null
   );
-
   const [showModal, setShowModal] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<string>("");
   const [selectedOp, setSelectedOp] = useState<"equal">("equal");
   const [conditionValue, setConditionValue] = useState<string>("");
   const [targetSection, setTargetSection] = useState<string>("");
+
+  const [logicCondition, setLogicCondition] = useState<ConditionGroupType>({
+    op: "AND",
+    conditions: [],
+  });
 
   useEffect(() => {
     const loadForm = async () => {
@@ -68,14 +72,14 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
           data: {
             label: section.title || `Section ${idx + 1}`,
             id: section.section_ID,
-            onClick: handleOpenModal, // ✅ Must be here
+            onClick: handleOpenModal,
           },
         }));
 
         setNodes(flowNodes);
 
         if (res.data.logic) {
-          setLogicRules(res.data.logic); // your LogicRule[]
+          setLogicRules(res.data.logic);
         }
       } else {
         toast.error("Failed to load form.");
@@ -85,35 +89,67 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
     loadForm();
   }, [form_ID]);
 
+  function renderCondition(condition: NestedCondition | BaseCondition): string {
+    if (!condition) return "";
+
+    if ("fieldId" in condition) {
+      return `${condition.fieldId} == ${condition.value}`;
+    }
+
+    if (
+      "conditions" in condition &&
+      Array.isArray(condition.conditions) &&
+      condition.conditions.length > 0
+    ) {
+      const rendered = condition.conditions
+        .map(renderCondition)
+        .join(` ${condition.op} `);
+      return `(${rendered})`;
+    }
+
+    return "";
+  }
+
   useEffect(() => {
     const flowEdges: Edge[] = logicRules.map((rule, idx) => ({
       id: `e-${rule.triggerSectionId}-${rule.action.to}-${idx}`,
       source: rule.triggerSectionId,
       target: rule.action.to,
       animated: true,
-      label: rule.action.condition
-        .map((c) => `${c.fieldId} == ${c.value}`)
-        .join(" & "),
+      label: renderCondition(rule.action.condition),
       labelStyle: { fontSize: 12 },
     }));
 
     setEdges(flowEdges);
   }, [logicRules]);
 
+  const formatCondition = (cond: NestedCondition): string => {
+    return cond.conditions
+      .map((c) => {
+        if ("fieldId" in c) {
+          return `${c.fieldId} == ${c.value}`;
+        } else {
+          return `(${formatCondition(c)})`;
+        }
+      })
+      .join(` ${cond.op} `);
+  };
+
   const handleOpenModal = (sectionId: string) => {
     setSelectedSectionId(sectionId);
     setShowModal(true);
-    setSelectedQuestion("");
-    setConditionValue("");
     setTargetSection("");
+    setLogicCondition({
+      op: "AND",
+      conditions: [],
+    });
   };
 
   const handleAddLogic = async () => {
     if (
       !selectedSectionId ||
-      !selectedQuestion ||
       !targetSection ||
-      !conditionValue
+      logicCondition.conditions.length === 0
     ) {
       toast.error("Please fill all fields");
       return;
@@ -124,18 +160,15 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
       action: {
         type: "jump",
         to: targetSection,
-        condition: [
-          { fieldId: selectedQuestion, op: selectedOp, value: conditionValue },
-        ],
+        condition: logicCondition,
       },
     };
 
-    const updatedRules = [...logicRules, newRule]; // ✅ use this for saving and updating state
+    const updatedRules = [...logicRules, newRule];
     setLogicRules(updatedRules);
     setShowModal(false);
 
     const saveResult = await saveFormLogic(form_ID, updatedRules);
-
     if (!saveResult.success) {
       toast.error("Failed to save logic.");
     } else {
@@ -148,10 +181,6 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
   );
   const otherSections = sections.filter(
     (s) => s.section_ID !== selectedSectionId
-  );
-
-  const selectedQuestionObj = selectedSection?.questions.find(
-    (q) => q.question_ID === selectedQuestion
   );
 
   return (
@@ -167,7 +196,7 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
             onEdgesChange={(changes) =>
               setEdges((eds) => applyEdgeChanges(changes, eds))
             }
-            nodeTypes={nodeTypes} // ✅ Register custom node
+            nodeTypes={nodeTypes}
             fitView
             style={{ background: "#2B2A2A" }}
           >
@@ -183,51 +212,12 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
           <div className="bg-white rounded-lg p-6 w-[400px] shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Add Logic Condition</h2>
 
-            <div className="mb-3">
-              <label className="block mb-1 text-sm font-medium">Question</label>
-              <select
-                className="w-full border rounded px-2 py-1"
-                value={selectedQuestion}
-                onChange={(e) => setSelectedQuestion(e.target.value)}
-              >
-                <option value="">Select a question</option>
-                {selectedSection?.questions.map((q) => (
-                  <option key={q.question_ID} value={q.question_ID}>
-                    {q.questionText}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="mb-3">
-              <label className="block mb-1 text-sm font-medium">Value</label>
-
-              {selectedQuestionObj?.type === "DROPDOWN" ||
-              selectedQuestionObj?.type === "MCQ" ? (
-                <select
-                  className="w-full border rounded px-2 py-1"
-                  value={conditionValue}
-                  onChange={(e) => setConditionValue(e.target.value)}
-                >
-                  <option value="">Select an option</option>
-                  {selectedQuestionObj?.config?.params
-                    ?.find((p) => p.name === "options")
-                    ?.value?.map((opt: string, idx: number) => (
-                      <option key={idx} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                </select>
-              ) : (
-                <input
-                  type="text"
-                  className="w-full border rounded px-2 py-1"
-                  placeholder="e.g., Yes"
-                  value={conditionValue}
-                  onChange={(e) => setConditionValue(e.target.value)}
-                />
-              )}
-            </div>
+            {/* Render nested condition builder */}
+            <ConditionGroup
+              group={logicCondition}
+              onUpdate={setLogicCondition}
+              allQuestions={selectedSection?.questions || []}
+            />
 
             <div className="mb-3">
               <label className="block mb-1 text-sm font-medium">
