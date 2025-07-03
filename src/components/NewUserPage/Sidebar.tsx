@@ -8,7 +8,7 @@ import Searchbar from "./SearchBar";
 
 export default function Sidebar() {
   return (
-    <div className="bg-[#56A37D] w-64 h-screen flex text-black flex-col px-6 py-6 dark:text-white dark:bg-[#414141]">
+    <div className="bg-[#56A37D] flex w-64 h-screen text-black flex-col px-6 py-6 dark:text-white dark:bg-[#414141]">
       <div className="flex items-center gap-3 mb-8">
         <Image src="/main-icon.png" alt="icon" width={33} height={33} />
         <h1 className=" text-2xl font-bold">F.O.R.M</h1>

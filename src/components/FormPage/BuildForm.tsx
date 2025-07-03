@@ -10,6 +10,8 @@ import getFormObject from "@/app/action/getFormObject";
 import { saveFormToDB } from "@/app/action/saveformtodb";
 import { Form, Question, Section, QuestionType } from "@/lib/interface";
 import { Menu } from "lucide-react";
+import FAQs from "../NewUserPage/FAQs";
+import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
 
 export default function BuildPage() {
   const { id: formId } = useParams();
@@ -19,6 +21,7 @@ export default function BuildPage() {
   );
   const [showRightNav, setShowRightNav] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
+  const [showFAQ, setShowFAQ] = useState(false);
   
   const selectedSection = form?.sections.find(
     (s) => s.section_ID === selectedSectionId
@@ -185,9 +188,9 @@ export default function BuildPage() {
   }, []);
 
   return (
-    <div className="dark:bg-[#2B2A2A] bg-[#F6F8F6] text-black dark:text-white w-full h-full font-[Outfit] flex flex-col lg:flex-row">
+    <div className="h-screen w-full flex font-[Outfit] dark:bg-[#2B2A2A] bg-[#F6F8F6] text-black dark:text-white overflow-hidden">
       {/* Sidebar always visible */}
-      <div className="dark:bg-[#363535] w-[1/5] shadow-md">
+      <div className="dark:bg-[#363535] h-full overflow-y-auto w-[1/5] sticky shadow-md">
         <SectionSidebar
           sections={form?.sections || []}
           selectedSectionId={selectedSectionId}
@@ -197,7 +200,7 @@ export default function BuildPage() {
         />
       </div>
 
-      {/* Toggle RightNav for mobile */}
+      {/* Mobile controls */}
       <div className="lg:hidden flex items-center justify-start px-4 mt-2">
         <button
           className="flex items-center gap-2 bg-[#8cc7aa] text-black py-1 px-3 rounded-md shadow dark:bg-[#353434] dark:text-white"
@@ -208,11 +211,21 @@ export default function BuildPage() {
         </button>
       </div>
 
+      {/* FAQ Icon - (Mobile Only) */}
+      <div className="lg:hidden fixed bottom-6 right-6 z-40">
+        <button
+          className="flex items-center justify-center w-12 h-12 text-black rounded-full dark:text-white hover:shadow-xl transition-shadow"
+          onClick={() => setShowFAQ(true)}
+        >
+          <HiOutlineQuestionMarkCircle className="w-6 h-6" />
+        </button>
+      </div>
+
       {/* Main content */}
-      <div className="w-full flex-1 overflow-auto dark:text-white">
+      <div className="w-full flex-1 overflow-hidden dark:text-white h-full">
         <div className="flex flex-col lg:flex-row h-full">
           {/* Left content */}
-          <div className="w-full lg:w-full px-4 lg:px-10 mt-4">
+          <div className="w-full lg:w-full px-4 lg:px-10 mt-4 overflow-y-auto">
             <div className="flex flex-row justify-between items-center">
               <div className="text-2xl font-bold mb-3 mt-6">
                 {selectedSection?.title || "No Section Selected"}
@@ -235,7 +248,7 @@ export default function BuildPage() {
           </div>
 
           {/* RightNav */}
-          <div className="hidden lg:block lg:w-[30vw] h-full border-l border-gray-300 bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500">
+          <div className="hidden lg:block w-[30vw] h-full sticky border-l border-gray-300 bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500 top-0">
             <RightNav 
               selectedQuestion={selectedQuestion}
               onUpdate={updateQuestion}
@@ -262,6 +275,9 @@ export default function BuildPage() {
               </div>
             </div>
           )}
+
+          {/* FAQ Component */}
+          <FAQs showFaq={showFAQ} setShowFaq={setShowFAQ} />
         </div>
       </div>
     </div>

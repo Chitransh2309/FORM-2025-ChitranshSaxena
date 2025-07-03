@@ -464,6 +464,19 @@ export default function PreviewForm() {
           </div>
         </div>
       </div>
+      {/* FAQ Button - Mobile Only */}
+<div className="fixed bottom-6 right-6 z-40">
+  <button
+    className="flex items-center justify-center w-12 h-12 text-black rounded-full dark:text-white hover:shadow-xl transition-shadow"
+    onClick={() => setShowFaq(true)}
+  >
+    <HiOutlineQuestionMarkCircle className="w-6 h-6" />
+  </button>
+</div>
+
+{/* FAQ Modal Component */}
+<FAQs showFaq={showFaq} setShowFaq={setShowFaq} />
+
     </div>
   );
 }
