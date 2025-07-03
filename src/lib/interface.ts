@@ -37,7 +37,7 @@ export type LogicRule = {
   action: {
     type: "jump";
     to: string;
-    condition: NestedCondition;
+    condition: NestedCondition | BaseCondition;
   };
 };
 
@@ -68,7 +68,7 @@ export interface Section {
   title: string;
   description: string;
   questions: Question[];
-  logic: LogicRule;
+  logic?: LogicRule[];
 }
 
 export interface Question {
