@@ -70,9 +70,15 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
 
         setNodes(flowNodes);
 
-        if (res.data.logic) {
-          setLogicRules(res.data.logic);
-        }
+        // Extract logic from each section that has it
+        const extractedLogicRules = formSections
+          .filter((section: any) => section.logic)
+          .map((section: any) => ({
+            ...section.logic,
+            triggerSectionId: section.section_ID, // ensure you know where it came from
+          }));
+
+        setLogicRules(extractedLogicRules);
       } else {
         toast.error("Failed to load form.");
       }

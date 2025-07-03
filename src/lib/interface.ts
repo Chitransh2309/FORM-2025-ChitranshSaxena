@@ -49,7 +49,7 @@ export type BaseCondition = {
 
 export type ConditionGroupType = {
   op: "AND" | "OR";
-  conditions: (BaseCondition | ConditionGroup)[];
+  conditions: (BaseCondition | ConditionGroupType)[];
 };
 
 export interface FormSettings {
