@@ -50,7 +50,7 @@ const [ formSettings, setFormSettings ] = useState<FormSettingsType>(form.settin
   return (
     <div>
       {!isResponsePage && (
-        <nav className="fixed top-0 left-0 w-full h-[75px] bg-neutral-600 text-white px-8 flex justify-between items-center text-lg z-50">
+        <nav className="fixed top-0 left-0 w-full h-[75px] overflow-hidden min-h-0 bg-neutral-600 text-white px-8 flex justify-between items-center text-lg z-50">
           <div className="flex-1">
             <button onClick={handleWorkspace}>&lt; Back to Workspace</button>
           </div>

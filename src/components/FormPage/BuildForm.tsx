@@ -185,9 +185,9 @@ export default function BuildPage() {
   }, []);
 
   return (
-    <div className="dark:bg-[#2B2A2A] bg-[#F6F8F6] text-black dark:text-white w-full h-full font-[Outfit] flex flex-col lg:flex-row">
+    <div className="h-screen w-full flex font-[Outfit] dark:bg-[#2B2A2A] bg-[#F6F8F6] text-black dark:text-white overflow-hidden">
       {/* Sidebar always visible */}
-      <div className="dark:bg-[#363535] w-[1/5] shadow-md">
+      <div className="dark:bg-[#363535] h-full overflow-y-auto w-[1/5] sticky shadow-md">
         <SectionSidebar
           sections={form?.sections || []}
           selectedSectionId={selectedSectionId}
@@ -209,10 +209,10 @@ export default function BuildPage() {
       </div>
 
       {/* Main content */}
-      <div className="w-full flex-1 overflow-auto dark:text-white">
+      <div className="w-full flex-1 overflow-hidden dark:text-white h-full">
         <div className="flex flex-col lg:flex-row h-full">
           {/* Left content */}
-          <div className="w-full lg:w-full px-4 lg:px-10 mt-4">
+          <div className="w-full lg:w-full px-4 lg:px-10 mt-4 overflow-y-auto">
             <div className="flex flex-row justify-between items-center">
               <div className="text-2xl font-bold mb-3 mt-6">
                 {selectedSection?.title || "No Section Selected"}
@@ -235,7 +235,7 @@ export default function BuildPage() {
           </div>
 
           {/* RightNav */}
-          <div className="hidden lg:block lg:w-[30vw] h-full border-l border-gray-300 bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500">
+          <div className="hidden lg:block w-[30vw] h-full sticky border-l border-gray-300 bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500 top-0">
             <RightNav 
               selectedQuestion={selectedQuestion}
               onUpdate={updateQuestion}
