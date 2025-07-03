@@ -36,7 +36,7 @@ export function MobileMenu() {
 export function Links() {
   return (
     <>
-      <Link href="/">
+      <Link href="/dashboard">
         <span className="dark:text-white">Home</span>
       </Link>
       <Link href="/about">
