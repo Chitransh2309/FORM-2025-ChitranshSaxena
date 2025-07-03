@@ -67,6 +67,7 @@ export interface Section {
 }
 
 export interface Question {
+  params: any;
   question_ID: string;
   order: number;
   section_ID: string;
@@ -86,7 +87,7 @@ export enum QuestionType {
   FILE_UPLOAD = "FILE_UPLOAD",
   EMAIL = "EMAIL",
   URL = "URL",
-  LINEARSCALE = "Linearscale",
+  LINEARSCALE = "LINEARSCALE",
 }
 
 export interface FormResponse {
@@ -149,7 +150,7 @@ export interface FieldType {
 
 export const fieldtypes: FieldType[] = [
   {
-    name: "text",
+    name: "TEXT",
     type: "string",
     params: [{ name: "placeholder", type: "string" }],
     validations: [
@@ -170,7 +171,7 @@ export const fieldtypes: FieldType[] = [
     ],
   },
   {
-    name: "mcq",
+    name: "MCQ",
     type: "checkBox",
     params: [
       { name: "options", type: "array[string]" },
@@ -181,13 +182,13 @@ export const fieldtypes: FieldType[] = [
     validations: [],
   },
   {
-    name: "dropdown",
+    name: "DROPDOWN",
     type: "string",
     params: [{ name: "options", type: "array[string]" }],
     validations: [],
   },
   {
-    name: "date",
+    name: "DATE",
     type: "date",
     params: [{ name: "includeTime", type: "boolean" }],
     validations: [
@@ -201,7 +202,7 @@ export const fieldtypes: FieldType[] = [
     ],
   },
   {
-    name: "linear_scale",
+    name: "LINEARSCALE",
     type: "number",
     params: [
       { name: "min", type: "number" },
@@ -212,7 +213,7 @@ export const fieldtypes: FieldType[] = [
     validations: [],
   },
   {
-    name: "file_upload",
+    name: "FILE_UPLOAD",
     type: "file",
     params: [
       { name: "allowedFileTypes", type: "array[string]" },
@@ -222,7 +223,7 @@ export const fieldtypes: FieldType[] = [
     validations: [],
   },
   {
-    name: "email",
+    name: "EMAIL",
     type: "string",
     params: [],
     validations: [
@@ -238,7 +239,7 @@ export const fieldtypes: FieldType[] = [
     ],
   },
   {
-    name: "url",
+    name: "URL",
     type: "string",
     params: [],
     validations: [
