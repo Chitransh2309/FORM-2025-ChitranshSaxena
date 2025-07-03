@@ -16,6 +16,7 @@ export async function createNewForm(name: string) {
       const userDoc = await db
         .collection("user")
         .findOne({ email: session.user.email });
+
       if (userDoc && userDoc.user_ID) {
         userID = userDoc.user_ID;
       }
@@ -33,7 +34,17 @@ export async function createNewForm(name: string) {
       sections: [],
     };
 
+    // Insert the form into the collection
     await db.collection("forms").insertOne(newForm);
+
+    // Add form_ID to user's formIDs array
+    if (userID !== "anonymous") {
+      await db.collection("user").updateOne(
+        { user_ID: userID },
+        { $addToSet: { forms: form_ID } } // 👈 add form_ID to user
+      );
+    }
+
     await disconnectFromDB(dbClient);
     return form_ID;
   } catch (err) {
