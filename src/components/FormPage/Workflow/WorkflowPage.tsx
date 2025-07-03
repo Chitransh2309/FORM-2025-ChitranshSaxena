@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import toast from "react-hot-toast";
 import getFormObject from "@/app/action/getFormObject";
-import { Section } from "@/lib/interface";
+import { LogicRule, Section, ConditionGroup as ConditionGroupType, NestedCondition, BaseCondition } from "@/lib/interface";
 import ReactFlow, {
   ReactFlowProvider,
   Background,
@@ -16,24 +16,7 @@ import ReactFlow, {
 } from "react-flow-renderer";
 import CustomNode from "./CustomNode";
 import { saveFormLogic } from "@/app/action/saveFormLogic";
-import ConditionGroup, {
-  BaseCondition,
-  ConditionGroup as ConditionGroupType,
-} from "./ConditionGroup";
-
-type NestedCondition = {
-  op: "AND" | "OR";
-  conditions: (BaseCondition | NestedCondition)[];
-};
-
-type LogicRule = {
-  triggerSectionId: string;
-  action: {
-    type: "jump";
-    to: string;
-    condition: NestedCondition;
-  };
-};
+import ConditionGroup from "./ConditionGroup";
 
 export default function WorkflowPage({ form_ID }: { form_ID: string }) {
   const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
@@ -65,7 +48,7 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
         const formSections = res.data.sections;
         setSections(formSections);
 
-        const flowNodes: Node[] = formSections.map((section, idx) => ({
+        const flowNodes: Node[] = formSections.map((section:any, idx:any) => ({
           id: section.section_ID,
           type: "custom",
           position: { x: 300 * idx, y: 100 },
