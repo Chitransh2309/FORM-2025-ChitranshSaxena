@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaChevronDown, FaSearch } from "react-icons/fa";
@@ -16,7 +17,13 @@ import { Form } from "@/lib/interface";
 import ToggleSwitch from "../LandingPage/ToggleSwitch";
 import FAQs from "./FAQs";
 
-export default function Workspace() {
+export default function Workspace({
+  searchTerm,
+  setSearchTerm,
+}: {
+  searchTerm: string;
+  setSearchTerm?: (term: string) => void;
+}) {
   const router = useRouter();
   const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,28 +51,27 @@ export default function Workspace() {
 
   const drafts = forms.filter((f) => !f.isActive);
   const published = forms.filter((f) => f.isActive);
-  const isEmpty = drafts.length === 0 && published.length === 0;
+
+  const filteredDrafts = !searchTerm
+    ? drafts
+    : drafts.filter((form) =>
+        form.title?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+  const filteredPublished = !searchTerm
+    ? published
+    : published.filter((form) =>
+        form.title?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+  const isEmpty = !loading && drafts.length === 0 && published.length === 0;
 
   return (
-    <div className="h-screen flex flex-col">
-      {/* Green Header for mobile */}
+    <div className="h-full flex flex-col">
       <Navbar />
 
       {/* Desktop Topbar */}
-      <div className="hidden xl:flex items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-2">
-          <Image
-            src="/main-icon.png"
-            alt="F.O.R.M logo"
-            width={24}
-            height={24}
-            className="w-6 h-6 opacity-80 flex-shrink-0"
-          />
-          <span className="font-bold text-lg text-black dark:text-white">
-            F.O.R.M
-          </span>
-        </div>
-
+      <div className="hidden xl:flex items-center justify-between px-6 py-4 ml-auto">
         <div className="flex items-center gap-4">
           <ToggleSwitch />
           <button onClick={() => setShowFaq(true)}>
@@ -97,7 +103,9 @@ export default function Workspace() {
             <FaSearch size={14} className="text-white flex-shrink-0" />
             <input
               placeholder="Search"
-              className="flex-1 bg-transparent outline-none placeholder-white text-xs ml-2"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm?.(e.target.value)}
+              className="flex-1 bg-transparent outline-none placeholder-white text-xs ml-2 text-white"
             />
           </div>
 
@@ -112,13 +120,13 @@ export default function Workspace() {
 
       {/* Create Form Dialog */}
       {showDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 sm:px-0">
-          <div className="bg-white border-2 border-gray-800 rounded-xl shadow-2xl w-full max-w-lg p-6 sm:p-8 dark:bg-[#353434] dark:border-gray-500">
-            <label className="text-gray-950 mb-6 font-bold text-2xl sm:text-3xl flex items-center justify-center dark:text-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="bg-white border-2 border-gray-800 rounded-xl shadow-2xl w-[42rem] max-w-full p-8 animate-pop-in dark:bg-[#353434] dark:border-gray-500">
+            <label className="text-gray-950 mb-6 font-bold text-3xl flex items-center justify-center dark:text-white">
               Create New Form
             </label>
             <input
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg mb-6 text-black placeholder-gray-500 text-base focus:outline-none focus:ring-2 focus:ring-[#61A986] dark:text-white dark:placeholder-white"
+              className="w-full px-5 py-4 border-2 border-gray-300 rounded-lg mb-8 text-black placeholder-gray-500 text-lg focus:outline-none focus:ring-2 focus:ring-[#61A986] focus:border-transparent transition-all dark:text-white dark:placeholder-white"
               placeholder="Enter form name"
               value={formName}
               onChange={(e) => setFormName(e.target.value)}
@@ -127,13 +135,13 @@ export default function Workspace() {
             <div className="flex gap-4 justify-end">
               <button
                 onClick={() => setShowDialog(false)}
-                className="px-5 py-2 bg-white text-gray-700 rounded-lg hover:bg-gray-200 text-base font-medium border-2 border-gray-300 hover:border-gray-400 shadow-sm hover:shadow-md"
+                className="px-6 py-3 bg-white text-gray-700 rounded-lg hover:bg-gray-200 text-lg font-medium transition-all duration-200 border-2 border-gray-300 hover:border-gray-400 shadow-sm hover:shadow-md"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreate}
-                className="px-5 py-2 bg-[#61A986] text-white rounded-lg hover:bg-[#4d8a6b] text-base font-medium transition-all hover:shadow-md"
+                className="px-6 py-3 bg-[#61A986] text-white rounded-lg hover:bg-[#4d8a6b] text-lg font-medium transition-all duration-200 hover:shadow-md"
               >
                 Create
               </button>
@@ -143,15 +151,17 @@ export default function Workspace() {
       )}
 
       {/* Main Content */}
-      <div className="flex-1 px-4 md:px-6 pb-4 min-h-0">
+      <div className="flex-1 px-4 md:px-6 pb-4 min-h-0 h-[80%]">
         {loading ? (
-          <div className="h-full border border-dashed border-black mx-auto flex flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white">
-            <div className="text-xl text-gray-600 dark:text-white">Loading…</div>
+          <div className="flex-1 flex flex-col justify-center items-center h-[90%]">
+            <div className="h-[80%] w-[80%] border border-dashed text-black dark:text-white border-black flex items-center justify-center mx-auto dark:border-white">
+              Loading…
+            </div>
           </div>
         ) : isEmpty ? (
-          <>
+          <div className="flex-1 flex flex-col justify-center items-center h-[90%]">
             {/* Mobile Empty State */}
-            <div className="xl:hidden h-full border border-dashed border-black mx-auto flex flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white">
+            <div className="lg:hidden h-[80%] w-[80%] border border-dashed border-black mx-auto flex flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white">
               <p className="text-gray-600 text-center dark:text-white md:text-3xl">
                 You have not created any forms yet.
               </p>
@@ -167,7 +177,7 @@ export default function Workspace() {
             </div>
 
             {/* Desktop Empty State */}
-            <div className="hidden lg:flex h-full border border-dashed border-black mx-auto flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white">
+            <div className="hidden lg:flex h-[80%] border w-[80%] flex items-center justify-center border-dashed border-black mx-auto flex-col gap-6 px-8 bg-transparent dark:border-white">
               <h4 className="text-xl text-gray-600 dark:text-white text-center">
                 You have not created any forms yet.
               </h4>
@@ -181,12 +191,12 @@ export default function Workspace() {
                 Create Now
               </button>
             </div>
-          </>
+          </div>
         ) : (
-          <div className="h-full border border-dashed border-black mx-auto flex flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white overflow-y-auto">
+          <div className="h-full border-black mx-auto flex flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white overflow-y-auto">
             <div className="flex flex-col lg:flex-row flex-1 w-full gap-4">
-              <Drafts forms={drafts} />
-              <Published forms={published} />
+              <Drafts forms={filteredDrafts} />
+              <Published forms={filteredPublished} />
             </div>
           </div>
         )}
