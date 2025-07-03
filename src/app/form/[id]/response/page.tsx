@@ -9,7 +9,7 @@ import { useSession } from "next-auth/react";
 import { nanoid } from "nanoid";
 import toast from "react-hot-toast";
 import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";
-import { validateAnswer } from "@/lib/validateAnswer";
+import { validateAnswer } from "@/lib/validation";
 
 // Dynamic Input Component based on question type
 const DynamicInput = ({
