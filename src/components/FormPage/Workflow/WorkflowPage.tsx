@@ -72,12 +72,12 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
         setNodes(flowNodes);
 
         // Extract logic from each section that has it
-        const extractedLogicRules = formSections
-          .filter((section: any) => section.logic)
-          .map((section: any) => ({
-            ...section.logic,
-            triggerSectionId: section.section_ID, // ensure you know where it came from
-          }));
+        const extractedLogicRules = formSections.flatMap((section: any) =>
+  (section.logic || []).map((logic: any) => ({
+    ...logic,
+    triggerSectionId: section.section_ID,
+  }))
+);
 
         setLogicRules(extractedLogicRules);
       } else {
