@@ -176,6 +176,18 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
     }
   };
 
+  const handleDeleteLogic = async (indexToDelete: number) => {
+    const updatedRules = logicRules.filter((_, idx) => idx !== indexToDelete);
+    setLogicRules(updatedRules);
+
+    const saveResult = await saveFormLogic(form_ID, updatedRules);
+    if (!saveResult.success) {
+      toast.error("Failed to delete logic.");
+    } else {
+      toast.success("Logic deleted.");
+    }
+  };
+
   const selectedSection = sections.find(
     (s) => s.section_ID === selectedSectionId
   );
@@ -254,6 +266,33 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
           </div>
         </div>
       )}
+
+      <div className="px-2 mt-2 max-h-60 overflow-auto w-[300px]">
+        <h3 className="text-sm text-white font-medium mb-2">Saved Logic:</h3>
+        <div className="space-y-1">
+          {logicRules.map((rule, idx) => (
+            <div
+              key={idx}
+              className="bg-gray-100 px-2 py-1 rounded text-sm break-words"
+            >
+              <p className="text-gray-700 mb-1 leading-snug">
+                If section <strong>{rule.triggerSectionId}</strong> →{" "}
+                <strong>{rule.action.to}</strong>
+                <br />
+                <em className="text-gray-600">
+                  {renderCondition(rule.action.condition)}
+                </em>
+              </p>
+              <button
+                onClick={() => handleDeleteLogic(idx)}
+                className="text-red-500 text-xs hover:underline"
+              >
+                Delete
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
