@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { updateFormSettings } from "@/app/action/forms";
-import { FormSettings as FormSettingsType } from "@/lib/interface";
+import { useState } from 'react';
+import { updateFormSettings } from '@/app/action/forms';
+import { FormSettings as FormSettingsType } from '@/lib/interface';
 
 interface FormSettingsProps {
   formId: string;
@@ -28,7 +28,7 @@ const FormSettings = ({
     const { name, value, type, checked } = e.target;
     setFormSettings((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
@@ -40,7 +40,7 @@ const FormSettings = ({
     };
 
     const result = await updateFormSettings(formId, updatedSettings);
-    console.log("Settings updated:", result.data.settings);
+    console.log('Settings updated:', result.data.settings);
     setFormSettings(result.data.settings);
     onClose();
   };
@@ -65,35 +65,64 @@ const FormSettings = ({
           <div className="grid grid-cols-2 gap-4 mt-4">
             {/* Start DateTime */}
             <div className="flex flex-col gap-2">
-              <label className="font-medium">Start Date</label>
+              <label className="font-medium text-black">Start Date</label>
               <div className="border border-gray-500 text-black rounded px-2 py-2">
                 <input
                   type="date"
                   className="w-full bg-transparent border-none outline-none"
-                  value={startDate.toISOString().split("T")[0]}
+                  value={
+                    isNaN(startDate.getTime())
+                      ? ''
+                      : startDate.toISOString().split('T')[0]
+                  }
                   onChange={(e) =>
-                    setStartDate(
-                      (prev) =>
-                        new Date(
-                          `${e.target.value}T${
-                            prev.toTimeString().split(" ")[0]
-                          }`
-                        )
-                    )
+                    setStartDate((prev) => {
+                      const timePart = isNaN(prev.getTime())
+                        ? '00:00:00.000Z'
+                        : prev.toISOString().split('T')[1];
+                      const selected = new Date(
+                        `${e.target.value}T${timePart}`
+                      );
+                      const now = new Date();
+                      now.setHours(0, 0, 0, 0);
+
+                      if (selected < now) {
+                        alert('Start date cannot be in the past.');
+                        return prev;
+                      }
+
+                      return selected;
+                    })
                   }
                 />
               </div>
 
-              <label className="font-medium">Start Time</label>
+              <label className="font-medium text-black">Start Time</label>
               <div className="border border-gray-500 text-black rounded px-2 py-2">
                 <input
                   type="time"
                   className="w-full bg-transparent border-none outline-none"
-                  value={startDate.toTimeString().split(" ")[0].slice(0, 5)}
+                  value={
+                    isNaN(startDate.getTime())
+                      ? ''
+                      : startDate.toTimeString().split(' ')[0].slice(0, 5)
+                  }
                   onChange={(e) =>
                     setStartDate((prev) => {
-                      const datePart = prev.toISOString().split("T")[0];
-                      return new Date(`${datePart}T${e.target.value}`);
+                      const datePart = isNaN(prev.getTime())
+                        ? new Date().toISOString().split('T')[0]
+                        : prev.toISOString().split('T')[0];
+                      const newStart = new Date(
+                        `${datePart}T${e.target.value}`
+                      );
+
+                      const now = new Date();
+                      if (newStart < now) {
+                        alert('Start time cannot be in the past.');
+                        return prev;
+                      }
+
+                      return newStart;
                     })
                   }
                 />
@@ -102,35 +131,70 @@ const FormSettings = ({
 
             {/* End DateTime */}
             <div className="flex flex-col gap-2">
-              <label className="font-medium">End Date</label>
+              <label className="font-medium text-black">End Date</label>
               <div className="border border-gray-500 text-black rounded px-2 py-2">
                 <input
                   type="date"
                   className="w-full bg-transparent border-none outline-none"
-                  value={endDate.toISOString().split("T")[0]}
+                  value={
+                    isNaN(endDate.getTime())
+                      ? ''
+                      : endDate.toISOString().split('T')[0]
+                  }
                   onChange={(e) =>
-                    setEndDate(
-                      (prev) =>
-                        new Date(
-                          `${e.target.value}T${
-                            prev.toTimeString().split(" ")[0]
-                          }`
-                        )
-                    )
+                    setEndDate((prev) => {
+                      const timePart = isNaN(prev.getTime())
+                        ? '00:00:00.000Z'
+                        : prev.toISOString().split('T')[1];
+                      const selected = new Date(
+                        `${e.target.value}T${timePart}`
+                      );
+
+                      if (selected < startDate) {
+                        alert('End date must be after start date.');
+                        return prev;
+                      }
+
+                      return selected;
+                    })
                   }
                 />
               </div>
 
-              <label className="font-medium">End Time</label>
+              <label className="font-medium text-black">End Time</label>
               <div className="border border-gray-500 text-black rounded px-2 py-2">
                 <input
                   type="time"
                   className="w-full bg-transparent border-none outline-none"
-                  value={endDate.toTimeString().split(" ")[0].slice(0, 5)}
+                  value={
+                    isNaN(endDate.getTime())
+                      ? ''
+                      : endDate.toTimeString().split(' ')[0].slice(0, 5)
+                  }
                   onChange={(e) =>
                     setEndDate((prev) => {
-                      const datePart = prev.toISOString().split("T")[0];
-                      return new Date(`${datePart}T${e.target.value}`);
+                      const datePart = isNaN(prev.getTime())
+                        ? new Date().toISOString().split('T')[0]
+                        : prev.toISOString().split('T')[0];
+                      const newEnd = new Date(`${datePart}T${e.target.value}`);
+
+                      // Check if date part is same as startDate
+                      const isSameDay =
+                        datePart === startDate.toISOString().split('T')[0];
+
+                      if (isSameDay) {
+                        const diff =
+                          (newEnd.getTime() - startDate.getTime()) / 60000;
+
+                        if (diff < 1) {
+                          alert(
+                            'End time must be at least 1 minute after start time.'
+                          );
+                          return prev;
+                        }
+                      }
+
+                      return newEnd;
                     })
                   }
                 />
@@ -154,8 +218,8 @@ const FormSettings = ({
                 onChange={(e) =>
                   handleChange({
                     target: {
-                      name: "tab_switch_count",
-                      type: "checkbox",
+                      name: 'tab_switch_count',
+                      type: 'checkbox',
                       checked: e.target.checked,
                     },
                   })
@@ -174,8 +238,8 @@ const FormSettings = ({
                 onChange={(e) =>
                   handleChange({
                     target: {
-                      name: "copy_via_email",
-                      type: "checkbox",
+                      name: 'copy_via_email',
+                      type: 'checkbox',
                       checked: e.target.checked,
                     },
                   })
