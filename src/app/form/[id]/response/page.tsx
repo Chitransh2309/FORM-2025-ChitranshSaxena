@@ -3,13 +3,7 @@ import React, { use, useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
 import Confetti from "react-confetti";
 import getFormObject from "@/app/action/getFormObject";
-import {
-  Form,
-  Answer,
-  FormResponse,
-  Question,
-  QuestionType,
-} from "@/lib/interface";
+import { Form, Answer, FormResponse, Question, QuestionType, NestedCondition, BaseCondition } from "@/lib/interface";
 import { saveFormResponse } from "@/app/action/saveformtodb";
 import { useSession } from "next-auth/react";
 import { nanoid } from "nanoid";
@@ -275,7 +269,10 @@ export default function ResponsesPage({
   const [showConfetti, setShowConfetti] = useState(false);
   const [form, setForm] = useState<Form | null>(null);
   const [answers, setAnswers] = useState<Answer[]>([]);
+  const [sectionHistory, setSectionHistory] = useState<number[]>([]);
   const [sectionIndex, setSectionIndex] = useState(0);
+  const [jumpQueue, setJumpQueue] = useState<number[]>([]);
+  const [visitedSections, setVisitedSections] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const section = form?.sections?.[sectionIndex];
@@ -306,6 +303,7 @@ export default function ResponsesPage({
       const alreadySubmitted = hasUserSubmitted(formId, userId);
       if (alreadySubmitted) {
         setLoading(false);
+        toast.error("Form already Submitted.")
         return;
       }
       setLoading(true);
@@ -353,22 +351,100 @@ export default function ResponsesPage({
       }));
     }
   };
+  
+
+function evaluateConditions(
+  condition: NestedCondition | BaseCondition,
+  answers: Answer[]
+): boolean {
+  if ("conditions" in condition) {
+    const subResults = condition.conditions.map(sub =>
+      evaluateConditions(sub, answers)
+    );
+
+    if (condition.op === "AND") {
+      return subResults.every(Boolean);
+    } else if (condition.op === "OR") {
+      return subResults.some(Boolean);
+    }
+  }
+
+  if ("fieldId" in condition && condition.op === "equal") {
+    const answer = answers.find(a => a.question_ID === condition.fieldId);
+    return answer?.value === condition.value;
+  }
+
+  return false;
+}
+
 
   const goNext = () => {
-    if (form && sectionIndex < form.sections.length - 1) {
-      setSectionIndex(sectionIndex + 1);
-      setErrors({}); // Reset errors for new section
+  const currentSection = form?.sections[sectionIndex];
+  if (!currentSection) return;
+
+  const unansweredRequired = currentSection.questions.filter(
+    (q) =>
+      q.isRequired &&
+      !answers.find((a) => a.question_ID === q.question_ID)?.value
+  );
+  if (unansweredRequired.length > 0) {
+    toast.error("Please answer all required questions marked with *");
+    return;
+  }
+
+  if (jumpQueue.length > 0) {
+    const nextJump = jumpQueue[0];
+    setJumpQueue(prev => prev.slice(1));
+    setSectionHistory(prev => [...prev, sectionIndex]);
+    setVisitedSections(prev => new Set(prev).add(nextJump));
+    setSectionIndex(nextJump);
+    return;
+  }
+
+  const allLogics = currentSection.logic || [];
+  const nextJumps: number[] = [];
+
+  for (const logic of allLogics) {
+    const isTrue = evaluateConditions(logic.action.condition, answers);
+    if (isTrue) {
+      const jumpToIdx = form.sections.findIndex(
+        (s) => s.section_ID === logic.action.to
+      );
+      if (jumpToIdx !== -1) nextJumps.push(jumpToIdx);
     }
-  };
+  }
+
+  if (nextJumps.length > 0) {
+    const [firstJump, ...rest] = nextJumps;
+    setJumpQueue(rest);
+    setSectionHistory(prev => [...prev, sectionIndex]);
+    setVisitedSections(prev => new Set(prev).add(firstJump));
+    setSectionIndex(firstJump);
+    return;
+  }
+
+  if (sectionIndex < form.sections.length - 1) {
+    setSectionHistory(prev => [...prev, sectionIndex]);
+    setSectionIndex(prev => prev + 1);
+    setVisitedSections(prev => new Set(prev).add(sectionIndex + 1));
+  }
+};
+
 
   const goBack = () => {
-    if (sectionIndex > 0) {
-      setSectionIndex(sectionIndex - 1);
-      setErrors({}); // Reset errors for previous section
-    }
-  };
+  if (sectionHistory.length === 0) return;
 
-  const isLastSection = form && sectionIndex === form.sections.length - 1;
+  const prevSection = sectionHistory[sectionHistory.length - 1];
+  setSectionHistory(prev => prev.slice(0, -1));
+  setSectionIndex(prevSection);
+};
+
+
+  const isSubmitVisible = () => {
+  const isLast = form ? sectionIndex === form.sections.length - 1 : false;
+  const noPendingJumps = jumpQueue.length === 0;
+  return isLast && noPendingJumps;
+};
 
   // Validate all answers in the current section
   const validateAnswers = () => {
@@ -389,6 +465,18 @@ export default function ResponsesPage({
   };
 
   const handleSubmit = async () => {
+    const currentSection = form?.sections[sectionIndex];
+    const unansweredRequired = (
+      currentSection?.questions.filter(
+        (q) =>
+          q.isRequired &&
+          !answers.find((a) => a.question_ID === q.question_ID)?.value
+      )
+    );
+
+    if (unansweredRequired && unansweredRequired.length > 0) {
+      toast.error("Please answer all required questions marked with *");
+    }
     const validation = validateAnswers();
 
     if (!validation.isValid) {
@@ -450,7 +538,7 @@ export default function ResponsesPage({
       <div className="flex justify-end pt-5 pr-8">
         <ToggleSwitch />
       </div>
-      <div className="relative flex justify-center items-start py-4 font-[Outfit] w-full h-screen">
+      <div className="relative flex justify-center items-start py-4 font-[Outfit] w-full h-full">
         <div className=" w-[80%] mx-auto px-2 sm:px-4 transition-all duration-300 ease-in-out dark:bg-[#2B2A2A]">
           <div className="w-full bg-white rounded-[8px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 sm:px-6 py-6 mb-6 dark:bg-[#5A5959] dark:text-white">
             <h2 className="text-black mb-1 font-semibold text-[25px] dark:text-white">
@@ -493,19 +581,18 @@ export default function ResponsesPage({
             ))}
 
             <div className="flex justify-between mt-4 gap-3 text-black">
-              {sectionIndex > 0 && (
-                <button
+               {sectionHistory.length>0 && ( <button
                   onClick={goBack}
+                  disabled={sectionHistory.length === 0}
                   className="min-w-[90px] bg-[#91C4AB] rounded px-4 py-2 hover:bg-[#7FB39B] transition-colors"
                 >
                   Back
-                </button>
-              )}
+                </button>)}
               <button
-                onClick={isLastSection ? handleSubmit : goNext}
+                onClick={isSubmitVisible() ? handleSubmit : goNext}
                 className="min-w-[90px] bg-[#91C4AB] rounded px-4 py-2 ml-auto hover:bg-[#7FB39B] transition-colors"
               >
-                {isLastSection ? "Submit" : "Next"}
+                {isSubmitVisible() ? "Submit" : "Next"}
               </button>
             </div>
           </div>

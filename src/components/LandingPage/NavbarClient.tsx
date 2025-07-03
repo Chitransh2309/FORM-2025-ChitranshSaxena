@@ -22,7 +22,7 @@ export function MobileMenu() {
       <div
         className={`sm:hidden flex-col items-start gap-4 ${
           isOpen
-            ? "flex absolute top-16 left-0 w-full bg-white dark:bg-[#191719] p-4 shadow-md z-10"
+            ? "flex absolute top-16 left-0 w-full bg-[#F6F8F6] dark:bg-[#191719] p-4 shadow-md z-10"
             : "hidden"
         }`}
       >
@@ -36,7 +36,7 @@ export function MobileMenu() {
 export function Links() {
   return (
     <>
-      <Link href="/dashboard">
+      <Link href="/">
         <span className="dark:text-white">Home</span>
       </Link>
       <Link href="/about">
