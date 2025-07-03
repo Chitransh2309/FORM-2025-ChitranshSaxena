@@ -221,10 +221,10 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-[400px] shadow-lg">
+          <div className="bg-white rounded-lg p-6 w-[1000px] max-h-[500px] overflow-auto shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Add Logic Condition</h2>
 
-            {/* Render nested condition builder */}
+            {/*Nested condition builder */}
             <ConditionGroup
               group={logicCondition}
               onUpdate={setLogicCondition}

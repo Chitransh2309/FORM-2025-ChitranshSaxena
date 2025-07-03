@@ -30,7 +30,7 @@ export default function ConditionBlock({
       : [];
 
   return (
-    <div className="flex items-center gap-2 border p-2 rounded">
+    <div className="overflow-x-auto flex items-center gap-2 border p-2 rounded">
       <select
         value={condition.fieldId}
         onChange={(e) =>
