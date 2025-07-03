@@ -33,6 +33,16 @@ export async function createFormIfNotExists(form_ID: string, name?: string) {
         createdBy: userID,
         version: 1.0,
         sections: [],
+        settings: {
+          startDate: new Date(),
+          endDate: new Date(),
+          copy_via_email: false,
+          cameraRequired: false,
+          tab_switch_count: false,
+          autoSubmit: false,
+          maxResponses: 0,
+          timer: 0,
+        },
       };
 
       await collection.insertOne(newForm);
