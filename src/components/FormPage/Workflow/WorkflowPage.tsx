@@ -299,7 +299,7 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
         </div>
       )}
 
-      <div className="px-2 mt-2 max-h-60 overflow-auto w-[300px]">
+      <div className="px-2 mt-2 max-h-[90%] overflow-auto w-[300px]">
         <h3 className="text-sm dark:text-white font-medium mb-2">
           Saved Logic:
         </h3>
