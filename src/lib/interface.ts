@@ -20,7 +20,6 @@ export interface Form {
   share_url: string;
   settings: FormSettings;
   sections: Section[];
-  logic: LogicRule[];
 }
 
 export type NestedCondition = {
@@ -64,6 +63,7 @@ export interface Section {
   title: string;
   description: string;
   questions: Question[];
+  logic:LogicRule;
 }
 
 export interface Question {
