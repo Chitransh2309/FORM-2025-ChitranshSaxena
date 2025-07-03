@@ -1,5 +1,5 @@
 // components/CustomNode.tsx
-import { Handle, NodeProps, Position } from "react-flow-renderer";
+import { Handle, NodeProps, Position } from "reactflow";
 
 export default function CustomNode({ data }: NodeProps) {
   const handleLogicClick = (e: React.MouseEvent) => {

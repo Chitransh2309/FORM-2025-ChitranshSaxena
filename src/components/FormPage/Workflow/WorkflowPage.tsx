@@ -19,7 +19,8 @@ import ReactFlow, {
   Edge,
   applyNodeChanges,
   applyEdgeChanges,
-} from "react-flow-renderer";
+} from "reactflow";
+
 import CustomNode from "./CustomNode";
 import { saveFormLogic } from "@/app/action/saveFormLogic";
 import ConditionGroup from "./ConditionGroup";
@@ -70,9 +71,15 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
 
         setNodes(flowNodes);
 
-        if (res.data.logic) {
-          setLogicRules(res.data.logic);
-        }
+        // Extract logic from each section that has it
+        const extractedLogicRules = formSections
+          .filter((section: any) => section.logic)
+          .map((section: any) => ({
+            ...section.logic,
+            triggerSectionId: section.section_ID, // ensure you know where it came from
+          }));
+
+        setLogicRules(extractedLogicRules);
       } else {
         toast.error("Failed to load form.");
       }
@@ -146,7 +153,7 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
     if (
       !selectedSectionId ||
       !targetSection ||
-      logicCondition.conditions.length === 0
+      ("conditions" in logicCondition && logicCondition.conditions.length === 0)
     ) {
       toast.error("Please fill all fields");
       return;
@@ -206,8 +213,14 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
               setEdges((eds) => applyEdgeChanges(changes, eds))
             }
             nodeTypes={nodeTypes}
+            defaultEdgeOptions={{
+              style: { stroke: "#999" },
+              labelBgStyle: { fill: "#fff", color: "#000", fillOpacity: 0.9 },
+              labelBgPadding: [6, 4],
+              labelBgBorderRadius: 4,
+              labelStyle: { fontSize: 12 }, // ✅ Works inside labelBgStyle/labelStyle now
+            }}
             fitView
-            style={{ background: "#FFF dark:#2B2A2A" }}
           >
             <Background />
             <MiniMap />
@@ -286,7 +299,7 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
         </div>
       )}
 
-      <div className="px-2 mt-2 max-h-60 overflow-auto w-[300px]">
+      <div className="px-2 mt-2 max-h-[90%] overflow-auto w-[300px]">
         <h3 className="text-sm dark:text-white font-medium mb-2">
           Saved Logic:
         </h3>
