@@ -17,25 +17,27 @@ const CenterNav = ({ formId }: { formId?: string }) => {
   const LABELS = ["Builder", "Workflow", "Preview"];
 
   return (
-    <div className="relative w-full min-h-screen flex flex-col bg-[#F6F8F6] dark:bg-[#2B2A2A] dark:text-white overflow-hidden font-[Outfit]">
+    <div className=" w-full  bg-[#F6F8F6] dark:bg-[#2B2A2A] dark:text-white overflow-hidden font-[Outfit]">
       {/* Top tab nav */}
-      <div className="flex justify-center mt-6 px-4 sm:px-0">
-        <div className="flex justify-between items-center w-full max-w-[480px] h-[58px] rounded-[10px] dark:bg-[#414141] shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 px-2 sm:px-4">
-          {LABELS.map((label, i) => (
-            <button
-              key={label}
-              onClick={() => setCurrentSection(i as Section)}
-              className={`flex-1 mx-1 text-[15px] dark:text-white sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
-                currentSection === i
-                  ? "bg-[#61A986] text-black dark:text-white"
-                  : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Floating tab bar */}
+<div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full flex justify-center px-4 sm:px-0">
+  <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
+    {LABELS.map((label, i) => (
+      <button
+        key={label}
+        onClick={() => setCurrentSection(i as Section)}
+        className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
+          currentSection === i
+            ? "bg-[#61A986] text-black dark:text-white"
+            : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
+        }`}
+      >
+        {label}
+      </button>
+    ))}
+  </div>
+</div>
+
 
       {/* Main content area */}
       <div className="w-full flex-grow overflow-auto mt-6 px-2 sm:px-4">
