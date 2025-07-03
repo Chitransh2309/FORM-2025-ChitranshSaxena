@@ -155,7 +155,7 @@ export interface FieldType {
 
 export const fieldtypes: FieldType[] = [
   {
-    name: "TEXT",
+    name: "text",
     type: "string",
     params: [{ name: "placeholder", type: "string" }],
     validations: [
@@ -176,7 +176,7 @@ export const fieldtypes: FieldType[] = [
     ],
   },
   {
-    name: "MCQ",
+    name: "mcq",
     type: "checkBox",
     params: [
       { name: "options", type: "array[string]" },
@@ -187,27 +187,27 @@ export const fieldtypes: FieldType[] = [
     validations: [],
   },
   {
-    name: "DROPDOWN",
+    name: "dropdown",
     type: "string",
     params: [{ name: "options", type: "array[string]" }],
     validations: [],
   },
   {
-    name: "DATE",
+    name: "date",
     type: "date",
     params: [{ name: "includeTime", type: "boolean" }],
     validations: [
       {
         name: "dateRange",
         params: [
-          { name: "minDate", type: "string" },
-          { name: "maxDate", type: "string" },
+          { name: "minDate", type: "date" },
+          { name: "maxDate", type: "date" },
         ],
       },
     ],
   },
   {
-    name: "LINEARSCALE",
+    name: "linear_scale",
     type: "number",
     params: [
       { name: "min", type: "number" },
@@ -218,7 +218,7 @@ export const fieldtypes: FieldType[] = [
     validations: [],
   },
   {
-    name: "FILE_UPLOAD",
+    name: "file_upload",
     type: "file",
     params: [
       { name: "allowedFileTypes", type: "array[string]" },
@@ -228,7 +228,7 @@ export const fieldtypes: FieldType[] = [
     validations: [],
   },
   {
-    name: "EMAIL",
+    name: "email",
     type: "string",
     params: [],
     validations: [
@@ -244,7 +244,7 @@ export const fieldtypes: FieldType[] = [
     ],
   },
   {
-    name: "URL",
+    name: "url",
     type: "string",
     params: [],
     validations: [

@@ -4,48 +4,325 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import getFormObject from "@/app/action/getFormObject";
-import { Form, Section, QuestionType, FieldType, Param } from "@/lib/interface"; // Ensure FieldType and Param are imported
-import FAQs from "../NewUserPage/FAQs";
-import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
+import { Form, Question, QuestionType, FieldType, Param, Answer } from "@/lib/interface";
+import { validateAnswer } from "@/lib/validation";
+
+// Dynamic Input Renderer (Preview Mode, with validation)
+const DynamicPreviewInput = ({
+  question,
+  value,
+  onChange,
+  error,
+}: {
+  question: Question;
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
+}) => {
+  const baseInputClass =
+    "w-full px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black placeholder:text-[#676767] outline-none border border-transparent focus:border-gray-300 font-[Outfit] dark:text-white dark:placeholder-white dark:bg-[#494949]";
+
+  // MCQ Options
+  const options =
+    (question.config?.params?.find((p) => p.name === "options")?.value as string[]) || [];
+
+  // MCQ min/max
+  const minSelections =
+    (question.config?.params?.find((p) => p.name === "min")?.value as number) || 0;
+  const maxSelections =
+    (question.config?.params?.find((p) => p.name === "max")?.value as number) || options.length;
+
+  // Date config
+  const includeTime = !!question.config?.params?.find((p) => p.name === "includeTime")?.value;
+  const dateRange = question.config?.validations?.find((v) => v.name === "dateRange");
+  const minDate = dateRange?.params?.find((p) => p.name === "minDate")?.value;
+  const maxDate = dateRange?.params?.find((p) => p.name === "maxDate")?.value;
+
+  // Linear scale
+  // const min =
+  //   (question.config?.params?.find((p) => p.name === "min")?.value as number) || 1;
+  // const max =
+  //   (question.config?.params?.find((p) => p.name === "max")?.value as number) || 5;
+  // const minLabel =
+  //   (question.config?.params?.find((p) => p.name === "minLabel")?.value as string) || "";
+  // const maxLabel =
+  //   (question.config?.params?.find((p) => p.name === "maxLabel")?.value as string) || "";
+
+  switch (question.type) {
+    case QuestionType.TEXT:
+      return (
+        <>
+          <input
+            type="text"
+            placeholder={
+              (question.config?.params?.find((p) => p.name === "placeholder")?.value as string) ||
+              "Type your answer"
+            }
+            className={`${baseInputClass} h-[42px]`}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+          {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
+        </>
+      );
+    case QuestionType.EMAIL:
+      return (
+        <>
+          <input
+            type="email"
+            placeholder="Enter your email address"
+            className={`${baseInputClass} h-[42px]`}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+          {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
+        </>
+      );
+    case QuestionType.URL:
+      return (
+        <>
+          <input
+            type="url"
+            placeholder="Enter a URL (e.g., https://example.com)"
+            className={`${baseInputClass} h-[42px]`}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+          {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
+        </>
+      );
+    case QuestionType.DATE:
+      return (
+        <>
+          <input
+            type={includeTime ? "datetime-local" : "date"}
+            min={minDate}
+            max={maxDate}
+            className={`${baseInputClass} h-[42px]`}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+          {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
+        </>
+      );
+    case QuestionType.MCQ: {
+      const selectedValues = value ? value.split(",").filter((v) => v.trim()) : [];
+      const isMultiSelect = maxSelections > 1;
+
+      const handleOptionChange = (option: string, checked: boolean) => {
+        let newSelection = [...selectedValues];
+        if (isMultiSelect) {
+          if (checked) {
+            if (newSelection.length < maxSelections) {
+              newSelection.push(option);
+            }
+          } else {
+            newSelection = newSelection.filter((v) => v !== option);
+          }
+        } else {
+          newSelection = checked ? [option] : [];
+        }
+        onChange(newSelection.join(","));
+      };
+
+      return (
+        <div className="space-y-2">
+          {options.map((option, index) => (
+            <label
+              key={index}
+              className="flex items-center space-x-2 cursor-pointer"
+            >
+              <input
+                type={isMultiSelect ? "checkbox" : "radio"}
+                name={`question-${question.question_ID}`}
+                checked={selectedValues.includes(option)}
+                onChange={(e) => handleOptionChange(option, e.target.checked)}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+              />
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-300">
+                {option}
+              </span>
+            </label>
+          ))}
+          {minSelections > 0 && (
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {isMultiSelect
+                ? `Select at least ${minSelections} option${minSelections > 1 ? "s" : ""}`
+                : "Please select an option"}
+            </p>
+          )}
+          {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
+        </div>
+      );
+    }
+    case QuestionType.DROPDOWN:
+      return (
+        <>
+          <select
+            className={`${baseInputClass} h-[42px]`}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          >
+            <option value="">Select an option</option>
+            {options.map((option, index) => (
+              <option key={index} value={option}>
+                {option}
+              </option>
+            ))}
+            {options.length === 0 && (
+              <option value="" disabled>
+                No options available
+              </option>
+            )}
+          </select>
+          {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
+        </>
+      );
+    // Inside your DynamicPreviewInput (or wherever you render linear scale):
+
+    case QuestionType.LINEARSCALE: {
+      const min =
+        (question.config?.params?.find((p) => p.name === "min")?.value as number) || 1;
+      const max =
+        (question.config?.params?.find((p) => p.name === "max")?.value as number) || 5;
+      const minLabel =
+        (question.config?.params?.find((p) => p.name === "minLabel")?.value as string) || "";
+      const maxLabel =
+        (question.config?.params?.find((p) => p.name === "maxLabel")?.value as string) || "";
+
+      // For preview, allow selection but don't persist (or use value/onChange if you want to simulate)
+      const [selected, setSelected] = useState<number | null>(null);
+
+      const range = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+
+      return (
+        <div className="space-y-2 mt-4">
+          <div className="flex items-center gap-4">
+            {minLabel && <span className="text-xs">{minLabel}</span>}
+            {range.map((val) => (
+              <label
+                key={val}
+                className="flex flex-col items-center cursor-pointer"
+                style={{ userSelect: "none" }}
+              >
+                <input
+                  type="radio"
+                  name={`linear-scale-${question.question_ID}`}
+                  value={val}
+                  checked={selected === val}
+                  onChange={() => setSelected(val)}
+                  className="hidden"
+                />
+                <span
+                  className={`w-8 h-8 rounded-full flex items-center justify-center border-2
+                    ${selected === val ? "bg-[#8CC7AA] border-[#64ad8b]" : "bg-white border-gray-400"}
+                    hover:border-[#8CC7AA] transition-all`}
+                  style={{ fontSize: "1.1rem" }}
+                >
+                  {selected === val ? (
+                    <span className="w-4 h-4 bg-white rounded-full block" />
+                  ) : null}
+                </span>
+                <span className="text-xs mt-1">{val}</span>
+              </label>
+            ))}
+            {maxLabel && <span className="text-xs">{maxLabel}</span>}
+          </div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">
+            Scale: {min} to {max} {selected !== null && `| Selected: ${selected}`}
+          </div>
+        </div>
+      );
+    }
+
+    default:
+      return (
+        <>
+          <input
+            type="text"
+            placeholder="Type your answer"
+            className={`${baseInputClass} h-[42px]`}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+          />
+          {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
+        </>
+      );
+  }
+};
 
 export default function PreviewForm() {
   const { id: formId } = useParams();
   const [form, setForm] = useState<Form | null>(null);
   const [sectionIndex, setSectionIndex] = useState(0);
-  const [loading, setLoading] = useState(true); // Corrected: useState(true)
-  const [selectedDevice, setSelectedDevice] = useState<"desktop" | "mobile">(
-    "desktop"
-  );
-  const [showFaq, setShowFaq] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [selectedDevice, setSelectedDevice] = useState<"desktop" | "mobile">("desktop");
+  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const section = form?.sections?.[sectionIndex];
 
   useEffect(() => {
     const loadForm = async () => {
       if (!formId || typeof formId !== "string") return;
-
       setLoading(true);
       const res = await getFormObject(formId);
       if (res.success && res.data) {
         setForm(res.data);
         setSectionIndex(0);
+        setAnswers([]);
+        setErrors({});
       } else {
         alert("❌ Failed to load form.");
       }
       setLoading(false);
     };
-
     loadForm();
   }, [formId]);
+
+  // Simulate answer state for preview
+  const handleInputChange = (questionId: string, value: string) => {
+    setAnswers((prev) => {
+      const filtered = prev.filter((a) => a.question_ID !== questionId);
+      return [
+        ...filtered,
+        {
+          answer_ID: questionId + "-preview",
+          question_ID: questionId,
+          value,
+          updatedAt: new Date(),
+        },
+      ];
+    });
+
+    // Find the question
+    const question = section?.questions.find((q) => q.question_ID === questionId);
+    if (question) {
+      const answer: Answer = {
+        answer_ID: questionId + "-preview",
+        question_ID: questionId,
+        value,
+        updatedAt: new Date(),
+      };
+      const result = validateAnswer(question, answer);
+      setErrors((prev) => ({
+        ...prev,
+        [questionId]: result.errors.length > 0 ? result.errors[0] : "",
+      }));
+    }
+  };
 
   const goNext = () => {
     if (form && sectionIndex < form.sections.length - 1) {
       setSectionIndex(sectionIndex + 1);
+      setErrors({});
     }
   };
 
   const goBack = () => {
     if (sectionIndex > 0) {
       setSectionIndex(sectionIndex - 1);
+      setErrors({});
     }
   };
 
@@ -67,31 +344,14 @@ export default function PreviewForm() {
     );
   }
 
-  // >>>>>> THIS IS THE CORRECTED getOptions FUNCTION <<<<<<
-  const getOptions = (config: FieldType | undefined): string[] => {
-    if (!config || !config.params) {
-      return [];
-    }
-    const optionsParam = config.params.find(
-      (p: Param) => p.name === "options"
-    );
-    // Ensure optionsParam exists and its value is an array of strings
-    if (optionsParam && Array.isArray(optionsParam.value)) {
-      return optionsParam.value as string[];
-    }
-    return [];
-  };
-  // >>>>>> END OF CORRECTED getOptions FUNCTION <<<<<<
-
-
   return (
-    <div className="relative flex justify-center items-center min-h-screen bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full overeflow-scroll h-full dark:bg-[#2B2A2A]">
+    <div className="relative flex justify-center items-center min-h-screen bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full overflow-scroll h-full dark:bg-[#2B2A2A]">
       <div
         className={`w-full ${
           selectedDevice === "mobile" ? "max-w-[375px] scale-[0.95]" : "w-[80%]"
         } mx-auto px-2 sm:px-4 transition-all duration-300 ease-in-out`}
       >
-        {/* Device Switcher */}
+        {/* Device Switcher (unique to preview) */}
         <div className="flex items-center justify-between px-2 mb-6 w-full max-w-[200px] h-[62px] rounded-[10px] mx-auto shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 dark:bg-[#414141]">
           {["desktop", "mobile"].map((device) => (
             <button
@@ -127,6 +387,7 @@ export default function PreviewForm() {
             <span className="text-red-500">*</span> implies compulsory
           </p>
         </div>
+
         {/* === SECTION BODY === */}
         <div className="w-full bg-white px-4 sm:px-6 py-6 shadow-[0_0_10px_rgba(0,0,0,0.3)] rounded-[8px] dark:bg-[#5A5959] dark:text-white">
           <h3 className="text-lg sm:text-xl font-semibold mb-6 text-black font-[Outfit] dark:text-white">
@@ -145,116 +406,42 @@ export default function PreviewForm() {
                 {q.questionText}{" "}
                 {q.isRequired && <span className="text-red-500">*</span>}
               </label>
-
-              {/* TEXT TYPE */}
-              {q.type === "TEXT" && (
-                <input
-                  type="text"
-                  placeholder="Type your answer"
-                  className="w-full h-[42px] px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black placeholder:text-[#676767] outline-none border border-transparent focus:border-gray-300 font-[Outfit] dark:text-white dark:placeholder-white dark:bg-[#494949]"
-                />
-              )}
-
-              {/* DATE TYPE */}
-              {q.type === "DATE" && (
-                <input
-                  type="date"
-                  className="w-full h-[42px] px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black outline-none font-[Outfit] dark:text-white dark:bg-[#494949]"
-                />
-              )}
-
-              {/* EMAIL TYPE */}
-              {q.type === "EMAIL" && (
-                <input
-                  type="email"
-                  placeholder="example@email.com"
-                  className="w-full h-[42px] px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black placeholder:text-[#676767] outline-none border border-transparent focus:border-gray-300 font-[Outfit] dark:text-white dark:placeholder-white dark:bg-[#494949]"
-                />
-             )}
-
-              {/* URL TYPE */}
-              {q.type === "URL" && (
-                <input
-                  type="url"
-                  placeholder="https://example.com"
-                  className="w-full h-[42px] px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black placeholder:text-[#676767] outline-none border border-transparent focus:border-gray-300 font-[Outfit] dark:text-white dark:placeholder-white dark:bg-[#494949]"
-                />
-              )}
-
-
-              {q.type === "LINEARSCALE" && (
-  <div className="space-y-2 mt-4">
-    
-    {/* Min and Max Labels */}
-
-    {/* Radio Inputs */}
-    <div className="flex items-center gap-4 px-2">
-      {(() => {
-        const min = Number(q.params?.find(p => p.name === "min")?.value ?? 1)
-        const max = Number(q.params?.find(p => p.name === "max")?.value ?? 5)
-        return Array.from({ length: max - min + 1 }, (_, i) => min + i).map((num) => (
-          <label
-            key={num}
-            className="flex flex-col items-center cursor-pointer"
-            style={{ userSelect: "none" }}
-          >
-            <input
-              type="radio"
-              name={q.question_ID}
-              value={num}
-              className="hidden peer"
-            />
-            <span
-              className={`
-                w-8 h-8 rounded-full flex items-center justify-center border-2
-                bg-white border-gray-400 peer-checked:bg-[#8CC7AA] peer-checked:border-[#64ad8b]
-                hover:border-[#8CC7AA] transition-all
-              `}
-            >
-              <span className="w-4 h-4 bg-white rounded-full hidden peer-checked:block" />
-            </span>
-            <span className="text-xs mt-1 text-black dark:text-white">{num}</span>
-          </label>
-        ))
-      })()}
-    </div>
-  </div>
-)}
-
-
-
-              {/* MCQ TYPE */}
-              {q.type === "MCQ" && (
-                <div className="flex flex-col gap-2">
-                  {getOptions(q.config).map((opt: string, idx: number) => (
-                    <label key={idx} className="flex items-center gap-2 dark:text-white">
-                      <input
-                        type="radio" // Keeping "radio" as per your current setup for MCQ
-                        name={q.question_ID}
-                        value={opt}
-                        className="form-radio h-4 w-4 text-green-600 transition duration-150 ease-in-out dark:bg-[#494949] dark:border-gray-600"
-                      />
-                      <span>{opt}</span>
-                    </label>
-                  ))}
-                  {getOptions(q.config).length === 0 && (
-                    <p className="text-red-500 text-xs italic">No options configured for this MCQ.</p>
-                  )}
-                </div>
-              )}
-
-              {/* DROPDOWN TYPE */}
-              {q.type === "DROPDOWN" && (
-                <select className="w-full h-[42px] px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black font-[Outfit] outline-none dark:text-white dark:bg-[#494949]">
-                  <option value="" disabled selected>Select an option</option>
-                  {getOptions(q.config).map((opt: string, idx: number) => (
-                    <option key={idx} value={opt}>{opt}</option>
-                  ))}
-                  {getOptions(q.config).length === 0 && (
-                    <option value="" disabled>No options available</option>
-                  )}
-                </select>
-              )}
+              <DynamicPreviewInput
+                question={q}
+                value={answers.find((a) => a.question_ID === q.question_ID)?.value || ""}
+                onChange={(value) => handleInputChange(q.question_ID, value)}
+                error={errors[q.question_ID]}
+              />
+              {/* Config summary for preview */}
+              <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                <span className="italic">Type: {q.type}</span>
+                {q.type === "DATE" && (
+                  <>
+                    {q.config?.validations?.find((v) => v.name === "dateRange") && (
+                      <>
+                        {" | Range: "}
+                        {q.config.validations
+                          .find((v) => v.name === "dateRange")
+                          ?.params?.find((p) => p.name === "minDate")?.value || "Any"}
+                        {" to "}
+                        {q.config.validations
+                          .find((v) => v.name === "dateRange")
+                          ?.params?.find((p) => p.name === "maxDate")?.value || "Any"}
+                      </>
+                    )}
+                  </>
+                )}
+                {q.type === "MCQ" && (
+                  <span>
+                    {" | Min: "}
+                    {q.config?.params?.find((p) => p.name === "min")?.value || 0}
+                    {", Max: "}
+                    {q.config?.params?.find((p) => p.name === "max")?.value ||
+                      (q.config?.params?.find((p) => p.name === "options")?.value as string[])?.length ||
+                      0}
+                  </span>
+                )}
+              </div>
             </div>
           ))}
 
@@ -269,7 +456,7 @@ export default function PreviewForm() {
               </button>
             )}
             <button
-              onClick={isLastSection ? () => alert("Form Submitted") : goNext}
+              onClick={isLastSection ? () => alert("Preview Complete") : goNext}
               className="cursor-pointer min-w-[90px] h-[34px] sm:w-[108px] sm:h-[30px] bg-[#91C4AB] active:bg-[#61A986] text-black rounded-[7px] font-[Outfit] font-medium text-[14px] sm:text-[16px] right-0 ml-auto"
             >
               {isLastSection ? "Submit" : "Next"}
@@ -277,19 +464,6 @@ export default function PreviewForm() {
           </div>
         </div>
       </div>
-      {/* FAQ Button - Mobile Only */}
-<div className="fixed bottom-6 right-6 z-40">
-  <button
-    className="flex items-center justify-center w-12 h-12 text-black rounded-full dark:text-white hover:shadow-xl transition-shadow"
-    onClick={() => setShowFaq(true)}
-  >
-    <HiOutlineQuestionMarkCircle className="w-6 h-6" />
-  </button>
-</div>
-
-{/* FAQ Modal Component */}
-<FAQs showFaq={showFaq} setShowFaq={setShowFaq} />
-
     </div>
   );
 }

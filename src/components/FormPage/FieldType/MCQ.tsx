@@ -12,13 +12,16 @@ interface MCQProps {
 export default function MCQ({ options, onOptionsChange, disabled = false }: MCQProps) {
   const [mcqOptions, setMcqOptions] = useState<string[]>(options.length > 0 ? options : ["Option 1", "Option 2"]);
 
-  // In useEffect, always ensure options are at least two
   useEffect(() => {
-    if (!options || options.length < 2) {
+    if (!options || options.length === 0) {
       const defaultOptions = ["Option 1", "Option 2"];
       setMcqOptions(defaultOptions);
       onOptionsChange(defaultOptions);
-    } else {
+    }
+  }, []);
+
+  useEffect(() => {
+    if (options.length > 0) {
       setMcqOptions(options);
     }
   }, [options]);
