@@ -1,10 +1,7 @@
-import { Section } from "@/lib/interface";
-import ConditionBlock, { BaseCondition } from "./ConditionBlock";
+import { useState } from "react";
+import type { Section, ConditionGroup, BaseCondition } from "@/lib/interface";
 
-export type ConditionGroup = {
-  op: "AND" | "OR";
-  conditions: (BaseCondition | ConditionGroup)[];
-};
+
 
 interface Props {
   group: ConditionGroup;
@@ -78,22 +75,65 @@ export default function ConditionGroup({
       {group.conditions.map((cond, idx) => (
         <div key={idx} className="pl-4 border-l-2 border-gray-300">
           {"fieldId" in cond ? (
-            <ConditionBlock
-              condition={cond}
-              allQuestions={allQuestions}
-              onChange={(updatedCond) => updateCondition(idx, updatedCond)}
-              onRemove={() => removeCondition(idx)}
-            />
+            <div className="flex gap-2 items-center">
+              <select
+                value={cond.fieldId}
+                onChange={(e) =>
+                  updateCondition(idx, {
+                    ...cond,
+                    fieldId: e.target.value,
+                  })
+                }
+                className="border rounded px-2 py-1"
+              >
+                {allQuestions.map((q) => (
+                  <option key={q.question_ID} value={q.question_ID}>
+                    {q.questionText}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={cond.op}
+                onChange={(e) =>
+                  updateCondition(idx, {
+                    ...cond,
+                    op: e.target.value as BaseCondition["op"],
+                  })
+                }
+                className="border rounded px-2 py-1"
+              >
+                <option value="equal">equals</option>
+              </select>
+
+              <input
+                value={cond.value}
+                onChange={(e) =>
+                  updateCondition(idx, {
+                    ...cond,
+                    value: e.target.value,
+                  })
+                }
+                className="border rounded px-2 py-1"
+                placeholder="Value"
+              />
+              <button
+                onClick={() => removeCondition(idx)}
+                className="ml-auto text-sm text-red-600"
+              >
+                Remove
+              </button>
+            </div>
           ) : (
-            <div>
+            <div className="ml-2">
               <ConditionGroup
                 group={cond}
-                onUpdate={(updatedGroup) => updateCondition(idx, updatedGroup)}
+                onUpdate={(newGroup:any) => updateCondition(idx, newGroup)}
                 allQuestions={allQuestions}
               />
               <button
                 onClick={() => removeCondition(idx)}
-                className="mt-1 text-sm text-red-600"
+                className="ml-auto text-sm text-red-600"
               >
                 Remove Group
               </button>
