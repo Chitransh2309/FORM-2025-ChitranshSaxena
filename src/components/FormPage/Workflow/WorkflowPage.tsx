@@ -73,6 +73,10 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
         }));
 
         setNodes(flowNodes);
+
+        if (res.data.logic) {
+          setLogicRules(res.data.logic); // your LogicRule[]
+        }
       } else {
         toast.error("Failed to load form.");
       }
