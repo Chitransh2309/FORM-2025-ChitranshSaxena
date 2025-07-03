@@ -1,12 +1,14 @@
 import { useState } from "react";
-import type { Section, ConditionGroup, BaseCondition } from "@/lib/interface";
+import type {
+  Section,
+  ConditionGroupType,
+  BaseCondition,
+} from "@/lib/interface";
 import ConditionBlock from "./ConditionBlock";
 
-
-
 interface Props {
-  group: ConditionGroup;
-  onUpdate: (group: ConditionGroup) => void;
+  group: ConditionGroupType;
+  onUpdate: (group: ConditionGroupType) => void;
   allQuestions: Section["questions"];
 }
 
@@ -17,7 +19,7 @@ export default function ConditionGroup({
 }: Props) {
   const updateCondition = (
     index: number,
-    updated: BaseCondition | ConditionGroup
+    updated: BaseCondition | ConditionGroupType
   ) => {
     const newConditions = [...group.conditions];
     newConditions[index] = updated;
@@ -41,7 +43,7 @@ export default function ConditionGroup({
   };
 
   const addGroup = () => {
-    const newGroup: ConditionGroup = { op: "AND", conditions: [] };
+    const newGroup: ConditionGroupType = { op: "AND", conditions: [] };
     onUpdate({ ...group, conditions: [...group.conditions, newGroup] });
   };
 
@@ -86,7 +88,7 @@ export default function ConditionGroup({
             <div>
               <ConditionGroup
                 group={cond}
-                onUpdate={(newGroup:any) => updateCondition(idx, newGroup)}
+                onUpdate={(newGroup: any) => updateCondition(idx, newGroup)}
                 allQuestions={allQuestions}
               />
               <button

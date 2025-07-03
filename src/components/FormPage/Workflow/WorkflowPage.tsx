@@ -6,7 +6,7 @@ import getFormObject from "@/app/action/getFormObject";
 import {
   LogicRule,
   Section,
-  ConditionGroup as ConditionGroupType,
+  ConditionGroupType,
   NestedCondition,
   BaseCondition,
 } from "@/lib/interface";
@@ -23,6 +23,7 @@ import ReactFlow, {
 import CustomNode from "./CustomNode";
 import { saveFormLogic } from "@/app/action/saveFormLogic";
 import ConditionGroup from "./ConditionGroup";
+import ConditionBlock from "./ConditionBlock";
 
 export default function WorkflowPage({ form_ID }: { form_ID: string }) {
   const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
@@ -35,9 +36,6 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
     null
   );
   const [showModal, setShowModal] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState<string>("");
-  const [selectedOp, setSelectedOp] = useState<"equal">("equal");
-  const [conditionValue, setConditionValue] = useState<string>("");
   const [targetSection, setTargetSection] = useState<string>("");
 
   const [logicCondition, setLogicCondition] = useState<

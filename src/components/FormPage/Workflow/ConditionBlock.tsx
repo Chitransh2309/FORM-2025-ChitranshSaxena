@@ -1,12 +1,7 @@
 // components/FormPage/Workflow/ConditionBlock.tsx
 import React from "react";
 import { Question } from "@/lib/interface";
-
-export type BaseCondition = {
-  fieldId: string;
-  op: "equal";
-  value: string;
-};
+import { BaseCondition } from "@/lib/interface";
 
 type Props = {
   allQuestions: Question[];
