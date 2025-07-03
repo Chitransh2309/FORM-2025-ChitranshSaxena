@@ -4,9 +4,6 @@ import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
 
 export async function saveFormLogic(form_ID: string, logicRules: any[]) {
   try {
-    console.log("📨 Saving logic for:", form_ID);
-    console.log("🧠 Rules:", JSON.stringify(logicRules, null, 2));
-
     const { db, dbClient } = await connectToDB();
 
     const result = await db
