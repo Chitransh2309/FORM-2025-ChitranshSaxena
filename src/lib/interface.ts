@@ -144,7 +144,6 @@ export const fieldtypes: FieldType[] = [
     type: "string",
     params: [
       { name: "placeholder", type: "string" },
-      { name: "multiline", type: "boolean" },
     ],
     validations: [
       {
