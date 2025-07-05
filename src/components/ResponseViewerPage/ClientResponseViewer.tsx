@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { act, useState } from "react";
 import HeaderSection from "@/components/ResponseViewerPage/HeaderSection";
 import FormInfoCard from "@/components/ResponseViewerPage/FormInfo";
 import AnsweredQuestionsBlock from "@/components/ResponseViewerPage/AnsweredQuestions";
 import GroupedResponseBlock from "@/components/ResponseViewerPage/GroupedResponses";
 import { Form, FormResponse } from "@/lib/interface";
+import Analysis from "./Analysis";
 
 interface Props {
   form: Form;
@@ -17,6 +18,9 @@ export default function ClientResponseViewer({ form, responses }: Props) {
   const [viewMode, setViewMode] = useState<
     "Individual response" | "Grouped response"
   >("Individual response");
+  const [activeTab, setActiveTab] = useState<"Individual" | "Analytics">(
+    "Individual"
+  );
 
   const currentResponse = {
     ...responses[currentIndex],
@@ -37,12 +41,15 @@ export default function ClientResponseViewer({ form, responses }: Props) {
           onPrev={handlePrev}
           onNext={handleNext}
           onUserChange={handleUserChange}
-          userName={currentResponse.userName}
+          userName={currentResponse.userName ?? ""}
           submittedAt={currentResponse.submittedAt}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
+          activeTab={activeTab}
+          onActiveTabChange={setActiveTab}
         />
 
+        {activeTab==="Individual"?<>
         <FormInfoCard title={form.title} description={form.description} />
 
         {viewMode === "Individual response" && (
@@ -51,6 +58,9 @@ export default function ClientResponseViewer({ form, responses }: Props) {
         {viewMode === "Grouped response" && (
           <GroupedResponseBlock form={form} responses={responses} />
         )}
+        </>:
+         <Analysis form={form} responses={responses} />
+        }
       </div>
     </div>
   );
