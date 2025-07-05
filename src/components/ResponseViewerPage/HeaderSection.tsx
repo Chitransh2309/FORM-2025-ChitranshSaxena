@@ -3,7 +3,7 @@
 import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";
 import ResponseNavigator from "@/components/ResponseViewerPage/ResponseNavigator";
 import ViewModeDropdown from "@/components/ResponseViewerPage/ViewModeDropdown";
-import { useState } from "react";
+import Link from "next/link";
 
 interface HeaderProps {
   currentIndex: number;
@@ -15,6 +15,8 @@ interface HeaderProps {
   onUserChange: (index: number) => void;
   onViewModeChange: (mode: "Individual response" | "Grouped response") => void;
   viewMode: "Individual response" | "Grouped response";
+  activeTab: "Individual" | "Analytics";
+  onActiveTabChange: (mode : "Individual" | "Analytics")=>void;
 }
 
 export default function HeaderSection({
@@ -27,14 +29,17 @@ export default function HeaderSection({
   onUserChange,
   onViewModeChange,
   viewMode,
+  activeTab,
+  onActiveTabChange,
 }: HeaderProps) {
-  const [activeTab, setActiveTab] = useState<"Individual" | "Analytics">(
-    "Individual"
-  );
 
   return (
     <>
-      <div className="flex justify-end pt-5 pr-8">
+      <div className="flex justify-between pt-5 items-center">
+        <Link href='/dashboard' className="lg:text-xl text-md text-black dark:text-white">
+        <button>
+          Back to Dashboard
+        </button></Link>
         <ToggleSwitch />
       </div>
 
@@ -43,7 +48,7 @@ export default function HeaderSection({
           {["Individual", "Analytics"].map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab as "Individual" | "Analytics")}
+              onClick={() => onActiveTabChange(tab as "Individual" | "Analytics")}
               className={`flex-1 mx-1 text-[15px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
                 activeTab === tab
                   ? "bg-[#61A986] text-black dark:text-white"
@@ -55,7 +60,8 @@ export default function HeaderSection({
           ))}
         </div>
       </div>
-
+      
+      {activeTab==="Individual"&&<>
       <div className="mb-5 flex justify-between items-center px-4">
         <h2 className="text-xl font-semibold">Responses: {total}</h2>
         <ViewModeDropdown
@@ -79,6 +85,7 @@ export default function HeaderSection({
           You are viewing all responses to one question together.
         </div>
       )}
+      </>}
     </>
   );
 }
