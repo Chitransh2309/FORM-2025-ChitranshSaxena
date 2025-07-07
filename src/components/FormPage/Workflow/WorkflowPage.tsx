@@ -310,7 +310,7 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
               className="bg-[#E0E0E0] px-2 py-1 rounded text-sm break-words"
             >
               <p className="text-gray-700 mb-1 leading-snug">
-                If section <strong>{rule.triggerSectionId}</strong> →{" "}
+                <strong>{rule.triggerSectionId}</strong> →{" "}
                 <strong>{rule.action.to}</strong>
                 <br />
                 <em className="text-gray-600">
