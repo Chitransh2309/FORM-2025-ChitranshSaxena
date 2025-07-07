@@ -142,7 +142,7 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
         </div>
       </div>
 
-      <div className="space-y-4 md:space-y-6 pb-20 md:pb-24">
+      <div className=" space-y-4 md:space-y-6 pb-20 md:pb-24">
         {" "}
         {/* Responsive padding bottom */}
         {/* Question Type Configuration */}
