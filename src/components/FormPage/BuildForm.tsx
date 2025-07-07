@@ -20,16 +20,18 @@ export default function BuildPage() {
     null
   );
   const [showRightNav, setShowRightNav] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
+    null
+  );
   const [showFAQ, setShowFAQ] = useState(false);
-  
+
   const selectedSection = form?.sections.find(
     (s) => s.section_ID === selectedSectionId
   );
 
   useEffect(() => {
     const loadData = async () => {
-      if (!formId || typeof formId !== "string") return;  
+      if (!formId || typeof formId !== "string") return;
       const res = await getFormObject(formId);
       if (res.success) {
         setForm(res.data);
@@ -107,44 +109,43 @@ export default function BuildPage() {
     );
 
     setForm({ ...form, sections: updatedSections });
-    
+
     // Auto-select the new question
     setSelectedQuestion(newQuestion);
   };
 
   const updateQuestion = (id: string, updates: Partial<Question>) => {
-  if (!form || !selectedSectionId) return;
+    if (!form || !selectedSectionId) return;
 
-  let newSelected: Question | null = null;
+    let newSelected: Question | null = null;
 
-  const updatedSections = form.sections.map((section) =>
-    section.section_ID === selectedSectionId
-      ? {
-          ...section,
-          questions: section.questions.map((q) => {
-            if (q.question_ID === id) {
-              const updated = { ...q, ...updates };
-              // Track the new selected question
-              if (selectedQuestion?.question_ID === id) {
-                newSelected = updated;
+    const updatedSections = form.sections.map((section) =>
+      section.section_ID === selectedSectionId
+        ? {
+            ...section,
+            questions: section.questions.map((q) => {
+              if (q.question_ID === id) {
+                const updated = { ...q, ...updates };
+                // Track the new selected question
+                if (selectedQuestion?.question_ID === id) {
+                  newSelected = updated;
+                }
+                return updated;
               }
-              return updated;
-            }
-            return q;
-          }),
-        }
-      : section
-  );
+              return q;
+            }),
+          }
+        : section
+    );
 
-  // Apply updates to the form
-  setForm({ ...form, sections: updatedSections });
+    // Apply updates to the form
+    setForm({ ...form, sections: updatedSections });
 
-  // Also update the selectedQuestion so RightNav reflects the latest data
-  if (newSelected) {
-    setSelectedQuestion(newSelected);
-  }
-};
-
+    // Also update the selectedQuestion so RightNav reflects the latest data
+    if (newSelected) {
+      setSelectedQuestion(newSelected);
+    }
+  };
 
   const deleteQuestion = (id: string) => {
     if (!form || !selectedSectionId) return;
@@ -159,7 +160,7 @@ export default function BuildPage() {
     );
 
     setForm({ ...form, sections: updatedSections });
-    
+
     // Clear selected question if it was deleted
     if (selectedQuestion?.question_ID === id) {
       setSelectedQuestion(null);
@@ -188,7 +189,7 @@ export default function BuildPage() {
   }, []);
 
   return (
-    <div className="h-screen w-full flex font-[Outfit] dark:bg-[#2B2A2A] bg-[#F6F8F6] text-black dark:text-white overflow-hidden">
+    <div className="h-full w-full flex font-[Outfit] dark:bg-[#2B2A2A] bg-[#F6F8F6] text-black dark:text-white overflow-hidden">
       {/* Sidebar always visible */}
       <div className="dark:bg-[#363535] h-full overflow-y-auto w-[1/5] sticky shadow-md">
         <SectionSidebar
@@ -225,8 +226,8 @@ export default function BuildPage() {
       <div className="w-full flex-1 overflow-hidden dark:text-white h-full">
         <div className="flex flex-col lg:flex-row h-full">
           {/* Left content */}
-          <div className="w-full lg:w-full px-4 lg:px-10 mt-4 overflow-y-auto">
-            <div className="flex flex-row justify-between items-center">
+          <div className="w-full h-[90vh] px-4 lg:px-10 overflow-y-auto">
+            <div className="mt-20 flex flex-row justify-between items-center">
               <div className="text-2xl font-bold mb-3 mt-6">
                 {selectedSection?.title || "No Section Selected"}
               </div>
@@ -248,8 +249,8 @@ export default function BuildPage() {
           </div>
 
           {/* RightNav */}
-          <div className="hidden lg:block w-[30vw] h-full sticky border-l border-gray-300 bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500 top-0">
-            <RightNav 
+          <div className="hidden lg:block w-[30vw] h-[90vh] sticky border-l border-gray-300 bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500">
+            <RightNav
               selectedQuestion={selectedQuestion}
               onUpdate={updateQuestion}
             />
@@ -268,7 +269,7 @@ export default function BuildPage() {
                 </button>
               </div>
               <div className="p-4">
-                <RightNav 
+                <RightNav
                   selectedQuestion={selectedQuestion}
                   onUpdate={updateQuestion}
                 />
