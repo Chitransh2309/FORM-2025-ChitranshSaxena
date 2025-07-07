@@ -6,7 +6,7 @@ const tilt = Tilt_Warp({ subsets: ["latin"], weight: ["400"] });
 
 export default function Hero() {
   return (
-    <div
+    <div id="home"
       className={`min-h-screen flex items-center w-full ${tilt.className} dark:bg-[#191719] px-4 sm:px-6 lg:px-8`}
     >
       <div className=" mx-auto w-full md:mt-20 lg:mt-0">

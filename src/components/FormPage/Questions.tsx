@@ -49,19 +49,14 @@ export default function Question({
       if (config.params) {
         const optionsParam = config.params.find((p: any) => p.name === "options");
         if (optionsParam?.value) {
-          let opts = Array.isArray(optionsParam.value)
+          return Array.isArray(optionsParam.value)
             ? optionsParam.value
             : optionsParam.value.split(", ");
-          if (opts.length < 2) {
-            opts = ["Option 1", "Option 2"];
-          }
-          return opts;
         }
       }
     }
     return ["Option 1", "Option 2"];
   };
-
 
   // Get Dropdown options from config
   const getDropdownOptions = (): string[] => {
@@ -161,8 +156,7 @@ export default function Question({
       };
       onUpdate(id, { config: newConfig });
     } else {
-      // FIX: Changed "mcq" to "MCQ" to match the case in fieldtypes array from interface.ts
-      const fieldType = fieldtypes.find((f) => f.name === "MCQ");
+      const fieldType = fieldtypes.find((f) => f.name === "mcq");
       if (fieldType) {
         const updatedParams = fieldType.params.map((param) => {
           if (param.name === "options") {
@@ -194,8 +188,7 @@ export default function Question({
       };
       onUpdate(id, { config: newConfig });
     } else {
-      // FIX: Changed "dropdown" to "DROPDOWN" to match the case in fieldtypes array from interface.ts
-      const fieldType = fieldtypes.find((f) => f.name === "DROPDOWN");
+      const fieldType = fieldtypes.find((f) => f.name === "dropdown");
       if (fieldType) {
         const updatedParams = fieldType.params.map((param) => {
           if (param.name === "options") {
@@ -278,18 +271,19 @@ export default function Question({
   return (
     <div
       ref={containerRef}
-      className={`bg-[#FEFEFE] shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl w-[90%] min-h-[20%] mx-auto mb-10 transition-all duration-200
+      className={`bg-[#FEFEFE] shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl w-[90%] min-h-[20%] mx-auto mb-10 transition-all duration-200 
     ${isSelected ? "ring-4 ring-black dark:ring-[#64ad8b]" : ""}
     ${isDuplicate ? "border-2 border-red-500" : ""}
     dark:bg-[#5A5959] dark:text-white hover:shadow-lg`}
     >
       <div className="flex justify-between items-center dark:text-white">
-        <input
-          placeholder="Question Title *"
-          className="focus:outline-none font-bold text-xl text-black dark:text-white dark:placeholder-white bg-transparent flex-1 mr-4"
-          value={data.questionText || ""}
-          onChange={(e) => onUpdate(id, { questionText: e.target.value })}
-        />
+        {/* Display the question title as a paragraph instead of an input */}
+        <p
+          className="font-bold text-xl text-black dark:text-white bg-transparent flex-1 mr-4"
+          style={{ margin: 0, padding: 0 }}
+        >
+          Question
+        </p>
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">

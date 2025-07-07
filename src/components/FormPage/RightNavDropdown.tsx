@@ -50,15 +50,9 @@ export default function QuestionTypeDropdown({
       if (onUpdateConfig) {
         const selectedField = fieldtypes.find(f => f.name === found.field);
         if (selectedField) {
-          let newConfig = {
+          const newConfig = {
             ...selectedField,
-            params: selectedField.params.map(param => {
-              if (param.name === "options") {
-                // Always initialize with at least two options
-                return { ...param, value: ["Option 1", "Option 2"] };
-              }
-              return { ...param };
-            }),
+            params: selectedField.params.map(param => ({ ...param })),
             validations: selectedField.validations.map(validation => ({
               ...validation,
               params: validation.params?.map(param => ({ ...param })) || [],
@@ -180,6 +174,21 @@ export default function QuestionTypeDropdown({
           />
         );
       }
+      if (param.type === "date") {
+        return (
+          <input
+            key={key}
+            type="date"
+            placeholder={param.placeholder || param.name}
+            value={param.value ?? ""}
+            className={cls}
+            onChange={e => {
+              const value = e.target.value;
+              handleValidationChange(value, param.validationName, param.name);
+            }}
+          />
+        );
+      }
       return (
         <input
           key={key}
@@ -224,6 +233,17 @@ export default function QuestionTypeDropdown({
               const value = e.target.value.split(",").map((s) => s.trim()).filter(s => s.length > 0);
               handleParamChange(value);
             }}
+          />
+        );
+      case "date":
+        return (
+          <input
+            key={key}
+            type="date"
+            placeholder={param.name}
+            value={param.value ?? ""}
+            className={cls}
+            onChange={e => handleParamChange(e.target.value)}
           />
         );
       default:

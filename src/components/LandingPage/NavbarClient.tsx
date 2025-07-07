@@ -22,7 +22,7 @@ export function MobileMenu() {
       <div
         className={`sm:hidden flex-col items-start gap-4 ${
           isOpen
-            ? "flex absolute top-16 left-0 w-full bg-white dark:bg-[#191719] p-4 shadow-md z-10"
+            ? "flex absolute top-16 left-0 w-full bg-[#F6F8F6] dark:bg-[#191719] p-4 shadow-md z-10"
             : "hidden"
         }`}
       >
@@ -36,16 +36,16 @@ export function MobileMenu() {
 export function Links() {
   return (
     <>
-      <Link href="/dashboard">
+      <Link href="#home">
         <span className="dark:text-white">Home</span>
       </Link>
-      <Link href="/about">
-        <span className="dark:text-white">About</span>
+      <Link href="/dashboard">
+        <span className="dark:text-white">Dashboard</span>
       </Link>
-      <Link href="/features">
+      <Link href="#features">
         <span className="dark:text-white">Features</span>
       </Link>
-      <Link href="/contact">
+      <Link href="#contact">
         <span className="dark:text-white">Contact</span>
       </Link>
     </>

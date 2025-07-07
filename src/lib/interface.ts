@@ -2,7 +2,7 @@ export interface User {
   user_ID: string;
   email: string;
   googleID: string;
-  forms?: Form[]; // form_ID references
+  forms?: string[]; // form_ID references
   icon?: string;
   name: string;
   verified?: Date;
@@ -32,7 +32,7 @@ export type LogicRule = {
   action: {
     type: "jump";
     to: string;
-    condition: NestedCondition;
+    condition: NestedCondition | BaseCondition;
   };
 };
 
@@ -63,7 +63,7 @@ export interface Section {
   title: string;
   description: string;
   questions: Question[];
-  logic: LogicRule;
+  logic?: LogicRule[];
 }
 
 export interface Question {
@@ -150,7 +150,7 @@ export interface FieldType {
 
 export const fieldtypes: FieldType[] = [
   {
-    name: "TEXT",
+    name: "text",
     type: "string",
     params: [{ name: "placeholder", type: "string" }],
     validations: [
@@ -171,7 +171,7 @@ export const fieldtypes: FieldType[] = [
     ],
   },
   {
-    name: "MCQ",
+    name: "mcq",
     type: "checkBox",
     params: [
       { name: "options", type: "array[string]" },
@@ -182,27 +182,27 @@ export const fieldtypes: FieldType[] = [
     validations: [],
   },
   {
-    name: "DROPDOWN",
+    name: "dropdown",
     type: "string",
     params: [{ name: "options", type: "array[string]" }],
     validations: [],
   },
   {
-    name: "DATE",
+    name: "date",
     type: "date",
     params: [{ name: "includeTime", type: "boolean" }],
     validations: [
       {
         name: "dateRange",
         params: [
-          { name: "minDate", type: "string" },
-          { name: "maxDate", type: "string" },
+          { name: "minDate", type: "date" },
+          { name: "maxDate", type: "date" },
         ],
       },
     ],
   },
   {
-    name: "LINEARSCALE",
+    name: "linear_scale",
     type: "number",
     params: [
       { name: "min", type: "number" },
@@ -213,7 +213,7 @@ export const fieldtypes: FieldType[] = [
     validations: [],
   },
   {
-    name: "FILE_UPLOAD",
+    name: "file_upload",
     type: "file",
     params: [
       { name: "allowedFileTypes", type: "array[string]" },
@@ -223,7 +223,7 @@ export const fieldtypes: FieldType[] = [
     validations: [],
   },
   {
-    name: "EMAIL",
+    name: "email",
     type: "string",
     params: [],
     validations: [
@@ -239,7 +239,7 @@ export const fieldtypes: FieldType[] = [
     ],
   },
   {
-    name: "URL",
+    name: "url",
     type: "string",
     params: [],
     validations: [
