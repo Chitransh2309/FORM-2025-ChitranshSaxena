@@ -20,6 +20,7 @@ export interface Form {
   share_url: string;
   settings: FormSettings;
   sections: Section[];
+  isDeleted: boolean;
 }
 
 export type NestedCondition = {
