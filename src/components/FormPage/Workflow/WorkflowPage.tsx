@@ -25,9 +25,28 @@ import CustomNode from "./CustomNode";
 import { saveFormLogic } from "@/app/action/saveFormLogic";
 import ConditionGroup from "./ConditionGroup";
 import ConditionBlock from "./ConditionBlock";
+enum sectionform{
+  Build,
+  Workflow,
+  Preview
+}
+interface formbuild{
+  currentSection:sectionform;
+  setCurrentSection: (section: sectionform) => void;
 
-export default function WorkflowPage({ form_ID }: { form_ID: string }) {
+}
+interface WorkflowPageProps extends formbuild {
+  form_ID: string;
+}
+
+
+export default function WorkflowPage({
+  form_ID,
+  currentSection,
+  setCurrentSection,
+}: WorkflowPageProps) {
   const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
+  const LABELS = ["Builder", "Workflow", "Preview"];
 
   const [sections, setSections] = useState<Section[]>([]);
   const [nodes, setNodes] = useState<Node[]>([]);
@@ -200,7 +219,25 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
   );
 
   return (
+
     <div className="text-black w-full h-[90vh] p-4 flex gap-6">
+      <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full flex justify-center px-4 sm:px-0">
+        <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
+          {LABELS.map((label, i) => (
+            <button
+              key={label}
+              onClick={() => setCurrentSection(i as Section)}
+              className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
+                currentSection === i
+                  ? "bg-[#61A986] text-black dark:text-white"
+                  : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="flex-1 rounded-md">
         <ReactFlowProvider>
           <ReactFlow

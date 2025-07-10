@@ -14,13 +14,13 @@ const CenterNav = ({ formId }: { formId?: string }) => {
   const [currentSection, setCurrentSection] = useState<Section>(
     Section.Builder
   );
-  const LABELS = ["Builder", "Workflow", "Preview"];
+  
 
   return (
     <div className=" w-full  bg-[#F6F8F6] dark:bg-[#2B2A2A] dark:text-white overflow-hidden font-[Outfit]">
       {/* Top tab nav */}
       {/* Floating tab bar */}
-      <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full flex justify-center px-4 sm:px-0">
+      {/* <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full flex justify-center px-4 sm:px-0">
         <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
           {LABELS.map((label, i) => (
             <button
@@ -36,17 +36,17 @@ const CenterNav = ({ formId }: { formId?: string }) => {
             </button>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Main content area */}
       <div className="w-full h-full flex-grow overflow-auto">
-        {currentSection === Section.Builder && <BuildForm />}
+        {currentSection === Section.Builder && <BuildForm currentSection={currentSection} setCurrentSection={setCurrentSection} />}
         {currentSection === Section.Workflow && (
-          <WorkflowPage form_ID={formId} />
+          <WorkflowPage form_ID={formId} currentSection={currentSection} setCurrentSection={setCurrentSection} />
         )}
         {currentSection === Section.Preview && (
           <div className="p-4 sm:p-6 dark:text-white">
-            <PreviewForm formId={formId} />
+            <PreviewForm currentSection={currentSection} setCurrentSection={setCurrentSection} />
           </div>
         )}
       </div>
