@@ -10,7 +10,7 @@ export default function Formlist({
   setSearchTerm?: (term: string) => void;
 }) {
   return (
-    <div className="h-screen">
+    <div className="lg:h-screen">
       <Workspace searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
     </div>
   );

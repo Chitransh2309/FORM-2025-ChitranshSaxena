@@ -164,7 +164,7 @@ export default function Workspace({
       )}
 
       {/* Main Content */}
-      <div className="flex-1 px-4 md:px-6 pb-4 min-h-0 h-[80%]">
+      <div className="flex-1 px-4 md:px-6 pb-4 h-full">
         {loading ? (
           <div className="flex-1 flex flex-col justify-center items-center h-[90%]">
             <div className="h-[80%] w-[80%] border border-dashed text-black dark:text-white border-black flex items-center justify-center mx-auto dark:border-white">

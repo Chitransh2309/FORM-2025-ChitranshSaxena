@@ -1,8 +1,282 @@
-import { insertUser } from "../action/user";
-import ClientHome from "../../components/NewUserPage/ClientHome"; // ✅ adjust path based on your structure
+"use client";
 
-export default async function Home() {
-  await insertUser(); // ✅ server-side only
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { FaChevronDown, FaSearch } from "react-icons/fa";
+import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
+import { FaRegCircleUser } from "react-icons/fa6";
+import Image from "next/image";
 
-  return <ClientHome />;
+// External Components
+import Sidebar from "../../components/NewUserPage/Sidebar";
+import BottomNav from "../../components/NewUserPage/bottomNav";
+import Navbar from "../../components/NewUserPage/NavBar";
+import Formsorter from "../../components/NewUserPage/FormSorter";
+import Drafts from "../../components/NewUserPage/Drafts";
+import Published from "../../components/NewUserPage/Published";
+import Profile from "../../components/NewUserPage/Profile";
+import FAQs from "../../components/NewUserPage/FAQs";
+import ToggleSwitch from "../../components/NewUserPage/ToggleSwitch";
+
+// Actions & Types
+import { getFormsForUser } from "@/app/action/forms";
+import { createNewForm } from "@/app/action/createnewform";
+import { getUser } from "@/app/action/getUser";
+import { Form } from "@/lib/interface";
+
+/*******************************************************************
+ * Workspace (formerly Workspace.tsx)
+ *******************************************************************/
+function Workspace({
+  searchTerm,
+  setSearchTerm,
+}: {
+  searchTerm: string;
+  setSearchTerm?: (term: string) => void;
+}) {
+  const router = useRouter();
+
+  // ----------------------------------
+  // UI state
+  // ----------------------------------
+  const [forms, setForms] = useState<Form[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showDialog, setShowDialog] = useState(false);
+  const [formName, setFormName] = useState("");
+  const [showFaq, setShowFaq] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+
+  // User meta
+  const [name, setName] = useState("");
+  const [image, setImage] = useState("");
+  const [email, setEmail] = useState("");
+
+  //-----------------------------------
+  // Lifecycle – fetch forms & user
+  //-----------------------------------
+  useEffect(() => {
+    (async () => {
+      try {
+        const [formsRes, user] = await Promise.all([
+          getFormsForUser(),
+          getUser(),
+        ]);
+        setForms(formsRes);
+        setName(user?.name || "");
+        setEmail(user?.email || "");
+        setImage(user?.image || "");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  //-----------------------------------
+  // Helpers
+  //-----------------------------------
+  const drafts = forms.filter((f) => !f.isActive);
+  const published = forms.filter((f) => f.isActive);
+
+  const filteredDrafts = !searchTerm
+    ? drafts
+    : drafts.filter((form) =>
+        form.title?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+  const filteredPublished = !searchTerm
+    ? published
+    : published.filter((form) =>
+        form.title?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+  const isEmpty = !loading && drafts.length === 0 && published.length === 0;
+
+  //-----------------------------------
+  // Create new form
+  //-----------------------------------
+  const handleCreate = async () => {
+    if (!formName.trim()) return alert("Please enter a form name");
+    const res = await createNewForm(formName);
+    if (res) router.push(`/form/${res}`);
+    else alert("Failed to create a new form. Try again.");
+  };
+
+  //-----------------------------------
+  // Shared styles – loader & empty state wrapper
+  //-----------------------------------
+  const wrapperStyles =
+    "w-[80%] h-[60vh] border border-dashed mx-auto flex flex-col justify-center items-center gap-6 bg-transparent";
+
+  //-----------------------------------
+  // Render
+  //-----------------------------------
+  return (
+    <div className="min-h-screen flex flex-col">
+      {/* Green Header for mobile */}
+      <Navbar image={image} name={name} email={email} />
+
+      {/* Desktop Topbar */}
+      <div className="hidden xl:flex items-center justify-between px-6 py-4 ml-auto">
+        <div className="flex items-center gap-4">
+          <ToggleSwitch />
+          <button onClick={() => setShowFaq(true)}>
+            <HiOutlineQuestionMarkCircle
+              size={26}
+              className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
+            />
+          </button>
+          <button onClick={() => setShowProfile(!showProfile)}>
+            {image ? (
+              <Image
+                src={image}
+                width={28}
+                height={28}
+                alt="profile_image"
+                className="rounded-full"
+              />
+            ) : (
+              <FaRegCircleUser
+                size={24}
+                className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
+              />
+            )}
+          </button>
+        </div>
+        {showProfile && <Profile name={name} email={email} />}
+      </div>
+
+      {/* Desktop Sorter */}
+      <div className="hidden xl:block">
+        <Formsorter />
+      </div>
+
+      {/* Mobile Top Buttons */}
+      <div className="xl:hidden w-full bg-white border-b px-4 py-3 dark:bg-[#2B2A2A] dark:border-gray-500">
+        <div className="flex items-center gap-2">
+          <button className="flex items-center gap-1 bg-[#56A37D] text-black text-xs px-4 py-2 rounded-lg dark:text-white">
+            My Workspace <FaChevronDown size={12} />
+          </button>
+
+          <div className="flex items-center bg-[#3D3D3D] rounded-lg px-3 py-2 flex-1 min-w-0">
+            <FaSearch size={14} className="text-white flex-shrink-0" />
+            <input
+              placeholder="Search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm?.(e.target.value)}
+              className="flex-1 bg-transparent outline-none placeholder-white text-xs ml-2 text-white"
+            />
+          </div>
+
+          <button
+            onClick={() => setShowDialog(true)}
+            className="bg-[#3D3D3D] text-white text-xs px-4 py-2 rounded-lg whitespace-nowrap"
+          >
+            + New Form
+          </button>
+        </div>
+      </div>
+
+      {/* Create Form Dialog */}
+      {showDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#353434] border-2 dark:border-gray-500 border-gray-800 rounded-xl shadow-2xl w-full max-w-xl p-8 animate-pop-in">
+            <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 dark:text-white mb-6">
+              Create New Form
+            </h2>
+            <input
+              className="w-full px-5 py-4 border-2 border-gray-300 rounded-lg mb-8 text-black placeholder-gray-500 text-lg focus:outline-none focus:ring-2 focus:ring-[#61A986] focus:border-transparent transition-all dark:text-white dark:placeholder-white"
+              placeholder="Enter form name"
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+              autoFocus
+            />
+            <div className="flex gap-4 justify-end">
+              <button
+                onClick={() => setShowDialog(false)}
+                className="px-6 py-3 bg-white text-gray-700 rounded-lg hover:bg-gray-100 text-lg font-medium border border-gray-300 shadow-sm transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreate}
+                className="px-6 py-3 bg-[#61A986] text-white rounded-lg hover:bg-[#4d8a6b] text-lg font-medium shadow-md transition-all"
+              >
+                Create
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <div className="flex-1 px-4 md:px-6 pb-4 h-full flex items-center justify-center">
+        {loading ? (
+          <div className={wrapperStyles + " text-black dark:text-white"}>
+            Loading…
+          </div>
+        ) : isEmpty ? (
+          <>
+            {/* Mobile & Desktop – unified styling */}
+            <div className={wrapperStyles + " dark:border-white"}>
+              <p className="text-lg md:text-2xl text-center text-gray-600 dark:text-gray-200">
+                You have not created any forms yet.
+              </p>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-center text-gray-800 dark:text-white">
+                Create Your First Form Today!
+              </h2>
+              <button
+                onClick={() => setShowDialog(true)}
+                className="mt-2 px-8 py-4 bg-[#61A986] text-lg sm:text-xl text-white rounded-lg hover:bg-[#4d8a6b] transition-colors"
+              >
+                Create Now
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="w-full h-full overflow-y-auto flex flex-col items-center">
+            <div className="flex flex-col lg:flex-row flex-1 w-full max-w-7xl gap-6 px-4">
+              <Drafts forms={filteredDrafts} />
+              <Published forms={filteredPublished} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* FAQ Modal */}
+      {showFaq && <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />}
+    </div>
+  );
+}
+
+/*******************************************************************
+ * Combined Workspace Page – entry point (replaces ClientHome.tsx)
+ *******************************************************************/
+export default function CombinedWorkspacePage() {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  return (
+    <div className="min-h-screen w-screen overflow-x-hidden font-[Outfit]">
+      {/* Desktop */}
+      <div className="hidden xl:flex h-screen">
+        <aside className="fixed top-0 left-0 h-screen w-[15%] z-40">
+          <Sidebar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        </aside>
+
+        <div className="ml-[15%] w-[85%] h-screen overflow-y-auto">
+          <Workspace searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        </div>
+      </div>
+
+      {/* Mobile */}
+      <div className="block xl:hidden h-screen flex flex-col">
+        <div className="flex-1 overflow-y-auto">
+          <Workspace searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        </div>
+
+        <div className="fixed bottom-0 w-full z-50">
+          <BottomNav />
+        </div>
+      </div>
+    </div>
+  );
 }
