@@ -34,7 +34,7 @@ export default function ConditionGroup({
     const firstQ = allQuestions[0];
     if (!firstQ) return;
     const newCond: BaseCondition = {
-      fieldId: firstQ.question_ID,
+      fieldId: firstQ.questionText,
       op: "equal",
       value: "",
     };

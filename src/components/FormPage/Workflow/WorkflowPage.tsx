@@ -47,6 +47,17 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
     value: "",
   });
 
+  const generateRandomPosition = (index: number) => {
+    const baseX = 150;
+    const baseY = 300;
+    const offsetX = Math.floor(Math.random() * 300);
+    const offsetY = Math.floor(Math.random() * 100);
+    return {
+      x: baseX * index + offsetX,
+      y: baseY * index + offsetY,
+    };
+  };
+
   useEffect(() => {
     const loadForm = async () => {
       if (!form_ID) return;
@@ -56,28 +67,29 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
         const formSections = res.data.sections;
         setSections(formSections);
 
-        const flowNodes: Node[] = formSections.map(
-          (section: any, idx: any) => ({
+        const flowNodes: Node[] = formSections.map((section: any, idx: any) => {
+          const pos = generateRandomPosition(idx);
+          return {
             id: section.section_ID,
             type: "custom",
-            position: { x: 300 * idx, y: 100 },
+            position: pos,
             data: {
               label: section.title || `Section ${idx + 1}`,
               id: section.section_ID,
               onClick: handleOpenModal,
             },
-          })
-        );
+          };
+        });
 
         setNodes(flowNodes);
 
         // Extract logic from each section that has it
         const extractedLogicRules = formSections.flatMap((section: any) =>
-  (section.logic || []).map((logic: any) => ({
-    ...logic,
-    triggerSectionId: section.section_ID,
-  }))
-);
+          (section.logic || []).map((logic: any) => ({
+            ...logic,
+            triggerSectionId: section.section_ID,
+          }))
+        );
 
         setLogicRules(extractedLogicRules);
       } else {
@@ -143,7 +155,7 @@ export default function WorkflowPage({ form_ID }: { form_ID: string }) {
       ?.questions?.[0];
 
     setLogicCondition({
-      fieldId: firstQuestion?.question_ID || "",
+      fieldId: firstQuestion?.questionText || "",
       op: "equal",
       value: "",
     });
