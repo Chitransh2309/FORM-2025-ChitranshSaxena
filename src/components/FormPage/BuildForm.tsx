@@ -9,9 +9,11 @@ import QuestionParent from "@/components/FormPage/QuestionParent";
 import getFormObject from "@/app/action/getFormObject";
 import { saveFormToDB } from "@/app/action/saveformtodb";
 import { Form, Question, Section, QuestionType } from "@/lib/interface";
-import { Menu } from "lucide-react";
+import { Menu, Pencil } from "lucide-react";
 import FAQs from "../NewUserPage/FAQs";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
+import toast from "react-hot-toast";
+import { renameSectionTitle } from "@/app/action/sections";
 
 export default function BuildPage() {
   const { id: formId } = useParams();
@@ -74,6 +76,25 @@ export default function BuildPage() {
       sections: [...form.sections, newSection],
     });
     setSelectedSectionId(newId);
+  };
+
+  const handleRenameSection = async (sectionId: string, newTitle: string) => {
+    if (!formId || typeof formId !== "string") return;
+
+    const res = await renameSectionTitle(formId, sectionId, newTitle);
+
+    if (res.success) {
+      setForm((prev) => {
+        if (!prev) return prev;
+        const updatedSections = prev.sections.map((s) =>
+          s.section_ID === sectionId ? { ...s, title: newTitle } : s
+        );
+        return { ...prev, sections: updatedSections };
+      });
+      toast.success("Section renamed");
+    } else {
+      toast.error(res.error || "Rename failed");
+    }
   };
 
   const deleteSection = (sectionId: string) => {
@@ -228,9 +249,26 @@ export default function BuildPage() {
           {/* Left content */}
           <div className="w-full h-[90vh] px-4 lg:px-10 overflow-y-auto">
             <div className="mt-20 flex flex-row justify-between items-center">
-              <div className="text-2xl font-bold mb-3 mt-6">
-                {selectedSection?.title || "No Section Selected"}
+              <div className="flex flex-row justify-center">
+                <div className="text-2xl font-bold mb-3 mt-6">
+                  {selectedSection?.title || "No Section Selected"}
+                </div>
+                <button
+                  className="pl-5 mt-3"
+                  onClick={() => {
+                    const newTitle = prompt(
+                      "Enter new section name",
+                      selectedSection?.title
+                    );
+                    if (newTitle && selectedSection?.section_ID) {
+                      handleRenameSection(selectedSection.section_ID, newTitle);
+                    }
+                  }}
+                >
+                  <Pencil className="w-5 h-5" />
+                </button>
               </div>
+
               <div className="mr-2">
                 <SaveButton onClick={handleSave} />
               </div>
