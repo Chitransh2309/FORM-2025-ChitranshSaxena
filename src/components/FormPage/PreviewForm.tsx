@@ -136,6 +136,7 @@ const DynamicPreviewInput = ({
       };
 
       return (
+
         <div className="space-y-2">
           {options.map((option, index) => (
             <label
@@ -269,8 +270,21 @@ const DynamicPreviewInput = ({
       );
   }
 };
+enum sectionform{
+  Build,
+  Workflow,
+  Preview
+}
+interface formbuild{
+  currentSection:sectionform;
+  setCurrentSection: (section: sectionform) => void;
 
-export default function PreviewForm() {
+}
+
+export default function PreviewForm({
+  currentSection,
+  setCurrentSection,
+}: formbuild) {
   const { id: formId } = useParams();
   const [showFaq, setShowFaq] = useState(false);
   const [form, setForm] = useState<Form | null>(null);
@@ -279,6 +293,8 @@ export default function PreviewForm() {
   const [selectedDevice, setSelectedDevice] = useState<"desktop" | "mobile">(
     "desktop"
   );
+  const LABELS = ["Builder", "Workflow", "Preview"];
+
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -370,6 +386,23 @@ export default function PreviewForm() {
 
   return (
     <div className="relative flex justify-center items-center min-h-screen bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full overflow-scroll h-full dark:bg-[#2B2A2A]">
+      <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full flex justify-center px-4 sm:px-0">
+        <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
+          {LABELS.map((label, i) => (
+            <button
+              key={label}
+              onClick={() => setCurrentSection(i as sectionform)}
+              className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
+                currentSection === i
+                  ? "bg-[#61A986] text-black dark:text-white"
+                  : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
       <div
         className={`w-full ${
           selectedDevice === "mobile" ? "max-w-[375px] scale-[0.95]" : "w-[80%]"

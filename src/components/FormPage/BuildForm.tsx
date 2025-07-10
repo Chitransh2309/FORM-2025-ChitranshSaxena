@@ -9,13 +9,22 @@ import QuestionParent from "@/components/FormPage/QuestionParent";
 import getFormObject from "@/app/action/getFormObject";
 import { saveFormToDB } from "@/app/action/saveformtodb";
 import { Form, Question, Section, QuestionType } from "@/lib/interface";
-import { Menu, Pencil } from "lucide-react";
+import { Menu } from "lucide-react";
 import FAQs from "../NewUserPage/FAQs";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
-import toast from "react-hot-toast";
-import { renameSectionTitle } from "@/app/action/sections";
+enum sectionform{
+  Build,
+  Workflow,
+  Preview
+}
+interface formbuild{
+  currentSection:sectionform;
+  setCurrentSection: (section: sectionform) => void;
 
-export default function BuildPage() {
+}
+
+export default function BuildPage({currentSection, setCurrentSection}: formbuild) {
+  const LABELS = ["Builder", "Workflow", "Preview"];
   const { id: formId } = useParams();
   const [form, setForm] = useState<Form | null>(null);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
@@ -76,25 +85,6 @@ export default function BuildPage() {
       sections: [...form.sections, newSection],
     });
     setSelectedSectionId(newId);
-  };
-
-  const handleRenameSection = async (sectionId: string, newTitle: string) => {
-    if (!formId || typeof formId !== "string") return;
-
-    const res = await renameSectionTitle(formId, sectionId, newTitle);
-
-    if (res.success) {
-      setForm((prev) => {
-        if (!prev) return prev;
-        const updatedSections = prev.sections.map((s) =>
-          s.section_ID === sectionId ? { ...s, title: newTitle } : s
-        );
-        return { ...prev, sections: updatedSections };
-      });
-      toast.success("Section renamed");
-    } else {
-      toast.error(res.error || "Rename failed");
-    }
   };
 
   const deleteSection = (sectionId: string) => {
@@ -248,31 +238,32 @@ export default function BuildPage() {
         <div className="flex flex-col lg:flex-row h-full">
           {/* Left content */}
           <div className="w-full h-[90vh] px-4 lg:px-10 overflow-y-auto">
+            <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full flex justify-center px-4 sm:px-0">
+        <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
+          {LABELS.map((label, i) => (
+            <button
+              key={label}
+              onClick={() => setCurrentSection(i as Section)}
+              className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
+                currentSection === i
+                  ? "bg-[#61A986] text-black dark:text-white"
+                  : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
             <div className="mt-20 flex flex-row justify-between items-center">
-              <div className="flex flex-row justify-center">
-                <div className="text-2xl font-bold mb-3 mt-6">
-                  {selectedSection?.title || "No Section Selected"}
-                </div>
-                <button
-                  className="pl-5 mt-3"
-                  onClick={() => {
-                    const newTitle = prompt(
-                      "Enter new section name",
-                      selectedSection?.title
-                    );
-                    if (newTitle && selectedSection?.section_ID) {
-                      handleRenameSection(selectedSection.section_ID, newTitle);
-                    }
-                  }}
-                >
-                  <Pencil className="w-5 h-5" />
-                </button>
+              <div className="text-2xl font-bold mb-3 mt-6">
+                {selectedSection?.title || "No Section Selected"}
               </div>
-
               <div className="mr-2">
                 <SaveButton onClick={handleSave} />
               </div>
             </div>
+            
 
             {selectedSection && (
               <QuestionParent
