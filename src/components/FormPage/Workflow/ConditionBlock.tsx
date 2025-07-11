@@ -17,7 +17,7 @@ export default function ConditionBlock({
   onRemove,
 }: Props) {
   const question = allQuestions.find(
-    (q) => q.question_ID === condition.fieldId
+    (q) => q.questionText === condition.fieldId
   );
   const options =
     question?.type === "DROPDOWN" || question?.type === "MCQ"
@@ -35,7 +35,7 @@ export default function ConditionBlock({
       >
         <option value="">Select question</option>
         {allQuestions.map((q) => (
-          <option key={q.question_ID} value={q.question_ID}>
+          <option key={q.question_ID} value={q.questionText}>
             {q.questionText}
           </option>
         ))}
