@@ -1,7 +1,7 @@
-import Footer from "../components/LandingPage/Footer";
-import Hero from "../components/LandingPage/Hero";
-import Navbar from "../components/LandingPage/Navbar";
-import Image from "next/image";
+import Footer from '../components/LandingPage/Footer';
+import Hero from '../components/LandingPage/Hero';
+import Navbar from '../components/LandingPage/Navbar';
+import Image from 'next/image';
 
 export default async function Home() {
   return (
@@ -9,7 +9,10 @@ export default async function Home() {
       <Navbar />
       <Hero />
 
-      <div className="w-full px-4 py-10 flex flex-col items-center text-center" id="features">
+      <div
+        className="w-full px-4 py-10 flex flex-col items-center text-center"
+        id="features"
+      >
         <p className="text-2xl font-bold text-[#3D3D3D] dark:text-white mb-8">
           Build Forms Like Never Before
         </p>
@@ -52,19 +55,41 @@ export default async function Home() {
 
         <div className="w-full flex justify-center">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl w-full place-items-center">
-            <div className="w-full max-w-[345px] bg-[#61A986] dark:bg-[#E1F4E6] rounded-xl p-6 text-white dark:text-[#61A986] flex flex-col items-center">
-              <div className="w-full max-w-[303px] h-40 bg-[#F8F8F6] dark:bg-[#61A986] rounded-xl mb-4"></div>
-              <p className="text-xl font-bold">FEATURE</p>
+            <div className="w-[344.35px] h-[375px] relative hover:scale-[1.05] transition-transform duration-300 cursor-pointer">
+              <Image
+                src="/rta.svg"
+                alt="rta"
+                width={344.35}
+                height={375}
+                className="w-[344.35px] h-[375px] "
+              />
+              <Image
+                src="/rta1.svg"
+                alt="rta1"
+                width={303}
+                height={229}
+                className="absolute w-[303px] h-[229px] top-30 left-1/2 transform -translate-x-1/2"
+              />
             </div>
 
-            <div className="w-full max-w-[345px] bg-[#E6AD00] dark:bg-[#F8F5EA] rounded-xl p-6 text-white dark:text-[#E6AD00] flex flex-col items-center">
-              <div className="w-full max-w-[303px] h-40 bg-[#F6F8F6] dark:bg-[#C69D1F] rounded-xl mb-4"></div>
-              <p className="text-xl font-bold">FEATURE</p>
+            <div className="w-[344.35px] h-[375px] hover:scale-[1.05] transition-transform duration-300 cursor-pointer">
+              <Image
+                src="/cl.svg"
+                alt="cl"
+                width={344.35}
+                height={375}
+                className="w-[344.35px] h-[375px]"
+              />
             </div>
 
-            <div className="w-full max-w-[345px] bg-[#3D3D3D] dark:bg-[#E9E6E9] rounded-xl p-6 text-white dark:text-[#3D3D3D] flex flex-col items-center">
-              <div className="w-full max-w-[303px] h-40 bg-[#F4F3F4] dark:bg-[#3D3D3D] rounded-xl mb-4"></div>
-              <p className="text-xl font-bold">FEATURE</p>
+            <div className="w-[344.35px] h-[375px] hover:scale-[1.05] transition-transform duration-300 cursor-pointer">
+              <Image
+                src="/ef.svg"
+                alt="ef"
+                width={344.35}
+                height={375}
+                className="w-[344.35px] h-[375px]"
+              />
             </div>
           </div>
         </div>
