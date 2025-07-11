@@ -14,11 +14,13 @@ import FAQs from "../NewUserPage/FAQs";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
 import toast from "react-hot-toast";
 import { renameSectionTitle } from "@/app/action/sections";
+
 enum sectionform {
   Build,
   Workflow,
   Preview,
 }
+
 interface formbuild {
   currentSection: sectionform;
   setCurrentSection: (section: sectionform) => void;
@@ -31,13 +33,9 @@ export default function BuildPage({
   const LABELS = ["Builder", "Workflow", "Preview"];
   const { id: formId } = useParams();
   const [form, setForm] = useState<Form | null>(null);
-  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
-    null
-  );
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [showRightNav, setShowRightNav] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
-    null
-  );
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
   const [showFAQ, setShowFAQ] = useState(false);
 
   const selectedSection = form?.sections.find(
@@ -56,7 +54,6 @@ export default function BuildPage({
     loadData();
   }, [formId]);
 
-  // Clear selected question when section changes
   useEffect(() => {
     setSelectedQuestion(null);
   }, [selectedSectionId]);
@@ -130,7 +127,7 @@ export default function BuildPage({
       questionText: "",
       isRequired: false,
       order: (selectedSection?.questions.length || 0) + 1,
-      type: QuestionType.TEXT, // Default type
+      type: QuestionType.TEXT,
     };
 
     const updatedSections = form.sections.map((section) =>
@@ -143,8 +140,6 @@ export default function BuildPage({
     );
 
     setForm({ ...form, sections: updatedSections });
-
-    // Auto-select the new question
     setSelectedQuestion(newQuestion);
   };
 
@@ -160,7 +155,6 @@ export default function BuildPage({
             questions: section.questions.map((q) => {
               if (q.question_ID === id) {
                 const updated = { ...q, ...updates };
-                // Track the new selected question
                 if (selectedQuestion?.question_ID === id) {
                   newSelected = updated;
                 }
@@ -172,10 +166,7 @@ export default function BuildPage({
         : section
     );
 
-    // Apply updates to the form
     setForm({ ...form, sections: updatedSections });
-
-    // Also update the selectedQuestion so RightNav reflects the latest data
     if (newSelected) {
       setSelectedQuestion(newSelected);
     }
@@ -194,8 +185,6 @@ export default function BuildPage({
     );
 
     setForm({ ...form, sections: updatedSections });
-
-    // Clear selected question if it was deleted
     if (selectedQuestion?.question_ID === id) {
       setSelectedQuestion(null);
     }
@@ -213,7 +202,6 @@ export default function BuildPage({
   };
 
   useEffect(() => {
-    // Check saved theme on initial mount
     const storedTheme = localStorage.getItem("theme");
     if (storedTheme === "dark") {
       document.documentElement.classList.add("dark");
@@ -223,9 +211,9 @@ export default function BuildPage({
   }, []);
 
   return (
-    <div className="h-full w-full flex font-[Outfit] dark:bg-[#2B2A2A] bg-[#F6F8F6] text-black dark:text-white overflow-hidden">
-      {/* Sidebar always visible */}
-      <div className="dark:bg-[#363535] h-full overflow-y-auto w-[1/5] sticky shadow-md">
+    <div className="flex flex-col lg:flex-row h-full w-full">
+      {/* ⬅️ Desktop Sidebar */}
+      <div className="hidden lg:flex w-[260px] border-r border-gray-300 dark:border-gray-500">
         <SectionSidebar
           sections={form?.sections || []}
           selectedSectionId={selectedSectionId}
@@ -235,120 +223,101 @@ export default function BuildPage({
         />
       </div>
 
-      {/* Mobile controls */}
-      <div className="lg:hidden flex items-center justify-start px-4 mt-2">
-        <button
-          className="flex items-center gap-2 bg-[#8cc7aa] text-black py-1 px-3 rounded-md shadow dark:bg-[#353434] dark:text-white"
-          onClick={() => setShowRightNav(!showRightNav)}
-        >
-          <Menu className="w-4 h-4" />
-          Edit Question
-        </button>
-      </div>
-
-      {/* FAQ Icon - (Mobile Only) */}
-      <div className="lg:hidden fixed bottom-6 right-6 z-40">
-        <button
-          className="flex items-center justify-center w-12 h-12 text-black rounded-full dark:text-white hover:shadow-xl transition-shadow"
-          onClick={() => setShowFAQ(true)}
-        >
-          <HiOutlineQuestionMarkCircle className="w-6 h-6" />
-        </button>
-      </div>
-
-      {/* Main content */}
-      <div className="w-full flex-1 overflow-hidden dark:text-white h-full">
-        <div className="flex flex-col lg:flex-row h-full">
-          {/* Left content */}
-          <div className="w-full h-[90vh] px-4 lg:px-10 overflow-y-auto">
-            <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full flex justify-center px-4 sm:px-0">
-              <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
-                {LABELS.map((label, i) => (
-                  <button
-                    key={label}
-                    onClick={() => setCurrentSection(i as Section)}
-                    className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
-                      currentSection === i
-                        ? "bg-[#61A986] text-black dark:text-white"
-                        : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="mt-20 flex flex-row justify-between items-center">
-              <div className="flex flex-row justify-center">
-                <div className="text-2xl font-bold mb-3 mt-6">
-                  {selectedSection?.title || "No Section Selected"}
-                </div>
-                <button
-                  className="pl-5 mt-3"
-                  onClick={() => {
-                    const newTitle = prompt(
-                      "Enter new section name",
-                      selectedSection?.title
-                    );
-                    if (newTitle && selectedSection?.section_ID) {
-                      handleRenameSection(selectedSection.section_ID, newTitle);
-                    }
-                  }}
-                >
-                  <Pencil className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="mr-2">
-                <SaveButton onClick={handleSave} />
-              </div>
-            </div>
-
-            {selectedSection && (
-              <QuestionParent
-                ques={selectedSection.questions}
-                onUpdate={(id, updates) => updateQuestion(id, updates)}
-                onDelete={(id) => deleteQuestion(id)}
-                onAdd={() => addQuestion()}
-                selectedQuestion={selectedQuestion}
-                setSelectedQuestion={setSelectedQuestion}
-              />
-            )}
+      {/* 📝 Main Content */}
+      <div className="w-full lg:px-10 overflow-y-auto flex flex-col space-y-6">
+        {/* Top Tabs */}
+        <div className="w-full flex justify-center z-40 px-4 py-3 ">
+          <div className="flex justify-between items-center w-full h-[68px] dark:bg-[#616161] bg-[#91C4AB]/45 shadow px-2 sm:px-4 rounded-md">
+            {LABELS.map((label, i) => (
+              <button
+                key={label}
+                onClick={() => setCurrentSection(i as sectionform)}
+                className={`flex-1 w-full mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
+                  currentSection === i
+                    ? "bg-[#61A986] text-black dark:text-white"
+                    : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
-
-          {/* RightNav */}
-          <div className="hidden lg:block w-[30vw] h-[90vh] sticky border-l border-gray-300 bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500">
-            <RightNav
-              selectedQuestion={selectedQuestion}
-              onUpdate={updateQuestion}
-            />
-          </div>
-
-          {/* Mobile RightNav Overlay */}
-          {showRightNav && (
-            <div className="lg:hidden fixed top-0 left-0 w-full h-full bg-white z-50 overflow-y-auto dark:bg-[#2a2b2b]">
-              <div className="flex justify-between items-center p-4 border-b dark:border-gray-500">
-                <h2 className="text-lg font-semibold">Edit Question</h2>
-                <button
-                  onClick={() => setShowRightNav(false)}
-                  className="text-red-500 font-semibold"
-                >
-                  Close
-                </button>
-              </div>
-              <div className="p-4">
-                <RightNav
-                  selectedQuestion={selectedQuestion}
-                  onUpdate={updateQuestion}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* FAQ Component */}
-          <FAQs showFaq={showFAQ} setShowFaq={setShowFAQ} />
         </div>
+
+        {/* 📱 Mobile Section Sidebar */}
+        <div className="lg:hidden w-full px-4 flex flex-row justify-between items-center">
+          <SectionSidebar
+            sections={form?.sections || []}
+            selectedSectionId={selectedSectionId}
+            setSelectedSectionId={setSelectedSectionId}
+            onAddSection={addSection}
+            onDeleteSection={deleteSection}
+          />
+          <div className="mr-2">
+            <SaveButton onClick={handleSave} />
+          </div>
+        </div>
+
+        {/* Section Title */}
+        <div className="flex flex-row justify-between w-full px-10 items-center">
+          <div className="flex flex-row justify-center">
+            <div className="text-2xl font-bold mb-3 mt-6">
+              {selectedSection?.title || "No Section Selected"}
+            </div>
+            <button
+              className="pl-5 mt-3"
+              onClick={() => {
+                const newTitle = prompt("Enter new section name", selectedSection?.title);
+                if (newTitle && selectedSection?.section_ID) {
+                  handleRenameSection(selectedSection.section_ID, newTitle);
+                }
+              }}
+            >
+              <Pencil className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="hidden lg:block mt-3">
+    <SaveButton onClick={handleSave} />
+  </div>
+
+        </div>
+
+        {/* Question List */}
+        {selectedSection && (
+          <QuestionParent
+            ques={selectedSection.questions}
+            onUpdate={updateQuestion}
+            onDelete={deleteQuestion}
+            onAdd={addQuestion}
+            selectedQuestion={selectedQuestion}
+            setSelectedQuestion={setSelectedQuestion}
+            onEditQuestion={() => setShowRightNav(!showRightNav)}
+          />
+        )}
       </div>
+
+      {/* 🧾 RightNav (desktop) */}
+      <div className="hidden lg:block w-[30vw] h-[90vh] sticky border-l border-gray-300 bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500">
+        <RightNav selectedQuestion={selectedQuestion} onUpdate={updateQuestion} />
+      </div>
+
+      {/* 📱 Mobile RightNav Overlay */}
+      {showRightNav && (
+        <div className="lg:hidden fixed top-0 left-0 w-full h-full bg-white z-50 overflow-y-auto dark:bg-[#2a2b2b]">
+          <div className="flex justify-between items-center p-4 border-b dark:border-gray-500">
+            <h2 className="text-lg font-semibold">Edit Question</h2>
+            <button onClick={() => setShowRightNav(false)} className="text-red-500 font-semibold">
+              Close
+            </button>
+          </div>
+          <div className="p-4">
+            <RightNav selectedQuestion={selectedQuestion} onUpdate={updateQuestion} />
+          </div>
+        </div>
+      )}
+
+      {/* FAQ */}
+      <FAQs showFaq={showFAQ} setShowFaq={setShowFAQ} />
     </div>
   );
 }
