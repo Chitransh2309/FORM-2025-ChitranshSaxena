@@ -69,9 +69,9 @@ export default function WorkflowPage({
   });
 
   const generateRandomPosition = (index: number) => {
-    const baseX = 150;
-    const baseY = 300;
-    const offsetX = Math.floor(Math.random() * 300);
+    const baseX = 0;
+    const baseY = 200;
+    const offsetX = Math.floor(Math.random() * 10);
     const offsetY = Math.floor(Math.random() * 100);
     return {
       x: baseX * index + offsetX,
