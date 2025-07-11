@@ -75,7 +75,7 @@ export default function SectionSidebar({
       </div>
 
       {/* Mobile Toggle Button */}
-      <div className="flex lg:hidden h-full  px-4 py-2 justify-between items-center max-w-[100px] z-50 bg-white dark:bg-[#353434] dark:text-white" onClick={() => setOpenMobile(true)}>
+      <div className="flex lg:hidden h-full  px-4 py-2 justify-between items-center max-w-[150px] z-50 bg-white dark:bg-[#353434] dark:text-white" onClick={() => setOpenMobile(true)}>
         <button >
           <Menu className="w-6 h-6 text-gray-800 dark:text-white" />
         </button>
@@ -84,7 +84,7 @@ export default function SectionSidebar({
 
       {/* Mobile Slide-over Drawer */}
       {openMobile && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex md:hidden">
+        <div className="fixed inset-0 z-50 bg-black/50 flex lg:hidden">
           <div className="w-4/5 max-w-xs bg-[#FEFEFE] text-black h-full p-4 overflow-auto dark:bg-[#363535] dark:text-white">
             <button
               className="text-sm text-gray-600 mb-4 underline dark:text-white"
