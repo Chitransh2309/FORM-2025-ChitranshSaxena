@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, Menu } from "lucide-react";
 import {
   Question as QuestionInterface,
   QuestionType,
@@ -21,6 +21,7 @@ interface Props {
   onUpdate: (id: string, updatedFields: Partial<QuestionInterface>) => void;
   isSelected?: boolean;
   isDuplicate?: boolean;
+  onEditQuestion: () => void;
 }
 
 export default function Question({
@@ -30,6 +31,7 @@ export default function Question({
   onUpdate,
   isSelected = false,
   isDuplicate = false,
+  onEditQuestion,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -285,6 +287,16 @@ export default function Question({
           Question
         </p>
 
+        <button
+          className="flex items-center gap-2 bg-[#8cc7aa] text-black py-1 px-3 rounded-md shadow dark:bg-[#353434] dark:text-white"
+          onClick={onEditQuestion}
+        >
+          <Menu className="w-4 h-2 lg:h-4" />
+          Edit Question
+        </button>
+
+
+        
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <label className="text-gray-700 text-sm dark:text-white">

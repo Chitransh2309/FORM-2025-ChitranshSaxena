@@ -70,13 +70,13 @@ export default function SectionSidebar({
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex flex-col bg-[#FEFEFE] text-black w-[260px] h-[90vh] p-4 box-border border-r border-gray-300 font-[Outfit] dark:bg-[#363535] dark:border-gray-500 dark:text-white">
+      <div className="hidden lg:flex flex-col bg-[#FEFEFE] text-black w-[260px] h-[90vh] p-4 box-border border-r border-gray-300 font-[Outfit] dark:bg-[#363535] dark:border-gray-500 dark:text-white">
         {SidebarContent}
       </div>
 
       {/* Mobile Toggle Button */}
-      <div className="flex md:hidden px-4 py-2 justify-between items-center bg-white dark:bg-[#353434] dark:text-white">
-        <button onClick={() => setOpenMobile(true)}>
+      <div className="flex lg:hidden h-full  px-4 py-2 justify-between items-center max-w-[100px] z-50 bg-white dark:bg-[#353434] dark:text-white" onClick={() => setOpenMobile(true)}>
+        <button >
           <Menu className="w-6 h-6 text-gray-800 dark:text-white" />
         </button>
         <div className="text-sm font-semibold">Sections</div>

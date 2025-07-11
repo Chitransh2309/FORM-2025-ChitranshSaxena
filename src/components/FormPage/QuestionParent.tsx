@@ -12,6 +12,7 @@ type Props = {
   onUpdate: (id: string, updates: Partial<QuestionInterface>) => void;
   selectedQuestion?: QuestionInterface | null;
   setSelectedQuestion?: (question: QuestionInterface) => void;
+  onEditQuestion: () => void;
 };
 
 export default function QuestionParent({
@@ -21,6 +22,7 @@ export default function QuestionParent({
   onUpdate,
   selectedQuestion,
   setSelectedQuestion,
+  onEditQuestion,
 }: Props) {
   const [alertShown, setAlertShown] = useState(false);
 
@@ -72,6 +74,7 @@ export default function QuestionParent({
             onDelete={onDelete}
             isSelected={selectedQuestion?.question_ID === q.question_ID}
             isDuplicate={duplicateIDs.has(q.question_ID)}
+            onEditQuestion = {onEditQuestion}
           />
         </div>
       ))}
