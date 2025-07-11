@@ -4,14 +4,15 @@ import { Section } from "@/lib/interface";
 import SectionItem from "./SectionItem";
 import { CircleUser, Menu } from "lucide-react";
 
-interface Props {
+interface SectionSidebarProps {
   sections: Section[];
   selectedSectionId: string | null;
   setSelectedSectionId: (id: string) => void;
   onAddSection: () => void;
+  onDeleteSection: (sectionId: string) => void;
 }
 
-export default function LeftSidebar({
+export default function SectionSidebar({
   sections,
   selectedSectionId,
   setSelectedSectionId,
@@ -25,35 +26,16 @@ export default function LeftSidebar({
       {/* Sections */}
       <div className="flex-1 h-80 ">
         <h2 className="mb-2 mt-8 text-base font-semibold">SECTIONS</h2>
-        <div className="border-t-2 border-black dark:border-white mb-4"></div>
+        <div className="border-t-2 border-black mb-4 dark:border-white"></div>
 
-<<<<<<< HEAD
-  if (duplicates.length > 0) {
-    console.warn(
-      "Duplicate section IDs found:",
-      duplicates.map((d) => d.section_ID)
-    );
-  }
-
-  return (
-    <div className="flex flex-col bg-[#FEFEFE] text-black w-1/5 h-[90vh] p-4 box-border border-2 border-gray-300 font-[Outfit]">
-      <div>
-        <h2 className="mb-2 mt-8 text-base">SECTIONS</h2>
-        <div className="border-t-2 border-black mb-6"></div>
-
-        <div className="h-80 overflow-y-auto scrollbar-hidden text-sm">
-          {sections.map((section) => (
-            <SectionItem
-              key={section.section_ID}
-=======
         <div className="max-h-[300px] overflow-y-auto text-sm pr-1 scrollbar-thin scrollbar-thumb-gray-300">
           {sections.map((section, index) => (
             <SectionItem
               key={`${section.section_ID}-${index}`}
->>>>>>> 1da22d4 (Added responsiveness for form builder)
               section={section}
               isSelected={section.section_ID === selectedSectionId}
               onClick={() => setSelectedSectionId(section.section_ID)}
+              onDeleteSection={onDeleteSection}
             />
           ))}
 
@@ -70,7 +52,7 @@ export default function LeftSidebar({
       <div className="mt-10 h-30">
         <h2 className="mb-2 text-base font-semibold">ENDINGS</h2>
         <div className="border-t-2 border-black mb-2 dark:border-white"></div>
-        <div className="py-2 rounded text-black bg-[#8cc7aa] dark:bg-[#5A5959] dark:text-white text-sm pl-2">
+        <div className="py-2 rounded text-black bg-[#8cc7aa] text-sm pl-2 dark:bg-[#494949] dark:text-white">
           Thank You Page
         </div>
       </div>
@@ -88,13 +70,13 @@ export default function LeftSidebar({
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex flex-col bg-[#FEFEFE] dark:bg-[#363535] dark:text-white text-black w-[260px] h-[90vh] p-4 box-border font-[Outfit]">
+      <div className="hidden lg:flex flex-col bg-[#FEFEFE] text-black w-[260px] h-[90vh] p-4 box-border border-r border-gray-300 font-[Outfit] dark:bg-[#363535] dark:border-gray-500 dark:text-white">
         {SidebarContent}
       </div>
 
       {/* Mobile Toggle Button */}
-      <div className="flex md:hidden px-4 py-2 justify-between items-center bg-white dark:bg-[#353434] dark:text-white">
-        <button onClick={() => setOpenMobile(true)}>
+      <div className="flex lg:hidden h-full  px-4 py-2 justify-between items-center max-w-[100px] z-50 bg-white dark:bg-[#353434] dark:text-white" onClick={() => setOpenMobile(true)}>
+        <button >
           <Menu className="w-6 h-6 text-gray-800 dark:text-white" />
         </button>
         <div className="text-sm font-semibold">Sections</div>
