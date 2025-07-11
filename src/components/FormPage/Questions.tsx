@@ -288,16 +288,17 @@ export default function Question({
         </p>
 
         <button
-          className="flex items-center gap-2 bg-[#8cc7aa] text-black py-1 px-3 rounded-md shadow dark:bg-[#353434] dark:text-white"
+          className="flex items-center mr-3 gap-2 bg-[#8cc7aa] text-black py-0.5 px-3 rounded-md shadow dark:bg-[#353434] dark:text-white"
           onClick={onEditQuestion}
         >
           <Menu className="w-4 h-2 lg:h-4" />
-          Edit Question
+          Edit
         </button>
 
 
         
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4 justify-end max-w-full overflow-hidden">
+
           <div className="flex items-center gap-2">
             <label className="text-gray-700 text-sm dark:text-white">
               Required
