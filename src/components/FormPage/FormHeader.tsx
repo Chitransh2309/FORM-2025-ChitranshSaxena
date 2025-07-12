@@ -8,6 +8,7 @@ import FormPublishModal from "./FormPublish";
 import FormSettings from "./FormSettings";
 import { Form, FormSettings as FormSettingsType } from "@/lib/interface";
 import { Settings } from "lucide-react";
+import getFormObject from "@/app/action/getFormObject";
 
 export default function FormHeader({
   children,
@@ -21,6 +22,7 @@ export default function FormHeader({
   const [isPending, startTransition] = useTransition();
   const [formLink, setFormLink] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [formName, setFormName] = useState("Draft");
 
   const isResponsePage = pathname.endsWith("/response");
 
@@ -54,7 +56,7 @@ export default function FormHeader({
   return (
     <div className="font-[Outfit]">
       {!isResponsePage && (
-        <nav className="fixed top-0 left-0 w-full h-[75px] overflow-hidden min-h-0 bg-neutral-600 text-white px-8 flex justify-between items-center text-lg z-50">
+        <nav className="fixed top-0 left-0 w-full h-[75px] overflow-hidden min-h-0 bg-neutral-600 text-white px-4 flex justify-between items-center text-lg z-50">
           <div className="flex-1 hidden md:block">
             <button onClick={handleWorkspace}>&lt; Back to Workspace</button>
           </div>
@@ -64,7 +66,7 @@ export default function FormHeader({
               <button onClick={handleWorkspace}>&lt;</button>
             </div>
             <div className="flex-1 text-center">
-              <h2 className="font-semibold"> Draft Name</h2>
+              <h2 className="font-semibold">{formName}</h2>
             </div>
           </div>
 
@@ -85,7 +87,7 @@ export default function FormHeader({
             <button
               onClick={handlePublish}
               disabled={isPending}
-              className={`h-7 w-25 rounded-md text-white font-semibold transition duration-200 ${
+              className={`h-6 w-20 text-xs lg:text-sm lg:h-7 lg:w-25 rounded-md text-white font-semibold transition duration-200 ${
                 isPending
                   ? "bg-[#61A986] cursor-not-allowed"
                   : "bg-[#61A986] hover:bg-[#43755d]"
