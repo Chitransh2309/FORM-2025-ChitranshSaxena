@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import toast from "react-hot-toast";
 import getFormObject from "@/app/action/getFormObject";
-import { Menu } from "lucide-react";
+import { Menu, Grip } from "lucide-react";
 
 import {
   LogicRule,
@@ -273,7 +273,7 @@ export default function WorkflowPage({
             fitView
           >
             <Background />
-            <MiniMap />
+            <MiniMap className="w-24 h-20 lg:w-40 lg:h-32" />
             <Controls />
           </ReactFlow>
         </ReactFlowProvider>
@@ -352,17 +352,17 @@ export default function WorkflowPage({
       <div className="relative">
         {/* Hamburger Button - visible only on small screens */}
         <button
-          className="md:hidden fixed top-2 right-2 z-50 p-2 rounded bg-white shadow mt-20"
+          className="md:hidden fixed top-20  left-2 z-50 p-2 rounded  dark:bg-[#363535] bg-[#fefefe] text-black dark:text-white shadow mt-20"
           onClick={() => setShowSavedLogic((prev) => !prev)}
         >
-          <Menu size={20} />
+          <Grip size={20} />
         </button>
 
         {/* Logic Sidebar */}
         <div
           className={`
-          fixed top-0 right-0 h-full w-[75%] z-40 p-4 mt-20 md:mt-0 dark:bg-[#363535] bg-[#fefefe] md:bg-none overflow-y-auto transition-transform duration-300
-          ${showSavedLogic ? "translate-x-0" : "translate-x-full"}
+          fixed top-0 left-0 h-full w-[75%] z-40 p-4 mt-20 md:mt-0 dark:bg-[#363535] bg-[#fefefe] md:bg-none overflow-y-auto transition-transform duration-300
+          ${showSavedLogic ? "translate-x-0" : "-translate-x-full"}
           md:relative md:translate-x-0 md:w-[300px]
         `}
         >
