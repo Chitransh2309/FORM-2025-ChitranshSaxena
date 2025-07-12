@@ -15,6 +15,7 @@ import Formsorter from "../../components/NewUserPage/FormSorter";
 import Drafts from "../../components/NewUserPage/Drafts";
 import Published from "../../components/NewUserPage/Published";
 import Trash from "../../components/NewUserPage/Trash";
+import Starred from "../../components/NewUserPage/Starred";
 import Profile from "../../components/NewUserPage/Profile";
 import FAQs from "../../components/NewUserPage/FAQs";
 import ToggleSwitch from "../../components/NewUserPage/ToggleSwitch";
@@ -66,6 +67,7 @@ function Workspace({
 
   const drafts = forms.filter((f) => !f.isActive && !f.isDeleted);
   const published = forms.filter((f) => f.isActive && !f.isDeleted);
+  const starred = forms.filter((f) => f.isStarred && !f.isDeleted);
   const trash = forms.filter((f) => f.isDeleted);
 
   const filterBySearch = (forms: Form[]) =>
@@ -77,6 +79,7 @@ function Workspace({
 
   const filteredDrafts = filterBySearch(drafts);
   const filteredPublished = filterBySearch(published);
+  const filteredStarred = filterBySearch(starred);
   const filteredTrash = filterBySearch(trash);
   const isEmpty = !loading && drafts.length === 0 && published.length === 0;
 
@@ -86,6 +89,15 @@ function Workspace({
     if (res) router.push(`/form/${res}`);
     else alert("Failed to create a new form. Try again.");
   };
+
+  const handleUnstarInWorkspace = (formId: string) => {
+  setForms((prev) =>
+    prev.map((f) =>
+      f.form_ID === formId ? { ...f, isStarred: false } : f
+    )
+  );
+};
+
 
   const wrapperStyles =
     "w-[80%] h-[60vh] border border-dashed mx-auto flex flex-col justify-center items-center gap-6 bg-transparent";
@@ -183,8 +195,7 @@ function Workspace({
         </div>
       )}
 
-      {/* Main Section */}
-      <div className="flex-1 px-4 md:px-6 pb-4 h-full flex items-center justify-center">
+            <div className="flex-1 px-4 md:px-6 pb-4 h-full flex items-center justify-center">
         {selected === "myForms" ? (
           loading ? (
             <div className={wrapperStyles + " text-black dark:text-white"}>
@@ -215,15 +226,14 @@ function Workspace({
           )
         ) : selected === "trash" ? (
           <Trash forms={filteredTrash} searchTerm={searchTerm} />
+        ) : selected === "starred" ? (
+          <Starred forms={filteredStarred} searchTerm={searchTerm} onUnstar={handleUnstarInWorkspace} />
         ) : selected === "shared" ? (
-          <Shared />
+          <Shared/>
         ) : null}
-      </div>
+          {showFaq && <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />}
+      </div></div>)}
 
-      {showFaq && <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />}
-    </div>
-  );
-}
 
 export default function CombinedWorkspacePage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -233,7 +243,7 @@ export default function CombinedWorkspacePage() {
 
   return (
     <div className="min-h-screen w-screen overflow-x-hidden font-[Outfit]">
-      {/* Desktop layout */}
+      {/* Desktop View */}
       <div className="hidden xl:flex h-screen">
         <aside className="fixed top-0 left-0 h-screen w-[15%] z-40">
           <Sidebar
@@ -252,7 +262,7 @@ export default function CombinedWorkspacePage() {
         </div>
       </div>
 
-      {/* Mobile layout */}
+      {/* Mobile View */}
       <div className="block xl:hidden h-screen flex flex-col">
         <div className="flex-1 overflow-y-auto">
           <Workspace
@@ -268,3 +278,4 @@ export default function CombinedWorkspacePage() {
     </div>
   );
 }
+              
