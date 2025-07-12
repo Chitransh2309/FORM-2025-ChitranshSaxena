@@ -3,6 +3,7 @@ export interface User {
   email: string;
   googleID: string;
   forms?: string[]; // form_ID references
+  sharedForms?: string[];
   icon?: string;
   name: string;
   verified?: Date;
@@ -15,6 +16,8 @@ export interface Form {
   description: string;
   createdAt: Date;
   createdBy: string; // user_ID reference
+  editorID?: string[];
+  viewerID?: string[];
   publishedAt: Date;
   isActive: boolean;
   publishedAt: Date;
