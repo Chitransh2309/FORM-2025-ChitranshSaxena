@@ -33,10 +33,15 @@ export async function addEditor(form_ID: string, email_ID: string) {
       throw new Error(`Form with ID ${form_ID} not found.`);
     }
     console.log("2");
-      await formsCollection.updateOne(
-        { form_ID },
-        { $addToSet: { editorID: userID } } // addToSet prevents duplicates
-      );
+    await formsCollection.updateOne(
+      { form_ID },
+      { $addToSet: { editorID: userID } } // addToSet prevents duplicates
+    );
+
+    await usersCollection.updateOne(
+      { user_ID: userID },
+      { $addToSet: { sharedForms: form_ID } }
+    );
 
     return { success: true, message: "Editor added successfully." };
   } catch (error) {
@@ -48,7 +53,7 @@ export async function addEditor(form_ID: string, email_ID: string) {
 }
 
 export async function addViewer(form_ID: string, email_ID: string) {
- try {
+  try {
     let client: MongoClient | null = null;
     const connection = await connectToDB();
     client = connection.client;
@@ -65,16 +70,21 @@ export async function addViewer(form_ID: string, email_ID: string) {
     console.log("!");
     const userID = user.user_ID;
 
-    const form = await formsCollection.findOne({form_ID})
+    const form = await formsCollection.findOne({ form_ID });
 
     if (!form) {
       throw new Error(`Form with ID ${form_ID} not found.`);
     }
     console.log("2");
-      await formsCollection.updateOne(
-        { form_ID },
-        { $addToSet: { viewerID: userID } } 
-      );
+    await formsCollection.updateOne(
+      { form_ID },
+      { $addToSet: { viewerID: userID } }
+    );
+
+    await usersCollection.updateOne(
+      { user_ID: userID },
+      { $addToSet: { sharedForms: form_ID } }
+    );
 
     return { success: true, message: "Viewer added successfully." };
   } catch (error) {
@@ -82,5 +92,5 @@ export async function addViewer(form_ID: string, email_ID: string) {
       success: false,
       message: error instanceof Error ? error.message : "Unknown error",
     };
- }
+  }
 }
