@@ -18,6 +18,8 @@ import Trash from "../../components/NewUserPage/Trash";
 import Profile from "../../components/NewUserPage/Profile";
 import FAQs from "../../components/NewUserPage/FAQs";
 import ToggleSwitch from "../../components/NewUserPage/ToggleSwitch";
+import TrashPage from "../../components/NewUserPage/Trash";
+import Shared from "../../components/NewUserPage/Shared";
 
 // Actions & Types
 import { getFormsForUser } from "@/app/action/forms";
@@ -48,7 +50,10 @@ function Workspace({
   useEffect(() => {
     (async () => {
       try {
-        const [formsRes, user] = await Promise.all([getFormsForUser(true), getUser()]);
+        const [formsRes, user] = await Promise.all([
+          getFormsForUser(true),
+          getUser(),
+        ]);
         setForms(formsRes);
         setName(user?.name || "");
         setEmail(user?.email || "");
@@ -66,7 +71,9 @@ function Workspace({
   const filterBySearch = (forms: Form[]) =>
     !searchTerm
       ? forms
-      : forms.filter((form) => form.title?.toLowerCase().includes(searchTerm.toLowerCase()));
+      : forms.filter((form) =>
+          form.title?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
 
   const filteredDrafts = filterBySearch(drafts);
   const filteredPublished = filterBySearch(published);
@@ -92,13 +99,25 @@ function Workspace({
         <div className="flex items-center gap-4">
           <ToggleSwitch />
           <button onClick={() => setShowFaq(true)}>
-            <HiOutlineQuestionMarkCircle size={26} className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300" />
+            <HiOutlineQuestionMarkCircle
+              size={26}
+              className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
+            />
           </button>
           <button onClick={() => setShowProfile(!showProfile)}>
             {image ? (
-              <Image src={image} width={28} height={28} alt="profile_image" className="rounded-full" />
+              <Image
+                src={image}
+                width={28}
+                height={28}
+                alt="profile_image"
+                className="rounded-full"
+              />
             ) : (
-              <FaRegCircleUser size={24} className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300" />
+              <FaRegCircleUser
+                size={24}
+                className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
+              />
             )}
           </button>
         </div>
@@ -168,7 +187,9 @@ function Workspace({
       <div className="flex-1 px-4 md:px-6 pb-4 h-full flex items-center justify-center">
         {selected === "myForms" ? (
           loading ? (
-            <div className={wrapperStyles + " text-black dark:text-white"}>Loading…</div>
+            <div className={wrapperStyles + " text-black dark:text-white"}>
+              Loading…
+            </div>
           ) : isEmpty ? (
             <div className={wrapperStyles + " dark:border-white"}>
               <p className="text-lg md:text-2xl text-center text-gray-600 dark:text-gray-200">
@@ -193,13 +214,14 @@ function Workspace({
             </div>
           )
         ) : selected === "trash" ? (
-          <Trash forms={filteredTrash} searchTerm={searchTerm} />
-        ) : (
-          <div className="text-center text-white text-xl p-12">
-            {selected === "starred" && "⭐ Starred Forms (Coming Soon)"}
-            {selected === "shared" && "🔗 Shared Forms (Coming Soon)"}
+          <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white text-2xl font-bold rounded-lg">
+            <TrashPage forms={filteredTrashed} />
           </div>
-        )}
+        ) : selected === "shared" ? (
+          <>
+            <Shared />
+          </>
+        ) : null}
       </div>
 
       {showFaq && <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />}
@@ -209,7 +231,9 @@ function Workspace({
 
 export default function CombinedWorkspacePage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selected, setSelected] = useState<"myForms" | "starred" | "shared" | "trash">("myForms");
+  const [selected, setSelected] = useState<
+    "myForms" | "starred" | "shared" | "trash"
+  >("myForms");
 
   return (
     <div className="min-h-screen w-screen overflow-x-hidden font-[Outfit]">

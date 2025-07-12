@@ -78,14 +78,14 @@ export default async function Home() {
             </div>
 
             <div
-              className="w-[344.35px] h-[375px] border-[2px] border-[#C36D81] rounded-[25px] relative hover:scale-[1.05] transition-transform duration-300 cursor-pointer px-8 pb-8 pt-4 flex flex-col justify-between"
+              className="w-[344.35px] h-[375px] border-[2px] border-[#617DA9] rounded-[25px] relative hover:scale-[1.05] transition-transform duration-300 cursor-pointer px-8 pb-8 pt-4 flex flex-col justify-between"
               style={{
-                boxShadow: "inset 0 0 25px 8px rgba(195, 109, 129, 0.6)",
+                boxShadow: "inset 0 0 25px 8px rgba(97, 125, 169, 0.6)",
               }}
             >
               <div
                 className="text-[24px] font-semibold self-center pt-8
-               bg-gradient-to-r from-[#000000] dark:from-[#F6F8F6] via-[#B85C70] to-[#C36D81]
+               bg-gradient-to-r from-[#000000] dark:from-[#F6F8F6] via-[#8C6E85] to-[#617DA9]
                bg-clip-text text-transparent"
               >
                 Conditional Logic
@@ -99,14 +99,14 @@ export default async function Home() {
               />
             </div>
             <div
-              className="w-[344.35px] h-[375px] border-[2px] border-[#617DA9] rounded-[25px] relative hover:scale-[1.05] transition-transform duration-300 cursor-pointer px-8 pb-8 pt-4 flex flex-col justify-between"
+              className="w-[344.35px] h-[375px] border-[2px] border-[#C36D81] rounded-[25px] relative hover:scale-[1.05] transition-transform duration-300 cursor-pointer px-8 pb-8 pt-4 flex flex-col justify-between"
               style={{
-                boxShadow: "inset 0 0 25px 8px rgba(97, 125, 169, 0.6)",
+                boxShadow: "inset 0 0 25px 8px rgba(195, 109, 129, 0.6)",
               }}
             >
               <div
                 className="text-[24px] font-semibold self-center pt-8
-               bg-gradient-to-r from-[#000000] dark:from-[#F6F8F6] via-[#8C6E85] to-[#617DA9] 
+               bg-gradient-to-r from-[#000000] dark:from-[#F6F8F6] via-[#B85C70] to-[#C36D81] 
                bg-clip-text text-transparent"
               >
                 Easy & Flexible
