@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import toast from "react-hot-toast";
 import getFormObject from "@/app/action/getFormObject";
 import { Menu, Grip } from "lucide-react";
+import { useWindowSize } from "react-use";
 
 import {
   LogicRule,
@@ -232,6 +233,27 @@ export default function WorkflowPage({
     (s) => s.section_ID !== selectedSectionId
   );
 
+  function MiniMapDimensions() {
+    const { width } = useWindowSize();
+    let miniMapWidth = 160;
+    let miniMapHeight = 120;
+
+    if (width < 500) {
+      miniMapWidth = 100;
+      miniMapHeight = 80;
+    } else if (width > 1000) {
+      miniMapWidth = 200;
+      miniMapHeight = 150;
+    }
+
+    return {
+      width: miniMapWidth,
+      height: miniMapHeight,
+    };
+  }
+
+  const { width, height } = MiniMapDimensions();
+
   return (
     <div className="text-black w-full h-[90vh] p-4 flex gap-6">
       <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full flex justify-center px-4 sm:px-0">
@@ -273,7 +295,13 @@ export default function WorkflowPage({
             fitView
           >
             <Background />
-            <MiniMap className="w-24 h-20 lg:w-40 lg:h-32" />
+            <MiniMap
+              pannable={true}
+              style={{
+                width: width,
+                height: height,
+              }}
+            />
             <Controls />
           </ReactFlow>
         </ReactFlowProvider>
