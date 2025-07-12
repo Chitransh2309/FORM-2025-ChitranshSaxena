@@ -4,20 +4,21 @@ import React, { useState } from "react";
 import PreviewForm from "@/components/FormPage/PreviewForm";
 import BuildForm from "@/components/FormPage/BuildForm";
 import WorkflowPage from "./Workflow/WorkflowPage";
+import { Form } from "@/lib/interface";
 enum Section {
   Builder,
   Workflow,
   Preview,
 }
 
-const CenterNav = ({ formId }: { formId?: string }) => {
+const CenterNav = ({ form }: { form?: Form }) => {
   const [currentSection, setCurrentSection] = useState<Section>(
     Section.Builder
   );
   
 
   return (
-    <div className=" w-full  bg-[#F6F8F6] dark:bg-[#2B2A2A] dark:text-white overflow-hidden font-[Outfit]">
+    <div className=" w-full  bg-[#F6F8F6] dark:bg-[#2B2A2A] dark:text-white overflow-hidden font-[Outfit] h-full">
       {/* Top tab nav */}
       {/* Floating tab bar */}
       {/* <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full flex justify-center px-4 sm:px-0">
@@ -42,11 +43,11 @@ const CenterNav = ({ formId }: { formId?: string }) => {
       <div className="w-full h-full flex-grow overflow-auto">
         {currentSection === Section.Builder && <BuildForm currentSection={currentSection} setCurrentSection={setCurrentSection} />}
         {currentSection === Section.Workflow && (
-          <WorkflowPage form_ID={formId} currentSection={currentSection} setCurrentSection={setCurrentSection} />
+          <WorkflowPage form_ID={form?.form_ID} currentSection={currentSection} setCurrentSection={setCurrentSection} />
         )}
         {currentSection === Section.Preview && (
           <div className="p-4 sm:p-6 dark:text-white">
-            <PreviewForm currentSection={currentSection} setCurrentSection={setCurrentSection} />
+            <PreviewForm form={form} currentSection={currentSection} setCurrentSection={setCurrentSection} />
           </div>
         )}
       </div>
