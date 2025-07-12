@@ -3,6 +3,10 @@
 import { useEffect, useState, useMemo } from "react";
 import toast from "react-hot-toast";
 import getFormObject from "@/app/action/getFormObject";
+import { Grip } from "lucide-react";
+import { useWindowSize } from "react-use";
+import { useReactFlow } from "reactflow";
+
 import {
   LogicRule,
   Section,
@@ -25,20 +29,18 @@ import CustomNode from "./CustomNode";
 import { saveFormLogic } from "@/app/action/saveFormLogic";
 import ConditionGroup from "./ConditionGroup";
 import ConditionBlock from "./ConditionBlock";
-enum sectionform{
+enum sectionform {
   Build,
   Workflow,
-  Preview
+  Preview,
 }
-interface formbuild{
-  currentSection:sectionform;
+interface formbuild {
+  currentSection: sectionform;
   setCurrentSection: (section: sectionform) => void;
-
 }
 interface WorkflowPageProps extends formbuild {
   form_ID: string;
 }
-
 
 export default function WorkflowPage({
   form_ID,
@@ -47,6 +49,8 @@ export default function WorkflowPage({
 }: WorkflowPageProps) {
   const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
   const LABELS = ["Builder", "Workflow", "Preview"];
+
+  const [showSavedLogic, setShowSavedLogic] = useState(true);
 
   const [sections, setSections] = useState<Section[]>([]);
   const [nodes, setNodes] = useState<Node[]>([]);
@@ -67,9 +71,9 @@ export default function WorkflowPage({
   });
 
   const generateRandomPosition = (index: number) => {
-    const baseX = 150;
-    const baseY = 300;
-    const offsetX = Math.floor(Math.random() * 300);
+    const baseX = 0;
+    const baseY = 200;
+    const offsetX = Math.floor(Math.random() * 10);
     const offsetY = Math.floor(Math.random() * 100);
     return {
       x: baseX * index + offsetX,
@@ -230,8 +234,47 @@ export default function WorkflowPage({
     (s) => s.section_ID !== selectedSectionId
   );
 
-  return (
+  function MiniMapDimensions() {
+    const { width } = useWindowSize();
+    let miniMapWidth = 160;
+    let miniMapHeight = 120;
 
+    if (width < 500) {
+      miniMapWidth = 100;
+      miniMapHeight = 80;
+    } else if (width > 1000) {
+      miniMapWidth = 200;
+      miniMapHeight = 150;
+    }
+
+    return {
+      width: miniMapWidth,
+      height: miniMapHeight,
+    };
+  }
+
+  function AutoCenter() {
+    const { width } = useWindowSize();
+    const { fitView } = useReactFlow();
+
+    // Auto-center nodes when screen size changes (like switching to mobile)
+    useEffect(() => {
+      if (width < 768) {
+        // Small screen — refit view
+        const timeout = setTimeout(() => {
+          fitView({ padding: 0.2, duration: 500 });
+        }, 200); // slight delay to wait for DOM layout
+
+        return () => clearTimeout(timeout);
+      }
+    }, [width, fitView]);
+
+    return null;
+  }
+
+  const { width, height } = MiniMapDimensions();
+
+  return (
     <div className="text-black w-full h-[90vh] p-4 flex gap-6">
       <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full flex justify-center px-4 sm:px-0">
         <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
@@ -272,8 +315,15 @@ export default function WorkflowPage({
             fitView
           >
             <Background />
-            <MiniMap />
+            <MiniMap
+              pannable={true}
+              style={{
+                width: width,
+                height: height,
+              }}
+            />
             <Controls />
+            <AutoCenter />
           </ReactFlow>
         </ReactFlowProvider>
       </div>
@@ -348,32 +398,58 @@ export default function WorkflowPage({
         </div>
       )}
 
-      <div className="px-2 mt-2 max-h-[90%] overflow-auto w-[300px]">
-        <h3 className="text-sm dark:text-white font-medium mb-2">
-          Saved Logic:
-        </h3>
-        <div className="space-y-1">
-          {logicRules.map((rule, idx) => (
-            <div
-              key={idx}
-              className="bg-[#E0E0E0] px-2 py-1 rounded text-sm break-words"
+      <div className="relative">
+        {/* Hamburger Button - visible only on small screens */}
+        <button
+          className="md:hidden fixed top-20 ml-2 left-2 z-30 p-2 rounded  dark:bg-[#363535] bg-[#fefefe] text-black dark:text-white shadow mt-20"
+          onClick={() => setShowSavedLogic((prev) => !prev)}
+        >
+          <Grip size={20} />
+        </button>
+
+        {/* Logic Sidebar */}
+        <div
+          className={`
+          fixed top-0 left-0 h-full w-[75%] z-40 p-4 mt-20 md:mt-0 dark:bg-[#363535] bg-[#fefefe] md:bg-none overflow-y-auto transition-transform duration-300
+          ${showSavedLogic ? "translate-x-0" : "-translate-x-full"}
+          md:relative md:translate-x-0 md:w-[300px]
+        `}
+        >
+          <div className="flex justify-end mb-4 md:hidden">
+            <button
+              onClick={() => setShowSavedLogic(false)}
+              className="text-red-500 font-semibold px-3 py-1 rounded hover:bg-red-500 hover:text-white transition"
             >
-              <p className="text-gray-700 mb-1 leading-snug">
-                <strong>{rule.triggerSectionId}</strong> →{" "}
-                <strong>{rule.action.to}</strong>
-                <br />
-                <em className="text-gray-600">
-                  {renderCondition(rule.action.condition)}
-                </em>
-              </p>
-              <button
-                onClick={() => handleDeleteLogic(idx)}
-                className="text-red-500 text-xs hover:underline"
+              Close
+            </button>
+          </div>
+
+          <h3 className="text-sm dark:text-white font-medium mb-2">
+            Saved Logic:
+          </h3>
+          <div className="space-y-1">
+            {logicRules.map((rule, idx) => (
+              <div
+                key={idx}
+                className="bg-[#E0E0E0] px-2 py-1 rounded text-sm break-words"
               >
-                Delete
-              </button>
-            </div>
-          ))}
+                <p className="text-gray-700 mb-1 leading-snug">
+                  <strong>{rule.triggerSectionId}</strong> →{" "}
+                  <strong>{rule.action.to}</strong>
+                  <br />
+                  <em className="text-gray-600">
+                    {renderCondition(rule.action.condition)}
+                  </em>
+                </p>
+                <button
+                  onClick={() => handleDeleteLogic(idx)}
+                  className="text-red-500 text-xs hover:underline"
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
