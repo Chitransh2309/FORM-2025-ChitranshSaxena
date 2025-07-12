@@ -1,36 +1,40 @@
 "use client";
 
-import Link from "next/link";
 import { MdOutlineHome } from "react-icons/md";
 import { TbShare3 } from "react-icons/tb";
 import { FaRegStar } from "react-icons/fa";
 import { GrDocument } from "react-icons/gr";
 import { LuTrash2 } from "react-icons/lu";
 
-type Item = { href: string; icon: React.ReactNode; label: string };
+type Props = {
+  selected: string;
+  setSelected: (val: "myForms" | "shared" | "starred" | "trash") => void;
+};
 
-const items: Item[] = [
-  { href: "/",         icon: <MdOutlineHome size={22} />, label: "Home" },
-  { href: "/shared",   icon: <TbShare3       size={22} />, label: "Shared" },
-  { href: "/starred",  icon: <FaRegStar      size={22} />, label: "Starred" },
-  { href: "/drafts",   icon: <GrDocument     size={20} />, label: "Drafts" },
-  { href: "/trash",    icon: <LuTrash2       size={20} />, label: "Trash" },
-];
+export default function BottomNav({ selected, setSelected }: Props) {
+  const items = [
+    { key: "myForms", icon: <MdOutlineHome size={22} />, label: "Home" },
+    { key: "shared", icon: <TbShare3 size={22} />, label: "Shared" },
+    { key: "starred", icon: <FaRegStar size={22} />, label: "Starred" },
+    { key: "trash", icon: <LuTrash2 size={20} />, label: "Trash" },
+  ];
 
-export default function BottomNav() {
   return (
-    /* hidden on ≥ md screens */
     <nav className="fixed bottom-0 left-0 right-0 z-50 xl:hidden bg-white border-t shadow-md dark:bg-[#2B2A2A] dark:border-gray-500">
       <ul className="flex justify-around">
-        {items.map(({ href, icon, label }) => (
-          <li key={label}>
-            <Link
-              href={href}
-              className="flex flex-col items-center py-3 text-xs text-black hover:text-[#56A37D] dark:text-white"
+        {items.map(({ key, icon, label }) => (
+          <li key={key}>
+            <button
+              onClick={() => setSelected(key as Props["selected"])}
+              className={`flex flex-col items-center py-3 text-xs ${
+                selected === key
+                  ? "text-[#56A37D]"
+                  : "text-black dark:text-white"
+              }`}
             >
               {icon}
               <span className="mt-1">{label}</span>
-            </Link>
+            </button>
           </li>
         ))}
       </ul>
