@@ -352,7 +352,7 @@ export default function WorkflowPage({
       <div className="relative">
         {/* Hamburger Button - visible only on small screens */}
         <button
-          className="md:hidden fixed top-20  left-2 z-50 p-2 rounded  dark:bg-[#363535] bg-[#fefefe] text-black dark:text-white shadow mt-20"
+          className="md:hidden fixed top-20 ml-2 left-2 z-30 p-2 rounded  dark:bg-[#363535] bg-[#fefefe] text-black dark:text-white shadow mt-20"
           onClick={() => setShowSavedLogic((prev) => !prev)}
         >
           <Grip size={20} />
@@ -366,6 +366,15 @@ export default function WorkflowPage({
           md:relative md:translate-x-0 md:w-[300px]
         `}
         >
+          <div className="flex justify-end mb-4 md:hidden">
+            <button
+              onClick={() => setShowSavedLogic(false)}
+              className="text-red-500 font-semibold px-3 py-1 rounded hover:bg-red-500 hover:text-white transition"
+            >
+              Close
+            </button>
+          </div>
+
           <h3 className="text-sm dark:text-white font-medium mb-2">
             Saved Logic:
           </h3>
