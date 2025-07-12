@@ -51,31 +51,32 @@ export default function Shared() {
   }
 
   return (
-    <section className="w-full xl:w-1/2 text-black p-4 dark:text-white mb-20 xl:mb-0">
+    <section className="w-full px-4 xl:px-10 py-6 text-black dark:text-white">
       <h2 className="text-xl font-semibold px-4 py-3">Shared With Me</h2>
 
-      <div className="border-2 border-gray border-dashed rounded-lg p-4 dark:border-white">
+      <div className="border-2 border-dashed border-gray-400 dark:border-white rounded-lg p-6 min-h-[60vh]">
         {sharedForms.length === 0 ? (
-          <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-center text-gray-500 dark:text-gray-400">
             No shared forms available.
           </p>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {sharedForms.map((form) => (
               <div key={form.form_ID} className="flex flex-col relative">
                 <button
                   onClick={() => router.push(`/form/${form.form_ID}`)}
-                  className="w-full aspect-square bg-gray-300 hover:bg-[#d1ebdb]
-                    rounded-lg shadow transition p-3 dark:bg-[#353434] dark:hover:bg-[#3f3d3d] text-center"
+                  className="w-full aspect-square bg-gray-300 text-center flex items-center justify-center rounded-lg dark:bg-[#353434]"
                 >
                   {form.title || "Untitled Form"}
                 </button>
-                <button
-                  onClick={() => router.push(`/form/${form.form_ID}`)}
-                  className="flex-1 rounded bg-[#56A37D] text-white text-xs py-1"
-                >
-                  Edit Form
-                </button>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => router.push(`/form/${form.form_ID}`)}
+                    className="flex-1 rounded bg-[#56A37D] text-white text-xs py-1"
+                  >
+                    Edit Form
+                  </button>
+                </div>
               </div>
             ))}
           </div>
