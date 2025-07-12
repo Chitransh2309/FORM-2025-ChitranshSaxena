@@ -85,7 +85,7 @@ const [ formSettings, setFormSettings ] = useState<FormSettingsType>(form.settin
           !isResponsePage ? 'pt-[75px]' : ''
         } bg-neutral-600`}
       >
-        <div className="bg-neutral-100 text-black w-screen h-[92vh] flex">
+        <div className="bg-neutral-100 text-black w-screen h-screen flex">
           <div className="w-full h-full overflow-auto">{children}</div>
         </div>
       </div>

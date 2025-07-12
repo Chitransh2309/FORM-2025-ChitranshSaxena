@@ -22,13 +22,13 @@ export default function SectionSidebar({
   const [openMobile, setOpenMobile] = useState(false);
 
   const SidebarContent = (
-    <div className="dark:bg-[#363535] dark:text-white h-full">
+    <div className="flex flex-col h-[calc(100%-80px)] overflow-y-auto dark:bg-[#363535] dark:text-white">
       {/* Sections */}
-      <div className="flex-1 h-80 ">
-        <h2 className="mb-2 mt-8 text-base font-semibold">SECTIONS</h2>
-        <div className="border-t-2 border-black mb-4 dark:border-white"></div>
+      <div className="flex-1 flex flex-col h-full ">
+        <h2 className="mb-2 mt-5 text-base font-semibold px-4">SECTIONS</h2>
+        <div className="border-t-2 border-black mb-4 dark:border-white mx-4"></div>
 
-        <div className="max-h-[300px] overflow-y-auto text-sm pr-1 scrollbar-thin scrollbar-thumb-gray-300">
+        <div className="flex-1 pr-1 text-sm overflow-y-auto h-full scrollbar-thin scrollbar-thumb-gray-300 px-4">
           {sections.map((section, index) => (
             <SectionItem
               key={`${section.section_ID}-${index}`}
@@ -47,36 +47,22 @@ export default function SectionSidebar({
           </button>
         </div>
       </div>
-
-      {/* Endings */}
-      <div className="mt-10 h-30">
-        <h2 className="mb-2 text-base font-semibold">ENDINGS</h2>
-        <div className="border-t-2 border-black mb-2 dark:border-white"></div>
-        <div className="py-2 rounded text-black bg-[#8cc7aa] text-sm pl-2 dark:bg-[#494949] dark:text-white">
-          Thank You Page
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="mt-6">
-        <div className="flex items-center gap-2">
-          <CircleUser className="w-5 h-5" />
-          <span className="text-sm">UserName</span>
-        </div>
-      </div>
     </div>
   );
 
   return (
-    <>
+    <div className="h-full w-full overflow-y-auto">
       {/* Desktop Sidebar */}
-      <div className="hidden lg:flex flex-col bg-[#FEFEFE] text-black w-[260px] h-[90vh] p-4 box-border border-r border-gray-300 font-[Outfit] dark:bg-[#363535] dark:border-gray-500 dark:text-white">
+      <div className="hidden overflow-y-auto h-full lg:flex flex-col w-full box-border border-r border-gray-300 font-[Outfit] bg-[#FEFEFE] text-black overflow-hidden dark:bg-[#363535] dark:border-gray-500 dark:text-white">
         {SidebarContent}
       </div>
 
       {/* Mobile Toggle Button */}
-      <div className="flex lg:hidden h-full  px-4 py-2 justify-between items-center max-w-[150px] z-50 bg-white dark:bg-[#353434] dark:text-white" onClick={() => setOpenMobile(true)}>
-        <button >
+      <div
+        className="flex lg:hidden h-full px-4 py-2 justify-between items-center max-w-[150px] z-50 bg-white dark:bg-[#353434] dark:text-white"
+        onClick={() => setOpenMobile(true)}
+      >
+        <button>
           <Menu className="w-6 h-6 text-gray-800 dark:text-white" />
         </button>
         <div className="text-sm font-semibold">Sections</div>
@@ -85,7 +71,7 @@ export default function SectionSidebar({
       {/* Mobile Slide-over Drawer */}
       {openMobile && (
         <div className="fixed inset-0 z-50 bg-black/50 flex lg:hidden">
-          <div className="w-4/5 max-w-xs bg-[#FEFEFE] text-black h-full p-4 overflow-auto dark:bg-[#363535] dark:text-white">
+          <div className="w-4/5 max-w-xs h-full p-4 overflow-y-auto bg-[#FEFEFE] text-black dark:bg-[#363535] dark:text-white">
             <button
               className="text-sm text-gray-600 mb-4 underline dark:text-white"
               onClick={() => setOpenMobile(false)}
@@ -97,6 +83,6 @@ export default function SectionSidebar({
           <div className="flex-1" onClick={() => setOpenMobile(false)} />
         </div>
       )}
-    </>
+    </div>
   );
 }
