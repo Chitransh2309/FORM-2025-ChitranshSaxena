@@ -1,9 +1,8 @@
-
 "use client";
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition, useMemo } from "react";
-import { restoreForm, permanentlyDeleteForm } from "@/app/action/forms"; // Create these if not yet
+import { restoreForm, permanentlyDeleteForm } from "@/app/action/forms";
 
 interface Form {
   form_ID: string;
@@ -54,18 +53,19 @@ export default function Trash({
   };
 
   return (
-    <section className="w-full xl:w-1/2 text-black p-4 dark:text-white mb-20 xl:mb-0">
+    <section className="w-full px-4 xl:px-10 py-6 text-black dark:text-white">
       <h2 className="text-xl font-semibold px-4 py-3">Trash</h2>
 
-      <div className="border-2 border-gray border-dashed rounded-lg p-4 overflow-visible xl:min-h-90 lg:min-h-120 dark:border-white">
-        <div className="grid grid-cols-2 gap-3">
-          {filteredForms.length > 0 ? (
-            filteredForms.map((form) => (
+      <div className="border-2 border-dashed border-gray-400 dark:border-white rounded-lg p-6 min-h-[60vh]">
+        {filteredForms.length === 0 ? (
+          <p className="text-center text-gray-500 dark:text-gray-400">
+            No deleted forms found.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {filteredForms.map((form) => (
               <div key={form.form_ID} className="flex flex-col relative">
-                <div
-                  className="w-full aspect-square bg-gray-300 text-center
-                    flex items-center justify-center rounded-lg dark:bg-[#353434]"
-                >
+                <div className="w-full aspect-square bg-gray-300 text-center flex items-center justify-center rounded-lg dark:bg-[#353434]">
                   {form.title || "Untitled Form"}
                 </div>
 
@@ -84,13 +84,9 @@ export default function Trash({
                   </button>
                 </div>
               </div>
-            ))
-          ) : (
-            <p className="text-center col-span-2 text-gray-500 dark:text-gray-400">
-              No deleted forms.
-            </p>
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
