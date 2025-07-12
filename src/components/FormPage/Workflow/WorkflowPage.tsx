@@ -3,8 +3,9 @@
 import { useEffect, useState, useMemo } from "react";
 import toast from "react-hot-toast";
 import getFormObject from "@/app/action/getFormObject";
-import { Menu, Grip } from "lucide-react";
+import { Grip } from "lucide-react";
 import { useWindowSize } from "react-use";
+import { useReactFlow } from "reactflow";
 
 import {
   LogicRule,
@@ -252,6 +253,25 @@ export default function WorkflowPage({
     };
   }
 
+  function AutoCenter() {
+    const { width } = useWindowSize();
+    const { fitView } = useReactFlow();
+
+    // Auto-center nodes when screen size changes (like switching to mobile)
+    useEffect(() => {
+      if (width < 768) {
+        // Small screen — refit view
+        const timeout = setTimeout(() => {
+          fitView({ padding: 0.2, duration: 500 });
+        }, 200); // slight delay to wait for DOM layout
+
+        return () => clearTimeout(timeout);
+      }
+    }, [width, fitView]);
+
+    return null;
+  }
+
   const { width, height } = MiniMapDimensions();
 
   return (
@@ -303,6 +323,7 @@ export default function WorkflowPage({
               }}
             />
             <Controls />
+            <AutoCenter />
           </ReactFlow>
         </ReactFlowProvider>
       </div>
