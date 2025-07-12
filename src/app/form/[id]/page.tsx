@@ -32,7 +32,7 @@ export default async function FormPage({ params }: { params: { id: string } }) {
     );
   }
 
-  if (form.createdBy !== userID) {
+  if (form.createdBy !== userID && !form.editorID.includes(userID) && !form.viewerID.includes(userID)) {
     redirect(`/form/${formId}/response`);
   }
 
