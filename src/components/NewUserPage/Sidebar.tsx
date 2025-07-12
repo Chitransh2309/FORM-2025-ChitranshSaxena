@@ -8,9 +8,13 @@ import Image from "next/image";
 export default function Sidebar({
   searchTerm,
   setSearchTerm,
+  selected,
+  setSelected,
 }: {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
+  selected: string;
+  setSelected: (term: string) => void;
 }) {
   return (
     <div className="bg-[#56A37D] w-full h-screen overflow-hidden flex flex-col px-6 py-6 dark:text-white dark:bg-[#414141]">
@@ -39,25 +43,34 @@ export default function Sidebar({
           </button>
         </div>
       </div>
-
+      <div>{selected}</div>
       <div className="flex-1 space-y-2">
-        <button className="w-full text-left px-4 py-3 flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded dark:hover:bg-[#333333]">
-          <TbShare3 size={20} />
+        <button 
+          onClick={() => setSelected("shared")} 
+          className="w-full text-left px-4 py-3 flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded dark:hover:bg-[#333333]">
+          <TbShare3 size={20}/>
           Shared with me
         </button>
 
-        <button className="w-full text-left px-4 py-3 flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded dark:hover:bg-[#333333]">
+        <button
+          onClick={() => setSelected("myForms")}
+          className="w-full text-left px-4 py-3 flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded dark:hover:bg-[#333333]"
+        >
           <GrDocument size={20} />
           Drafts
         </button>
 
-        <button className="w-full text-left px-4 py-3 flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded dark:hover:bg-[#333333]">
-          <FaRegStar size={20} />
+        <button 
+          onClick={() => setSelected("starred")}
+          className="w-full text-left px-4 py-3 flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded dark:hover:bg-[#333333]">
+          <FaRegStar size={20} onClick={() => setSelected("starred")} />
           Starred
         </button>
 
-        <button className="w-full text-left px-4 py-3 flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded dark:hover:bg-[#333333]">
-          <LuTrash2 size={20} />
+        <button 
+          onClick={() => setSelected("trash")}
+          className="w-full text-left px-4 py-3 flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded dark:hover:bg-[#333333]">
+          <LuTrash2 size={20}/>
           Trash
         </button>
       </div>
