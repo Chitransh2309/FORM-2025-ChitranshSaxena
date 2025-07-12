@@ -235,7 +235,7 @@ export default function BuildPage({
   }, []);
 
   return (
-    <div className="flex flex-col lg:flex-row h-full w-full">
+    <div className="flex flex-col lg:flex-row h-[90vh] w-full">
       {/* ⬅️ Desktop Sidebar */}
       <div className="hidden lg:flex w-1/3 border-r border-gray-300 dark:border-gray-500 overflow-y-auto h-screen">
         <SectionSidebar

@@ -136,7 +136,6 @@ const DynamicPreviewInput = ({
       };
 
       return (
-
         <div className="space-y-2">
           {options.map((option, index) => (
             <label
@@ -270,15 +269,15 @@ const DynamicPreviewInput = ({
       );
   }
 };
-enum sectionform{
+enum sectionform {
   Build,
   Workflow,
-  Preview
+  Preview,
 }
-interface formbuild{
-  currentSection:sectionform;
+interface formbuild {
+  currentSection: sectionform;
   setCurrentSection: (section: sectionform) => void;
-form ?: Form;
+  form?: Form;
 }
 
 export default function PreviewForm({

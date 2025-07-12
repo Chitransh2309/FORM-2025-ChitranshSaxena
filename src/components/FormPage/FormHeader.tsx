@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useParams, usePathname, useRouter } from 'next/navigation';
-import { useTransition, useState } from 'react';
-import { publishForm } from '@/app/action/publish';
-import ToggleSwitch from '@/components/LandingPage/ToggleSwitch';
-import FormPublishModal from './FormPublish';
-import FormSettings from './FormSettings';
-import { Form, FormSettings as FormSettingsType } from '@/lib/interface';
+import { useParams, usePathname, useRouter } from "next/navigation";
+import { useTransition, useState } from "react";
+import { publishForm } from "@/app/action/publish";
+import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";
+import FormPublishModal from "./FormPublish";
+import FormSettings from "./FormSettings";
+import { Form, FormSettings as FormSettingsType } from "@/lib/interface";
 export default function FormHeader({
   children,
   form,
@@ -20,11 +20,11 @@ export default function FormHeader({
   const [formLink, setFormLink] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
 
-  const isResponsePage = pathname.endsWith('/response');
+  const isResponsePage = pathname.endsWith("/response");
 
   const handlePublish = () => {
-    if (!form.form_ID || typeof form.form_ID !== 'string') {
-      alert('Form ID is missing or invalid');
+    if (!form.form_ID || typeof form.form_ID !== "string") {
+      alert("Form ID is missing or invalid");
       return;
     }
 
@@ -39,20 +39,25 @@ export default function FormHeader({
   };
 
   const handleWorkspace = () => {
-    router.push('/dashboard');
+    router.push("/dashboard");
   };
 
   const handleCloseModal = () => {
     setFormLink(null);
-    router.push('/dashboard');
+    router.push("/dashboard");
   };
-const [ formSettings, setFormSettings ] = useState<FormSettingsType>(form.settings);
+  const [formSettings, setFormSettings] = useState<FormSettingsType>(
+    form.settings
+  );
   return (
-    <div>
+    <div className="font-[Outfit]">
       {!isResponsePage && (
         <nav className="fixed top-0 left-0 w-full h-[75px] overflow-hidden min-h-0 bg-neutral-600 text-white px-8 flex justify-between items-center text-lg z-50">
-          <div className="flex-1">
+          <div className="flex-1 hidden md:block">
             <button onClick={handleWorkspace}>&lt; Back to Workspace</button>
+          </div>
+          <div className="flex-1 md:hidden">
+            <button onClick={handleWorkspace}>&lt;</button>
           </div>
 
           <div className="flex-1 text-center">
@@ -73,8 +78,16 @@ const [ formSettings, setFormSettings ] = useState<FormSettingsType>(form.settin
               />
             )}
 
-            <button onClick={handlePublish} disabled={isPending}>
-              {isPending ? 'Publishing...' : 'Publish'}
+            <button
+              onClick={handlePublish}
+              disabled={isPending}
+              className={`w-fit px-6 py-2 rounded-md text-white font-semibold transition duration-200 ${
+                isPending
+                  ? "bg-[#61A986] cursor-not-allowed"
+                  : "bg-[#61A986] hover:bg-[#43755d]"
+              }`}
+            >
+              {isPending ? "Publishing..." : "Publish"}
             </button>
           </div>
         </nav>
@@ -82,7 +95,7 @@ const [ formSettings, setFormSettings ] = useState<FormSettingsType>(form.settin
 
       <div
         className={`h-screen overflow-hidden ${
-          !isResponsePage ? 'pt-[75px]' : ''
+          !isResponsePage ? "pt-[75px]" : ""
         } bg-neutral-600`}
       >
         <div className="bg-neutral-100 text-black w-screen h-screen flex">
