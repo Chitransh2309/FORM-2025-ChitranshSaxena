@@ -7,6 +7,8 @@ import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";
 import FormPublishModal from "./FormPublish";
 import FormSettings from "./FormSettings";
 import { Form, FormSettings as FormSettingsType } from "@/lib/interface";
+import { Settings } from "lucide-react";
+
 export default function FormHeader({
   children,
   form,
@@ -56,18 +58,20 @@ export default function FormHeader({
           <div className="flex-1 hidden md:block">
             <button onClick={handleWorkspace}>&lt; Back to Workspace</button>
           </div>
-          <div className="flex-1 md:hidden">
-            <button onClick={handleWorkspace}>&lt;</button>
+
+          <div className="flex flex-row items-center space-x-1">
+            <div className="md:hidden">
+              <button onClick={handleWorkspace}>&lt;</button>
+            </div>
+            <div className="flex-1 text-center">
+              <h2 className="font-semibold"> Draft Name</h2>
+            </div>
           </div>
 
-          <div className="flex-1 text-center">
-            <h2 className="font-semibold">Draft Name</h2>
-          </div>
-
-          <div className="flex-1 flex justify-end items-center space-x-4">
+          <div className="flex-1 flex justify-end items-center space-x-0 md:space-x-4">
             <ToggleSwitch />
             <button onClick={() => setShowSettings(true)} className="px-3">
-              Setting
+              <Settings />
             </button>
             {showSettings && (
               <FormSettings
@@ -81,7 +85,7 @@ export default function FormHeader({
             <button
               onClick={handlePublish}
               disabled={isPending}
-              className={`w-fit px-6 py-2 rounded-md text-white font-semibold transition duration-200 ${
+              className={`h-7 w-25 rounded-md text-white font-semibold transition duration-200 ${
                 isPending
                   ? "bg-[#61A986] cursor-not-allowed"
                   : "bg-[#61A986] hover:bg-[#43755d]"
