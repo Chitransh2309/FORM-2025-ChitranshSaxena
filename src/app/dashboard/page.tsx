@@ -14,10 +14,10 @@ import Navbar from "../../components/NewUserPage/NavBar";
 import Formsorter from "../../components/NewUserPage/FormSorter";
 import Drafts from "../../components/NewUserPage/Drafts";
 import Published from "../../components/NewUserPage/Published";
+import Trash from "../../components/NewUserPage/Trash";
 import Profile from "../../components/NewUserPage/Profile";
 import FAQs from "../../components/NewUserPage/FAQs";
 import ToggleSwitch from "../../components/NewUserPage/ToggleSwitch";
-import TrashPage from "../../components/NewUserPage/Trash";
 
 // Actions & Types
 import { getFormsForUser } from "@/app/action/forms";
@@ -25,47 +25,30 @@ import { createNewForm } from "@/app/action/createnewform";
 import { getUser } from "@/app/action/getUser";
 import { Form } from "@/lib/interface";
 
-/*******************************************************************
- * Workspace (formerly Workspace.tsx)
- *******************************************************************/
 function Workspace({
   searchTerm,
   setSearchTerm,
   selected,
-  setSelected,
 }: {
   searchTerm: string;
   setSearchTerm?: (term: string) => void;
-  selected: string;
-  setSelected?: (term: string) => void;
+  selected: "myForms" | "starred" | "shared" | "trash";
 }) {
   const router = useRouter();
-
-  // ----------------------------------
-  // UI state
-  // ----------------------------------
   const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
   const [formName, setFormName] = useState("");
   const [showFaq, setShowFaq] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-
-  // User meta
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
   const [email, setEmail] = useState("");
 
-  //-----------------------------------
-  // Lifecycle – fetch forms & user
-  //-----------------------------------
   useEffect(() => {
     (async () => {
       try {
-        const [formsRes, user] = await Promise.all([
-          getFormsForUser(),
-          getUser(),
-        ]);
+        const [formsRes, user] = await Promise.all([getFormsForUser(true), getUser()]);
         setForms(formsRes);
         setName(user?.name || "");
         setEmail(user?.email || "");
@@ -76,37 +59,21 @@ function Workspace({
     })();
   }, []);
 
-  //-----------------------------------
-  // Helpers
-  //-----------------------------------
-  const drafts = forms.filter((f) => !f.isActive);
-  const published = forms.filter((f) => f.isActive);
+  const drafts = forms.filter((f) => !f.isActive && !f.isDeleted);
+  const published = forms.filter((f) => f.isActive && !f.isDeleted);
+  const trash = forms.filter((f) => f.isDeleted);
 
-  const filteredDrafts = !searchTerm
-    ? drafts
-    : drafts.filter((form) =>
-        form.title?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+  const filterBySearch = (forms: Form[]) =>
+    !searchTerm
+      ? forms
+      : forms.filter((form) => form.title?.toLowerCase().includes(searchTerm.toLowerCase()));
 
-  const filteredPublished = !searchTerm
-    ? published
-    : published.filter((form) =>
-        form.title?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-
-  const filteredTrashed = !searchTerm
-    ? forms.filter((form) => form.isDeleted)
-    : forms
-        .filter((form) => form.isDeleted)
-        .filter((form) =>
-          form.title?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+  const filteredDrafts = filterBySearch(drafts);
+  const filteredPublished = filterBySearch(published);
+  const filteredTrash = filterBySearch(trash);
 
   const isEmpty = !loading && drafts.length === 0 && published.length === 0;
 
-  //-----------------------------------
-  // Create new form
-  //-----------------------------------
   const handleCreate = async () => {
     if (!formName.trim()) return alert("Please enter a form name");
     const res = await createNewForm(formName);
@@ -114,56 +81,34 @@ function Workspace({
     else alert("Failed to create a new form. Try again.");
   };
 
-  //-----------------------------------
-  // Shared styles – loader & empty state wrapper
-  //-----------------------------------
   const wrapperStyles =
     "w-[80%] h-[60vh] border border-dashed mx-auto flex flex-col justify-center items-center gap-6 bg-transparent";
 
-  //-----------------------------------
-  // Render
-  //-----------------------------------
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Green Header for mobile */}
       <Navbar image={image} name={name} email={email} />
 
-      {/* Desktop Topbar */}
       <div className="hidden xl:flex items-center justify-between px-6 py-4 ml-auto">
         <div className="flex items-center gap-4">
           <ToggleSwitch />
           <button onClick={() => setShowFaq(true)}>
-            <HiOutlineQuestionMarkCircle
-              size={26}
-              className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
-            />
+            <HiOutlineQuestionMarkCircle size={26} className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300" />
           </button>
           <button onClick={() => setShowProfile(!showProfile)}>
             {image ? (
-              <Image
-                src={image}
-                width={28}
-                height={28}
-                alt="profile_image"
-                className="rounded-full"
-              />
+              <Image src={image} width={28} height={28} alt="profile_image" className="rounded-full" />
             ) : (
-              <FaRegCircleUser
-                size={24}
-                className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
-              />
+              <FaRegCircleUser size={24} className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300" />
             )}
           </button>
         </div>
         {showProfile && <Profile name={name} email={email} />}
       </div>
 
-      {/* Desktop Sorter */}
       <div className="hidden xl:block">
         <Formsorter />
       </div>
 
-      {/* Mobile Top Buttons */}
       <div className="xl:hidden w-full bg-white border-b px-4 py-3 dark:bg-[#2B2A2A] dark:border-gray-500">
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-1 bg-[#56A37D] text-black text-xs px-4 py-2 rounded-lg dark:text-white">
@@ -189,7 +134,6 @@ function Workspace({
         </div>
       </div>
 
-      {/* Create Form Dialog */}
       {showDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#353434] border-2 dark:border-gray-500 border-gray-800 rounded-xl shadow-2xl w-full max-w-xl p-8 animate-pop-in">
@@ -221,31 +165,25 @@ function Workspace({
         </div>
       )}
 
-      {/* Main Content */}
       <div className="flex-1 px-4 md:px-6 pb-4 h-full flex items-center justify-center">
         {selected === "myForms" ? (
           loading ? (
-            <div className={wrapperStyles + " text-black dark:text-white"}>
-              Loading…
-            </div>
+            <div className={wrapperStyles + " text-black dark:text-white"}>Loading…</div>
           ) : isEmpty ? (
-            <>
-              {/* Mobile & Desktop – unified styling */}
-              <div className={wrapperStyles + " dark:border-white"}>
-                <p className="text-lg md:text-2xl text-center text-gray-600 dark:text-gray-200">
-                  You have not created any forms yet.
-                </p>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-center text-gray-800 dark:text-white">
-                  Create Your First Form Today!
-                </h2>
-                <button
-                  onClick={() => setShowDialog(true)}
-                  className="mt-2 px-8 py-4 bg-[#61A986] text-lg sm:text-xl text-white rounded-lg hover:bg-[#4d8a6b] transition-colors"
-                >
-                  Create Now
-                </button>
-              </div>
-            </>
+            <div className={wrapperStyles + " dark:border-white"}>
+              <p className="text-lg md:text-2xl text-center text-gray-600 dark:text-gray-200">
+                You have not created any forms yet.
+              </p>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-center text-gray-800 dark:text-white">
+                Create Your First Form Today!
+              </h2>
+              <button
+                onClick={() => setShowDialog(true)}
+                className="mt-2 px-8 py-4 bg-[#61A986] text-lg sm:text-xl text-white rounded-lg hover:bg-[#4d8a6b] transition-colors"
+              >
+                Create Now
+              </button>
+            </div>
           ) : (
             <div className="w-full h-full overflow-y-auto flex flex-col items-center">
               <div className="flex flex-col lg:flex-row flex-1 w-full max-w-7xl gap-6 px-4">
@@ -254,37 +192,27 @@ function Workspace({
               </div>
             </div>
           )
-        ) : selected === "starred" ? (
-          <div className="w-full h-full flex items-center justify-center bg-red-500 text-white text-2xl font-bold rounded-lg">
-            Starred Forms (Coming Soon)
-          </div>
         ) : selected === "trash" ? (
-          <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white text-2xl font-bold rounded-lg">
-            <TrashPage forms={filteredTrashed}/>
+          <Trash forms={filteredTrash} searchTerm={searchTerm} />
+        ) : (
+          <div className="text-center text-white text-xl p-12">
+            {selected === "starred" && "⭐ Starred Forms (Coming Soon)"}
+            {selected === "shared" && "🔗 Shared Forms (Coming Soon)"}
           </div>
-        ) : selected === "shared" ? (
-          <div className="w-full h-full flex items-center justify-center bg-green-500 text-white text-2xl font-bold rounded-lg">
-            Shared (Coming Soon)
-          </div>
-        ) : null}
+        )}
       </div>
 
-      {/* FAQ Modal */}
       {showFaq && <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />}
     </div>
   );
 }
 
-/*******************************************************************
- * Combined Workspace Page – entry point (replaces ClientHome.tsx)
- *******************************************************************/
 export default function CombinedWorkspacePage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selected, setSelected] = useState("myForms");
-  console.log(selected);
+  const [selected, setSelected] = useState<"myForms" | "starred" | "shared" | "trash">("myForms");
+
   return (
     <div className="min-h-screen w-screen overflow-x-hidden font-[Outfit]">
-      {/* Desktop */}
       <div className="hidden xl:flex h-screen">
         <aside className="fixed top-0 left-0 h-screen w-[15%] z-40">
           <Sidebar
@@ -300,22 +228,18 @@ export default function CombinedWorkspacePage() {
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             selected={selected}
-            setSelected={setSelected}
           />
         </div>
       </div>
 
-      {/* Mobile */}
       <div className="block xl:hidden h-screen flex flex-col">
         <div className="flex-1 overflow-y-auto">
           <Workspace
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
             selected={selected}
-            setSelected={setSelected}
           />
         </div>
-
         <div className="fixed bottom-0 w-full z-50">
           <BottomNav />
         </div>
