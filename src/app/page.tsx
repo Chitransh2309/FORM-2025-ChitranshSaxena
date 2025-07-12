@@ -1,7 +1,7 @@
-import Footer from '../components/LandingPage/Footer';
-import Hero from '../components/LandingPage/Hero';
-import Navbar from '../components/LandingPage/Navbar';
-import Image from 'next/image';
+import Footer from "../components/LandingPage/Footer";
+import Hero from "../components/LandingPage/Hero";
+import Navbar from "../components/LandingPage/Navbar";
+import Image from "next/image";
 
 export default async function Home() {
   return (
@@ -20,7 +20,7 @@ export default async function Home() {
           <>
             {/* Desktop - Light Mode */}
             <Image
-              src="/form builder -default 1.svg"
+              src="/form builder-dark mode.svg"
               alt="light mode"
               height={1063}
               width={750}
@@ -29,7 +29,7 @@ export default async function Home() {
 
             {/* Desktop - Dark Mode */}
             <Image
-              src="/form builder-dark mode.svg"
+              src="/form builder -default 1.svg"
               height={1063}
               width={750}
               alt="form-builder"
@@ -55,40 +55,68 @@ export default async function Home() {
 
         <div className="w-full flex justify-center">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl w-full place-items-center">
-            <div className="w-[344.35px] h-[375px] relative hover:scale-[1.05] transition-transform duration-300 cursor-pointer">
+            <div
+              className="w-[344.35px] h-[375px] border-[2px] border-[#5B5B99] rounded-[25px] relative hover:scale-[1.05] transition-transform duration-300 cursor-pointer px-8 pb-8 pt-4 flex flex-col justify-between"
+              style={{
+                boxShadow: "inset 0 0 25px 8px rgba(91, 91, 153, 0.6)", // Matches #5B5B99
+              }}
+            >
+              <div
+                className="text-[24px] font-semibold self-center pt-8
+               bg-gradient-to-r from-[#000000] dark:from-[#F6F8F6] via-[#6C6C9F] to-[#5B5B99] 
+               bg-clip-text text-transparent"
+              >
+                Real Time Analytics
+              </div>
               <Image
-                src="/rta.svg"
+                src="/rta2.svg"
                 alt="rta"
-                width={344.35}
-                height={375}
-                className="w-[344.35px] h-[375px] "
-              />
-              <Image
-                src="/rta1.svg"
-                alt="rta1"
-                width={303}
-                height={229}
-                className="absolute w-[303px] h-[229px] top-30 left-1/2 transform -translate-x-1/2"
+                width={300}
+                height={300}
+                className="self-center"
               />
             </div>
 
-            <div className="w-[344.35px] h-[375px] hover:scale-[1.05] transition-transform duration-300 cursor-pointer">
+            <div
+              className="w-[344.35px] h-[375px] border-[2px] border-[#C36D81] rounded-[25px] relative hover:scale-[1.05] transition-transform duration-300 cursor-pointer px-8 pb-8 pt-4 flex flex-col justify-between"
+              style={{
+                boxShadow: "inset 0 0 25px 8px rgba(195, 109, 129, 0.6)",
+              }}
+            >
+              <div
+                className="text-[24px] font-semibold self-center pt-8
+               bg-gradient-to-r from-[#000000] dark:from-[#F6F8F6] via-[#B85C70] to-[#C36D81]
+               bg-clip-text text-transparent"
+              >
+                Conditional Logic
+              </div>
               <Image
-                src="/cl.svg"
-                alt="cl"
-                width={344.35}
-                height={375}
-                className="w-[344.35px] h-[375px]"
+                src="/cl2.svg"
+                alt="rta"
+                width={300}
+                height={300}
+                className="self-center"
               />
             </div>
-
-            <div className="w-[344.35px] h-[375px] hover:scale-[1.05] transition-transform duration-300 cursor-pointer">
+            <div
+              className="w-[344.35px] h-[375px] border-[2px] border-[#617DA9] rounded-[25px] relative hover:scale-[1.05] transition-transform duration-300 cursor-pointer px-8 pb-8 pt-4 flex flex-col justify-between"
+              style={{
+                boxShadow: "inset 0 0 25px 8px rgba(97, 125, 169, 0.6)",
+              }}
+            >
+              <div
+                className="text-[24px] font-semibold self-center pt-8
+               bg-gradient-to-r from-[#000000] dark:from-[#F6F8F6] via-[#8C6E85] to-[#617DA9] 
+               bg-clip-text text-transparent"
+              >
+                Easy & Flexible
+              </div>
               <Image
-                src="/ef.svg"
-                alt="ef"
-                width={344.35}
-                height={375}
-                className="w-[344.35px] h-[375px]"
+                src="/ef2.svg"
+                alt="rta"
+                width={300}
+                height={300}
+                className="self-center"
               />
             </div>
           </div>
