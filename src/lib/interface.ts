@@ -3,6 +3,7 @@ export interface User {
   email: string;
   googleID: string;
   forms?: string[]; // form_ID references
+  sharedForms?: string[];
   icon?: string;
   name: string;
   verified?: Date;
@@ -14,6 +15,8 @@ export interface Form {
   description: string;
   createdAt: Date;
   createdBy: string; // user_ID reference
+  editorID?: string[];
+  viewerID?: string[];
   publishedAt: Date;
   isActive: boolean;
   version: number;
@@ -21,6 +24,7 @@ export interface Form {
   settings: FormSettings;
   sections: Section[];
   isDeleted: boolean;
+  isStarred:boolean;
 }
 
 export type NestedCondition = {

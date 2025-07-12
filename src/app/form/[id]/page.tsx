@@ -32,7 +32,7 @@ export default async function FormPage({ params }: { params: { id: string } }) {
     );
   }
 
-  if (form.createdBy !== userID) {
+  if (form.createdBy !== userID && !form.editorID.includes(userID) && !form.viewerID.includes(userID)) {
     redirect(`/form/${formId}/response`);
   }
 
@@ -41,8 +41,8 @@ export default async function FormPage({ params }: { params: { id: string } }) {
 
   return (
     <FormWrapper form={safeForm}>
-      <div className="bg-[#e8ede8]">
-        <CenterNav formId={formId} />
+      <div className="bg-[#e8ede8] h-screen w-screen overflow-y-auto">
+        <CenterNav form={form} />
       </div>
     </FormWrapper>
   );

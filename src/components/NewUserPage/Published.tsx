@@ -3,12 +3,16 @@
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { useTransition, useState } from "react";
-import { deleteFormFromDB } from "@/app/action/forms"; // adjust path if needed
+import { deleteFormFromDB, toggleStarForm } from "@/app/action/forms";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar as regularStar } from "@fortawesome/free-regular-svg-icons";
+import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 
 interface Form {
   form_ID: string;
   title: string;
   publishedAt: Date | null;
+  isStarred: boolean;
 }
 
 export default function Published({ forms: initialForms }: { forms: Form[] }) {
@@ -30,6 +34,17 @@ export default function Published({ forms: initialForms }: { forms: Form[] }) {
     });
   };
 
+  const handleStarToggle = async (formId: string) => {
+    const res = await toggleStarForm(formId);
+    if (res.success) {
+      setForms((prev) =>
+        prev.map((f) =>
+          f.form_ID === formId ? { ...f, isStarred: res.isStarred } : f
+        )
+      );
+    }
+  };
+
   return (
     <section className="w-full xl:w-1/2 text-black p-4 dark:text-white mb-20 xl:mb-0">
       <h2 className="text-xl font-semibold px-4 py-3">Published</h2>
@@ -38,6 +53,17 @@ export default function Published({ forms: initialForms }: { forms: Form[] }) {
         <div className="grid grid-cols-2 gap-3">
           {forms.map((form) => (
             <div key={form.form_ID} className="flex flex-col relative">
+              {/* ⭐ Star Button */}
+              <button
+                className={`absolute top-1.5 right-9 z-10 ${
+                  form.isStarred ? "text-yellow-500" : "text-gray-500 hover:text-yellow-500"
+                }`}
+                title="Star Form"
+                onClick={() => handleStarToggle(form.form_ID)}
+              >
+                <FontAwesomeIcon icon={form.isStarred ? solidStar : regularStar} />
+              </button>
+
               {/* 🗑️ Delete Button */}
               <button
                 onClick={() => handleDelete(form.form_ID)}

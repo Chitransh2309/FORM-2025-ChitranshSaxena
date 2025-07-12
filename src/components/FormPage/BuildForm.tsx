@@ -237,7 +237,7 @@ export default function BuildPage({
   return (
     <div className="flex flex-col lg:flex-row h-full w-full">
       {/* ⬅️ Desktop Sidebar */}
-      <div className="hidden lg:flex w-[260px] border-r border-gray-300 dark:border-gray-500">
+      <div className="hidden lg:flex w-1/3 border-r border-gray-300 dark:border-gray-500 overflow-y-auto h-screen">
         <SectionSidebar
           sections={form?.sections || []}
           selectedSectionId={selectedSectionId}
@@ -248,15 +248,15 @@ export default function BuildPage({
       </div>
 
       {/* 📝 Main Content */}
-      <div className="w-full lg:px-10 overflow-y-auto flex flex-col space-y-6">
+      <div className="w-full lg:px-10 overflow-y-auto flex flex-col space-y-6 ">
         {/* Top Tabs */}
-        <div className="w-full flex justify-center z-40 px-4 py-3 ">
-          <div className="flex justify-between items-center w-full h-[68px] dark:bg-[#616161] bg-[#91C4AB]/45 shadow px-2 sm:px-4 rounded-md">
+        <div className=" top-[90px] left-1/2 z-40 w-full flex justify-center px-4 sm:px-0 py-[15px]">
+          <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
             {LABELS.map((label, i) => (
               <button
                 key={label}
                 onClick={() => setCurrentSection(i as sectionform)}
-                className={`flex-1 w-full mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
+                className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
                   currentSection === i
                     ? "bg-[#61A986] text-black dark:text-white"
                     : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
@@ -340,7 +340,7 @@ export default function BuildPage({
       </div>
 
       {/* 🧾 RightNav (desktop) */}
-      <div className="hidden lg:block w-[30vw] h-[90vh] sticky border-l border-gray-300 bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500">
+      <div className="hidden lg:block w-1/3 h-full sticky border-l border-gray-300 bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500">
         <RightNav
           selectedQuestion={selectedQuestion}
           onUpdate={updateQuestion}
