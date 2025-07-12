@@ -17,6 +17,7 @@ import Published from "../../components/NewUserPage/Published";
 import Profile from "../../components/NewUserPage/Profile";
 import FAQs from "../../components/NewUserPage/FAQs";
 import ToggleSwitch from "../../components/NewUserPage/ToggleSwitch";
+import TrashPage from "../../components/NewUserPage/Trash";
 
 // Actions & Types
 import { getFormsForUser } from "@/app/action/forms";
@@ -30,9 +31,13 @@ import { Form } from "@/lib/interface";
 function Workspace({
   searchTerm,
   setSearchTerm,
+  selected,
+  setSelected,
 }: {
   searchTerm: string;
   setSearchTerm?: (term: string) => void;
+  selected: string;
+  setSelected?: (term: string) => void;
 }) {
   const router = useRouter();
 
@@ -88,6 +93,14 @@ function Workspace({
     : published.filter((form) =>
         form.title?.toLowerCase().includes(searchTerm.toLowerCase())
       );
+
+  const filteredTrashed = !searchTerm
+    ? forms.filter((form) => form.isDeleted)
+    : forms
+        .filter((form) => form.isDeleted)
+        .filter((form) =>
+          form.title?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
 
   const isEmpty = !loading && drafts.length === 0 && published.length === 0;
 
@@ -210,36 +223,50 @@ function Workspace({
 
       {/* Main Content */}
       <div className="flex-1 px-4 md:px-6 pb-4 h-full flex items-center justify-center">
-        {loading ? (
-          <div className={wrapperStyles + " text-black dark:text-white"}>
-            Loading…
-          </div>
-        ) : isEmpty ? (
-          <>
-            {/* Mobile & Desktop – unified styling */}
-            <div className={wrapperStyles + " dark:border-white"}>
-              <p className="text-lg md:text-2xl text-center text-gray-600 dark:text-gray-200">
-                You have not created any forms yet.
-              </p>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-center text-gray-800 dark:text-white">
-                Create Your First Form Today!
-              </h2>
-              <button
-                onClick={() => setShowDialog(true)}
-                className="mt-2 px-8 py-4 bg-[#61A986] text-lg sm:text-xl text-white rounded-lg hover:bg-[#4d8a6b] transition-colors"
-              >
-                Create Now
-              </button>
+        {selected === "myForms" ? (
+          loading ? (
+            <div className={wrapperStyles + " text-black dark:text-white"}>
+              Loading…
             </div>
-          </>
-        ) : (
-          <div className="w-full h-full overflow-y-auto flex flex-col items-center">
-            <div className="flex flex-col lg:flex-row flex-1 w-full max-w-7xl gap-6 px-4">
-              <Drafts forms={filteredDrafts} />
-              <Published forms={filteredPublished} />
+          ) : isEmpty ? (
+            <>
+              {/* Mobile & Desktop – unified styling */}
+              <div className={wrapperStyles + " dark:border-white"}>
+                <p className="text-lg md:text-2xl text-center text-gray-600 dark:text-gray-200">
+                  You have not created any forms yet.
+                </p>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-center text-gray-800 dark:text-white">
+                  Create Your First Form Today!
+                </h2>
+                <button
+                  onClick={() => setShowDialog(true)}
+                  className="mt-2 px-8 py-4 bg-[#61A986] text-lg sm:text-xl text-white rounded-lg hover:bg-[#4d8a6b] transition-colors"
+                >
+                  Create Now
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="w-full h-full overflow-y-auto flex flex-col items-center">
+              <div className="flex flex-col lg:flex-row flex-1 w-full max-w-7xl gap-6 px-4">
+                <Drafts forms={filteredDrafts} />
+                <Published forms={filteredPublished} />
+              </div>
             </div>
+          )
+        ) : selected === "starred" ? (
+          <div className="w-full h-full flex items-center justify-center bg-red-500 text-white text-2xl font-bold rounded-lg">
+            Starred Forms (Coming Soon)
           </div>
-        )}
+        ) : selected === "trash" ? (
+          <div className="w-full h-full flex items-center justify-center bg-blue-500 text-white text-2xl font-bold rounded-lg">
+            <TrashPage forms={filteredTrashed}/>
+          </div>
+        ) : selected === "shared" ? (
+          <div className="w-full h-full flex items-center justify-center bg-green-500 text-white text-2xl font-bold rounded-lg">
+            Shared (Coming Soon)
+          </div>
+        ) : null}
       </div>
 
       {/* FAQ Modal */}
@@ -253,24 +280,40 @@ function Workspace({
  *******************************************************************/
 export default function CombinedWorkspacePage() {
   const [searchTerm, setSearchTerm] = useState("");
-
+  const [selected, setSelected] = useState("myForms");
+  console.log(selected);
   return (
     <div className="min-h-screen w-screen overflow-x-hidden font-[Outfit]">
       {/* Desktop */}
       <div className="hidden xl:flex h-screen">
         <aside className="fixed top-0 left-0 h-screen w-[15%] z-40">
-          <Sidebar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+          <Sidebar
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            selected={selected}
+            setSelected={setSelected}
+          />
         </aside>
 
         <div className="ml-[15%] w-[85%] h-screen overflow-y-auto">
-          <Workspace searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+          <Workspace
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            selected={selected}
+            setSelected={setSelected}
+          />
         </div>
       </div>
 
       {/* Mobile */}
       <div className="block xl:hidden h-screen flex flex-col">
         <div className="flex-1 overflow-y-auto">
-          <Workspace searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+          <Workspace
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            selected={selected}
+            setSelected={setSelected}
+          />
         </div>
 
         <div className="fixed bottom-0 w-full z-50">
