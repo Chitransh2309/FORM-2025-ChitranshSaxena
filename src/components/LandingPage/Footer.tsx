@@ -40,43 +40,37 @@ export default function Footer() {
       </div>
 
       {/* Divider */}
-      <hr className="mt-0 sm:mt-2 border-0 h-[2px] bg-[#F6F8F6] w-full mb-3 dark:bg-[#F6F8F6]" />
+      <hr className="mt-0 sm:mt-2 border-0 h-[2px] bg-[#F6F8F6] w-full mb-1 dark:bg-[#F6F8F6]" />
 
       {/* Bottom section - Copyright and social icons */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0 mx-0 sm:mx-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0 mx-0 sm:mx-4 mt-[-50px]">
         {/* Copyright */}
         <div className="flex items-center">
-          <Copyright className="w-7 h-7 sm:w-8 sm:h-8 text-[#F6F8F6] dark:stroke-[#F6F8F6]" />
-          <span className="ml-1 text-xl sm:text-sm text-[#F6F8F6] dark:text-[#F6F8F6]">
-            2025 F.O.R.M
-          </span>
-        </div>
+      <Image
+        src="/ACM.svg"
+        alt="ACM logo"
+        width={70}
+        height={70}
+        className="w-45 h-45 sm:w-47 sm:h-47 hover:opacity-80 cursor-pointer transition-opacity"
+      />
+</div>
+
 
         {/* Social icons */}
         <div className="flex justify-center gap-4 sm:gap-5 items-start">
           <a
-            href="https://www.acmvit.in/"
+            href="https://github.com/ACM-VIT"
             target="_blank"
             rel="noopener noreferrer"
           >
             <Image
-              src="/logo.svg"
-              alt="ACM VIT logo"
+              src="/Github.svg"
+              alt="Github logo"
               width={28}
               height={28}
               className="w-7 h-7 sm:w-8 sm:h-8 top-0.5 stroke-none fill-[#F6F8F6] dark:stroke-none dark:fill-[#F6F8F6] hover:opacity-80 cursor-pointer transition-opacity"
             />
-          </a>
-          <a
-            href="https://youtube.com/@acm_vit?si=fSdyKwZgKFv-syv0"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <YoutubeIcon
-              width={28}
-              height={28}
-              className="w-7 h-7 sm:w-8 sm:h-8 text-[#F6F8F6] dark:stroke-[#F6F8F6] hover:opacity-80 cursor-pointer transition-opacity"
-            />
+            
           </a>
 
           <a
