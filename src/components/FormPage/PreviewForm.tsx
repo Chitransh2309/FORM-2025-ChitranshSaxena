@@ -278,18 +278,17 @@ enum sectionform{
 interface formbuild{
   currentSection:sectionform;
   setCurrentSection: (section: sectionform) => void;
-
+form ?: Form;
 }
 
 export default function PreviewForm({
   currentSection,
   setCurrentSection,
+  form,
 }: formbuild) {
   const { id: formId } = useParams();
   const [showFaq, setShowFaq] = useState(false);
-  const [form, setForm] = useState<Form | null>(null);
   const [sectionIndex, setSectionIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [selectedDevice, setSelectedDevice] = useState<"desktop" | "mobile">(
     "desktop"
   );
@@ -300,23 +299,23 @@ export default function PreviewForm({
 
   const section = form?.sections?.[sectionIndex];
 
-  useEffect(() => {
-    const loadForm = async () => {
-      if (!formId || typeof formId !== "string") return;
-      setLoading(true);
-      const res = await getFormObject(formId);
-      if (res.success && res.data) {
-        setForm(res.data);
-        setSectionIndex(0);
-        setAnswers([]);
-        setErrors({});
-      } else {
-        alert("❌ Failed to load form.");
-      }
-      setLoading(false);
-    };
-    loadForm();
-  }, [formId]);
+  // useEffect(() => {
+  //   const loadForm = async () => {
+  //     if (!formId || typeof formId !== "string") return;
+  //     setLoading(true);
+  //     const res = await getFormObject(formId);
+  //     if (res.success && res.data) {
+  //       setForm(res.data);
+  //       setSectionIndex(0);
+  //       setAnswers([]);
+  //       setErrors({});
+  //     } else {
+  //       alert("❌ Failed to load form.");
+  //     }
+  //     setLoading(false);
+  //   };
+  //   loadForm();
+  // }, [formId]);
 
   // Simulate answer state for preview
   const handleInputChange = (questionId: string, value: string) => {
@@ -368,13 +367,13 @@ export default function PreviewForm({
 
   const isLastSection = form && sectionIndex === form.sections.length - 1;
 
-  if (loading) {
-    return (
-      <div className="text-center mt-20 text-lg font-semibold">
-        Loading form...
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="text-center mt-20 text-lg font-semibold">
+  //       Loading form...
+  //     </div>
+  //   );
+  // }
 
   if (!form || !section) {
     return (
