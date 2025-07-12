@@ -8,7 +8,7 @@ const out_fit = Outfit({ subsets: ["latin"], weight: ["400", "800"] });
 
 export default function Footer() {
   return (
-    <div className="min-h-40 w-full p-3 sm:p-6 bg-[#61A986]" id="contact">
+    <div className="w-full p-4 sm:p-6 bg-[#61A986]" id="contact">
       {/* Main content section */}
       <div className="flex flex-col lg:flex-row lg:justify-between gap-4 lg:gap-0 w-full">
         <div className="flex-1 max-w-none lg:max-w-2xl">
@@ -40,24 +40,29 @@ export default function Footer() {
       </div>
 
       {/* Divider */}
-      <hr className="mt-0 sm:mt-2 border-0 h-[2px] bg-[#F6F8F6] w-full mb-1 dark:bg-[#F6F8F6]" />
+      <hr className="mt-6 border-0 h-[2px] bg-[#F6F8F6] w-full mb-2 dark:bg-[#F6F8F6]" />
 
-      {/* Bottom section - Copyright and social icons */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0 mx-0 sm:mx-4 mt-[-50px]">
-        {/* Copyright */}
-        <div className="flex items-center">
-      <Image
-        src="/ACM.svg"
-        alt="ACM logo"
-        width={70}
-        height={70}
-        className="w-45 h-45 sm:w-47 sm:h-47 hover:opacity-80 cursor-pointer transition-opacity"
-      />
-</div>
-
+      {/* Bottom row */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0 mx-0 sm:mx-4 mt-1 mb-0">
+        {/* ACM logo */}
+        <div className="flex items-center scale-[1.2]">
+          <a
+            href="https://www.acmvit.in/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Image
+              src="/ACM.svg"
+              alt="ACM logo"
+              width={90}
+              height={90}
+              className="scale-[1.1] hover:opacity-80 cursor-pointer transition-opacity"
+            />
+          </a>
+        </div>
 
         {/* Social icons */}
-        <div className="flex justify-center gap-4 sm:gap-5 items-start">
+        <div className="flex justify-center gap-4 items-center">
           <a
             href="https://github.com/ACM-VIT"
             target="_blank"
@@ -68,9 +73,8 @@ export default function Footer() {
               alt="Github logo"
               width={28}
               height={28}
-              className="w-7 h-7 sm:w-8 sm:h-8 top-0.5 stroke-none fill-[#F6F8F6] dark:stroke-none dark:fill-[#F6F8F6] hover:opacity-80 cursor-pointer transition-opacity"
+              className="w-7 h-7 sm:w-8 sm:h-8 stroke-none fill-[#F6F8F6] hover:opacity-80 cursor-pointer transition-opacity"
             />
-            
           </a>
 
           <a
@@ -83,9 +87,8 @@ export default function Footer() {
               alt="Instagram logo"
               width={28}
               height={28}
-              className="w-7 h-7 sm:w-8 sm:h-8 top-0.5 stroke-none fill-[#F6F8F6] dark:stroke-none dark:fill-[#F6F8F6] hover:opacity-80 cursor-pointer transition-opacity"
+              className="w-7 h-7 sm:w-8 sm:h-8 stroke-none fill-[#F6F8F6] hover:opacity-80 cursor-pointer transition-opacity"
             />
-            {/* <InstagramIcon className="w-7 h-7 sm:w-8 sm:h-8 text-[#F6F8F6] dark:stroke-[#000000] hover:opacity-80 cursor-pointer transition-opacity" /> */}
           </a>
 
           <a
@@ -98,7 +101,7 @@ export default function Footer() {
               alt="X icon"
               width={28}
               height={28}
-              className="w-7 h-7 sm:w-8 sm:h-8 stroke-none fill-[#F6F8F6] dark:stroke-none dark:fill-[#000000] hover:opacity-80 cursor-pointer transition-opacity"
+              className="w-7 h-7 sm:w-8 sm:h-8 stroke-none fill-[#F6F8F6] dark:fill-[#000000] hover:opacity-80 cursor-pointer transition-opacity"
             />
           </a>
 
@@ -112,7 +115,7 @@ export default function Footer() {
               alt="LinkedIn icon"
               width={28}
               height={28}
-              className="w-7 h-7 sm:w-8 sm:h-8 stroke-none dark:stroke-none dark:fill-[#000000] hover:opacity-80 cursor-pointer transition-opacity"
+              className="w-7 h-7 sm:w-8 sm:h-8 stroke-none dark:fill-[#000000] hover:opacity-80 cursor-pointer transition-opacity"
             />
           </a>
         </div>
