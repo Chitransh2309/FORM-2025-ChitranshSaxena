@@ -24,7 +24,7 @@ export interface Form {
   settings: FormSettings;
   sections: Section[];
   isDeleted: boolean;
-  isStarred:boolean;
+  isStarred: boolean;
 }
 
 export type NestedCondition = {

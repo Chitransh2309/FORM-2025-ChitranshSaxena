@@ -18,6 +18,7 @@ import Trash from "../../components/NewUserPage/Trash";
 import Profile from "../../components/NewUserPage/Profile";
 import FAQs from "../../components/NewUserPage/FAQs";
 import ToggleSwitch from "../../components/NewUserPage/ToggleSwitch";
+import Shared from "../../components/NewUserPage/Shared";
 
 // Actions & Types
 import { getFormsForUser } from "@/app/action/forms";
@@ -45,10 +46,14 @@ function Workspace({
   const [image, setImage] = useState("");
   const [email, setEmail] = useState("");
 
+  // Fetch user + forms
   useEffect(() => {
     (async () => {
       try {
-        const [formsRes, user] = await Promise.all([getFormsForUser(true), getUser()]);
+        const [formsRes, user] = await Promise.all([
+          getFormsForUser(true),
+          getUser(),
+        ]);
         setForms(formsRes);
         setName(user?.name || "");
         setEmail(user?.email || "");
@@ -66,12 +71,13 @@ function Workspace({
   const filterBySearch = (forms: Form[]) =>
     !searchTerm
       ? forms
-      : forms.filter((form) => form.title?.toLowerCase().includes(searchTerm.toLowerCase()));
+      : forms.filter((form) =>
+          form.title?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
 
   const filteredDrafts = filterBySearch(drafts);
   const filteredPublished = filterBySearch(published);
   const filteredTrash = filterBySearch(trash);
-
   const isEmpty = !loading && drafts.length === 0 && published.length === 0;
 
   const handleCreate = async () => {
@@ -92,13 +98,25 @@ function Workspace({
         <div className="flex items-center gap-4">
           <ToggleSwitch />
           <button onClick={() => setShowFaq(true)}>
-            <HiOutlineQuestionMarkCircle size={26} className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300" />
+            <HiOutlineQuestionMarkCircle
+              size={26}
+              className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
+            />
           </button>
           <button onClick={() => setShowProfile(!showProfile)}>
             {image ? (
-              <Image src={image} width={28} height={28} alt="profile_image" className="rounded-full" />
+              <Image
+                src={image}
+                width={28}
+                height={28}
+                alt="profile_image"
+                className="rounded-full"
+              />
             ) : (
-              <FaRegCircleUser size={24} className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300" />
+              <FaRegCircleUser
+                size={24}
+                className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
+              />
             )}
           </button>
         </div>
@@ -109,12 +127,12 @@ function Workspace({
         <Formsorter />
       </div>
 
+      {/* Mobile Header */}
       <div className="xl:hidden w-full bg-white border-b px-4 py-3 dark:bg-[#2B2A2A] dark:border-gray-500">
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-1 bg-[#56A37D] text-black text-xs px-4 py-2 rounded-lg dark:text-white">
             My Workspace <FaChevronDown size={12} />
           </button>
-
           <div className="flex items-center bg-[#3D3D3D] rounded-lg px-3 py-2 flex-1 min-w-0">
             <FaSearch size={14} className="text-white flex-shrink-0" />
             <input
@@ -124,7 +142,6 @@ function Workspace({
               className="flex-1 bg-transparent outline-none placeholder-white text-xs ml-2 text-white"
             />
           </div>
-
           <button
             onClick={() => setShowDialog(true)}
             className="bg-[#3D3D3D] text-white text-xs px-4 py-2 rounded-lg whitespace-nowrap"
@@ -134,6 +151,7 @@ function Workspace({
         </div>
       </div>
 
+      {/* Create Form Modal */}
       {showDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#353434] border-2 dark:border-gray-500 border-gray-800 rounded-xl shadow-2xl w-full max-w-xl p-8 animate-pop-in">
@@ -165,10 +183,13 @@ function Workspace({
         </div>
       )}
 
+      {/* Main Section */}
       <div className="flex-1 px-4 md:px-6 pb-4 h-full flex items-center justify-center">
         {selected === "myForms" ? (
           loading ? (
-            <div className={wrapperStyles + " text-black dark:text-white"}>Loading…</div>
+            <div className={wrapperStyles + " text-black dark:text-white"}>
+              Loading…
+            </div>
           ) : isEmpty ? (
             <div className={wrapperStyles + " dark:border-white"}>
               <p className="text-lg md:text-2xl text-center text-gray-600 dark:text-gray-200">
@@ -194,12 +215,9 @@ function Workspace({
           )
         ) : selected === "trash" ? (
           <Trash forms={filteredTrash} searchTerm={searchTerm} />
-        ) : (
-          <div className="text-center text-white text-xl p-12">
-            {selected === "starred" && "⭐ Starred Forms (Coming Soon)"}
-            {selected === "shared" && "🔗 Shared Forms (Coming Soon)"}
-          </div>
-        )}
+        ) : selected === "shared" ? (
+          <Shared />
+        ) : null}
       </div>
 
       {showFaq && <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />}
@@ -209,10 +227,13 @@ function Workspace({
 
 export default function CombinedWorkspacePage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selected, setSelected] = useState<"myForms" | "starred" | "shared" | "trash">("myForms");
+  const [selected, setSelected] = useState<
+    "myForms" | "starred" | "shared" | "trash"
+  >("myForms");
 
   return (
     <div className="min-h-screen w-screen overflow-x-hidden font-[Outfit]">
+      {/* Desktop layout */}
       <div className="hidden xl:flex h-screen">
         <aside className="fixed top-0 left-0 h-screen w-[15%] z-40">
           <Sidebar
@@ -222,7 +243,6 @@ export default function CombinedWorkspacePage() {
             setSelected={setSelected}
           />
         </aside>
-
         <div className="ml-[15%] w-[85%] h-screen overflow-y-auto">
           <Workspace
             searchTerm={searchTerm}
@@ -232,6 +252,7 @@ export default function CombinedWorkspacePage() {
         </div>
       </div>
 
+      {/* Mobile layout */}
       <div className="block xl:hidden h-screen flex flex-col">
         <div className="flex-1 overflow-y-auto">
           <Workspace
@@ -241,7 +262,7 @@ export default function CombinedWorkspacePage() {
           />
         </div>
         <div className="fixed bottom-0 w-full z-50">
-          <BottomNav />
+          <BottomNav selected={selected} setSelected={setSelected} />
         </div>
       </div>
     </div>
