@@ -31,6 +31,8 @@ export async function createFormIfNotExists(form_ID: string, name?: string) {
         description: "",
         createdAt: new Date(),
         createdBy: userID,
+        editorID: [],
+        viewerID: [],
         version: 1.0,
         sections: [],
         settings: {
