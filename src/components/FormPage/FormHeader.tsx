@@ -7,7 +7,7 @@ import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";
 import FormPublishModal from "./FormPublish";
 import FormSettings from "./FormSettings";
 import { Form, FormSettings as FormSettingsType } from "@/lib/interface";
-import { Settings } from "lucide-react";
+import { Settings, ChevronLeft } from "lucide-react";
 import getFormObject from "@/app/action/getFormObject";
 
 export default function FormHeader({
@@ -66,12 +66,16 @@ export default function FormHeader({
       {!isResponsePage && (
         <nav className="fixed top-0 left-0 w-full h-[75px] overflow-hidden min-h-0 bg-neutral-600 text-white px-4 flex justify-between items-center text-lg z-50">
           <div className="flex-1 hidden md:block">
-            <button onClick={handleWorkspace}>&lt; Back to Workspace</button>
+            <button onClick={handleWorkspace} className="flex flex-row">
+              <ChevronLeft className="mt-1" /> Back to Workspace
+            </button>
           </div>
 
           <div className="flex flex-row items-center space-x-1">
             <div className="md:hidden">
-              <button onClick={handleWorkspace}>&lt;</button>
+              <button onClick={handleWorkspace}>
+                <ChevronLeft className="mt-1" />
+              </button>
             </div>
             <div className="flex-1 text-center">
               <h2 className="font-semibold">{formName}</h2>
