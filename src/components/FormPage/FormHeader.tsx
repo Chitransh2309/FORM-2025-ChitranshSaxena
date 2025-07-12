@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, usePathname, useRouter } from "next/navigation";
-import { useTransition, useState } from "react";
+import { useTransition, useState, useEffect } from "react";
 import { publishForm } from "@/app/action/publish";
 import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";
 import FormPublishModal from "./FormPublish";
@@ -25,6 +25,14 @@ export default function FormHeader({
   const [formName, setFormName] = useState("Draft");
 
   const isResponsePage = pathname.endsWith("/response");
+
+  useEffect(() => {
+    async function getFormName() {
+      const res = await getFormObject(form.form_ID);
+      setFormName(res.data?.title);
+    }
+    getFormName();
+  }, []);
 
   const handlePublish = () => {
     if (!form.form_ID || typeof form.form_ID !== "string") {
