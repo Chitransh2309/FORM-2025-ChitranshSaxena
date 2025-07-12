@@ -110,6 +110,7 @@ export async function getFormsForUser() {
       createdAt: form.createdAt?.toString() || null,
       publishedAt: form.publishedAt?.toString() || null,
       isActive: form.isActive || false,
+      isStarred: form.isStarred || false,
     }));
   } catch (error) {
     console.error("❌ getFormsForUser error:", error);
@@ -177,3 +178,25 @@ export async function deleteFormFromDB(form_ID: string) {
     };
   }
 }
+
+export async function toggleStarForm(form_ID: string) {
+  try {
+    const { db, dbClient } = await connectToDB();
+    const form = await db.collection("forms").findOne({ form_ID });
+
+    if (!form) throw new Error("Form not found");
+
+    const newStarStatus = !form.isStarred;
+    await db.collection("forms").updateOne(
+      { form_ID },
+      { $set: { isStarred: newStarStatus } }
+    );
+
+    await disconnectFromDB(dbClient);
+    return { success: true, isStarred: newStarStatus };
+  } catch (error) {
+    console.error("❌ toggleStarForm Error:", error);
+    return { success: false };
+  }
+}
+
