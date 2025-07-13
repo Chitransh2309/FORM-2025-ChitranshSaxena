@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import SectionSidebar from "@/components/FormPage/SectionSidebar";
 import RightNav from "@/components/FormPage/RightNav";
-import SaveButton from "@/components/FormPage/SaveButton";
 import QuestionParent from "@/components/FormPage/QuestionParent";
 import getFormObject from "@/app/action/getFormObject";
 import { saveFormToDB } from "@/app/action/saveformtodb";
@@ -14,6 +13,7 @@ import FAQs from "../NewUserPage/FAQs";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
 import toast from "react-hot-toast";
 import { renameSectionTitle } from "@/app/action/sections";
+import { debounce } from "lodash";
 
 enum sectionform {
   Build,
@@ -33,14 +33,71 @@ export default function BuildPage({
   const LABELS = ["Builder", "Workflow", "Preview"];
   const { id: formId } = useParams();
   const [form, setForm] = useState<Form | null>(null);
-  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
+
+  const formRef = useRef<Form | null>(form);
+
+  useEffect(() => {
+    formRef.current = form;
+  }, [form]);
+
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
+    null
+  );
   const [showRightNav, setShowRightNav] = useState(false);
-  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
+    null
+  );
   const [showFAQ, setShowFAQ] = useState(false);
+
+  const [saved, setSaved] = useState(0);
 
   const selectedSection = form?.sections.find(
     (s) => s.section_ID === selectedSectionId
   );
+
+  // Inside your BuildPage component
+
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState("");
+
+  const debouncedSaveForm = React.useCallback(
+    debounce(async () => {
+      if (!formRef.current) return;
+
+      setSaved(0);
+
+      const res = await saveFormToDB(formRef.current);
+      if (!res.success) {
+        console.error("Failed to save form response");
+      }
+    }, 2500),
+    []
+  );
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+    intervalId = setInterval(() => {
+      setSaved((prev) => prev + 1);
+    }, 1000);
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+      debouncedSaveForm.flush(); // Flush pending saves on unmount
+    };
+  }, []);
+
+  useEffect(() => {
+    setEditedTitle(selectedSection?.title || "");
+  }, [selectedSectionId]);
+
+  const handleTitleSave = () => {
+    if (
+      editedTitle.trim() &&
+      selectedSection?.section_ID &&
+      editedTitle.trim() !== selectedSection.title
+    ) {
+      handleRenameSection(selectedSection.section_ID, editedTitle.trim());
+    }
+    setIsEditingTitle(false);
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -105,6 +162,7 @@ export default function BuildPage({
     } else {
       toast.error(res.error || "Rename failed");
     }
+    debouncedSaveForm();
   };
 
   const deleteSection = (sectionId: string) => {
@@ -116,6 +174,7 @@ export default function BuildPage({
     if (sectionId === selectedSectionId) {
       setSelectedSectionId(filteredSections[0]?.section_ID ?? null);
     }
+    debouncedSaveForm();
   };
 
   const addQuestion = () => {
@@ -123,6 +182,7 @@ export default function BuildPage({
 
     const newQuestion: Question = {
       question_ID: `q-${Date.now()}`,
+      section_ID: selectedSectionId,
       section_ID: selectedSectionId,
       questionText: "",
       isRequired: false,
@@ -141,6 +201,7 @@ export default function BuildPage({
 
     setForm({ ...form, sections: updatedSections });
     setSelectedQuestion(newQuestion);
+    debouncedSaveForm();
   };
 
   const updateQuestion = (id: string, updates: Partial<Question>) => {
@@ -170,6 +231,7 @@ export default function BuildPage({
     if (newSelected) {
       setSelectedQuestion(newSelected);
     }
+    debouncedSaveForm();
   };
 
   const deleteQuestion = (id: string) => {
@@ -188,17 +250,7 @@ export default function BuildPage({
     if (selectedQuestion?.question_ID === id) {
       setSelectedQuestion(null);
     }
-  };
-
-  const handleSave = async () => {
-    if (!form) return;
-
-    const res = await saveFormToDB(form);
-    if (res.success) {
-      alert("✅ Saved successfully");
-    } else {
-      alert("❌ Failed to save");
-    }
+    debouncedSaveForm();
   };
 
   useEffect(() => {
@@ -226,23 +278,23 @@ export default function BuildPage({
       {/* 📝 Main Content */}
       <div className="w-full lg:px-10 overflow-y-auto flex flex-col space-y-6 ">
         {/* Top Tabs */}
-      <div className=" top-[90px] left-1/2 z-40 w-full flex justify-center px-4 sm:px-0 py-[15px]">
-        <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
-          {LABELS.map((label, i) => (
-            <button
-              key={label}
-              onClick={() => setCurrentSection(i as sectionform)}
-              className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
-                currentSection === i
-                  ? "bg-[#61A986] text-black dark:text-white"
-                  : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+        <div className=" top-[90px] left-1/2 z-40 w-full flex justify-center px-4 sm:px-0 py-[15px]">
+          <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
+            {LABELS.map((label, i) => (
+              <button
+                key={label}
+                onClick={() => setCurrentSection(i as sectionform)}
+                className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
+                  currentSection === i
+                    ? "bg-[#61A986] text-black dark:text-white"
+                    : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
 
         {/* 📱 Mobile Section Sidebar */}
         <div className="lg:hidden w-full px-4 flex flex-row justify-between items-center">
@@ -253,33 +305,53 @@ export default function BuildPage({
             onAddSection={addSection}
             onDeleteSection={deleteSection}
           />
-          <div className="mr-2">
-            <SaveButton onClick={handleSave} />
+          
+          <div className="bg-[#91C4AB] p-3 rounded shadow mr-2">
+            {saved !== 0 ? <h4>Saved {saved} sec ago</h4> : <h4>Saving...</h4>}
           </div>
         </div>
 
         {/* Section Title */}
         <div className="flex flex-row justify-between w-full px-10 items-center">
-          <div className="flex flex-row justify-center">
-            <div className="text-2xl font-bold mb-3 mt-6">
-              {selectedSection?.title || "No Section Selected"}
-            </div>
-            <button
-              className="pl-5 mt-3"
-              onClick={() => {
-                const newTitle = prompt("Enter new section name", selectedSection?.title);
-                if (newTitle && selectedSection?.section_ID) {
-                  handleRenameSection(selectedSection.section_ID, newTitle);
-                }
-              }}
-            >
-              <Pencil className="w-5 h-5" />
-            </button>
+          <div className="flex flex-row justify-center items-center gap-2 mt-6 mb-3">
+            {isEditingTitle ? (
+              <>
+                <input
+                  className="text-xl font-semibold border-b border-black dark:border-white bg-transparent focus:outline-none px-1"
+                  value={editedTitle}
+                  onChange={(e) => setEditedTitle(e.target.value)}
+                  onBlur={handleTitleSave}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleTitleSave();
+                    if (e.key === "Escape") {
+                      setEditedTitle(selectedSection?.title || "");
+                      setIsEditingTitle(false);
+                    }
+                  }}
+                  autoFocus
+                />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">
+                  {selectedSection?.title || "No Section Selected"}
+                </div>
+                <button
+                  className="pl-2"
+                  onClick={() => {
+                    setEditedTitle(selectedSection?.title || "");
+                    setIsEditingTitle(true);
+                  }}
+                >
+                  <Pencil className="w-5 h-5" />
+                </button>
+              </>
+            )}
           </div>
-          <div className="hidden lg:block mt-3">
-    <SaveButton onClick={handleSave} />
-  </div>
 
+          <div className="bg-[#91C4AB] p-3 rounded shadow hidden lg:block mt-3">
+            {saved != 0 ? <h4>Saved {saved} sec ago</h4> : <h4>Saving...</h4>}
+          </div>
         </div>
 
         {/* Question List */}
@@ -298,7 +370,10 @@ export default function BuildPage({
 
       {/* 🧾 RightNav (desktop) */}
       <div className="hidden lg:block w-1/3 h-full sticky border-l border-gray-300 bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500">
-        <RightNav selectedQuestion={selectedQuestion} onUpdate={updateQuestion} />
+        <RightNav
+          selectedQuestion={selectedQuestion}
+          onUpdate={updateQuestion}
+        />
       </div>
 
       {/* 📱 Mobile RightNav Overlay */}
@@ -306,12 +381,18 @@ export default function BuildPage({
         <div className="lg:hidden fixed top-0 left-0 w-full h-full bg-white z-50 overflow-y-auto dark:bg-[#2a2b2b]">
           <div className="flex justify-between items-center p-4 border-b dark:border-gray-500">
             <h2 className="text-lg font-semibold">Edit Question</h2>
-            <button onClick={() => setShowRightNav(false)} className="text-red-500 font-semibold">
+            <button
+              onClick={() => setShowRightNav(false)}
+              className="text-red-500 font-semibold"
+            >
               Close
             </button>
           </div>
           <div className="p-4">
-            <RightNav selectedQuestion={selectedQuestion} onUpdate={updateQuestion} />
+            <RightNav
+              selectedQuestion={selectedQuestion}
+              onUpdate={updateQuestion}
+            />
           </div>
         </div>
       )}

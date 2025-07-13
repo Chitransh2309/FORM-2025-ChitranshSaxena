@@ -51,12 +51,7 @@ export async function saveFormResponse(
         $set: {
           ...responseToSave,
           submittedAt: new Date(),
-        },
-        // $setOnInsert: {
-        //   response_ID: response.response_ID,
-        //   startedAt: response.startedAt,
-        //   version: 1,
-        // }
+        }
       },
       {
         upsert: true,
