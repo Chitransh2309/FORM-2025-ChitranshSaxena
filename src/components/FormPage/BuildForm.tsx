@@ -13,7 +13,7 @@ import FAQs from "../NewUserPage/FAQs";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
 import toast from "react-hot-toast";
 import { renameSectionTitle } from "@/app/action/sections";
-import { debounce } from "lodash";
+import  debounce  from "lodash/debounce";
 
 enum sectionform {
   Build,
