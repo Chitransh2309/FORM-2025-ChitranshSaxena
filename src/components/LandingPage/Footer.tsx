@@ -27,6 +27,9 @@ export default function Footer() {
               Contact Us
             </Link>
             <Link href="/about" className="hover:underline">
+              Terms and Conditions
+            </Link>
+            <Link href="/about" className="hover:underline">
               About Us
             </Link>
           </div>
@@ -45,7 +48,7 @@ export default function Footer() {
       {/* Bottom row */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0 mx-0 sm:mx-4 mt-1 mb-0">
         {/* ACM logo */}
-        <div className="flex items-center scale-[1.2]">
+        <div className="flex items-center scale-[1.2] ml-3 sm:ml-4 mt-4 sm:mt-[12px]">
           <a
             href="https://www.acmvit.in/"
             target="_blank"
@@ -56,13 +59,13 @@ export default function Footer() {
               alt="ACM logo"
               width={90}
               height={90}
-              className="scale-[1.1] hover:opacity-80 cursor-pointer transition-opacity"
+              className="scale-[1.350] hover:opacity-80 cursor-pointer transition-opacity"
             />
           </a>
         </div>
 
         {/* Social icons */}
-        <div className="flex justify-center gap-4 items-center">
+        <div className="flex justify-center items-center gap-2">
           <a
             href="https://github.com/ACM-VIT"
             target="_blank"
@@ -87,7 +90,7 @@ export default function Footer() {
               alt="Instagram logo"
               width={28}
               height={28}
-              className="w-7 h-7 sm:w-8 sm:h-8 stroke-none fill-[#F6F8F6] hover:opacity-80 cursor-pointer transition-opacity"
+              className="w-7 h-7 sm:w-8 sm:h-8 stroke-none fill-[#F6F8F6] hover:opacity-80 cursor-pointer transition-opacity ml-[7px]"
             />
           </a>
 
