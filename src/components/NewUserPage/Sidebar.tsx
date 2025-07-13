@@ -43,21 +43,21 @@ export default function Sidebar({
           </button>
         </div>
       </div>
-      <div>{selected}</div>
       <div className="flex-1 space-y-2">
-        <button 
-          onClick={() => setSelected("shared")} 
-          className="w-full text-left px-4 py-3 flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded dark:hover:bg-[#333333]">
-          <TbShare3 size={20}/>
-          Shared with me
-        </button>
 
         <button
           onClick={() => setSelected("myForms")}
           className="w-full text-left px-4 py-3 flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded dark:hover:bg-[#333333]"
         >
           <GrDocument size={20} />
-          Drafts
+          My Forms
+        </button>
+        
+        <button 
+          onClick={() => setSelected("shared")} 
+          className="w-full text-left px-4 py-3 flex items-center gap-3 text-lg hover:bg-[#4a9470] rounded dark:hover:bg-[#333333]">
+          <TbShare3 size={20}/>
+          Shared with me
         </button>
 
         <button 

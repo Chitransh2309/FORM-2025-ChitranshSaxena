@@ -1,3 +1,4 @@
+import About from "@/components/LandingPage/About";
 import Footer from "../components/LandingPage/Footer";
 import Hero from "../components/LandingPage/Hero";
 import Navbar from "../components/LandingPage/Navbar";
@@ -10,42 +11,15 @@ export default async function Home() {
       <Hero />
 
       <div
+        className="w-full px-4 py-10 flex flex-col items-center"
+        id = "about">
+      <About/>
+        
+      </div>
+      <div
         className="w-full px-4 py-10 flex flex-col items-center text-center"
         id="features"
       >
-        <p className="text-2xl font-bold text-[#3D3D3D] dark:text-white mb-8">
-          Build Forms Like Never Before
-        </p>
-        <div className="w-full flex justify-center">
-          <>
-            {/* Desktop - Light Mode */}
-            <Image
-              src="/form builder-dark mode.svg"
-              alt="light mode"
-              height={1063}
-              width={750}
-              className="w-full max-w-[1063px] dark:hidden h-auto block hidden md:block"
-            />
-
-            {/* Desktop - Dark Mode */}
-            <Image
-              src="/form builder -default 1.svg"
-              height={1063}
-              width={750}
-              alt="form-builder"
-              className="w-full max-w-[1063px] h-auto hidden dark:md:block "
-            />
-
-            {/* Mobile only */}
-            <Image
-              src="/iPhone 15 Green.svg"
-              alt="mobile view"
-              height={700}
-              width={700}
-              className="w-full max-w-[345px] h-auto block md:hidden"
-            />
-          </>
-        </div>
       </div>
 
       <div className="w-full px-4 py-10 flex flex-col items-center">
@@ -78,14 +52,14 @@ export default async function Home() {
             </div>
 
             <div
-              className="w-[344.35px] h-[375px] border-[2px] border-[#C36D81] rounded-[25px] relative hover:scale-[1.05] transition-transform duration-300 cursor-pointer px-8 pb-8 pt-4 flex flex-col justify-between"
+              className="w-[344.35px] h-[375px] border-[2px] border-[#617DA9] rounded-[25px] relative hover:scale-[1.05] transition-transform duration-300 cursor-pointer px-8 pb-8 pt-4 flex flex-col justify-between"
               style={{
-                boxShadow: "inset 0 0 25px 8px rgba(195, 109, 129, 0.6)",
+                boxShadow: "inset 0 0 25px 8px rgba(97, 125, 169, 0.6)",
               }}
             >
               <div
                 className="text-[24px] font-semibold self-center pt-8
-               bg-gradient-to-r from-[#000000] dark:from-[#F6F8F6] via-[#B85C70] to-[#C36D81]
+               bg-gradient-to-r from-[#000000] dark:from-[#F6F8F6] via-[#8C6E85] to-[#617DA9]
                bg-clip-text text-transparent"
               >
                 Conditional Logic
@@ -99,14 +73,14 @@ export default async function Home() {
               />
             </div>
             <div
-              className="w-[344.35px] h-[375px] border-[2px] border-[#617DA9] rounded-[25px] relative hover:scale-[1.05] transition-transform duration-300 cursor-pointer px-8 pb-8 pt-4 flex flex-col justify-between"
+              className="w-[344.35px] h-[375px] border-[2px] border-[#C36D81] rounded-[25px] relative hover:scale-[1.05] transition-transform duration-300 cursor-pointer px-8 pb-8 pt-4 flex flex-col justify-between"
               style={{
-                boxShadow: "inset 0 0 25px 8px rgba(97, 125, 169, 0.6)",
+                boxShadow: "inset 0 0 25px 8px rgba(195, 109, 129, 0.6)",
               }}
             >
               <div
                 className="text-[24px] font-semibold self-center pt-8
-               bg-gradient-to-r from-[#000000] dark:from-[#F6F8F6] via-[#8C6E85] to-[#617DA9] 
+               bg-gradient-to-r from-[#000000] dark:from-[#F6F8F6] via-[#B85C70] to-[#C36D81] 
                bg-clip-text text-transparent"
               >
                 Easy & Flexible

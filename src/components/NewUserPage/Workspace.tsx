@@ -32,10 +32,10 @@ export default function Workspace({
   const [showDialog, setShowDialog] = useState(false);
   const [formName, setFormName] = useState("");
   const [showFaq, setShowFaq] = useState(false);
-  const [showProfile,setShowProfile]=useState(false);
-  const [name,setName]=useState("");
-  const [image,setImage]=useState("");
-  const [email,setEmail]=useState("");
+  const [showProfile, setShowProfile] = useState(false);
+  const [name, setName] = useState("");
+  const [image, setImage] = useState("");
+  const [email, setEmail] = useState("");
   const handleCreate = async () => {
     if (!formName.trim()) return alert("Please enter a form name");
     const res = await createNewForm(formName);
@@ -49,10 +49,10 @@ export default function Workspace({
   useEffect(() => {
     (async () => {
       const res = await getFormsForUser();
-      const user=await getUser();
-      setName(user?.name||"");
-      setEmail(user?.email||"");
-      setImage(user?.image||"");
+      const user = await getUser();
+      setName(user?.name || "");
+      setEmail(user?.email || "");
+      setImage(user?.image || "");
       setForms(res);
       setLoading(false);
     })();
@@ -90,11 +90,21 @@ export default function Workspace({
               className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
             />
           </button>
-          <button onClick={()=>setShowProfile(!showProfile)}>
-            {image!==""?<Image src={image} width={26} height={26} alt="profile_image" className="text-black rounded-full hover:text-gray-700 dark:text-white dark:hover:text-gray-300"/>:<FaRegCircleUser
-            size={22}
-            className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
-          />}
+          <button onClick={() => setShowProfile(!showProfile)}>
+            {image !== "" ? (
+              <Image
+                src={image}
+                width={26}
+                height={26}
+                alt="profile_image"
+                className="text-black rounded-full hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
+              />
+            ) : (
+              <FaRegCircleUser
+                size={22}
+                className="text-black hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
+              />
+            )}
           </button>
         </div>
         {showProfile && <Profile name={name} email={email} />}

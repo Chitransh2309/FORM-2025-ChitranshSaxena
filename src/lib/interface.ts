@@ -24,7 +24,7 @@ export interface Form {
   settings: FormSettings;
   sections: Section[];
   isDeleted: boolean;
-  isStarred:boolean;
+  isStarred: boolean;
 }
 
 export type NestedCondition = {
@@ -151,6 +151,15 @@ export interface FieldType {
   type: ParamType;
   params: Param[];
   validations: Validation[];
+}
+
+export interface Contact {
+  contact_ID: string;
+  user_ID: string; // form_ID reference
+  createdAt: Date;
+  name: string;
+  email: string;
+  message: string;
 }
 
 export const fieldtypes: FieldType[] = [

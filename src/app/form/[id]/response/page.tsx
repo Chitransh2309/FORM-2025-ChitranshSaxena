@@ -3,13 +3,22 @@ import React, { use, useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
 import Confetti from "react-confetti";
 import getFormObject from "@/app/action/getFormObject";
-import { Form, Answer, FormResponse, Question, QuestionType, NestedCondition, BaseCondition } from "@/lib/interface";
+import {
+  Form,
+  Answer,
+  FormResponse,
+  Question,
+  QuestionType,
+  NestedCondition,
+  BaseCondition,
+} from "@/lib/interface";
 import { saveFormResponse } from "@/app/action/saveformtodb";
 import { useSession } from "next-auth/react";
 import { nanoid } from "nanoid";
 import toast from "react-hot-toast";
 import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";
 import { validateAnswer } from "@/lib/validation";
+import { debounce } from "lodash";
 
 // Dynamic Input Component based on question type
 const DynamicInput = ({
@@ -272,14 +281,41 @@ export default function ResponsesPage({
   const [sectionHistory, setSectionHistory] = useState<number[]>([]);
   const [sectionIndex, setSectionIndex] = useState(0);
   const [jumpQueue, setJumpQueue] = useState<number[]>([]);
-  const [visitedSections, setVisitedSections] = useState<Set<number>>(new Set());
+  const [visitedSections, setVisitedSections] = useState<Set<number>>(
+    new Set()
+  );
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const section = form?.sections?.[sectionIndex];
   const { data: session } = useSession();
   const userId = session?.user?.id ?? "anonymous";
 
+  const [saved, isSaving] = useState(0);
+
   const startedAt = React.useRef(new Date());
+
+  const debouncedSaveResponse = debounce(async () => {
+    const currentSection = form?.sections[sectionIndex];
+
+    isSaving(0);
+
+    const response: FormResponse = {
+      response_ID: nanoid(),
+      form_ID: formId,
+      userId,
+      userName: session?.user?.name || "Anonymous",
+      startedAt: startedAt.current,
+      submittedAt: new Date(),
+      status: "submitted",
+      answers,
+      version: 1,
+    };
+
+    const success = await saveFormResponse(response);
+    if (!success) {
+      console.error("Failed to save form response");
+    }
+  }, 2500);
 
   const hasUserSubmitted = (formId: string, userId: string) => {
     const submittedForms = JSON.parse(
@@ -303,25 +339,45 @@ export default function ResponsesPage({
       const alreadySubmitted = hasUserSubmitted(formId, userId);
       if (alreadySubmitted) {
         setLoading(false);
-        toast.error("Form already Submitted.")
+        toast.error("Form already Submitted.");
         return;
       }
       setLoading(true);
       const res = await getFormObject(formId);
-      if (res.success && res.data && res.data.isActive) {
-        setForm(res.data);
-        setSectionIndex(0);
-      } else {
-        toast.error("Failed to load form.");
-      }
+if (res.success && res.data && res.data.isActive) {
+  const now = new Date();
+  const start = new Date(res.data.settings?.startDate);
+  const end = new Date(res.data.settings?.endDate);
+
+  if (now < start || now > end) {
+    toast.error("This form is currently not accepting responses.");
+    setLoading(false);
+    return;
+  }
+
+  setForm(res.data);
+  setSectionIndex(0);
+} else {
+  toast.error("Failed to load form.");
+}
+
       setLoading(false);
     };
 
     loadForm();
   }, [formId, session]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      isSaving((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Real-time validation on input change
   const handleInputChange = (questionId: string, value: string) => {
+    debouncedSaveResponse();
+
     setAnswers((prev) => {
       const filtered = prev.filter((a) => a.question_ID !== questionId);
       return [
@@ -336,7 +392,9 @@ export default function ResponsesPage({
     });
 
     // Find the question
-    const question = section?.questions.find((q) => q.question_ID === questionId);
+    const question = section?.questions.find(
+      (q) => q.question_ID === questionId
+    );
     if (question) {
       const answer: Answer = {
         answer_ID: nanoid(),
@@ -351,100 +409,96 @@ export default function ResponsesPage({
       }));
     }
   };
-  
 
-function evaluateConditions(
-  condition: NestedCondition | BaseCondition,
-  answers: Answer[]
-): boolean {
-  if ("conditions" in condition) {
-    const subResults = condition.conditions.map(sub =>
-      evaluateConditions(sub, answers)
-    );
+  function evaluateConditions(
+    condition: NestedCondition | BaseCondition,
+    answers: Answer[]
+  ): boolean {
+    if ("conditions" in condition) {
+      const subResults = condition.conditions.map((sub) =>
+        evaluateConditions(sub, answers)
+      );
 
-    if (condition.op === "AND") {
-      return subResults.every(Boolean);
-    } else if (condition.op === "OR") {
-      return subResults.some(Boolean);
+      if (condition.op === "AND") {
+        return subResults.every(Boolean);
+      } else if (condition.op === "OR") {
+        return subResults.some(Boolean);
+      }
     }
+
+    if ("fieldId" in condition && condition.op === "equal") {
+      const answer = answers.find((a) => a.question_ID === condition.fieldId);
+      return answer?.value === condition.value;
+    }
+
+    return false;
   }
-
-  if ("fieldId" in condition && condition.op === "equal") {
-    const answer = answers.find(a => a.question_ID === condition.fieldId);
-    return answer?.value === condition.value;
-  }
-
-  return false;
-}
-
 
   const goNext = () => {
-  const currentSection = form?.sections[sectionIndex];
-  if (!currentSection) return;
+    const currentSection = form?.sections[sectionIndex];
+    if (!currentSection) return;
 
-  const unansweredRequired = currentSection.questions.filter(
-    (q) =>
-      q.isRequired &&
-      !answers.find((a) => a.question_ID === q.question_ID)?.value
-  );
-  if (unansweredRequired.length > 0) {
-    toast.error("Please answer all required questions marked with *");
-    return;
-  }
-
-  if (jumpQueue.length > 0) {
-    const nextJump = jumpQueue[0];
-    setJumpQueue(prev => prev.slice(1));
-    setSectionHistory(prev => [...prev, sectionIndex]);
-    setVisitedSections(prev => new Set(prev).add(nextJump));
-    setSectionIndex(nextJump);
-    return;
-  }
-
-  const allLogics = currentSection.logic || [];
-  const nextJumps: number[] = [];
-
-  for (const logic of allLogics) {
-    const isTrue = evaluateConditions(logic.action.condition, answers);
-    if (isTrue) {
-      const jumpToIdx = form.sections.findIndex(
-        (s) => s.section_ID === logic.action.to
-      );
-      if (jumpToIdx !== -1) nextJumps.push(jumpToIdx);
+    const unansweredRequired = currentSection.questions.filter(
+      (q) =>
+        q.isRequired &&
+        !answers.find((a) => a.question_ID === q.question_ID)?.value
+    );
+    if (unansweredRequired.length > 0) {
+      toast.error("Please answer all required questions marked with *");
+      return;
     }
-  }
 
-  if (nextJumps.length > 0) {
-    const [firstJump, ...rest] = nextJumps;
-    setJumpQueue(rest);
-    setSectionHistory(prev => [...prev, sectionIndex]);
-    setVisitedSections(prev => new Set(prev).add(firstJump));
-    setSectionIndex(firstJump);
-    return;
-  }
+    if (jumpQueue.length > 0) {
+      const nextJump = jumpQueue[0];
+      setJumpQueue((prev) => prev.slice(1));
+      setSectionHistory((prev) => [...prev, sectionIndex]);
+      setVisitedSections((prev) => new Set(prev).add(nextJump));
+      setSectionIndex(nextJump);
+      return;
+    }
 
-  if (sectionIndex < form.sections.length - 1) {
-    setSectionHistory(prev => [...prev, sectionIndex]);
-    setSectionIndex(prev => prev + 1);
-    setVisitedSections(prev => new Set(prev).add(sectionIndex + 1));
-  }
-};
+    const allLogics = currentSection.logic || [];
+    const nextJumps: number[] = [];
 
+    for (const logic of allLogics) {
+      const isTrue = evaluateConditions(logic.action.condition, answers);
+      if (isTrue) {
+        const jumpToIdx = form.sections.findIndex(
+          (s) => s.section_ID === logic.action.to
+        );
+        if (jumpToIdx !== -1) nextJumps.push(jumpToIdx);
+      }
+    }
+
+    if (nextJumps.length > 0) {
+      const [firstJump, ...rest] = nextJumps;
+      setJumpQueue(rest);
+      setSectionHistory((prev) => [...prev, sectionIndex]);
+      setVisitedSections((prev) => new Set(prev).add(firstJump));
+      setSectionIndex(firstJump);
+      return;
+    }
+
+    if (sectionIndex < form.sections.length - 1) {
+      setSectionHistory((prev) => [...prev, sectionIndex]);
+      setSectionIndex((prev) => prev + 1);
+      setVisitedSections((prev) => new Set(prev).add(sectionIndex + 1));
+    }
+  };
 
   const goBack = () => {
-  if (sectionHistory.length === 0) return;
+    if (sectionHistory.length === 0) return;
 
-  const prevSection = sectionHistory[sectionHistory.length - 1];
-  setSectionHistory(prev => prev.slice(0, -1));
-  setSectionIndex(prevSection);
-};
-
+    const prevSection = sectionHistory[sectionHistory.length - 1];
+    setSectionHistory((prev) => prev.slice(0, -1));
+    setSectionIndex(prevSection);
+  };
 
   const isSubmitVisible = () => {
-  const isLast = form ? sectionIndex === form.sections.length - 1 : false;
-  const noPendingJumps = jumpQueue.length === 0;
-  return isLast && noPendingJumps;
-};
+    const isLast = form ? sectionIndex === form.sections.length - 1 : false;
+    const noPendingJumps = jumpQueue.length === 0;
+    return isLast && noPendingJumps;
+  };
 
   // Validate all answers in the current section
   const validateAnswers = () => {
@@ -453,7 +507,9 @@ function evaluateConditions(
     const errorsObj: Record<string, string> = {};
     let hasError = false;
     for (const question of section.questions) {
-      const answer = answers.find((a) => a.question_ID === question.question_ID);
+      const answer = answers.find(
+        (a) => a.question_ID === question.question_ID
+      );
       const result = validateAnswer(question, answer);
       if (!result.isValid) {
         errorsObj[question.question_ID] = result.errors[0];
@@ -461,17 +517,27 @@ function evaluateConditions(
       }
     }
     setErrors(errorsObj);
-    return { isValid: !hasError, errors: Object.values(errorsObj).filter(Boolean) };
+    return {
+      isValid: !hasError,
+      errors: Object.values(errorsObj).filter(Boolean),
+    };
   };
 
   const handleSubmit = async () => {
     const currentSection = form?.sections[sectionIndex];
-    const unansweredRequired = (
-      currentSection?.questions.filter(
-        (q) =>
-          q.isRequired &&
-          !answers.find((a) => a.question_ID === q.question_ID)?.value
-      )
+    const now = new Date();
+const start = new Date(form?.settings?.startDate || "");
+const end = new Date(form?.settings?.endDate || "");
+
+if (now < start || now > end) {
+  toast.error("This form is no longer accepting responses.");
+  return;
+}
+
+    const unansweredRequired = currentSection?.questions.filter(
+      (q) =>
+        q.isRequired &&
+        !answers.find((a) => a.question_ID === q.question_ID)?.value
     );
 
     if (unansweredRequired && unansweredRequired.length > 0) {
@@ -535,7 +601,10 @@ function evaluateConditions(
   return (
     <div className="bg-[#F6F8F6] dark:bg-[#2B2A2A]">
       {showConfetti && <Confetti width={width} height={height} />}
-      <div className="flex justify-end pt-5 pr-8">
+      <div className="flex justify-around pt-5 pr-8 text-black">
+        <div className="bg-[#91C4AB] p-3 rounded shadow">
+          {saved != 0 ? <h4>Saved {saved} sec ago</h4> : <h4>Saving...</h4>}
+        </div>
         <ToggleSwitch />
       </div>
       <div className="relative flex justify-center items-start py-4 font-[Outfit] w-full h-full">
@@ -581,13 +650,15 @@ function evaluateConditions(
             ))}
 
             <div className="flex justify-between mt-4 gap-3 text-black">
-               {sectionHistory.length>0 && ( <button
+              {sectionHistory.length > 0 && (
+                <button
                   onClick={goBack}
                   disabled={sectionHistory.length === 0}
                   className="min-w-[90px] bg-[#91C4AB] rounded px-4 py-2 hover:bg-[#7FB39B] transition-colors"
                 >
                   Back
-                </button>)}
+                </button>
+              )}
               <button
                 onClick={isSubmitVisible() ? handleSubmit : goNext}
                 className="min-w-[90px] bg-[#91C4AB] rounded px-4 py-2 ml-auto hover:bg-[#7FB39B] transition-colors"

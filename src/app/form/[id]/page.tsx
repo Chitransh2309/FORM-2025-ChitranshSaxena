@@ -20,7 +20,9 @@ export default async function FormPage({ params }: { params: { id: string } }) {
     .findOne({ email: session.user.email });
   const userID = user?.user_ID;
 
-  const form = await db.collection("forms").findOne({ form_ID: formId }) as Form;
+  const form = (await db
+    .collection("forms")
+    .findOne({ form_ID: formId })) as Form;
 
   await disconnectFromDB(dbClient);
 
@@ -31,8 +33,8 @@ export default async function FormPage({ params }: { params: { id: string } }) {
       </div>
     );
   }
-
-  if (form.createdBy !== userID && !form.editorID.includes(userID) && !form.viewerID.includes(userID)) {
+  
+  if (form.createdBy !== userID && !form.viewerID && !form.editorID) {
     redirect(`/form/${formId}/response`);
   }
 
@@ -40,10 +42,10 @@ export default async function FormPage({ params }: { params: { id: string } }) {
   const safeForm = JSON.parse(JSON.stringify(form));
 
   return (
-    <FormWrapper form={safeForm}>
+    <FormWrapper form={safeForm} >
       <div className="bg-[#e8ede8] h-screen w-screen overflow-y-auto">
-        <CenterNav form={form} />
+        <CenterNav form={form} currentUserEmail={session.user.email} currentUserID={userID}/>
       </div>
     </FormWrapper>
-  );
+    );
 }

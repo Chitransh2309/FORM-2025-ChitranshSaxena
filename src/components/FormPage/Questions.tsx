@@ -270,6 +270,10 @@ export default function Question({
     }
   };
 
+  function handleChange(){
+
+  }
+
   return (
     <div
       ref={containerRef}
