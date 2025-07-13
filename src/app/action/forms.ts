@@ -110,6 +110,8 @@ export async function getFormsForUser() {
       createdAt: form.createdAt?.toString() || null,
       publishedAt: form.publishedAt?.toString() || null,
       isActive: form.isActive || false,
+      settings: form.settings || {},
+
       isStarred: form.isStarred || false,
     }));
   } catch (error) {
