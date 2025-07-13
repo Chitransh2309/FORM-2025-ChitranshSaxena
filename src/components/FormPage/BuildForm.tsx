@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import SectionSidebar from "@/components/FormPage/SectionSidebar";
 import RightNav from "@/components/FormPage/RightNav";
-import SaveButton from "@/components/FormPage/SaveButton";
 import QuestionParent from "@/components/FormPage/QuestionParent";
 import getFormObject from "@/app/action/getFormObject";
 import { saveFormToDB } from "@/app/action/saveformtodb";
@@ -14,6 +13,7 @@ import FAQs from "../NewUserPage/FAQs";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
 import toast from "react-hot-toast";
 import { renameSectionTitle } from "@/app/action/sections";
+import { debounce } from "lodash";
 
 enum sectionform {
   Build,
@@ -33,6 +33,13 @@ export default function BuildPage({
   const LABELS = ["Builder", "Workflow", "Preview"];
   const { id: formId } = useParams();
   const [form, setForm] = useState<Form | null>(null);
+
+  const formRef = useRef<Form | null>(form);
+
+  useEffect(() => {
+    formRef.current = form;
+  }, [form]);
+
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
     null
   );
@@ -42,6 +49,8 @@ export default function BuildPage({
   );
   const [showFAQ, setShowFAQ] = useState(false);
 
+  const [saved, setSaved] = useState(0);
+
   const selectedSection = form?.sections.find(
     (s) => s.section_ID === selectedSectionId
   );
@@ -50,6 +59,30 @@ export default function BuildPage({
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
+
+  const debouncedSaveForm = React.useCallback(
+    debounce(async () => {
+      if (!formRef.current) return;
+
+      setSaved(0);
+
+      const res = await saveFormToDB(formRef.current);
+      if (!res.success) {
+        console.error("Failed to save form response");
+      }
+    }, 2500),
+    []
+  );
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+    intervalId = setInterval(() => {
+      setSaved((prev) => prev + 1);
+    }, 1000);
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+      debouncedSaveForm.flush(); // Flush pending saves on unmount
+    };
+  }, []);
 
   useEffect(() => {
     setEditedTitle(selectedSection?.title || "");
@@ -129,6 +162,7 @@ export default function BuildPage({
     } else {
       toast.error(res.error || "Rename failed");
     }
+    debouncedSaveForm();
   };
 
   const deleteSection = (sectionId: string) => {
@@ -140,6 +174,7 @@ export default function BuildPage({
     if (sectionId === selectedSectionId) {
       setSelectedSectionId(filteredSections[0]?.section_ID ?? null);
     }
+    debouncedSaveForm();
   };
 
   const addQuestion = () => {
@@ -147,6 +182,7 @@ export default function BuildPage({
 
     const newQuestion: Question = {
       question_ID: `q-${Date.now()}`,
+      section_ID: selectedSectionId,
       section_ID: selectedSectionId,
       questionText: "",
       isRequired: false,
@@ -165,6 +201,7 @@ export default function BuildPage({
 
     setForm({ ...form, sections: updatedSections });
     setSelectedQuestion(newQuestion);
+    debouncedSaveForm();
   };
 
   const updateQuestion = (id: string, updates: Partial<Question>) => {
@@ -194,6 +231,7 @@ export default function BuildPage({
     if (newSelected) {
       setSelectedQuestion(newSelected);
     }
+    debouncedSaveForm();
   };
 
   const deleteQuestion = (id: string) => {
@@ -212,17 +250,7 @@ export default function BuildPage({
     if (selectedQuestion?.question_ID === id) {
       setSelectedQuestion(null);
     }
-  };
-
-  const handleSave = async () => {
-    if (!form) return;
-
-    const res = await saveFormToDB(form);
-    if (res.success) {
-      alert("✅ Saved successfully");
-    } else {
-      alert("❌ Failed to save");
-    }
+    debouncedSaveForm();
   };
 
   useEffect(() => {
@@ -277,8 +305,9 @@ export default function BuildPage({
             onAddSection={addSection}
             onDeleteSection={deleteSection}
           />
-          <div className="mr-2">
-            <SaveButton onClick={handleSave} />
+          
+          <div className="bg-[#91C4AB] p-3 rounded shadow mr-2">
+            {saved !== 0 ? <h4>Saved {saved} sec ago</h4> : <h4>Saving...</h4>}
           </div>
         </div>
 
@@ -320,8 +349,8 @@ export default function BuildPage({
             )}
           </div>
 
-          <div className="hidden lg:block mt-3">
-            <SaveButton onClick={handleSave} />
+          <div className="bg-[#91C4AB] p-3 rounded shadow hidden lg:block mt-3">
+            {saved != 0 ? <h4>Saved {saved} sec ago</h4> : <h4>Saving...</h4>}
           </div>
         </div>
 
