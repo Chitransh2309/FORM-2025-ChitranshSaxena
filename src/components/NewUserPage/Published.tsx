@@ -1,12 +1,12 @@
 "use client";
 
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
-import { useTransition, useState } from "react";
-import { deleteFormFromDB, toggleStarForm } from "@/app/action/forms";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as regularStar } from "@fortawesome/free-regular-svg-icons";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
+import {deleteFormFromDB, toggleStarForm, getFormsForUser, } from "@/app/action/forms";
 
 interface Form {
   form_ID: string;
@@ -15,34 +15,54 @@ interface Form {
   isStarred: boolean;
 }
 
-export default function Published({ forms: initialForms }: { forms: Form[] }) {
+export default function Published() {
   const router = useRouter();
+  const [forms, setForms] = useState<Form[]>([]);
   const [isPending, startTransition] = useTransition();
-  const [forms, setForms] = useState(initialForms);
+
+  useEffect(() => {
+    async function fetchForms() {
+      try {
+        const data = await getFormsForUser();
+        const publishedForms = data.filter((form: Form) => form.publishedAt !== null);
+        setForms(publishedForms);
+      } catch (err) {
+        console.error("Error fetching published forms:", err);
+      }
+    }
+
+    fetchForms();
+  }, []);
 
   const handleDelete = (formId: string) => {
     startTransition(async () => {
       const confirmDelete = confirm("Are you sure you want to delete this form?");
       if (!confirmDelete) return;
 
-      const res = await deleteFormFromDB(formId);
-      if (res.success) {
+      try {
+        const res = await deleteFormFromDB(formId);
         setForms((prev) => prev.filter((form) => form.form_ID !== formId));
-      } else {
-        alert(res.message || res.error || "Failed to delete");
+      } catch (err) {
+        console.error("Error deleting form:", err);
+        alert("Something went wrong while deleting.");
       }
     });
   };
 
-  const handleStarToggle = async (formId: string) => {
-    const res = await toggleStarForm(formId);
-    if (res.success) {
-      setForms((prev) =>
-        prev.map((f) =>
-          f.form_ID === formId ? { ...f, isStarred: res.isStarred } : f
-        )
-      );
-    }
+  const handleStarToggle = (formId: string) => {
+    startTransition(async () => {
+      try {
+        const res = await toggleStarForm(formId);
+        setForms((prev) =>
+          prev.map((f) =>
+            f.form_ID === formId ? { ...f, isStarred: res.isStarred } : f
+          )
+        );
+      } catch (err) {
+        console.error("Star toggle failed:", err);
+        alert("Something went wrong while toggling star.");
+      }
+    });
   };
 
   return (
@@ -56,12 +76,16 @@ export default function Published({ forms: initialForms }: { forms: Form[] }) {
               {/* ⭐ Star Button */}
               <button
                 className={`absolute top-1.5 right-9 z-10 ${
-                  form.isStarred ? "text-yellow-500" : "text-gray-500 hover:text-yellow-500"
+                  form.isStarred
+                    ? "text-yellow-500"
+                    : "text-gray-500 hover:text-yellow-500"
                 }`}
                 title="Star Form"
                 onClick={() => handleStarToggle(form.form_ID)}
               >
-                <FontAwesomeIcon icon={form.isStarred ? solidStar : regularStar} />
+                <FontAwesomeIcon
+                  icon={form.isStarred ? solidStar : regularStar}
+                />
               </button>
 
               {/* 🗑️ Delete Button */}
@@ -73,7 +97,7 @@ export default function Published({ forms: initialForms }: { forms: Form[] }) {
                 <Trash2 size={18} />
               </button>
 
-              {/* Form Preview Button */}
+              {/* 📄 Form Title */}
               <button
                 onClick={() => router.push(`/form/${form.form_ID}`)}
                 className="w-full aspect-square bg-gray-300 hover:bg-[#d1ebdb]
@@ -82,7 +106,7 @@ export default function Published({ forms: initialForms }: { forms: Form[] }) {
                 {form.title || "Untitled Form"}
               </button>
 
-              {/* Edit + View Buttons */}
+              {/* ✏️ Edit + View Buttons */}
               <div className="flex gap-2 mt-2">
                 <button
                   onClick={() => router.push(`/form/${form.form_ID}`)}
