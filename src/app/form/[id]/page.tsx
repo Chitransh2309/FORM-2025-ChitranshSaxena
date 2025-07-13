@@ -20,7 +20,9 @@ export default async function FormPage({ params }: { params: { id: string } }) {
     .findOne({ email: session.user.email });
   const userID = user?.user_ID;
 
-  const form = await db.collection("forms").findOne({ form_ID: formId }) as Form;
+  const form = (await db
+    .collection("forms")
+    .findOne({ form_ID: formId })) as Form;
 
   await disconnectFromDB(dbClient);
 
@@ -32,7 +34,7 @@ export default async function FormPage({ params }: { params: { id: string } }) {
     );
   }
 
-  if (form.createdBy !== userID && !form.editorID.includes(userID) && !form.viewerID.includes(userID)) {
+  if (form.createdBy !== userID) {
     redirect(`/form/${formId}/response`);
   }
 
