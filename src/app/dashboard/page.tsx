@@ -65,8 +65,24 @@ function Workspace({
     })();
   }, []);
 
-  const drafts = forms.filter((f) => !f.isActive && !f.isDeleted);
-  const published = forms.filter((f) => f.isActive && !f.isDeleted);
+  const now = new Date();
+
+const published = forms.filter((f) => {
+  const startDate = f.settings?.startDate
+    ? new Date(f.settings.startDate)
+    : null;
+
+  return startDate && now >= startDate && !f.isDeleted;
+});
+
+const drafts = forms.filter((f) => {
+  const startDate = f.settings?.startDate
+    ? new Date(f.settings.startDate)
+    : null;
+
+  return (!startDate || now < startDate) && !f.isDeleted;
+});
+
   const starred = forms.filter((f) => f.isStarred && !f.isDeleted);
   const trash = forms.filter((f) => f.isDeleted);
 
@@ -93,6 +109,12 @@ function Workspace({
   const handleUnstarInWorkspace = (formId: string) => {
     setForms((prev) =>
       prev.map((f) => (f.form_ID === formId ? { ...f, isStarred: false } : f))
+    );
+  };
+
+  const handleRestoreInWorkspace = (formId: string) => {
+    setForms((prev) =>
+      prev.map((f) => (f.form_ID === formId ? { ...f, isDeleted: false } : f))
     );
   };
 
@@ -222,7 +244,11 @@ function Workspace({
             </div>
           )
         ) : selected === "trash" ? (
-          <Trash forms={filteredTrash} searchTerm={searchTerm} />
+          <Trash
+            forms={filteredTrash}
+            searchTerm={searchTerm}
+            onRestore={handleRestoreInWorkspace}
+          />
         ) : selected === "starred" ? (
           <Starred
             forms={filteredStarred}
