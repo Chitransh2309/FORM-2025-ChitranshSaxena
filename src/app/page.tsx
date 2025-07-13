@@ -3,24 +3,28 @@ import Footer from "../components/LandingPage/Footer";
 import Hero from "../components/LandingPage/Hero";
 import Navbar from "../components/LandingPage/Navbar";
 import Image from "next/image";
+import { auth } from "../../auth";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
+  const session = await auth();
+
+  if (session) {
+    redirect("/dashboard");
+  }
+
   return (
     <div className="min-h-screen w-full bg-[#F6F8F6] overflow-x-hidden dark:bg-[#191719]">
       <Navbar />
       <Hero />
 
-      <div
-        className="w-full px-4 py-10 flex flex-col items-center"
-        id = "about">
-      <About/>
-        
+      <div className="w-full px-4 py-10 flex flex-col items-center" id="about">
+        <About />
       </div>
       <div
         className="w-full px-4 py-10 flex flex-col items-center text-center"
         id="features"
-      >
-      </div>
+      ></div>
 
       <div className="w-full px-4 py-10 flex flex-col items-center">
         <p className="text-2xl font-bold text-[#3D3D3D] dark:text-white mb-8 text-center">
