@@ -12,7 +12,7 @@ import { Pencil } from "lucide-react";
 import FAQs from "../NewUserPage/FAQs";
 import toast from "react-hot-toast";
 import { renameSectionTitle } from "@/app/action/sections";
-import { debounce } from "lodash";
+import  debounce  from "lodash/debounce";
 
 enum SectionForm {
   Build = 0,
@@ -276,7 +276,8 @@ export default function BuildPage({
       {/* 📝 Main Content */}
       <div className="w-full lg:px-10 overflow-y-auto flex flex-col space-y-6 ">
         {/* Top Tabs */}
-        <div className=" top-[90px] left-1/2 z-40 w-full flex justify-center px-4 sm:px-0 py-[15px]">
+       <div className="w-full flex justify-center px-4 sm:px-0 py-[15px]">
+
           <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
             {LABELS.map((label, i) => (
               <button
