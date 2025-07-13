@@ -10,16 +10,16 @@ export default async function ResponsePage({
 }) {
   try {
     const formId = params.id;
-    const session= await auth();
+    const session = await auth();
     if (!session?.user?.email) {
-    redirect("/");
-  }
+      redirect("/");
+    }
     const { dbClient, db } = await connectToDB();
 
     const form = await db.collection("forms").findOne({ form_ID: formId });
     const user = await db
-    .collection("user")
-    .findOne({ email: session.user.email });
+      .collection("user")
+      .findOne({ email: session.user.email });
     const userID = user?.user_ID;
     const responses = await db
       .collection("response")
@@ -27,7 +27,7 @@ export default async function ResponsePage({
       .toArray();
 
     await disconnectFromDB(dbClient);
-    
+
     if (!form || responses.length === 0) {
       return (
         <div className="text-center mt-20 text-lg text-black">
@@ -35,14 +35,14 @@ export default async function ResponsePage({
         </div>
       );
     }
-    if(userID!==form.createdBy){
+    if (userID !== form.createdBy) {
       {
-      return (
-        <div className="text-center mt-20 text-lg text-black">
-          User Don't own the form
-        </div>
-      );
-    }
+        return (
+          <div className="text-center mt-20 text-lg text-black">
+            User Don&apos;t own the form
+          </div>
+        );
+      } 
     }
 
     // Ensure safe serialization of MongoDB documents
