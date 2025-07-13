@@ -34,6 +34,7 @@ export default async function FormPage({ params }: { params: { id: string } }) {
     );
   }
 
+  
   if (form.createdBy !== userID) {
     redirect(`/form/${formId}/response`);
   }
@@ -42,9 +43,9 @@ export default async function FormPage({ params }: { params: { id: string } }) {
   const safeForm = JSON.parse(JSON.stringify(form));
 
   return (
-    <FormWrapper form={safeForm}>
+    <FormWrapper form={safeForm} >
       <div className="bg-[#e8ede8] h-screen w-screen overflow-y-auto">
-        <CenterNav form={form} />
+        <CenterNav form={form} currentUserEmail={session.user.email} currentUserID={userID}/>
       </div>
     </FormWrapper>
   );
