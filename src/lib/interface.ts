@@ -158,6 +158,15 @@ export interface FieldType {
   validations: Validation[];
 }
 
+export interface Contact {
+  contact_ID: string;
+  user_ID: string; // form_ID reference
+  createdAt: Date;
+  name: string;
+  email: string;
+  message: string;
+}
+
 export const fieldtypes: FieldType[] = [
   {
     name: "text",
