@@ -277,7 +277,6 @@ enum sectionform {
 interface formbuild {
   currentSection: sectionform;
   setCurrentSection: (section: sectionform) => void;
-  form?: Form;
 }
 
 export default function PreviewForm({
@@ -295,26 +294,29 @@ export default function PreviewForm({
 
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loadedForm, setLoadedForm] = useState<Form | null>(null);
 
-  const section = form?.sections?.[sectionIndex];
+  const section = loadedForm?.sections?.[sectionIndex];
 
-  // useEffect(() => {
-  //   const loadForm = async () => {
-  //     if (!formId || typeof formId !== "string") return;
-  //     setLoading(true);
-  //     const res = await getFormObject(formId);
-  //     if (res.success && res.data) {
-  //       setForm(res.data);
-  //       setSectionIndex(0);
-  //       setAnswers([]);
-  //       setErrors({});
-  //     } else {
-  //       alert("❌ Failed to load form.");
-  //     }
-  //     setLoading(false);
-  //   };
-  //   loadForm();
-  // }, [formId]);
+  useEffect(() => {
+    const loadForm = async () => {
+      if (!formId || typeof formId !== "string") return;
+
+      const res = await getFormObject(formId);
+      if (res.success && res.data) {
+        setLoadedForm(res.data);
+        setSectionIndex(0);
+        setAnswers([]);
+        setErrors({});
+      } else {
+        alert("❌ Failed to load form.");
+      }
+    };
+
+    if (currentSection === sectionform.Preview) {
+      loadForm();
+    }
+  }, [currentSection, formId]);
 
   // Simulate answer state for preview
   const handleInputChange = (questionId: string, value: string) => {
@@ -351,7 +353,7 @@ export default function PreviewForm({
   };
 
   const goNext = () => {
-    if (form && sectionIndex < form.sections.length - 1) {
+    if (loadedForm && sectionIndex < loadedForm.sections.length - 1) {
       setSectionIndex(sectionIndex + 1);
       setErrors({});
     }
@@ -373,14 +375,6 @@ export default function PreviewForm({
   //     </div>
   //   );
   // }
-
-  if (!form || !section) {
-    return (
-      <div className="text-center mt-20 text-lg font-semibold">
-        No form or section data available.
-      </div>
-    );
-  }
 
   return (
     <div className="relative flex justify-center items-center min-h-screen bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full overflow-scroll h-full dark:bg-[#2B2A2A]">
@@ -406,130 +400,146 @@ export default function PreviewForm({
           selectedDevice === "mobile" ? "max-w-[375px] scale-[0.95]" : "w-[80%]"
         } mx-auto px-2 sm:px-4 transition-all duration-300 ease-in-out`}
       >
-        {/* Device Switcher (unique to preview) */}
-        <div className="flex items-center justify-between px-2 mb-6 w-full max-w-[200px] h-[62px] rounded-[10px] mx-auto shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 dark:bg-[#414141]">
-          {["desktop", "mobile"].map((device) => (
-            <button
-              key={device}
-              onClick={() => setSelectedDevice(device as "desktop" | "mobile")}
-              className={`cursor-pointer w-[70px] h-[44px] rounded-[7px] flex items-center justify-center transition-colors duration-200 ${
-                selectedDevice === device ? "bg-[#61A986]" : ""
-              }`}
-            >
-              <Image
-                src={`/${device}-icon-light.svg`}
-                alt={device}
-                width={device === "desktop" ? 32 : 23}
-                height={27}
-                style={{
-                  filter: selectedDevice === device ? "none" : "brightness(0)",
-                }}
-              />
-            </button>
-          ))}
-        </div>
+        {!form || !section ? (
+          <div className="w-full text-center mt-20 text-lg font-semibold">
+            No form or section data available.
+          </div>
+        ) : (
+          <>
+            {/* Device Switcher (unique to preview) */}
+            <div className="flex items-center justify-between px-2 mb-6 w-full max-w-[200px] h-[62px] rounded-[10px] mx-auto shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 dark:bg-[#414141]">
+              {["desktop", "mobile"].map((device) => (
+                <button
+                  key={device}
+                  onClick={() =>
+                    setSelectedDevice(device as "desktop" | "mobile")
+                  }
+                  className={`cursor-pointer w-[70px] h-[44px] rounded-[7px] flex items-center justify-center transition-colors duration-200 ${
+                    selectedDevice === device ? "bg-[#61A986]" : ""
+                  }`}
+                >
+                  <Image
+                    src={`/${device}-icon-light.svg`}
+                    alt={device}
+                    width={device === "desktop" ? 32 : 23}
+                    height={27}
+                    style={{
+                      filter:
+                        selectedDevice === device ? "none" : "brightness(0)",
+                    }}
+                  />
+                </button>
+              ))}
+            </div>
+            {/* === FORM HEADER === */}
+            <div className="w-full bg-white rounded-[8px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 sm:px-6 py-6 flex flex-col justify-between mb-6 dark:bg-[#5A5959] dark:text-white">
+              <h2 className="text-black mb-1 font-[Outfit] font-semibold text-[25px] leading-[100%] tracking-[0%] dark:text-white">
+                {form.title || "Untitled Form"}
+              </h2>
+              <p className="text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-6 sm:mb-12 dark:text-white">
+                {form.description || "No description provided"}
+              </p>
+              <hr className="border-t border-black mb-2 dark:border-white" />
+              <p className="text-[#676767] font-[Outfit] font-normal text-[20px] leading-[100%] tracking-[0%] dark:text-white">
+                <span className="text-red-500">*</span> implies compulsory
+              </p>
+            </div>
 
-        {/* === FORM HEADER === */}
-        <div className="w-full bg-white rounded-[8px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 sm:px-6 py-6 flex flex-col justify-between mb-6 dark:bg-[#5A5959] dark:text-white">
-          <h2 className="text-black mb-1 font-[Outfit] font-semibold text-[25px] leading-[100%] tracking-[0%] dark:text-white">
-            {form.title || "Untitled Form"}
-          </h2>
-          <p className="text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-6 sm:mb-12 dark:text-white">
-            {form.description || "No description provided"}
-          </p>
-          <hr className="border-t border-black mb-2 dark:border-white" />
-          <p className="text-[#676767] font-[Outfit] font-normal text-[20px] leading-[100%] tracking-[0%] dark:text-white">
-            <span className="text-red-500">*</span> implies compulsory
-          </p>
-        </div>
+            {/* === SECTION BODY === */}
+            <div className="w-full bg-white px-4 sm:px-6 py-6 shadow-[0_0_10px_rgba(0,0,0,0.3)] rounded-[8px] dark:bg-[#5A5959] dark:text-white">
+              <h3 className="text-lg sm:text-xl font-semibold mb-6 text-black font-[Outfit] dark:text-white">
+                {section.title}
+              </h3>
 
-        {/* === SECTION BODY === */}
-        <div className="w-full bg-white px-4 sm:px-6 py-6 shadow-[0_0_10px_rgba(0,0,0,0.3)] rounded-[8px] dark:bg-[#5A5959] dark:text-white">
-          <h3 className="text-lg sm:text-xl font-semibold mb-6 text-black font-[Outfit] dark:text-white">
-            {section.title}
-          </h3>
-
-          {section.questions.map((q) => (
-            <div
-              key={q.question_ID}
-              className="mb-6 w-full bg-white rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 py-3 dark:bg-[#353434]"
-            >
-              <label
-                className="block text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-2 font-[Outfit] dark:text-white"
-                style={{ textShadow: "0.3px 0.6px 1px rgba(0, 0, 0, 0.1)" }}
-              >
-                {q.questionText}{" "}
-                {q.isRequired && <span className="text-red-500">*</span>}
-              </label>
-              <DynamicPreviewInput
-                question={q}
-                value={
-                  answers.find((a) => a.question_ID === q.question_ID)?.value ||
-                  ""
-                }
-                onChange={(value) => handleInputChange(q.question_ID, value)}
-                error={errors[q.question_ID]}
-              />
-              {/* Config summary for preview */}
-              <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                <span className="italic">Type: {q.type}</span>
-                {q.type === "DATE" && (
-                  <>
-                    {q.config?.validations?.find(
-                      (v) => v.name === "dateRange"
-                    ) && (
+              {section.questions.map((q) => (
+                <div
+                  key={q.question_ID}
+                  className="mb-6 w-full bg-white rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 py-3 dark:bg-[#353434]"
+                >
+                  <label
+                    className="block text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-2 font-[Outfit] dark:text-white"
+                    style={{ textShadow: "0.3px 0.6px 1px rgba(0, 0, 0, 0.1)" }}
+                  >
+                    {q.questionText}{" "}
+                    {q.isRequired && <span className="text-red-500">*</span>}
+                  </label>
+                  <DynamicPreviewInput
+                    question={q}
+                    value={
+                      answers.find((a) => a.question_ID === q.question_ID)
+                        ?.value || ""
+                    }
+                    onChange={(value) =>
+                      handleInputChange(q.question_ID, value)
+                    }
+                    error={errors[q.question_ID]}
+                  />
+                  {/* Config summary for preview */}
+                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    <span className="italic">Type: {q.type}</span>
+                    {q.type === "DATE" && (
                       <>
-                        {" | Range: "}
-                        {q.config.validations
-                          .find((v) => v.name === "dateRange")
-                          ?.params?.find((p) => p.name === "minDate")?.value ||
-                          "Any"}
-                        {" to "}
-                        {q.config.validations
-                          .find((v) => v.name === "dateRange")
-                          ?.params?.find((p) => p.name === "maxDate")?.value ||
-                          "Any"}
+                        {q.config?.validations?.find(
+                          (v) => v.name === "dateRange"
+                        ) && (
+                          <>
+                            {" | Range: "}
+                            {q.config.validations
+                              .find((v) => v.name === "dateRange")
+                              ?.params?.find((p) => p.name === "minDate")
+                              ?.value || "Any"}
+                            {" to "}
+                            {q.config.validations
+                              .find((v) => v.name === "dateRange")
+                              ?.params?.find((p) => p.name === "maxDate")
+                              ?.value || "Any"}
+                          </>
+                        )}
                       </>
                     )}
-                  </>
+                    {q.type === "MCQ" && (
+                      <span>
+                        {" | Min: "}
+                        {q.config?.params?.find((p) => p.name === "min")
+                          ?.value || 0}
+                        {", Max: "}
+                        {q.config?.params?.find((p) => p.name === "max")
+                          ?.value ||
+                          (
+                            q.config?.params?.find((p) => p.name === "options")
+                              ?.value as string[]
+                          )?.length ||
+                          0}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {/* Navigation Buttons */}
+              <div className="flex justify-between items-center mt-4 flex-wrap gap-3">
+                {sectionIndex > 0 && (
+                  <button
+                    onClick={goBack}
+                    className="cursor-pointer min-w-[90px] h-[34px] sm:w-[108px] sm:h-[30px] bg-[#91C4AB] active:bg-[#61A986] text-black rounded-[7px] font-[Outfit] font-medium text-[14px] sm:text-[16px]"
+                  >
+                    Back
+                  </button>
                 )}
-                {q.type === "MCQ" && (
-                  <span>
-                    {" | Min: "}
-                    {q.config?.params?.find((p) => p.name === "min")?.value ||
-                      0}
-                    {", Max: "}
-                    {q.config?.params?.find((p) => p.name === "max")?.value ||
-                      (
-                        q.config?.params?.find((p) => p.name === "options")
-                          ?.value as string[]
-                      )?.length ||
-                      0}
-                  </span>
-                )}
+                <button
+                  onClick={
+                    isLastSection ? () => alert("Preview Complete") : goNext
+                  }
+                  className="cursor-pointer min-w-[90px] h-[34px] sm:w-[108px] sm:h-[30px] bg-[#91C4AB] active:bg-[#61A986] text-black rounded-[7px] font-[Outfit] font-medium text-[14px] sm:text-[16px] right-0 ml-auto"
+                >
+                  {isLastSection ? "Submit" : "Next"}
+                </button>
               </div>
             </div>
-          ))}
-
-          {/* Navigation Buttons */}
-          <div className="flex justify-between items-center mt-4 flex-wrap gap-3">
-            {sectionIndex > 0 && (
-              <button
-                onClick={goBack}
-                className="cursor-pointer min-w-[90px] h-[34px] sm:w-[108px] sm:h-[30px] bg-[#91C4AB] active:bg-[#61A986] text-black rounded-[7px] font-[Outfit] font-medium text-[14px] sm:text-[16px]"
-              >
-                Back
-              </button>
-            )}
-            <button
-              onClick={isLastSection ? () => alert("Preview Complete") : goNext}
-              className="cursor-pointer min-w-[90px] h-[34px] sm:w-[108px] sm:h-[30px] bg-[#91C4AB] active:bg-[#61A986] text-black rounded-[7px] font-[Outfit] font-medium text-[14px] sm:text-[16px] right-0 ml-auto"
-            >
-              {isLastSection ? "Submit" : "Next"}
-            </button>
-          </div>
-        </div>
+          </>
+        )}
       </div>
+
       {/* FAQ Button - Mobile Only */}
       <div className="fixed bottom-6 right-6 z-40">
         <button
