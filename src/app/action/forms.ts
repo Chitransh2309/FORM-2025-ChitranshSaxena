@@ -60,7 +60,7 @@ export async function createFormIfNotExists(form_ID: string, name?: string) {
   }
 }
 
-// ✅ Get all forms for the user
+// ✅ Get all forms for the user with response count
 export async function getFormsForUser(includeDeleted = false) {
   try {
     const { db, dbClient } = await connectToDB();
@@ -101,9 +101,19 @@ export async function getFormsForUser(includeDeleted = false) {
 
     const forms = await db.collection("forms").find(query).toArray();
 
+    // 🔁 Count responses for each form
+    const responseCounts = await Promise.all(
+      forms.map(async (form) => {
+        const count = await db
+          .collection("responses")
+          .countDocuments({ form_ID: form.form_ID });
+        return count;
+      })
+    );
+
     await disconnectFromDB(dbClient);
 
-    return forms.map((form) => ({
+    return forms.map((form, index) => ({
       form_ID: form.form_ID,
       title: form.title || "Untitled",
       description: form.description || "",
@@ -111,16 +121,15 @@ export async function getFormsForUser(includeDeleted = false) {
       publishedAt: form.publishedAt?.toString() || null,
       isActive: form.isActive || false,
       settings: form.settings || {},
-
       isStarred: form.isStarred || false,
       isDeleted: form.isDeleted || false,
+      responseCount: responseCounts[index], // ✅ Include response count
     }));
   } catch (error) {
     console.error("❌ getFormsForUser error:", error);
     return [];
   }
 }
-
 
 // ✅ Update form settings
 export async function updateFormSettings(
@@ -161,7 +170,7 @@ export async function deleteFormFromDB(form_ID: string) {
     console.log("🗑 Attempting to delete form:", form_ID);
 
     const result = await db.collection("forms").updateOne(
-      { form_ID }, // Match on form_ID field
+      { form_ID },
       { $set: { isDeleted: true } }
     );
 
@@ -183,7 +192,7 @@ export async function deleteFormFromDB(form_ID: string) {
   }
 }
 
-
+// ✅ Toggle starred form
 export async function toggleStarForm(form_ID: string) {
   try {
     const { db, dbClient } = await connectToDB();
@@ -205,8 +214,7 @@ export async function toggleStarForm(form_ID: string) {
   }
 }
 
-
-// Restore form from trash
+// ✅ Restore form from trash
 export async function restoreForm(form_ID: string) {
   try {
     const { db, dbClient } = await connectToDB();
@@ -224,7 +232,7 @@ export async function restoreForm(form_ID: string) {
   }
 }
 
-// Permanently delete form
+// ✅ Permanently delete form
 export async function permanentlyDeleteForm(form_ID: string) {
   try {
     const { db, dbClient } = await connectToDB();

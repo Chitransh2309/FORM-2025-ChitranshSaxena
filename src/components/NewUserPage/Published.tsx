@@ -6,13 +6,18 @@ import { Trash2 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as regularStar } from "@fortawesome/free-regular-svg-icons";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
-import {deleteFormFromDB, toggleStarForm, getFormsForUser, } from "@/app/action/forms";
+import {
+  deleteFormFromDB,
+  toggleStarForm,
+  getFormsForUser,
+} from "@/app/action/forms";
 
 interface Form {
   form_ID: string;
   title: string;
-  publishedAt: Date | null;
+  publishedAt: Date | string | null;
   isStarred: boolean;
+  responseCount: number;
 }
 
 export default function Published() {
@@ -24,7 +29,9 @@ export default function Published() {
     async function fetchForms() {
       try {
         const data = await getFormsForUser();
-        const publishedForms = data.filter((form: Form) => form.publishedAt !== null);
+        const publishedForms = data.filter(
+          (form: Form) => form.publishedAt !== null
+        );
         setForms(publishedForms);
       } catch (err) {
         console.error("Error fetching published forms:", err);
@@ -97,14 +104,23 @@ export default function Published() {
                 <Trash2 size={18} />
               </button>
 
-              {/* 📄 Form Title */}
-              <button
+              {/* 📄 Form Card */}
+              <div
                 onClick={() => router.push(`/form/${form.form_ID}`)}
-                className="w-full aspect-square bg-gray-300 hover:bg-[#d1ebdb]
-                  rounded-lg shadow transition p-3 dark:bg-[#353434] dark:hover:bg-[#3f3d3d] text-center"
+                className="cursor-pointer w-full aspect-square bg-gray-300 hover:bg-[#d1ebdb]
+                  rounded-lg shadow transition p-3 dark:bg-[#353434] dark:hover:bg-[#3f3d3d]
+                  flex flex-col justify-between"
               >
-                {form.title || "Untitled Form"}
-              </button>
+                {/* Centered Title */}
+                <div className="flex-grow flex items-center justify-center text-center font-semibold">
+                  {form.title || "Untitled Form"}
+                </div>
+
+                {/* Bottom-Left Response Count */}
+                <div className="text-left text-sm font-semibold px-1 mb-1">
+                  {form.responseCount} {form.responseCount === 1 ? "response" : "responses"}
+                </div>
+              </div>
 
               {/* ✏️ Edit + View Buttons */}
               <div className="flex gap-2 mt-2">
