@@ -1,6 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
+import { Instagram, Mail as MailIcon, X } from "lucide-react";
+import { Manrope } from "next/font/google";
+
+const manrope = Manrope({ subsets: ["latin"], weight: ["400", "500", "700", "800"] });
 
 interface ContactProps {
   onClose: () => void;
@@ -27,87 +31,108 @@ export default function Contact({ onClose, user_ID }: ContactProps) {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        console.error("Error saving contact:", data.message);
-        alert("Failed to save contact: " + (data.message || "Unknown error"));
+        alert("Failed to send: " + (data.message || "Unknown error"));
         return;
       }
 
-      // Optional: show a toast/snackbar instead of alert
-      alert("Contact saved successfully!");
-      onClose(); // Close popup
-    } catch (error) {
-      console.error("Fetch error:", error);
-      alert("Failed to save contact.");
+      alert("Message sent!");
+      onClose();
+    } catch (err) {
+      alert("Something went wrong.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white dark:bg-[#1f1f1f] p-6 rounded shadow-lg max-w-md w-full mx-4">
-        <h2 className="text-lg font-semibold dark:text-white mb-4">
-          Contact Us
-        </h2>
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 ${manrope.className}`}
+    >
+      <div className="w-[793px] h-[617px] bg-white dark:bg-[#000000] border-[5px] border-[#4B795F] rounded-[25px] shadow-[inset_0px_4px_40px_3px_#4B795F] relative transition-colors">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-black dark:text-white hover:text-red-400 transition"
+        >
+          <X className="w-6 h-6" />
+        </button>
 
-        <form onSubmit={handleSubmit}>
-          <label className="block mb-2 text-gray-700 dark:text-gray-300">
-            Name
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              placeholder="Your name"
-              disabled={loading}
-              className="mt-1 w-full p-2 border rounded"
-            />
-          </label>
+        <div className="flex w-full justify-start items-center px-10 md:flex-row h-full rounded-[25px] overflow-hidden">
+          {/* Left: Contact Info */}
+          <div className="absolute flex w-full justify-start bg-[#CCCCCC] dark:bg-[#CCCCCC] md:h-[50%] md:w-[40%] p-10 flex-col gap-12 rounded-[10px]">
+            <h2 className="text-3xl font-bold text-black text-center">Contact us</h2>
 
-          <label className="block mb-2 text-gray-700 dark:text-gray-300">
-            Email
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="you@example.com"
-              disabled={loading}
-              className="mt-1 w-full p-2 border rounded"
-            />
-          </label>
+            <div className="flex items-center gap-3 text-black">
+              <Instagram className="w-5 h-5" strokeWidth={2} />
+              <a
+                href="https://www.instagram.com/acmvit?igsh=MTRmM2g0aWhxYzg0cA=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-base font-medium"
+              >
+                acmvit
+              </a>
+            </div>
 
-          <label className="block mb-2 text-gray-700 dark:text-gray-300">
-            Message
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              rows={4}
-              required
-              placeholder="Your message"
-              disabled={loading}
-              className="mt-1 w-full p-2 border rounded"
-            />
-          </label>
-
-          <div className="flex justify-end gap-2 mt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={loading}
-              className="px-4 py-2 bg-gray-300 rounded"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 bg-black text-white rounded"
-            >
-              {loading ? "Sending..." : "Send"}
-            </button>
+            <div className="flex items-center gap-3 text-black">
+              <MailIcon className="w-5 h-5" strokeWidth={2} />
+              <a
+                href="mailto:form.ktech800@gmail.com"
+                className="text-base font-medium underline"
+              >
+                form.ktech800@gmail.com
+              </a>
+            </div>
           </div>
-        </form>
+
+          {/* Right: Form */}
+          <div className="w-full flex justify-end">
+            <div className="flex justify-end items-end bg-[#4B795F] w-[85%] h-2/3 p-4 pr-20 flex-col text-white rounded-[10px] dark:bg-[#4B795F]">
+              <div className="flex flex-col justify-end w-1/2">
+                <h2 className="text-3xl font-bold mt-6 mb-2 text-white">Get in touch</h2>
+                <p className="text-sm mb-5 text-white">Feel free to drop us a line below!</p>
+
+                <form onSubmit={handleSubmit}>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Your name"
+                    required
+                    disabled={loading}
+                    className="w-full p-3 mb-4 rounded bg-[#D1D1D1] text-black placeholder:text-gray-600"
+                  />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Your email"
+                    required
+                    disabled={loading}
+                    className="w-full p-3 mb-4 rounded bg-[#D1D1D1] text-black placeholder:text-gray-600"
+                  />
+                  <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Type your message here"
+                    rows={4}
+                    required
+                    disabled={loading}
+                    className="w-full p-3 mb-5 rounded bg-[#D1D1D1] text-black placeholder:text-gray-600"
+                  />
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-1/2 mb-6 py-2 bg-[#D1D1D1] text-black font-bold rounded hover:opacity-90 transition"
+                  >
+                    {loading ? "Sending..." : "SEND"}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
