@@ -91,13 +91,10 @@ function Workspace({
   };
 
   const handleUnstarInWorkspace = (formId: string) => {
-  setForms((prev) =>
-    prev.map((f) =>
-      f.form_ID === formId ? { ...f, isStarred: false } : f
-    )
-  );
-};
-
+    setForms((prev) =>
+      prev.map((f) => (f.form_ID === formId ? { ...f, isStarred: false } : f))
+    );
+  };
 
   const wrapperStyles =
     "w-[80%] h-[60vh] border border-dashed mx-auto flex flex-col justify-center items-center gap-6 bg-transparent";
@@ -195,7 +192,7 @@ function Workspace({
         </div>
       )}
 
-            <div className="flex-1 px-4 md:px-6 pb-4 h-full flex items-center justify-center">
+      <div className="flex-1 px-4 md:px-6 pb-4 h-full flex items-center justify-center">
         {selected === "myForms" ? (
           loading ? (
             <div className={wrapperStyles + " text-black dark:text-white"}>
@@ -227,13 +224,21 @@ function Workspace({
         ) : selected === "trash" ? (
           <Trash forms={filteredTrash} searchTerm={searchTerm} />
         ) : selected === "starred" ? (
-          <Starred forms={filteredStarred} searchTerm={searchTerm} onUnstar={handleUnstarInWorkspace} />
+          <Starred
+            forms={filteredStarred}
+            searchTerm={searchTerm}
+            onUnstar={handleUnstarInWorkspace}
+          />
         ) : selected === "shared" ? (
-          <Shared/>
+          <>
+            <Shared />
+          </>
         ) : null}
-          {showFaq && <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />}
-      </div></div>)}
-
+        {showFaq && <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />}
+      </div>
+    </div>
+  );
+}
 
 export default function CombinedWorkspacePage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -278,4 +283,3 @@ export default function CombinedWorkspacePage() {
     </div>
   );
 }
-              
