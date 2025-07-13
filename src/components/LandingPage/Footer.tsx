@@ -1,12 +1,27 @@
-import React from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Copyright, YoutubeIcon } from "lucide-react";
-import { Outfit } from "next/font/google";
 import Image from "next/image";
+import { Outfit } from "next/font/google";
+import ContactButton from "./ContactButton";
+import { getUser } from "@/app/action/getUser";
+import TermsModal from "@/components/LandingPage/TermsConditions";
 
 const out_fit = Outfit({ subsets: ["latin"], weight: ["400", "800"] });
 
 export default function Footer() {
+  const [user_ID, setUser_ID] = useState("");
+  const [showTerms, setShowTerms] = useState(false);
+
+  useEffect(() => {
+    async function fetchUser() {
+      const user = await getUser();
+      setUser_ID(user?.user_ID || "");
+    }
+    fetchUser();
+  }, []);
+
   return (
     <div className="w-full p-4 sm:p-6 bg-[#61A986]" id="contact">
       {/* Main content section */}
@@ -23,12 +38,15 @@ export default function Footer() {
             F.O.R.M
           </p>
           <div className="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm mt-2 text-[#F6F8F6] dark:text-[#F6F8F6]">
-            <Link href="/" className="hover:underline">
-              Contact Us
-            </Link>
-            <Link href="/about" className="hover:underline">
+            <ContactButton user_ID={user_ID} />
+
+            <span
+              onClick={() => setShowTerms(true)}
+              className="hover:underline cursor-pointer"
+            >
               Terms and Conditions
-            </Link>
+            </span>
+
             <Link href="/about" className="hover:underline">
               About Us
             </Link>
@@ -123,6 +141,9 @@ export default function Footer() {
           </a>
         </div>
       </div>
+
+      {/* Modal */}
+      <TermsModal open={showTerms} onClose={() => setShowTerms(false)} />
     </div>
   );
 }
