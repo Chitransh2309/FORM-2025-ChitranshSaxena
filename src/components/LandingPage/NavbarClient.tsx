@@ -39,8 +39,8 @@ export function Links() {
       <Link href="#home">
         <span className="dark:text-white">Home</span>
       </Link>
-      <Link href="/dashboard">
-        <span className="dark:text-white">Dashboard</span>
+      <Link href="#about">
+        <span className="dark:text-white">About</span>
       </Link>
       <Link href="#features">
         <span className="dark:text-white">Features</span>

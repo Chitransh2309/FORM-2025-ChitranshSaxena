@@ -349,11 +349,14 @@ if (res.success && res.data && res.data.isActive) {
   const start = new Date(res.data.settings?.startDate);
   const end = new Date(res.data.settings?.endDate);
 
+ if (res.data.settings?.timingEnabled) {
   if (now < start || now > end) {
     toast.error("This form is currently not accepting responses.");
     setLoading(false);
     return;
   }
+}
+
 
   setForm(res.data);
   setSectionIndex(0);
@@ -530,10 +533,13 @@ if (res.success && res.data && res.data.isActive) {
 const start = new Date(form?.settings?.startDate || "");
 const end = new Date(form?.settings?.endDate || "");
 
-if (now < start || now > end) {
-  toast.error("This form is no longer accepting responses.");
-  return;
+if (form?.settings?.timingEnabled) {
+  if (now < start || now > end) {
+    toast.error("This form is no longer accepting responses.");
+    return;
+  }
 }
+
 
     const unansweredRequired = currentSection?.questions.filter(
       (q) =>
