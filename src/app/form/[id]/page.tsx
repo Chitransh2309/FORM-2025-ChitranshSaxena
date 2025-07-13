@@ -33,9 +33,8 @@ export default async function FormPage({ params }: { params: { id: string } }) {
       </div>
     );
   }
-
   
-  if (form.createdBy !== userID) {
+  if (form.createdBy !== userID && !form.viewerID && !form.editorID) {
     redirect(`/form/${formId}/response`);
   }
 
@@ -48,5 +47,5 @@ export default async function FormPage({ params }: { params: { id: string } }) {
         <CenterNav form={form} currentUserEmail={session.user.email} currentUserID={userID}/>
       </div>
     </FormWrapper>
-  );
+    );
 }
