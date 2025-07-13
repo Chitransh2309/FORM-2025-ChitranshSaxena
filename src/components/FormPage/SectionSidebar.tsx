@@ -53,7 +53,7 @@ export default function SectionSidebar({
   return (
     <div className="h-full w-full overflow-y-auto">
       {/* Desktop Sidebar */}
-      <div className="hidden overflow-y-auto h-full lg:flex flex-col w-full box-border border-r border-gray-300 font-[Outfit] bg-[#FEFEFE] text-black overflow-hidden dark:bg-[#363535] dark:border-gray-500 dark:text-white">
+      <div className="hidden overflow-y-auto h-full lg:flex flex-col w-full box-border font-[Outfit] bg-[#FEFEFE] text-black overflow-hidden dark:bg-[#363535] dark:text-white">
         {SidebarContent}
       </div>
 
