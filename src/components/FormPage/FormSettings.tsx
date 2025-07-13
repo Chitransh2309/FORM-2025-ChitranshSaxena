@@ -226,7 +226,8 @@ const FormSettings = ({
             </div>
           </div>
         </div>
-
+        
+        {/* User Controls*/}
         <div className='border border-gray-500 rounded-xl p-4 mb-6'>
           <h3 className='font-bold text-lg text-gray-900'>User Controls</h3>
           <div className='grid grid-cols-2 mt-4 gap-4'>
