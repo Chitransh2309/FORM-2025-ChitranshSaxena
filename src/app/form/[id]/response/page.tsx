@@ -148,7 +148,7 @@ const DynamicInput = ({
       };
 
       return (
-        <div className="space-y-2 h-screen">
+        <div className="space-y-2">
           {options.map((option, index) => (
             <label
               key={index}
@@ -344,22 +344,25 @@ export default function ResponsesPage({
       }
       setLoading(true);
       const res = await getFormObject(formId);
-      if (res.success && res.data && res.data.isActive) {
-        const now = new Date();
-        const start = new Date(res.data.settings?.startDate);
-        const end = new Date(res.data.settings?.endDate);
+if (res.success && res.data && res.data.isActive) {
+  const now = new Date();
+  const start = new Date(res.data.settings?.startDate);
+  const end = new Date(res.data.settings?.endDate);
 
-        if (now < start || now > end) {
-          toast.error("This form is currently not accepting responses.");
-          setLoading(false);
-          return;
-        }
+ if (res.data.settings?.timingEnabled) {
+  if (now < start || now > end) {
+    toast.error("This form is currently not accepting responses.");
+    setLoading(false);
+    return;
+  }
+}
 
-        setForm(res.data);
-        setSectionIndex(0);
-      } else {
-        toast.error("Failed to load form.");
-      }
+
+  setForm(res.data);
+  setSectionIndex(0);
+} else {
+  toast.error("Failed to load form.");
+}
 
       setLoading(false);
     };
@@ -412,12 +415,11 @@ export default function ResponsesPage({
 
   function evaluateConditions(
     condition: NestedCondition | BaseCondition,
-    answers: Answer[],
-    questions: Question[],
+    answers: Answer[]
   ): boolean {
     if ("conditions" in condition) {
       const subResults = condition.conditions.map((sub) =>
-        evaluateConditions(sub, answers,questions)
+        evaluateConditions(sub, answers)
       );
 
       if (condition.op === "AND") {
@@ -428,7 +430,7 @@ export default function ResponsesPage({
     }
 
     if ("fieldId" in condition && condition.op === "equal") {
-      const answer = answers.find((a) => questions.find((q)=> q.question_ID===a.question_ID)?.questionText === condition.fieldId);
+      const answer = answers.find((a) => a.question_ID === condition.fieldId);
       return answer?.value === condition.value;
     }
 
@@ -462,7 +464,7 @@ export default function ResponsesPage({
     const nextJumps: number[] = [];
 
     for (const logic of allLogics) {
-      const isTrue = evaluateConditions(logic.action.condition, answers,currentSection?.questions);
+      const isTrue = evaluateConditions(logic.action.condition, answers);
       if (isTrue) {
         const jumpToIdx = form.sections.findIndex(
           (s) => s.section_ID === logic.action.to
@@ -527,13 +529,16 @@ export default function ResponsesPage({
   const handleSubmit = async () => {
     const currentSection = form?.sections[sectionIndex];
     const now = new Date();
-    const start = new Date(form?.settings?.startDate || "");
-    const end = new Date(form?.settings?.endDate || "");
+const start = new Date(form?.settings?.startDate || "");
+const end = new Date(form?.settings?.endDate || "");
 
-    if (now < start || now > end) {
-      toast.error("This form is no longer accepting responses.");
-      return;
-    }
+if (form?.settings?.timingEnabled) {
+  if (now < start || now > end) {
+    toast.error("This form is no longer accepting responses.");
+    return;
+  }
+}
+
 
     const unansweredRequired = currentSection?.questions.filter(
       (q) =>
@@ -600,7 +605,7 @@ export default function ResponsesPage({
   }
 
   return (
-    <div className="h-screen bg-[#F6F8F6] dark:bg-[#2B2A2A]">
+    <div className="bg-[#F6F8F6] dark:bg-[#2B2A2A]">
       {showConfetti && <Confetti width={width} height={height} />}
       <div className="flex justify-around pt-5 pr-8 text-black">
         <div className="bg-[#91C4AB] p-3 rounded shadow">

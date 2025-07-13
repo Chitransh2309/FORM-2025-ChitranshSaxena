@@ -43,10 +43,12 @@ const FormSettings = ({
     ...formSettings,
     startDate,
     endDate,
+    timingEnabled: formSettings?.timingEnabled ?? true, // Add this line
   };
 
   const result = await updateFormSettings(formId, updatedSettings);
   setFormSettings(result.data.settings);
+
 
   if (editorEmail.trim()) {
     let res;
@@ -83,150 +85,165 @@ const FormSettings = ({
           </button>
         </div>
 
-        {/* Form Availability */}
-        <div className="border border-gray-500 rounded-xl p-4 mb-6">
-          <h3 className="font-bold text-lg text-gray-900">Form Availability</h3>
-          <div className="grid grid-cols-2 gap-4 mt-4">
-            {/* Start DateTime */}
-            <div className="flex flex-col gap-2">
-              <label className="font-medium text-black">Start Date</label>
-              <div className="border border-gray-500 text-black rounded-xl px-2 py-2">
-                <input
-                  type="date"
-                  className="w-full bg-transparent border-none outline-none"
-                  value={
-                    isNaN(startDate.getTime())
-                      ? ''
-                      : startDate.toISOString().split('T')[0]
-                  }
-                  onChange={(e) =>
-                    setStartDate((prev) => {
-                      const timePart = isNaN(prev.getTime())
-                        ? '00:00:00.000Z'
-                        : prev.toISOString().split('T')[1];
-                      const selected = new Date(
-                        `${e.target.value}T${timePart}`
-                      );
-                      const now = new Date();
-                      now.setHours(0, 0, 0, 0);
+       {/* Form Availability */}
+<div className="border border-gray-500 rounded-xl p-4 mb-6">
+  <div className="flex items-center justify-between">
+    <h3 className="font-bold text-lg text-gray-900">Form Availability</h3>
+    <label className="relative inline-flex items-center cursor-pointer">
+      <input
+        type="checkbox"
+        className="sr-only peer"
+        checked={formSettings?.timingEnabled ?? true}
+        onChange={(e) =>
+          handleChange({
+            target: {
+              name: 'timingEnabled',
+              type: 'checkbox',
+              checked: e.target.checked,
+            },
+          })
+        }
+      />
+      <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#61A986] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#61A986]"></div>
+    </label>
+  </div>
 
-                      if (selected < now) {
-                        alert('Start date cannot be in the past.');
-                        return prev;
-                      }
+  {formSettings?.timingEnabled && (
+    <div className="grid grid-cols-2 gap-4 mt-4">
+      {/* Start DateTime */}
+      <div className="flex flex-col gap-2">
+        <label className="font-medium text-black">Start Date</label>
+        <div className="border border-gray-500 text-black rounded-xl px-2 py-2">
+          <input
+            type="date"
+            className="w-full bg-transparent border-none outline-none"
+            value={
+              isNaN(startDate.getTime())
+                ? ''
+                : startDate.toISOString().split('T')[0]
+            }
+            onChange={(e) =>
+              setStartDate((prev) => {
+                const timePart = isNaN(prev.getTime())
+                  ? '00:00:00.000Z'
+                  : prev.toISOString().split('T')[1];
+                const selected = new Date(`${e.target.value}T${timePart}`);
+                const now = new Date();
+                now.setHours(0, 0, 0, 0);
 
-                      return selected;
-                    })
-                  }
-                />
-              </div>
+                if (selected < now) {
+                  alert('Start date cannot be in the past.');
+                  return prev;
+                }
 
-              <label className="font-medium text-black">Start Time</label>
-              <div className="border border-gray-500 text-black rounded-xl px-2 py-2">
-                <input
-                  type="time"
-                  className="w-full bg-transparent border-none outline-none"
-                  value={
-                    isNaN(startDate.getTime())
-                      ? ''
-                      : startDate.toTimeString().split(' ')[0].slice(0, 5)
-                  }
-                  onChange={(e) =>
-                    setStartDate((prev) => {
-                      const datePart = isNaN(prev.getTime())
-                        ? new Date().toISOString().split('T')[0]
-                        : prev.toISOString().split('T')[0];
-                      const newStart = new Date(
-                        `${datePart}T${e.target.value}`
-                      );
-
-                      const now = new Date();
-                      if (newStart < now) {
-                        alert('Start time cannot be in the past.');
-                        return prev;
-                      }
-
-                      return newStart;
-                    })
-                  }
-                />
-              </div>
-            </div>
-
-            {/* End DateTime */}
-            <div className="flex flex-col gap-2">
-              <label className="font-medium text-black">End Date</label>
-              <div className="border border-gray-500 text-black rounded-xl px-2 py-2">
-                <input
-                  type="date"
-                  className="w-full bg-transparent border-none outline-none"
-                  value={
-                    isNaN(endDate.getTime())
-                      ? ''
-                      : endDate.toISOString().split('T')[0]
-                  }
-                  onChange={(e) =>
-                    setEndDate((prev) => {
-                      const timePart = isNaN(prev.getTime())
-                        ? '00:00:00.000Z'
-                        : prev.toISOString().split('T')[1];
-                      const selected = new Date(
-                        `${e.target.value}T${timePart}`
-                      );
-
-                      if (selected < startDate) {
-                        alert('End date must be after start date.');
-                        return prev;
-                      }
-
-                      return selected;
-                    })
-                  }
-                />
-              </div>
-
-              <label className="font-medium text-black">End Time</label>
-              <div className="border border-gray-500 text-black rounded-xl px-2 py-2">
-                <input
-                  type="time"
-                  className="w-full bg-transparent border-none outline-none"
-                  value={
-                    isNaN(endDate.getTime())
-                      ? ''
-                      : endDate.toTimeString().split(' ')[0].slice(0, 5)
-                  }
-                  onChange={(e) =>
-                    setEndDate((prev) => {
-                      const datePart = isNaN(prev.getTime())
-                        ? new Date().toISOString().split('T')[0]
-                        : prev.toISOString().split('T')[0];
-                      const newEnd = new Date(`${datePart}T${e.target.value}`);
-
-                      // Check if date part is same as startDate
-                      const isSameDay =
-                        datePart === startDate.toISOString().split('T')[0];
-
-                      if (isSameDay) {
-                        const diff =
-                          (newEnd.getTime() - startDate.getTime()) / 60000;
-
-                        if (diff < 1) {
-                          alert(
-                            'End time must be at least 1 minute after start time.'
-                          );
-                          return prev;
-                        }
-                      }
-
-                      return newEnd;
-                    })
-                  }
-                />
-              </div>
-            </div>
-          </div>
+                return selected;
+              })
+            }
+          />
         </div>
-        
+
+        <label className="font-medium text-black">Start Time</label>
+        <div className="border border-gray-500 text-black rounded-xl px-2 py-2">
+          <input
+            type="time"
+            className="w-full bg-transparent border-none outline-none"
+            value={
+              isNaN(startDate.getTime())
+                ? ''
+                : startDate.toTimeString().split(' ')[0].slice(0, 5)
+            }
+            onChange={(e) =>
+              setStartDate((prev) => {
+                const datePart = isNaN(prev.getTime())
+                  ? new Date().toISOString().split('T')[0]
+                  : prev.toISOString().split('T')[0];
+                const newStart = new Date(`${datePart}T${e.target.value}`);
+                const now = new Date();
+
+                if (newStart < now) {
+                  alert('Start time cannot be in the past.');
+                  return prev;
+                }
+
+                return newStart;
+              })
+            }
+          />
+        </div>
+      </div>
+
+      {/* End DateTime */}
+      <div className="flex flex-col gap-2">
+        <label className="font-medium text-black">End Date</label>
+        <div className="border border-gray-500 text-black rounded-xl px-2 py-2">
+          <input
+            type="date"
+            className="w-full bg-transparent border-none outline-none"
+            value={
+              isNaN(endDate.getTime())
+                ? ''
+                : endDate.toISOString().split('T')[0]
+            }
+            onChange={(e) =>
+              setEndDate((prev) => {
+                const timePart = isNaN(prev.getTime())
+                  ? '00:00:00.000Z'
+                  : prev.toISOString().split('T')[1];
+                const selected = new Date(`${e.target.value}T${timePart}`);
+
+                if (selected < startDate) {
+                  alert('End date must be after start date.');
+                  return prev;
+                }
+
+                return selected;
+              })
+            }
+          />
+        </div>
+
+        <label className="font-medium text-black">End Time</label>
+        <div className="border border-gray-500 text-black rounded-xl px-2 py-2">
+          <input
+            type="time"
+            className="w-full bg-transparent border-none outline-none"
+            value={
+              isNaN(endDate.getTime())
+                ? ''
+                : endDate.toTimeString().split(' ')[0].slice(0, 5)
+            }
+            onChange={(e) =>
+              setEndDate((prev) => {
+                const datePart = isNaN(prev.getTime())
+                  ? new Date().toISOString().split('T')[0]
+                  : prev.toISOString().split('T')[0];
+                const newEnd = new Date(`${datePart}T${e.target.value}`);
+
+                const isSameDay =
+                  datePart === startDate.toISOString().split('T')[0];
+
+                if (isSameDay) {
+                  const diff =
+                    (newEnd.getTime() - startDate.getTime()) / 60000;
+
+                  if (diff < 1) {
+                    alert(
+                      'End time must be at least 1 minute after start time.'
+                    );
+                    return prev;
+                  }
+                }
+
+                return newEnd;
+              })
+            }
+          />
+        </div>
+      </div>
+    </div>
+  )}
+</div>
+
         {/* User Controls*/}
         <div className='border border-gray-500 rounded-xl p-4 mb-6'>
           <h3 className='font-bold text-lg text-gray-900'>User Controls</h3>
