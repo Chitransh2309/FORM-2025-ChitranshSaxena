@@ -33,10 +33,42 @@ export async function saveFormToDB(form: Form) {
   }
 }
 
-export async function saveFormResponse(response: FormResponse): Promise<boolean> {
+export async function saveFormResponse(
+  response: FormResponse
+): Promise<boolean> {
   try {
-    const {db,dbClient} = await connectToDB();
-    await db.collection("response").insertOne(response);
+    const { db, dbClient } = await connectToDB();
+    const collection = db.collection("response");
+
+    const { _id, ...responseToSave } = response as any;
+
+    const result = await collection.updateOne(
+      {
+        form_ID: response.form_ID,
+        userId: response.userId,
+      },
+      {
+        $set: {
+          ...responseToSave,
+          submittedAt: new Date(),
+        },
+        // $setOnInsert: {
+        //   response_ID: response.response_ID,
+        //   startedAt: response.startedAt,
+        //   version: 1,
+        // }
+      },
+      {
+        upsert: true,
+      }
+    );
+
+    if (!result.acknowledged) {
+      throw new Error("Database operation was not acknowledged");
+    }
+
+    await disconnectFromDB(dbClient);
+
     return true;
   } catch (err) {
     console.error("Error saving form response:", err);
