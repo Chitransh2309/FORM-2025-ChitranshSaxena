@@ -10,13 +10,8 @@ interface Form {
   createdAt: string;
 }
 
-export default function Trash({
-  forms: initialForms,
-  searchTerm,
-}: {
-  forms: Form[];
-  searchTerm: string;
-}) {
+export default function Trash({ forms: initialForms, searchTerm, onRestore }) {
+
   const router = useRouter();
   const [forms, setForms] = useState(initialForms);
   const [isPending, startTransition] = useTransition();
@@ -32,6 +27,7 @@ export default function Trash({
       const res = await restoreForm(formId);
       if (res.success) {
         setForms((prev) => prev.filter((f) => f.form_ID !== formId));
+        onRestore(formId);
       } else {
         alert(res.message || "Failed to restore");
       }

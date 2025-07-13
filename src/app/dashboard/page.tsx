@@ -96,6 +96,12 @@ function Workspace({
     );
   };
 
+  const handleRestoreInWorkspace = (formId: string) => {
+    setForms((prev) =>
+      prev.map((f) => (f.form_ID === formId ? { ...f, isDeleted: false } : f))
+    );
+  };
+
   const wrapperStyles =
     "w-[80%] h-[60vh] border border-dashed mx-auto flex flex-col justify-center items-center gap-6 bg-transparent";
 
@@ -222,7 +228,11 @@ function Workspace({
             </div>
           )
         ) : selected === "trash" ? (
-          <Trash forms={filteredTrash} searchTerm={searchTerm} />
+          <Trash
+            forms={filteredTrash}
+            searchTerm={searchTerm}
+            onRestore={handleRestoreInWorkspace}
+          />
         ) : selected === "starred" ? (
           <Starred
             forms={filteredStarred}
