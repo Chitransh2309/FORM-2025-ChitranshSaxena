@@ -1,3 +1,4 @@
+import About from "@/components/LandingPage/About";
 import Footer from "../components/LandingPage/Footer";
 import Hero from "../components/LandingPage/Hero";
 import Navbar from "../components/LandingPage/Navbar";
@@ -10,42 +11,15 @@ export default async function Home() {
       <Hero />
 
       <div
+        className="w-full px-4 py-10 flex flex-col items-center"
+        id = "about">
+      <About/>
+        
+      </div>
+      <div
         className="w-full px-4 py-10 flex flex-col items-center text-center"
         id="features"
       >
-        <p className="text-2xl font-bold text-[#3D3D3D] dark:text-white mb-8">
-          Build Forms Like Never Before
-        </p>
-        <div className="w-full flex justify-center">
-          <>
-            {/* Desktop - Light Mode */}
-            <Image
-              src="/form builder-dark mode.svg"
-              alt="light mode"
-              height={1063}
-              width={750}
-              className="w-full max-w-[1063px] dark:hidden h-auto block hidden md:block"
-            />
-
-            {/* Desktop - Dark Mode */}
-            <Image
-              src="/form builder -default 1.svg"
-              height={1063}
-              width={750}
-              alt="form-builder"
-              className="w-full max-w-[1063px] h-auto hidden dark:md:block "
-            />
-
-            {/* Mobile only */}
-            <Image
-              src="/iPhone 15 Green.svg"
-              alt="mobile view"
-              height={700}
-              width={700}
-              className="w-full max-w-[345px] h-auto block md:hidden"
-            />
-          </>
-        </div>
       </div>
 
       <div className="w-full px-4 py-10 flex flex-col items-center">

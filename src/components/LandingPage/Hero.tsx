@@ -1,82 +1,86 @@
-import React from "react";
-import AuthBtn from "./AuthBtn";
-import { Tilt_Warp } from "next/font/google";
+import React from 'react';
+import AuthBtn from './AuthBtn';
+import { Tilt_Warp } from 'next/font/google';
+import Image from 'next/image';
 
-const tilt = Tilt_Warp({ subsets: ["latin"], weight: ["400"] });
+const tilt = Tilt_Warp({ subsets: ['latin'], weight: ['400'] });
+
+interface GridBoxesProps {
+  large?: boolean;
+}
 
 export default function Hero() {
   return (
-    <div id="home"
-      className={`min-h-screen flex items-center w-full ${tilt.className} dark:bg-[#191719] px-4 sm:px-6 lg:px-8`}
+    <div
+      id="home"
+      className={` w-full flex items-center justify-center ${tilt.className} dark:bg-[#191719]`}
     >
-      <div className=" mx-auto w-full md:mt-20 lg:mt-0">
-        <div className="flex flex-col lg:hidden space-y-6 sm:space-y-8">
-          <div className="text-left ml-4 sm:ml-6 md:ml-8 -mt-4 sm:-mt-8 md:-mt-12">
-            <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-[#61A986]">
-              EFFORTLESS
-              <br />
-              FORMS,
-              <br />
-              EVERY TIME
-            </h1>
-            <div className="mt-6 sm:mt-8">
-              <AuthBtn pos={"hero"} />
-            </div>
-          </div>
-          <div className="px-2 sm:px-4">
-            <div className="grid grid-cols-2 grid-rows-8 gap-2 sm:gap-3 md:gap-4 h-[350px] sm:h-[450px] md:h-[550px]">
-              <div className="col-span-1 row-span-2">
-                <div className="w-full h-full border-5 sm:border-6 md:border-8 border-[#61A986] rounded-xl sm:rounded-2xl md:rounded-3xl p-2 sm:p-3 flex flex-col"></div>
-              </div>
-              <div className="col-span-1 row-span-4">
-                <div className="w-full h-full border-5 sm:border-6 md:border-8 border-[#3D3D3D] rounded-xl sm:rounded-2xl md:rounded-3xl p-2 sm:p-3 flex flex-col dark:border-[#A9A8A9]"></div>
-              </div>
-              <div className="col-span-1 row-span-4">
-                <div className="w-full h-full border-5 sm:border-6 md:border-8 border-[#E6AD00] rounded-xl sm:rounded-2xl md:rounded-3xl p-2 sm:p-3 flex flex-col"></div>
-              </div>
-              <div className="col-span-1 row-span-3">
-                <div className="w-full h-full border-5 sm:border-6 md:border-8 border-[#61A986] rounded-xl sm:rounded-2xl md:rounded-3xl p-2 sm:p-3 flex flex-col"></div>
-              </div>
-              <div className="col-span-1 row-span-1">
-                <div className="w-full h-full border-5 sm:border-6 md:border-8 border-[#3D3D3D] rounded-xl sm:rounded-2xl md:rounded-3xl p-2 sm:p-3 flex flex-col dark:border-[#A9A8A9]"></div>
+      <div className="w-full max-w-[1440px]">
+
+        <div className="flex flex-col lg:hidden items-center gap-10 px-4">
+          <div className="w-full max-w-[555px]">
+            <div className="relative w-full h-[431px] backdrop-blur-sm">
+              <h1 className="absolute w-full h-[324px] font-tilt text-[64px] sm:text-[72px] md:text-[90px] leading-[1.2] tracking-[-0.02em] text-black dark:text-white whitespace-pre-line">
+                FORMS{"\n"}THAT FIT{"\n"}EVERY
+              </h1>
+              <div className="absolute top-[324px] w-full h-[107px]">
+                <h2 className="text-[64px] sm:text-[72px] md:text-[90px] leading-[1.2] tracking-[-0.02em] font-tilt bg-gradient-to-r from-[#617DA9] via-[#61A986] to-[#61A986] bg-clip-text text-transparent">
+                  SPACE
+                </h2>
               </div>
             </div>
           </div>
+          <GridBoxes />
         </div>
-        <div className="hidden lg:flex lg:items-center lg:space-x-12 xl:space-x-16">
-          <div className="flex-1 max-w-2xl ml-8 xl:ml-12 lg:-mt-12 xl:-mt-16 2xl:-mt-20">
-            <h1 className="text-6xl xl:text-7xl 2xl:text-8xl font-extrabold text-[#61A986] leading-tight xl:leading-normal">
-              EFFORTLESS
-              <br />
-              FORMS,
-              <br />
-              EVERY TIME
-            </h1>
-            <div className="mt-8 xl:mt-12">
-              <AuthBtn pos={"hero"} />
+
+        <div className="hidden lg:flex items-center justify-between px-8">
+
+          <div className="flex-1 max-w-[555px]">
+            <div className="relative w-full h-[431px] backdrop-blur-sm">
+              <h1 className="absolute w-full h-[324px] font-tilt text-[90px] leading-[1.2] tracking-[-0.02em] text-black dark:text-white whitespace-pre-line">
+                FORMS{"\n"}THAT FIT{"\n"}EVERY
+              </h1>
+              <div className="absolute top-[324px] w-full h-[107px]">
+                <h2 className="text-[90px] leading-[1.2] tracking-[-0.02em] font-tilt bg-gradient-to-r from-[#617DA9] via-[#61A986] to-[#61A986] bg-clip-text text-transparent">
+                  SPACE
+                </h2>
+              </div>
             </div>
+
           </div>
-          <div className="flex-1 max-w-2xl mt-10">
-            <div className="grid grid-cols-2 grid-rows-8 gap-4 xl:gap-6 h-[600px] xl:h-[700px] 2xl:h-[800px]">
-              <div className="col-span-1 row-span-2">
-                <div className="w-full h-full border-6 xl:border-8 border-[#61A986] rounded-2xl xl:rounded-3xl p-3 xl:p-4 flex flex-col"></div>
-              </div>
-              <div className="col-span-1 row-span-4">
-                <div className="w-full h-full border-6 xl:border-8 border-[#3D3D3D] rounded-2xl xl:rounded-3xl p-3 xl:p-4 flex flex-col dark:border-[#A9A8A9]"></div>
-              </div>
-              <div className="col-span-1 row-span-4">
-                <div className="w-full h-full border-6 xl:border-8 border-[#E6AD00] rounded-2xl xl:rounded-3xl p-3 xl:p-4 flex flex-col"></div>
-              </div>
-              <div className="col-span-1 row-span-3">
-                <div className="w-full h-full border-6 xl:border-8 border-[#61A986] rounded-2xl xl:rounded-3xl p-3 xl:p-4 flex flex-col"></div>
-              </div>
-              <div className="col-span-1 row-span-1">
-                <div className="w-full h-full border-6 xl:border-8 border-[#3D3D3D] rounded-2xl xl:rounded-3xl p-3 xl:p-4 flex flex-col dark:border-[#A9A8A9]"></div>
-              </div>
-            </div>
+
+          <div className="flex-1">
+            <GridBoxes large />
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function GridBoxes({ large = false }: GridBoxesProps) {
+
+
+  return (
+    <div className={`flex items-center justify-center w-full mt-20`}>
+
+      <Image
+        src="/formlightmode.svg"
+        alt="Form Light Mode"
+        width={1600}
+        height={1000}
+        priority
+        className="w-full max-w-[1400px] h-auto object-contain block dark:hidden"
+      />
+
+      <Image
+        src="/formdarkmode.svg"
+        alt="Form Dark Mode"
+        width={1600}
+        height={1000}
+        priority
+        className="w-full max-w-[1400px] h-auto object-contain hidden dark:block"
+      />
     </div>
   );
 }

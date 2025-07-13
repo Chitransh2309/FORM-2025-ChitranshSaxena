@@ -1,11 +1,12 @@
 // app/components/Navbar.tsx
-import Link from "next/link";
-import AuthBtn from "./AuthBtn";
-import { MobileMenu, Links } from "./NavbarClient"; // ✅ named imports
-import NavbarToggle from "./NavbarToggle";
-import { Outfit } from "next/font/google";
+import Link from 'next/link';
+import AuthBtn from './AuthBtn';
+import { MobileMenu, Links } from './NavbarClient'; // ✅ named imports
+import NavbarToggle from './NavbarToggle';
+import { Outfit } from 'next/font/google';
+import Image from 'next/image';
 
-const out_font = Outfit({ subsets: ["latin"], weight: ["400", "800"] });
+const out_font = Outfit({ subsets: ['latin'], weight: ['400', '800'] });
 
 export default function Navbar() {
   return (
@@ -16,10 +17,16 @@ export default function Navbar() {
         {/* LEFT: Hamburger + Logo */}
         <div className="flex items-center gap-3">
           <MobileMenu />
-          <Link href="/">
-            <p className="lg:pl-20 md:pl-5 text-xl font-bold dark:text-white">
-              F.O.R.M
-            </p>
+          <Link href="/" className="flex items-center gap-2 lg:pl-20 md:pl-5">
+            <Image
+              src="/FormLogo.svg"
+              alt="LOGO"
+              width={50}
+              height={50}
+              priority
+              className="h-16 w-16 object-contain"
+            />
+            <span className="text-4xl font-bold dark:text-white">FormSpace</span>
           </Link>
         </div>
 

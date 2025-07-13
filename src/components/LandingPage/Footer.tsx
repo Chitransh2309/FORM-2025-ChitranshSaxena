@@ -30,12 +30,12 @@ export default function Footer() {
           <p
             className={`text-lg sm:text-xl lg:text-2xl text-[#F6F8F6] font-bold ${out_fit.className} dark:text-[#F6F8F6] leading-tight`}
           >
-            "Forms that hustle, so you don't have to."
+            "Seamless forms,smarter data all in one place."
           </p>
           <p
             className={`text-lg sm:text-xl font-bold mt-2 sm:mt-4 ${out_fit.className} text-[#F6F8F6] dark:text-[#F6F8F6]`}
           >
-            F.O.R.M
+            FormSpace
           </p>
           <div className="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm mt-2 text-[#F6F8F6] dark:text-[#F6F8F6]">
             <ContactButton user_ID={user_ID} />
