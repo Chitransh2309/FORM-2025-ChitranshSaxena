@@ -8,30 +8,29 @@ import QuestionParent from "@/components/FormPage/QuestionParent";
 import getFormObject from "@/app/action/getFormObject";
 import { saveFormToDB } from "@/app/action/saveformtodb";
 import { Form, Question, Section, QuestionType } from "@/lib/interface";
-import { Menu, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import FAQs from "../NewUserPage/FAQs";
-import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
 import toast from "react-hot-toast";
 import { renameSectionTitle } from "@/app/action/sections";
 import { debounce } from "lodash";
 
-enum sectionform {
-  Build,
-  Workflow,
-  Preview,
+enum SectionForm {
+  Build = 0,
+  Workflow = 1,
+  Preview = 2,
 }
 
-interface formbuild {
-  currentSection: sectionform;
-  setCurrentSection: (section: sectionform) => void;
+interface FormBuildProps {
+  currentSection: SectionForm;
+  setCurrentSection: (section: SectionForm) => void;
 }
 
 export default function BuildPage({
   currentSection,
   setCurrentSection,
-}: formbuild) {
+}: FormBuildProps) {
   const LABELS = ["Builder", "Workflow", "Preview"];
-  const { id: formId } = useParams();
+  const { id: formId } = useParams<{ id: string }>();
   const [form, setForm] = useState<Form | null>(null);
 
   const formRef = useRef<Form | null>(form);
@@ -43,22 +42,20 @@ export default function BuildPage({
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
     null
   );
-  const [showRightNav, setShowRightNav] = useState(false);
+  const [showRightNav, setShowRightNav] = useState<boolean>(false);
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
     null
   );
-  const [showFAQ, setShowFAQ] = useState(false);
+  const [showFAQ, setShowFAQ] = useState<boolean>(false);
 
-  const [saved, setSaved] = useState(0);
+  const [saved, setSaved] = useState<number>(0);
 
   const selectedSection = form?.sections.find(
     (s) => s.section_ID === selectedSectionId
   );
 
-  // Inside your BuildPage component
-
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [editedTitle, setEditedTitle] = useState("");
+  const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
+  const [editedTitle, setEditedTitle] = useState<string>("");
 
   const debouncedSaveForm = React.useCallback(
     debounce(async () => {
@@ -73,6 +70,7 @@ export default function BuildPage({
     }, 2500),
     []
   );
+
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
     intervalId = setInterval(() => {
@@ -82,11 +80,11 @@ export default function BuildPage({
       if (intervalId) clearInterval(intervalId);
       debouncedSaveForm.flush(); // Flush pending saves on unmount
     };
-  }, []);
+  }, [debouncedSaveForm]);
 
   useEffect(() => {
     setEditedTitle(selectedSection?.title || "");
-  }, [selectedSectionId]);
+  }, [selectedSectionId, selectedSection?.title]);
 
   const handleTitleSave = () => {
     if (
@@ -143,6 +141,7 @@ export default function BuildPage({
       sections: [...form.sections, newSection],
     });
     setSelectedSectionId(newId);
+    debouncedSaveForm();
   };
 
   const handleRenameSection = async (sectionId: string, newTitle: string) => {
@@ -182,7 +181,6 @@ export default function BuildPage({
 
     const newQuestion: Question = {
       question_ID: `q-${Date.now()}`,
-      section_ID: selectedSectionId,
       section_ID: selectedSectionId,
       questionText: "",
       isRequired: false,
@@ -283,7 +281,7 @@ export default function BuildPage({
             {LABELS.map((label, i) => (
               <button
                 key={label}
-                onClick={() => setCurrentSection(i as sectionform)}
+                onClick={() => setCurrentSection(i as SectionForm)}
                 className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
                   currentSection === i
                     ? "bg-[#61A986] text-black dark:text-white"
@@ -350,7 +348,7 @@ export default function BuildPage({
           </div>
 
           <div className="bg-[#91C4AB] p-3 rounded shadow hidden lg:block mt-3">
-            {saved != 0 ? <h4>Saved {saved} sec ago</h4> : <h4>Saving...</h4>}
+            {saved !== 0 ? <h4>Saved {saved} sec ago</h4> : <h4>Saving...</h4>}
           </div>
         </div>
 
