@@ -65,8 +65,24 @@ function Workspace({
     })();
   }, []);
 
-  const drafts = forms.filter((f) => !f.isActive && !f.isDeleted);
-  const published = forms.filter((f) => f.isActive && !f.isDeleted);
+  const now = new Date();
+
+const published = forms.filter((f) => {
+  const startDate = f.settings?.startDate
+    ? new Date(f.settings.startDate)
+    : null;
+
+  return startDate && now >= startDate && !f.isDeleted;
+});
+
+const drafts = forms.filter((f) => {
+  const startDate = f.settings?.startDate
+    ? new Date(f.settings.startDate)
+    : null;
+
+  return (!startDate || now < startDate) && !f.isDeleted;
+});
+
   const starred = forms.filter((f) => f.isStarred && !f.isDeleted);
   const trash = forms.filter((f) => f.isDeleted);
 
