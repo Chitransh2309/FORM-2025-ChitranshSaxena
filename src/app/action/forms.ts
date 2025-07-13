@@ -31,8 +31,6 @@ export async function createFormIfNotExists(form_ID: string, name?: string) {
         description: "",
         createdAt: new Date(),
         createdBy: userID,
-        editorID: [],
-        viewerID: [],
         version: 1.0,
         sections: [],
         settings: {
@@ -62,8 +60,8 @@ export async function createFormIfNotExists(form_ID: string, name?: string) {
   }
 }
 
-// ✅ Get all forms for the user
-export async function getFormsForUser() {
+// ✅ Get all forms for the user with response count
+export async function getFormsForUser(includeDeleted = false) {
   try {
     const { db, dbClient } = await connectToDB();
     const session = await auth();
@@ -92,18 +90,30 @@ export async function getFormsForUser() {
       return [];
     }
 
-    const forms = await db
-      .collection("forms")
-      .find({
-        form_ID: { $in: formIDs },
-        createdBy: userID,
-        isDeleted: { $ne: true }, // 🔥 Exclude deleted forms
+    const query: any = {
+      form_ID: { $in: formIDs },
+      createdBy: userID,
+    };
+
+    if (!includeDeleted) {
+      query.isDeleted = { $ne: true };
+    }
+
+    const forms = await db.collection("forms").find(query).toArray();
+
+    // 🔁 Count responses for each form
+    const responseCounts = await Promise.all(
+      forms.map(async (form) => {
+        const count = await db
+          .collection("responses")
+          .countDocuments({ form_ID: form.form_ID });
+        return count;
       })
-      .toArray();
+    );
 
     await disconnectFromDB(dbClient);
 
-    return forms.map((form) => ({
+    return forms.map((form, index) => ({
       form_ID: form.form_ID,
       title: form.title || "Untitled",
       description: form.description || "",
@@ -111,8 +121,9 @@ export async function getFormsForUser() {
       publishedAt: form.publishedAt?.toString() || null,
       isActive: form.isActive || false,
       settings: form.settings || {},
-
       isStarred: form.isStarred || false,
+      isDeleted: form.isDeleted || false,
+      responseCount: responseCounts[index], // ✅ Include response count
     }));
   } catch (error) {
     console.error("❌ getFormsForUser error:", error);
@@ -156,10 +167,10 @@ export async function deleteFormFromDB(form_ID: string) {
   try {
     const { db, dbClient } = await connectToDB();
 
-    console.log("🗑️ Attempting to delete form:", form_ID);
+    console.log("🗑 Attempting to delete form:", form_ID);
 
     const result = await db.collection("forms").updateOne(
-      { form_ID }, // Match on form_ID field
+      { form_ID },
       { $set: { isDeleted: true } }
     );
 
@@ -181,6 +192,7 @@ export async function deleteFormFromDB(form_ID: string) {
   }
 }
 
+// ✅ Toggle starred form
 export async function toggleStarForm(form_ID: string) {
   try {
     const { db, dbClient } = await connectToDB();
@@ -202,3 +214,35 @@ export async function toggleStarForm(form_ID: string) {
   }
 }
 
+// ✅ Restore form from trash
+export async function restoreForm(form_ID: string) {
+  try {
+    const { db, dbClient } = await connectToDB();
+    const result = await db.collection("forms").updateOne(
+      { form_ID },
+      { $set: { isDeleted: false } }
+    );
+    await disconnectFromDB(dbClient);
+    return {
+      success: result.modifiedCount === 1,
+      message: "Form restored successfully",
+    };
+  } catch (err) {
+    return { success: false, error: "Failed to restore form" };
+  }
+}
+
+// ✅ Permanently delete form
+export async function permanentlyDeleteForm(form_ID: string) {
+  try {
+    const { db, dbClient } = await connectToDB();
+    const result = await db.collection("forms").deleteOne({ form_ID });
+    await disconnectFromDB(dbClient);
+    return {
+      success: result.deletedCount === 1,
+      message: "Form permanently deleted",
+    };
+  } catch (err) {
+    return { success: false, error: "Failed to delete form" };
+  }
+}
