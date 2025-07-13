@@ -125,6 +125,8 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
     );
   }
 
+
+
   return (
     <div className="relative p-4 md:p-6 w-full h-full overflow-y-auto bg-gray-50 dark:bg-[#363535]">
       {/* Header */}

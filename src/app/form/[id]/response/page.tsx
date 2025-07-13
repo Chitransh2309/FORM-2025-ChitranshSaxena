@@ -344,12 +344,23 @@ export default function ResponsesPage({
       }
       setLoading(true);
       const res = await getFormObject(formId);
-      if (res.success && res.data && res.data.isActive) {
-        setForm(res.data);
-        setSectionIndex(0);
-      } else {
-        toast.error("Failed to load form.");
-      }
+if (res.success && res.data && res.data.isActive) {
+  const now = new Date();
+  const start = new Date(res.data.settings?.startDate);
+  const end = new Date(res.data.settings?.endDate);
+
+  if (now < start || now > end) {
+    toast.error("This form is currently not accepting responses.");
+    setLoading(false);
+    return;
+  }
+
+  setForm(res.data);
+  setSectionIndex(0);
+} else {
+  toast.error("Failed to load form.");
+}
+
       setLoading(false);
     };
 
@@ -514,6 +525,15 @@ export default function ResponsesPage({
 
   const handleSubmit = async () => {
     const currentSection = form?.sections[sectionIndex];
+    const now = new Date();
+const start = new Date(form?.settings?.startDate || "");
+const end = new Date(form?.settings?.endDate || "");
+
+if (now < start || now > end) {
+  toast.error("This form is no longer accepting responses.");
+  return;
+}
+
     const unansweredRequired = currentSection?.questions.filter(
       (q) =>
         q.isRequired &&
