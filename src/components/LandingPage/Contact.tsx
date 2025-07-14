@@ -38,7 +38,7 @@ export default function Contact({ onClose, user_ID }: ContactProps) {
       alert("Message sent!");
       onClose();
     } catch (err) {
-      alert("Something went wrong.");
+      alert("Something went wrong: " + (err instanceof Error ? err.message : "Unknown error"));
     } finally {
       setLoading(false);
     }
