@@ -136,7 +136,7 @@ const DynamicPreviewInput = ({
       };
 
       return (
-        <div className="space-y-2">
+        <div className="space-y-2 ">
           {options.map((option, index) => (
             <label
               key={index}
@@ -368,13 +368,6 @@ export default function PreviewForm({
 
   const isLastSection = form && sectionIndex === form.sections.length - 1;
 
-  // if (loading) {
-  //   return (
-  //     <div className="text-center mt-20 text-lg font-semibold">
-  //       Loading form...
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="relative flex justify-center items-center min-h-screen bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full overflow-scroll h-full dark:bg-[#2B2A2A]">
@@ -407,7 +400,7 @@ export default function PreviewForm({
         ) : (
           <>
             {/* Device Switcher (unique to preview) */}
-            <div className="flex items-center justify-between px-2 mb-6 w-full max-w-[200px] h-[62px] rounded-[10px] mx-auto shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 dark:bg-[#414141]">
+            <div className="flex items-center justify-between px-2 mb-6 w-full max-w-[200px] h-[62px] mt-20 rounded-[10px] mx-auto shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 dark:bg-[#414141]">
               {["desktop", "mobile"].map((device) => (
                 <button
                   key={device}
@@ -517,7 +510,7 @@ export default function PreviewForm({
               ))}
 
               {/* Navigation Buttons */}
-              <div className="flex justify-between items-center mt-4 flex-wrap gap-3">
+              <div className="flex justify-between items-center mt-4 flex-wrap gap-3 mb-10">
                 {sectionIndex > 0 && (
                   <button
                     onClick={goBack}

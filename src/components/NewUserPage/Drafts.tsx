@@ -40,7 +40,7 @@ export default function Drafts({ forms: initialForms }: { forms: Form[] }) {
               <button
                 onClick={() => router.push(`/form/${form.form_ID}`)}
                 className="w-full aspect-square bg-gray-300 hover:bg-[#d1ebdb]
-                  rounded-lg shadow transition p-3 dark:bg-[#353434] dark:hover:bg-[#3f3d3d] text-center"
+                  rounded-lg shadow transition p-3 dark:bg-[#353434] dark:hover:bg-[#3f3d3d] text-center font-semibold"
               >
                 {form.title || "Untitled Form"}
               </button>
