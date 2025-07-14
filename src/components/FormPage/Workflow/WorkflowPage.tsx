@@ -13,6 +13,7 @@ import {
   ConditionGroupType,
   NestedCondition,
   BaseCondition,
+  Question,
 } from "@/lib/interface";
 import ReactFlow, {
   ReactFlowProvider,
@@ -61,6 +62,7 @@ export default function WorkflowPage({
   );
   const [showModal, setShowModal] = useState(false);
   const [targetSection, setTargetSection] = useState<string>("");
+  const [allQuestions, setAllQuestions] = useState<Question[]>([]);
 
   const [logicCondition, setLogicCondition] = useState<
     BaseCondition | ConditionGroupType
@@ -69,6 +71,13 @@ export default function WorkflowPage({
     op: "equal",
     value: "",
   });
+
+  useEffect(() => {
+    const flatQuestions = sections.flatMap(
+      (section) => section.questions || []
+    );
+    setAllQuestions(flatQuestions);
+  }, [sections]);
 
   const generateRandomPosition = (index: number) => {
     const baseX = 0;
@@ -81,7 +90,12 @@ export default function WorkflowPage({
     };
   };
 
-  function getQuestionText(question_ID: string) {}
+  function getQuestionText(question_ID: string): string {
+    return (
+      allQuestions.find((q) => q.question_ID === question_ID)?.questionText ||
+      question_ID
+    );
+  }
 
   useEffect(() => {
     const loadForm = async () => {
@@ -129,7 +143,7 @@ export default function WorkflowPage({
     if (!condition) return "";
 
     if ("fieldId" in condition) {
-      return `${condition.fieldId} == ${condition.value}`;
+      return `${getQuestionText(condition.fieldId)} == ${condition.value}`;
     }
 
     if (
@@ -163,7 +177,7 @@ export default function WorkflowPage({
     return cond.conditions
       .map((c) => {
         if ("fieldId" in c) {
-          return `${c.fieldId} == ${c.value}`;
+          return `${getQuestionText(c.fieldId)} == ${c.value}`;
         } else {
           return `(${formatCondition(c)})`;
         }
