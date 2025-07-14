@@ -582,7 +582,7 @@ if (form?.settings?.timingEnabled) {
 
   if (!loading && hasUserSubmitted(formId, userId) && !showConfetti) {
     return (
-      <div className="text-center mt-20 text-lg font-semibold">
+      <div className="text-black text-center mt-20 text-lg font-semibold">
         Your response has been submitted.
       </div>
     );
