@@ -3,6 +3,7 @@ import React, { useRef } from "react";
 import { Trash2, Menu } from "lucide-react";
 import {
   FieldType,
+  Param,
   Question as QuestionInterface,
   QuestionType,
   fieldtypes,
@@ -14,6 +15,7 @@ import DateField from "./FieldType/DATE";
 import LinearScale from "./FieldType/linearscale";
 import Email from "./FieldType/EMAIL";
 import Url from "./FieldType/URL";
+import { Params } from "next/dist/server/request/params";
 
 interface Props {
   id: string;
@@ -51,13 +53,8 @@ export default function Question({
       const config : FieldType = data.config;
       if (config.params) {
         const optionsParam = config.params.find(
-          (p: any) => p.name === "options"
+          (p: Param) => p.name === "options"
         );
-        if (optionsParam?.value) {
-          return Array.isArray(optionsParam.value)
-            ? optionsParam.value
-            : optionsParam.value.split(", ");
-        }
       }
     }
     return ["Option 1", "Option 2"];
@@ -69,7 +66,7 @@ export default function Question({
       const config = data.config as any;
       if (config.params) {
         const optionsParam = config.params.find(
-          (p: any) => p.name === "options"
+          (p: Param) => p.name === "options"
         );
         if (optionsParam?.value) {
           return Array.isArray(optionsParam.value)
@@ -86,18 +83,18 @@ export default function Question({
     if (data.type === QuestionType.DATE && data.config) {
       const config = data.config as any;
       const includeTime = !!config.params?.find(
-        (p: any) => p.name === "includeTime"
+        (p: Param) => p.name === "includeTime"
       )?.value;
       const dateRange = config.validations?.find(
-        (v: any) => v.name === "dateRange"
+        (v: Param) => v.name === "dateRange"
       );
       let minDate, maxDate;
       if (dateRange?.params) {
         minDate = dateRange.params.find(
-          (p: any) => p.name === "minDate"
+          (p: Param) => p.name === "minDate"
         )?.value;
         maxDate = dateRange.params.find(
-          (p: any) => p.name === "maxDate"
+          (p: Param) => p.name === "maxDate"
         )?.value;
       }
       return { includeTime, minDate, maxDate };
@@ -110,15 +107,15 @@ export default function Question({
     if (data.type === QuestionType.LINEARSCALE && data.config) {
       const config = data.config as any;
       const min = Number(
-        config.params?.find((p: any) => p.name === "min")?.value ?? 1
+        config.params?.find((p: Param) => p.name === "min")?.value ?? 1
       );
       const max = Number(
-        config.params?.find((p: any) => p.name === "max")?.value ?? 5
+        config.params?.find((p: Param) => p.name === "max")?.value ?? 5
       );
       const minLabel =
-        config.params?.find((p: any) => p.name === "minLabel")?.value ?? "";
+        config.params?.find((p: Param) => p.name === "minLabel")?.value ?? "";
       const maxLabel =
-        config.params?.find((p: any) => p.name === "maxLabel")?.value ?? "";
+        config.params?.find((p: Param) => p.name === "maxLabel")?.value ?? "";
       return { min, max, minLabel, maxLabel };
     }
     return { min: 1, max: 5, minLabel: "", maxLabel: "" };
@@ -127,9 +124,9 @@ export default function Question({
   // Get Text configuration from config
   const getTextConfig = () => {
     if (data.type === QuestionType.TEXT && data.config) {
-      const config = data.config as any;
+      const config: FieldType = data.config;
       const placeholder =
-        config.params?.find((p: any) => p.name === "placeholder")?.value ||
+        config.params?.find((p: Param) => p.name === "placeholder")?.value ||
         "Enter your answer...";
       let charlimit: { min?: number; max?: number } | undefined;
       const charlimitValidation = config.validations?.find(
@@ -137,10 +134,10 @@ export default function Question({
       );
       if (charlimitValidation?.params) {
         const minParam = charlimitValidation.params.find(
-          (p: any) => p.name === "min"
+          (p: Param) => p.name === "min"
         );
         const maxParam = charlimitValidation.params.find(
-          (p: any) => p.name === "max"
+          (p: Param) => p.name === "max"
         );
         charlimit = {
           min: minParam?.value ? Number(minParam.value) : undefined,
@@ -155,10 +152,10 @@ export default function Question({
       );
       if (keywordValidation?.params) {
         const containsParam = keywordValidation.params.find(
-          (p: any) => p.name === "contains"
+          (p: Param) => p.name === "contains"
         );
         const doesnotContainParam = keywordValidation.params.find(
-          (p: any) => p.name === "doesnotContain"
+          (p: Param) => p.name === "doesnotContain"
         );
         keywordChecker = {
           contains: containsParam?.value
