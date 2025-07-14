@@ -1,3 +1,4 @@
+"use server";
 import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
 import { auth } from "../../../auth";
 import { nanoid } from "nanoid";
