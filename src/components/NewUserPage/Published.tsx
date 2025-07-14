@@ -6,6 +6,7 @@ import { Trash2 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as regularStar } from "@fortawesome/free-regular-svg-icons";
 import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
+
 import {
   deleteFormFromDB,
   toggleStarForm,
@@ -25,44 +26,38 @@ export default function Published() {
   const [forms, setForms] = useState<Form[]>([]);
   const [isPending, startTransition] = useTransition();
 
+  // ────────── fetch on mount ──────────
   useEffect(() => {
-    async function fetchForms() {
+    (async () => {
       try {
-        const data = await getFormsForUser();
-        const publishedForms = data.filter(
-          (form: Form) => form.publishedAt !== null
-        );
-        setForms(publishedForms);
+        const all = await getFormsForUser();
+        setForms(all.filter((f: Form) => f.publishedAt !== null));
       } catch (err) {
         console.error("Error fetching published forms:", err);
       }
-    }
-
-    fetchForms();
+    })();
   }, []);
 
-  const handleDelete = (formId: string) => {
+  // ────────── handlers ──────────
+  const handleDelete = (id: string) =>
     startTransition(async () => {
-      const confirmDelete = confirm("Are you sure you want to delete this form?");
-      if (!confirmDelete) return;
-
+      if (!confirm("Are you sure you want to delete this form?")) return;
       try {
-        const res = await deleteFormFromDB(formId);
-        setForms((prev) => prev.filter((form) => form.form_ID !== formId));
+        await deleteFormFromDB(id);
+        setForms((prev) => prev.filter((f) => f.form_ID !== id));
       } catch (err) {
         console.error("Error deleting form:", err);
         alert("Something went wrong while deleting.");
       }
     });
-  };
 
-  const handleStarToggle = (formId: string) => {
+  const handleStarToggle = (id: string) =>
     startTransition(async () => {
       try {
-        const res = await toggleStarForm(formId);
+        const res = await toggleStarForm(id);
         setForms((prev) =>
           prev.map((f) =>
-            f.form_ID === formId ? { ...f, isStarred: res.isStarred } : f
+            f.form_ID === id ? { ...f, isStarred: res.isStarred ?? false } : f
           )
         );
       } catch (err) {
@@ -70,17 +65,43 @@ export default function Published() {
         alert("Something went wrong while toggling star.");
       }
     });
-  };
 
+  // ────────── UI ──────────
   return (
-    <section className="w-full xl:w-1/2 text-black p-4 dark:text-white mb-20 xl:mb-0">
+    <section className="relative w-full xl:w-1/2 text-black p-4 dark:text-white mb-20 xl:mb-0">
+      {/* loader overlay */}
+      {isPending && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/70 dark:bg-black/60">
+          <svg
+            className="animate-spin h-8 w-8 text-[#61A986]"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            />
+          </svg>
+        </div>
+      )}
+
       <h2 className="text-xl font-semibold px-4 py-3">Published</h2>
 
       <div className="border-2 border-gray border-dashed rounded-lg p-4 overflow-visible xl:min-h-90 lg:min-h-120 dark:border-white">
         <div className="grid grid-cols-2 gap-3">
           {forms.map((form) => (
             <div key={form.form_ID} className="flex flex-col relative">
-              {/* ⭐ Star Button */}
+              {/* ⭐ star */}
               <button
                 className={`absolute top-1.5 right-9 z-10 ${
                   form.isStarred
@@ -89,50 +110,52 @@ export default function Published() {
                 }`}
                 title="Star Form"
                 onClick={() => handleStarToggle(form.form_ID)}
+                disabled={isPending}
               >
                 <FontAwesomeIcon
                   icon={form.isStarred ? solidStar : regularStar}
                 />
               </button>
 
-              {/* 🗑️ Delete Button */}
+              {/* 🗑 delete */}
               <button
                 onClick={() => handleDelete(form.form_ID)}
-                className="absolute top-2 right-2 z-10 text-red-600 hover:text-red-800"
+                className="absolute top-2 right-2 z-10 text-red-600 hover:text-red-800 disabled:opacity-60"
                 title="Delete Form"
+                disabled={isPending}
               >
                 <Trash2 size={18} />
               </button>
 
-              {/* 📄 Form Card */}
+              {/* card */}
               <div
                 onClick={() => router.push(`/form/${form.form_ID}`)}
                 className="cursor-pointer w-full aspect-square bg-gray-300 hover:bg-[#d1ebdb]
                   rounded-lg shadow transition p-3 dark:bg-[#353434] dark:hover:bg-[#3f3d3d]
                   flex flex-col justify-between"
               >
-                {/* Centered Title */}
                 <div className="flex-grow flex items-center justify-center text-center font-semibold">
                   {form.title || "Untitled Form"}
                 </div>
-
-                {/* Bottom-Left Response Count */}
                 <div className="text-left text-sm font-semibold px-1 mb-1">
-                  {form.responseCount} {form.responseCount === 1 ? "response" : "responses"}
+                  {form.responseCount}{" "}
+                  {form.responseCount === 1 ? "response" : "responses"}
                 </div>
               </div>
 
-              {/* ✏️ Edit + View Buttons */}
+              {/* buttons */}
               <div className="flex gap-2 mt-2">
                 <button
                   onClick={() => router.push(`/form/${form.form_ID}`)}
-                  className="flex-1 rounded bg-[#56A37D] text-white text-xs py-1"
+                  className="flex-1 rounded bg-[#56A37D] text-white text-xs py-1 disabled:opacity-60"
+                  disabled={isPending}
                 >
                   Edit Form
                 </button>
                 <button
                   onClick={() => router.push(`/response/${form.form_ID}`)}
-                  className="flex-1 rounded bg-[#3D3D3D] text-white text-xs py-1"
+                  className="flex-1 rounded bg-[#3D3D3D] text-white text-xs py-1 disabled:opacity-60"
+                  disabled={isPending}
                 >
                   View Response
                 </button>

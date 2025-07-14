@@ -6,6 +6,7 @@ import {
   Param,
   Question as QuestionInterface,
   QuestionType,
+  Validation,
   fieldtypes,
 } from "@/lib/interface";
 import MCQ from "./FieldType/MCQ";
@@ -15,7 +16,6 @@ import DateField from "./FieldType/DATE";
 import LinearScale from "./FieldType/linearscale";
 import Email from "./FieldType/EMAIL";
 import Url from "./FieldType/URL";
-import { Params } from "next/dist/server/request/params";
 
 interface Props {
   id: string;
@@ -55,6 +55,11 @@ export default function Question({
         const optionsParam = config.params.find(
           (p: Param) => p.name === "options"
         );
+        if (optionsParam?.value) {
+          return Array.isArray(optionsParam.value)
+            ? optionsParam.value
+            : String(optionsParam.value).split(", ");
+        }
       }
     }
     return ["Option 1", "Option 2"];
@@ -63,7 +68,7 @@ export default function Question({
   // Get Dropdown options from config
   const getDropdownOptions = (): string[] => {
     if (data.type === QuestionType.DROPDOWN && data.config) {
-      const config = data.config as any;
+      const config: FieldType = data.config;
       if (config.params) {
         const optionsParam = config.params.find(
           (p: Param) => p.name === "options"
@@ -71,7 +76,7 @@ export default function Question({
         if (optionsParam?.value) {
           return Array.isArray(optionsParam.value)
             ? optionsParam.value
-            : optionsParam.value.split(", ");
+            : String(optionsParam.value).split(", ");
         }
       }
     }
@@ -81,12 +86,12 @@ export default function Question({
   // Get Date config
   const getDateConfig = () => {
     if (data.type === QuestionType.DATE && data.config) {
-      const config = data.config as any;
+      const config : FieldType= data.config;
       const includeTime = !!config.params?.find(
         (p: Param) => p.name === "includeTime"
       )?.value;
       const dateRange = config.validations?.find(
-        (v: Param) => v.name === "dateRange"
+        (v: Validation) => v.name === "dateRange"
       );
       let minDate, maxDate;
       if (dateRange?.params) {
@@ -105,7 +110,7 @@ export default function Question({
   // Get Linear Scale config
   const getLinearScaleConfig = () => {
     if (data.type === QuestionType.LINEARSCALE && data.config) {
-      const config = data.config as any;
+      const config: FieldType = data.config;
       const min = Number(
         config.params?.find((p: Param) => p.name === "min")?.value ?? 1
       );
@@ -125,12 +130,13 @@ export default function Question({
   const getTextConfig = () => {
     if (data.type === QuestionType.TEXT && data.config) {
       const config: FieldType = data.config;
-      const placeholder =
+      const placeholder = String(
         config.params?.find((p: Param) => p.name === "placeholder")?.value ||
-        "Enter your answer...";
+        "Enter your answer..."
+      );
       let charlimit: { min?: number; max?: number } | undefined;
       const charlimitValidation = config.validations?.find(
-        (v: any) => v.name === "charlimit"
+        (v: Validation) => v.name === "charlimit"
       );
       if (charlimitValidation?.params) {
         const minParam = charlimitValidation.params.find(
@@ -148,7 +154,7 @@ export default function Question({
         | { contains?: string[]; doesnotContain?: string[] }
         | undefined;
       const keywordValidation = config.validations?.find(
-        (v: any) => v.name === "keywordChecker"
+        (v: Validation) => v.name === "keywordChecker"
       );
       if (keywordValidation?.params) {
         const containsParam = keywordValidation.params.find(
@@ -160,13 +166,13 @@ export default function Question({
         keywordChecker = {
           contains: containsParam?.value
             ? Array.isArray(containsParam.value)
-              ? containsParam.value
-              : [containsParam.value]
+              ? containsParam.value.map(String)
+              : [String(containsParam.value)]
             : undefined,
           doesnotContain: doesnotContainParam?.value
             ? Array.isArray(doesnotContainParam.value)
-              ? doesnotContainParam.value
-              : [doesnotContainParam.value]
+              ? doesnotContainParam.value.map(String)
+              : [String(doesnotContainParam.value)]
             : undefined,
         };
       }
@@ -178,7 +184,7 @@ export default function Question({
   // Handle MCQ options change
   const handleMcqOptionsChange = (options: string[]) => {
     if (data.config && data.config.params) {
-      const updatedParams = data.config.params.map((param: any) => {
+      const updatedParams = data.config.params.map((param: Param) => {
         if (param.name === "options") {
           return { ...param, value: options };
         }
@@ -210,7 +216,7 @@ export default function Question({
   // Handle Dropdown options change
   const handleDropdownOptionsChange = (options: string[]) => {
     if (data.config && data.config.params) {
-      const updatedParams = data.config.params.map((param: any) => {
+      const updatedParams = data.config.params.map((param: Param) => {
         if (param.name === "options") {
           return { ...param, value: options };
         }
@@ -275,8 +281,8 @@ export default function Question({
         return (
           <DateField
             includeTime={includeTime}
-            minDate={minDate}
-            maxDate={maxDate}
+            minDate={minDate?.toString()}
+            maxDate={maxDate?.toString()}
             disabled={!isSelected}
           />
         );
@@ -287,8 +293,8 @@ export default function Question({
           <LinearScale
             min={min}
             max={max}
-            minLabel={minLabel}
-            maxLabel={maxLabel}
+            minLabel={minLabel ? String(minLabel) : undefined}
+            maxLabel={maxLabel ? String(maxLabel) : undefined}
             disabled={!isSelected}
           />
         );
@@ -301,8 +307,6 @@ export default function Question({
         return null;
     }
   };
-
-  function handleChange() {}
 
   return (
     <div
