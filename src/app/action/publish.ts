@@ -9,11 +9,10 @@ export async function publishForm(formId: string) {
     return { success: false, error: "Form ID is required" };
   }
 
-  let client: MongoClient | null = null;
+  const client: MongoClient | null = null;
 
   try {
     const connection = await connectToDB();
-    client = connection.client;
     const db = connection.db;
 
     const formsCollection = db.collection<Form>("forms");

@@ -3,27 +3,27 @@
 import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
 import { Form, FormResponse } from "@/lib/interface";
 
-// Define a type that extends Form with optional _id (from MongoDB)
+/** Form coming from the client may already have a Mongo _id */
 type FormWithId = Form & { _id?: string };
 
 export async function saveFormToDB(form: FormWithId) {
   try {
-    const { db, dbClient } = await connectToDB();
-    const collection = db.collection<Form>("forms");
+    const { db, dbClient }    = await connectToDB();
+    const collection          = db.collection<Form>("forms");
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { _id, ...safeToUpdate } = form;
+    /* strip _id so it isn’t re-inserted/updated */
+   const { _id, ...safeForm } = form;
+void _id;  
 
     const existing = await collection.findOne({ form_ID: form.form_ID });
 
     if (existing) {
       await collection.updateOne(
         { form_ID: form.form_ID },
-        { $set: safeToUpdate }
+        { $set: safeForm }
       );
     } else {
-      const { _id: _, ...formWithoutId } = form;
-      await collection.insertOne(formWithoutId);
+      await collection.insertOne(safeForm);
     }
 
     await disconnectFromDB(dbClient);
@@ -42,21 +42,20 @@ export async function saveFormResponse(
 ): Promise<boolean> {
   try {
     const { db, dbClient } = await connectToDB();
-    const collection = db.collection<FormResponse>("response");
+    const collection       = db.collection<FormResponse>("response");
 
+    /* strip _id before upsert */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { _id, ...responseToSave } = response;
+void _id; 
 
     const result = await collection.updateOne(
-      {
-        form_ID: response.form_ID,
-        userId: response.userId,
-      },
+      { form_ID: response.form_ID, userId: response.userId },
       {
         $set: {
           ...responseToSave,
           submittedAt: new Date(),
-        }
+        },
       },
       { upsert: true }
     );

@@ -1,214 +1,248 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { QuestionType, fieldtypes, Question } from "@/lib/interface";
+import {
+  QuestionType,
+  fieldtypes,
+  Question,
+  FieldType,
+  Param,
+  Validation,
+} from "@/lib/interface";
 
-// All supported question types for dropdown
+/* ────────────────────────────────────────────────────────── */
+/*  Options shown in the type-selector dropdown               */
+/* ────────────────────────────────────────────────────────── */
 const questionTypes = [
-  { label: "MCQ", value: QuestionType.MCQ, field: "mcq" },
-  { label: "Text", value: QuestionType.TEXT, field: "text" },
-  { label: "Dropdown", value: QuestionType.DROPDOWN, field: "dropdown" },
-  { label: "Date", value: QuestionType.DATE, field: "date" },
+  { label: "MCQ",          value: QuestionType.MCQ,         field: "mcq" },
+  { label: "Text",         value: QuestionType.TEXT,        field: "text" },
+  { label: "Dropdown",     value: QuestionType.DROPDOWN,    field: "dropdown" },
+  { label: "Date",         value: QuestionType.DATE,        field: "date" },
   { label: "Linear Scale", value: QuestionType.LINEARSCALE, field: "linear_scale" },
-  { label: "Email", value: QuestionType.EMAIL, field: "email" },
-  { label: "Url", value: QuestionType.URL, field: "url" },
+  { label: "Email",        value: QuestionType.EMAIL,       field: "email" },
+  { label: "Url",          value: QuestionType.URL,         field: "url" },
 ];
 
 interface Props {
   selectedQuestion?: Question;
-  onChangeType?: (newType: QuestionType) => void;
-  onUpdateConfig?: (config: any) => void;
+  onChangeType?:    (t: QuestionType) => void;
+  onUpdateConfig?:  (c: FieldType)     => void;
 }
 
+/* ────────────────────────────────────────────────────────── */
+/*  Component                                                */
+/* ────────────────────────────────────────────────────────── */
 export default function QuestionTypeDropdown({
   selectedQuestion,
   onChangeType,
   onUpdateConfig,
 }: Props) {
   const [selectedType, setSelectedType] = useState(questionTypes[0].label);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen]             = useState(false);
 
+  /* keep header text in sync when a different question is selected */
   useEffect(() => {
     if (selectedQuestion?.type) {
-      const found = questionTypes.find(qt => qt.value === selectedQuestion.type);
-      setSelectedType(found?.label || questionTypes[0].label);
+      const found = questionTypes.find((qt) => qt.value === selectedQuestion.type);
+      setSelectedType(found?.label ?? questionTypes[0].label);
     } else {
       setSelectedType(questionTypes[0].label);
     }
     setIsOpen(false);
   }, [selectedQuestion?.question_ID]);
 
+  /* ────────── helpers ────────── */
   const handleTypeChange = (typeLabel: string) => {
     setSelectedType(typeLabel);
     setIsOpen(false);
 
-    const found = questionTypes.find(qt => qt.label === typeLabel);
+    const found = questionTypes.find((qt) => qt.label === typeLabel);
     if (!found) return;
 
-    if (onChangeType) {
-      // Reset config on type change
-      if (onUpdateConfig) {
-        const selectedField = fieldtypes.find(f => f.name === found.field);
-        if (selectedField) {
-          const newConfig = {
-            ...selectedField,
-            params: selectedField.params.map(param => ({ ...param })),
-            validations: selectedField.validations.map(validation => ({
-              ...validation,
-              params: validation.params?.map(param => ({ ...param })) || [],
-            })),
-          };
-          onUpdateConfig(newConfig);
-        }
+    /* reset config when the type changes */
+    if (onUpdateConfig) {
+      const selectedField = fieldtypes.find((f) => f.name === found.field);
+      if (selectedField) {
+        const newConfig: FieldType = {
+          ...selectedField,
+          params:       selectedField.params.map((p) => ({ ...p })),
+          validations:  selectedField.validations.map((v) => ({
+            ...v,
+            params: v.params?.map((p) => ({ ...p })) ?? [],
+          })),
+        };
+        onUpdateConfig(newConfig);
       }
-      onChangeType(found.value);
     }
+
+    onChangeType?.(found.value);
   };
 
-  const paramInputType = (param: any, key: number) => {
-    const cls = "w-full px-2 py-2 rounded bg-white outline-none dark:bg-[#5A5959] dark:text-white border-black-500";
+  /* update helpers for params & validations */
+  const updateParams = (newParam: Param) => {
+    if (!selectedQuestion || !onUpdateConfig) return;
+    const oldCfg = selectedQuestion.config as FieldType | undefined;
+    const params = oldCfg?.params ?? [];
 
-    const handleParamChange = (value: any) => {
-      if (!selectedQuestion || !onUpdateConfig) return;
-      const oldConfig = selectedQuestion.config || {};
-      const existingParams = oldConfig.params || [];
-      const paramIndex = existingParams.findIndex((p: any) => p.name === param.name);
+    const idx = params.findIndex((p) => p.name === newParam.name);
+    const updated =
+      idx >= 0 ? params.map((p) => (p.name === newParam.name ? newParam : p)) : [...params, newParam];
 
-      let updatedParams;
-      if (paramIndex >= 0) {
-        updatedParams = existingParams.map((p: any) =>
-          p.name === param.name ? { ...p, value } : p
-        );
-      } else {
-        updatedParams = [...existingParams, { ...param, value }];
-      }
-      onUpdateConfig({
-        ...oldConfig,
-        params: updatedParams,
-      });
+    onUpdateConfig({ ...oldCfg, params: updated });
+  };
+
+  const updateValidation = (
+    validationName: string,
+    paramName: string,
+    newValue: string | number | boolean | string[]
+  ) => {
+    if (!selectedQuestion || !onUpdateConfig) return;
+    const oldCfg         = selectedQuestion.config ?? ({} as FieldType);
+    const validationsArr = oldCfg.validations ?? [];
+
+    const vIdx = validationsArr.findIndex((v) => v.name === validationName);
+    let newValidations: Validation[];
+
+    if (vIdx >= 0) {
+      /* update existing validation */
+      const validation   = validationsArr[vIdx];
+      const vParams      = validation.params ?? [];
+      const pIdx         = vParams.findIndex((p) => p.name === paramName);
+      const newParamList =
+        pIdx >= 0
+          ? vParams.map((p) =>
+              p.name === paramName ? { ...p, value: newValue } : p
+            )
+          : [...vParams, { name: paramName, type: "string", value: newValue }];
+
+      newValidations = validationsArr.map((v) =>
+        v.name === validationName ? { ...v, params: newParamList } : v
+      );
+    } else {
+      /* push new validation */
+      newValidations = [
+        ...validationsArr,
+        {
+          name: validationName,
+          params: [{ name: paramName, type: "string", value: newValue }],
+        },
+      ];
+    }
+
+    onUpdateConfig({ ...oldCfg, validations: newValidations });
+  };
+
+  /* render a single <input> (or equivalent) for a Param */
+  const renderParamInput = (param: Param & { isValidation?: true; validationName?: string }, key: string) => {
+    const cls =
+      "w-full px-2 py-2 rounded bg-white outline-none dark:bg-[#5A5959] dark:text-white border-black-500";
+
+    /* value coercion helper */
+    const coerce = (type: string, raw: string) => {
+      if (type === "number")   return parseInt(raw, 10) || 0;
+      if (type === "boolean")  return undefined;           // unused (checkbox)
+      return raw;
     };
 
-    const handleValidationChange = (value: any, validationName: string, validationParamName: string) => {
-      if (!selectedQuestion || !onUpdateConfig) return;
-      const oldConfig = selectedQuestion.config || {};
-      const existingValidations = oldConfig.validations || [];
-      const validationIndex = existingValidations.findIndex((v: any) => v.name === validationName);
-
-      let updatedValidations;
-      if (validationIndex >= 0) {
-        const existingValidation = existingValidations[validationIndex];
-        const existingParams = existingValidation.params || [];
-        const paramIndex = existingParams.findIndex((p: any) => p.name === validationParamName);
-        let updatedParams;
-        if (paramIndex >= 0) {
-          updatedParams = existingParams.map((p: any) =>
-            p.name === validationParamName ? { ...p, value } : p
-          );
-        } else {
-          updatedParams = [...existingParams, { name: validationParamName, type: "string", value }];
-        }
-        updatedValidations = existingValidations.map((v: any) =>
-          v.name === validationName ? { ...v, params: updatedParams } : v
-        );
-      } else {
-        updatedValidations = [
-          ...existingValidations,
-          {
-            name: validationName,
-            params: [{ name: validationParamName, type: "string", value }],
-          },
-        ];
-      }
-      onUpdateConfig({
-        ...oldConfig,
-        validations: updatedValidations,
-      });
-    };
-
-    const input = (type: string) => (
-      <input
-        key={key}
-        type={type}
-        placeholder={param.name}
-        value={param.value ?? ""}
-        className={cls}
-        onChange={(e) => {
-          let value: any = e.target.value;
-          if (type === "number") value = parseInt(value) || 0;
-          if (type === "boolean") value = e.target.checked;
-          handleParamChange(value);
-        }}
-      />
-    );
-
+    /* For validation params delegate to updateValidation */
     if (param.isValidation) {
-      if (param.name === "contains" || param.name === "doesnotContain") {
-        const displayValue = Array.isArray(param.value) ? param.value.join(", ") : param.value || "";
+      const { validationName } = param;
+      const ph = param.placeholder ?? param.name;
+
+      const commonProps = {
+        key,
+        placeholder: ph,
+        className: cls,
+      };
+
+      switch (param.name) {
+        case "contains":
+        case "doesnotContain":
+          return (
+            <input
+              {...commonProps}
+              type="text"
+              value={Array.isArray(param.value) ? param.value.join(", ") : ""}
+              onChange={(e) =>
+                updateValidation(
+                  validationName!,
+                  param.name,
+                  e.target.value
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter((s) => s)
+                )
+              }
+            />
+          );
+
+        case "min":
+        case "max":
+          return (
+            <input
+              {...commonProps}
+              type="number"
+              value={param.value ?? ""}
+              onChange={(e) =>
+                updateValidation(validationName!, param.name, parseInt(e.target.value, 10) || 0)
+              }
+            />
+          );
+
+        default:
+          if (param.type === "date") {
+            return (
+              <input
+                {...commonProps}
+                type="date"
+                value={param.value as string | ""}
+                onChange={(e) =>
+                  updateValidation(validationName!, param.name, e.target.value)
+                }
+              />
+            );
+          }
+          return (
+            <input
+              {...commonProps}
+              type="text"
+              value={param.value ?? ""}
+              onChange={(e) =>
+                updateValidation(validationName!, param.name, e.target.value)
+              }
+            />
+          );
+      }
+    }
+
+    /* Otherwise treat as normal Param input */
+    switch (param.type) {
+      case "string":
         return (
           <input
             key={key}
             type="text"
-            placeholder={param.placeholder || param.name}
-            value={displayValue}
+            placeholder={param.name}
+            value={param.value ?? ""}
             className={cls}
-            onChange={e => {
-              const inputText = e.target.value;
-              const value = inputText.split(",").map(s => s.trim()).filter(s => s.length > 0);
-              handleValidationChange(value, param.validationName, param.name);
-            }}
+            onChange={(e) => updateParams({ ...param, value: e.target.value })}
           />
         );
-      }
-      if (param.name === "min" || param.name === "max") {
+
+      case "number":
         return (
           <input
             key={key}
             type="number"
-            placeholder={param.placeholder || param.name}
+            placeholder={param.name}
             value={param.value ?? ""}
             className={cls}
-            onChange={e => {
-              const value = parseInt(e.target.value) || 0;
-              handleValidationChange(value, param.validationName, param.name);
-            }}
+            onChange={(e) =>
+              updateParams({ ...param, value: coerce("number", e.target.value) })
+            }
           />
         );
-      }
-      if (param.type === "date") {
-        return (
-          <input
-            key={key}
-            type="date"
-            placeholder={param.placeholder || param.name}
-            value={param.value ?? ""}
-            className={cls}
-            onChange={e => {
-              const value = e.target.value;
-              handleValidationChange(value, param.validationName, param.name);
-            }}
-          />
-        );
-      }
-      return (
-        <input
-          key={key}
-          type="text"
-          placeholder={param.placeholder || param.name}
-          value={param.value ?? ""}
-          className={cls}
-          onChange={e => {
-            const value = e.target.value;
-            handleValidationChange(value, param.validationName, param.name);
-          }}
-        />
-      );
-    }
 
-    switch (param.type) {
-      case "string":
-        return input("text");
-      case "number":
-        return input("number");
       case "boolean":
         return (
           <label key={key} className="flex items-center gap-2">
@@ -216,11 +250,14 @@ export default function QuestionTypeDropdown({
               type="checkbox"
               checked={!!param.value}
               className="accent-[#8CC7AA]"
-              onChange={e => handleParamChange(e.target.checked)}
+              onChange={(e) =>
+                updateParams({ ...param, value: e.target.checked })
+              }
             />
             <span>{param.name}</span>
           </label>
         );
+
       case "array[string]":
         return (
           <input
@@ -229,34 +266,46 @@ export default function QuestionTypeDropdown({
             placeholder={`${param.name} (comma-separated)`}
             value={Array.isArray(param.value) ? param.value.join(", ") : ""}
             className={cls}
-            onChange={e => {
-              const value = e.target.value.split(",").map((s) => s.trim()).filter(s => s.length > 0);
-              handleParamChange(value);
-            }}
+            onChange={(e) =>
+              updateParams({
+                ...param,
+                value: e.target.value
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter((s) => s),
+              })
+            }
           />
         );
+
       case "date":
         return (
           <input
             key={key}
             type="date"
             placeholder={param.name}
-            value={param.value ?? ""}
+            value={(param.value as string) ?? ""}
             className={cls}
-            onChange={e => handleParamChange(e.target.value)}
+            onChange={(e) => updateParams({ ...param, value: e.target.value })}
           />
         );
+
       default:
-        return <div key={key}>Unsupported type: {param.type}</div>;
+        return (
+          <div key={key} className="italic text-red-600">
+            Unsupported type: {param.type}
+          </div>
+        );
     }
   };
 
+  /* ────────── render the right-side config panel ────────── */
   const typeSelector = () => {
-    const found = questionTypes.find(qt => qt.label === selectedType);
-    const fieldTypeName = found ? found.field : questionTypes[0].field;
-    const selectedField = fieldtypes.find(f => f.name === fieldTypeName);
+    const found       = questionTypes.find((qt) => qt.label === selectedType);
+    const fieldName   = found ? found.field : questionTypes[0].field;
+    const fieldSchema = fieldtypes.find((f) => f.name === fieldName);
 
-    if (!selectedField) {
+    if (!fieldSchema) {
       return (
         <div className="bg-white p-4 text-black text-sm dark:bg-[#494949] dark:text-white">
           <p className="italic">{selectedType} configuration not found.</p>
@@ -264,63 +313,69 @@ export default function QuestionTypeDropdown({
       );
     }
 
-    // Get current values from selectedQuestion config
-    const getCurrentParamValue = (paramName: string) => {
-      return selectedQuestion?.config?.params?.find((p: any) => p.name === paramName)?.value;
-    };
-    const getCurrentValidationValue = (validationName: string, paramName: string) => {
-      const validation = selectedQuestion?.config?.validations?.find((v: any) => v.name === validationName);
-      const param = validation?.params?.find((p: any) => p.name === paramName);
-      return param?.value;
-    };
+    /* helpers returning current values */
+    const getParamVal = (name: string) =>
+      selectedQuestion?.config?.params?.find((p) => p.name === name)?.value;
+
+    const getValidationVal = (vName: string, pName: string) =>
+      selectedQuestion?.config?.validations
+        ?.find((v) => v.name === vName)
+        ?.params?.find((p) => p.name === pName)?.value;
 
     return (
       <div className="bg-white p-4 text-black space-y-4 text-sm dark:bg-[#494949] dark:text-white">
-        {selectedField.params.length > 0 && (
+        {fieldSchema.params.length > 0 && (
           <>
             <h4 className="font-semibold">{selectedType} Parameters</h4>
             <div className="space-y-2">
-              {selectedField.params
-                // Hide MCQ options param in right nav
-                .filter(p => !(selectedField.name === "mcq" && p.name === "options"))
-                .map((p, i) => {
-                  const paramWithValue = {
-                    ...p,
-                    value: getCurrentParamValue(p.name) ?? p.value,
-                  };
-                  return paramInputType(paramWithValue, i);
-                })}
+              {fieldSchema.params
+                .filter(
+                  (p) => !(fieldSchema.name === "mcq" && p.name === "options")
+                )
+                .map((p, i) =>
+                  renderParamInput(
+                    { ...p, value: getParamVal(p.name) ?? p.value },
+                    String(i)
+                  )
+                )}
             </div>
           </>
         )}
-        {selectedField.validations.length > 0 && (
+
+        {fieldSchema.validations.length > 0 && (
           <>
             <h4 className="font-semibold">{selectedType} Validations</h4>
             <div className="space-y-3">
-              {selectedField.validations.map((validation, validationIndex) => (
-                <div key={validationIndex} className="border-l-2 border-gray-300 pl-3 dark:border-gray-600">
-                  <h5 className="font-medium text-sm mb-2 capitalize">{validation.name}</h5>
+              {fieldSchema.validations.map((v, vi) => (
+                <div
+                  key={vi}
+                  className="border-l-2 border-gray-300 pl-3 dark:border-gray-600"
+                >
+                  <h5 className="font-medium text-sm mb-2 capitalize">
+                    {v.name}
+                  </h5>
                   <div className="space-y-2">
-                    {validation.params?.map((param, paramIndex) => {
-                      const currentValue = getCurrentValidationValue(validation.name, param.name);
-                      const paramWithValue = {
-                        ...param,
-                        value: currentValue ?? param.value,
-                        isValidation: true,
-                        validationName: validation.name,
-                        placeholder:
-                          param.name === "contains"
-                            ? "keyword1, keyword2, keyword3"
-                            : param.name === "doesnotContain"
-                            ? "word1, word2, word3"
-                            : param.name === "min"
-                            ? "Minimum"
-                            : param.name === "max"
-                            ? "Maximum"
-                            : param.name,
-                      };
-                      return paramInputType(paramWithValue, `${validationIndex}-${paramIndex}`);
-                    })}
+                    {v.params?.map((p, pi) =>
+                      renderParamInput(
+                        {
+                          ...p,
+                          value: getValidationVal(v.name, p.name) ?? p.value,
+                          isValidation: true,
+                          validationName: v.name,
+                          placeholder:
+                            p.name === "contains"
+                              ? "keyword1, keyword2"
+                              : p.name === "doesnotContain"
+                              ? "word1, word2"
+                              : p.name === "min"
+                              ? "Minimum"
+                              : p.name === "max"
+                              ? "Maximum"
+                              : p.name,
+                        },
+                        `${vi}-${pi}`
+                      )
+                    )}
                   </div>
                 </div>
               ))}
@@ -331,26 +386,28 @@ export default function QuestionTypeDropdown({
     );
   };
 
+  /* ────────── main render ────────── */
   return (
     <div className="w-full h-full max-w-sm sm:max-w-xs mx-auto relative rounded-xl bg-white dark:bg-[#363535]">
-      {/* Dropdown Header */}
+      {/* dropdown header */}
       <div
         className="bg-[#8CC7AA] dark:bg-[#5A5959] dark:text-white rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsOpen((o) => !o)}
       >
         <span className="text-black dark:text-white font-medium text-base">
           {selectedType}
         </span>
         <span className="text-lg">{isOpen ? "▲" : "▼"}</span>
       </div>
-      {/* Dropdown Options */}
+
+      {/* dropdown options */}
       {isOpen && (
         <div className="absolute z-10 w-full bg-[#8CC7AA] text-black rounded-b-xl shadow-lg mt-1 dark:text-white dark:bg-[#494949]">
           <ul className="py-2 px-4 space-y-2 max-h-52 overflow-y-auto text-sm">
             {questionTypes.map((qt) => (
               <li
                 key={qt.label}
-                onClick={e => {
+                onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   handleTypeChange(qt.label);
@@ -365,7 +422,8 @@ export default function QuestionTypeDropdown({
           </ul>
         </div>
       )}
-      {/* Config Panel */}
+
+      {/* config panel */}
       <div className="mt-5">{typeSelector()}</div>
     </div>
   );

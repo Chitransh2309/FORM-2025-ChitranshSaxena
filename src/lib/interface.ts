@@ -18,7 +18,7 @@ export interface Form {
   createdBy: string; // user_ID reference
   editorID?: string[];
   viewerID?: string[];
-  publishedAt: Date;
+  publishedAt?: Date;
   isActive: boolean;
   publishedAt: Date;
   isActive: boolean;
@@ -30,6 +30,7 @@ export interface Form {
   sections: Section[];
   isDeleted: boolean;
   isStarred: boolean;
+  responseCount?: number; // Optional, can be derived from responses
 }
 
 export type NestedCondition = {
@@ -87,7 +88,7 @@ export interface Question {
   isRequired: boolean;
   config?: FieldType;
   image?: string;
-  logic?: Record<string, any>;
+  //logic?: Record<string, any>;
 }
 
 export enum QuestionType {

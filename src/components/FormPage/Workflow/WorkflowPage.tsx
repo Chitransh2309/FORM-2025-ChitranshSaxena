@@ -106,7 +106,7 @@ export default function WorkflowPage({
         const formSections = res.data.sections;
         setSections(formSections);
 
-        const flowNodes: Node[] = formSections.map((section: any, idx: any) => {
+        const flowNodes: Node[] = formSections.map((section: Section, idx: number) => {
           const pos = generateRandomPosition(idx);
           return {
             id: section.section_ID,
@@ -123,8 +123,8 @@ export default function WorkflowPage({
         setNodes(flowNodes);
 
         // Extract logic from each section that has it
-        const extractedLogicRules = formSections.flatMap((section: any) =>
-          (section.logic || []).map((logic: any) => ({
+        const extractedLogicRules = formSections.flatMap((section: Section) =>
+          (section.logic || []).map((logic: LogicRule) => ({
             ...logic,
             triggerSectionId: section.section_ID,
           }))
@@ -297,7 +297,7 @@ export default function WorkflowPage({
           {LABELS.map((label, i) => (
             <button
               key={label}
-              onClick={() => setCurrentSection(i as Section)}
+              onClick={() => setCurrentSection(i as sectionform)}
               className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
                 currentSection === i
                   ? "bg-[#61A986] text-black dark:text-white"

@@ -12,13 +12,7 @@ import {
   deleteFormFromDB,
   getFormsForUser,
 } from "@/app/action/forms";
-
-interface Form {
-  form_ID: string;
-  title: string;
-  createdAt: string;
-  isStarred: boolean;
-}
+import { Form } from "@/lib/interface";
 
 export default function Starred({ searchTerm }: { searchTerm: string }) {
   const [forms, setForms] = useState<Form[]>([]);
@@ -29,8 +23,37 @@ export default function Starred({ searchTerm }: { searchTerm: string }) {
   useEffect(() => {
     (async () => {
       try {
-        const all = await getFormsForUser();
-        setForms(all.filter((f: Form) => f.isStarred));
+        const formsRes = await getFormsForUser(true);
+        console.log("Fetched forms:", formsRes);
+       const mappedForms = formsRes.map(form => ({
+          form_ID: form._id.toString(),
+          title: '',
+          description: '',
+          createdAt: new Date(),
+          createdBy: '',
+          isActive: false,
+          version: 0,
+          share_url: '',
+          settings: {
+            maxResponses: 0,
+            startDate: new Date(),
+            endDate: undefined,
+            tab_switch_count: false,
+            timer: 0,
+            autoSubmit: false,
+            cameraRequired: false,
+            copy_via_email: false,
+            timingEnabled: false,
+          },
+          sections: [],
+          isDeleted: false,
+          isStarred: false,
+          ...form
+        }));
+        setForms(mappedForms);
+        
+        // Filter for starred forms only
+        setForms(mappedForms.filter((f: Form) => f.isStarred));
       } catch (err) {
         console.error("Error fetching starred forms:", err);
       }
@@ -138,10 +161,12 @@ export default function Starred({ searchTerm }: { searchTerm: string }) {
 
                 {/* 📄 card */}
                 <div
-                  className="w-full aspect-square bg-gray-300 flex items-center justify-center rounded-lg dark:bg-[#353434] cursor-pointer hover:bg-[#d1ebdb] dark:hover:bg-[#3f3d3d]"
+                  className="w-full aspect-square bg-gray-300 flex items-center justify-center rounded-lg dark:bg-[#353434] cursor-pointer hover:bg-[#d1ebdb] dark:hover:bg-[#3f3d3d] p-3"
                   onClick={() => router.push(`/form/${form.form_ID}`)}
                 >
-                  {form.title || "Untitled Form"}
+                  <div className="text-center font-semibold">
+                    {form.title || "Untitled Form"}
+                  </div>
                 </div>
 
                 {/* buttons */}
