@@ -1,6 +1,6 @@
 "use client";
 
-import React, { act, useState } from "react";
+import React, { useState } from "react";
 import HeaderSection from "@/components/ResponseViewerPage/HeaderSection";
 import FormInfoCard from "@/components/ResponseViewerPage/FormInfo";
 import AnsweredQuestionsBlock from "@/components/ResponseViewerPage/AnsweredQuestions";

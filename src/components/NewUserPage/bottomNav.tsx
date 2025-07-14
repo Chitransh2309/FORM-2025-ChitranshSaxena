@@ -3,7 +3,6 @@
 import { MdOutlineHome } from "react-icons/md";
 import { TbShare3 } from "react-icons/tb";
 import { FaRegStar } from "react-icons/fa";
-import { GrDocument } from "react-icons/gr";
 import { LuTrash2 } from "react-icons/lu";
 
 type Props = {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTransition, useState, useEffect } from "react";
 import { publishForm } from "@/app/action/publish";
 import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";

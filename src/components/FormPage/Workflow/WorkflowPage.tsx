@@ -173,17 +173,17 @@ export default function WorkflowPage({
     setEdges(flowEdges);
   }, [logicRules]);
 
-  const formatCondition = (cond: NestedCondition): string => {
-    return cond.conditions
-      .map((c) => {
-        if ("fieldId" in c) {
-          return `${getQuestionText(c.fieldId)} == ${c.value}`;
-        } else {
-          return `(${formatCondition(c)})`;
-        }
-      })
-      .join(` ${cond.op} `);
-  };
+  // const formatCondition = (cond: NestedCondition): string => {
+  //   return cond.conditions
+  //     .map((c) => {
+  //       if ("fieldId" in c) {
+  //         return `${getQuestionText(c.fieldId)} == ${c.value}`;
+  //       } else {
+  //         return `(${formatCondition(c)})`;
+  //       }
+  //     })
+  //     .join(` ${cond.op} `);
+  // };
 
   const handleOpenModal = (sectionId: string) => {
     setSelectedSectionId(sectionId);

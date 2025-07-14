@@ -8,8 +8,6 @@ import {
   Form,
   Question,
   QuestionType,
-  FieldType,
-  Param,
   Answer,
 } from "@/lib/interface";
 import { validateAnswer } from "@/lib/validation";
@@ -31,7 +29,6 @@ const DynamicPreviewInput = ({
   const baseInputClass =
     "w-full px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black placeholder:text-[#676767] outline-none border border-transparent focus:border-gray-300 font-[Outfit] dark:text-white dark:placeholder-white dark:bg-[#494949]";
 
-  const [selected, setSelected] = useState<number | null>(null);
 
   // MCQ Options
   const options =

@@ -2,6 +2,7 @@
 import React, { useRef } from "react";
 import { Trash2, Menu } from "lucide-react";
 import {
+  FieldType,
   Question as QuestionInterface,
   QuestionType,
   fieldtypes,
@@ -47,7 +48,7 @@ export default function Question({
   // Get MCQ options from config
   const getMcqOptions = (): string[] => {
     if (data.type === QuestionType.MCQ && data.config) {
-      const config = data.config as any;
+      const config : FieldType = data.config;
       if (config.params) {
         const optionsParam = config.params.find(
           (p: any) => p.name === "options"

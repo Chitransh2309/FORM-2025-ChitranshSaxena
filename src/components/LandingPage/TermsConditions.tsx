@@ -54,7 +54,7 @@ export default function TermsModal({ open, onClose }: TermsModalProps) {
           <div>
             <h3 className="font-bold">3. Disclaimer</h3>
             <p>
-              The information is provided "as is"... FormSpace disclaims all guarantees.
+              The information is provided &qout;as is&qout;... FormSpace disclaims all guarantees.
             </p>
           </div>
 
@@ -68,7 +68,7 @@ export default function TermsModal({ open, onClose }: TermsModalProps) {
           <div>
             <h3 className="font-bold">5. Links</h3>
             <p>
-              FormSpace is not responsible for linked websites' content.
+              FormSpace is not responsible for linked websites&apos; content.
             </p>
           </div>
 
