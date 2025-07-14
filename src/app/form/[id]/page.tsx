@@ -39,9 +39,9 @@ export default async function FormPage({ params }: PageProps) {
     );
   }
 
-  if (form.createdBy !== userID && !form.viewerID && !form.editorID) {
-    redirect(`/form/${formId}/response`);
-  }
+  // if (form.createdBy !== userID && !form.viewerID && !form.editorID) {
+  //   redirect(`/form/${formId}/response`);
+  // }
 
   // ✅ FIX HERE: Convert to plain JSON-safe object
   const safeForm = JSON.parse(JSON.stringify(form));
