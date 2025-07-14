@@ -4,6 +4,14 @@ import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
 import { auth } from "../../../auth";
 import { Form, FormSettings } from "@/lib/interface";
 
+// Define types for better type safety
+type UserFormReference = string | { form_ID: string };
+type MongoQuery = {
+  form_ID: { $in: string[] };
+  createdBy: string;
+  isDeleted?: { $ne: boolean };
+};
+
 // ✅ Create form if it doesn't exist
 export async function createFormIfNotExists(form_ID: string, name?: string) {
   try {
@@ -44,6 +52,10 @@ export async function createFormIfNotExists(form_ID: string, name?: string) {
           timer: 0,
         },
         isDeleted: false,
+        publishedAt: new Date(),
+        isActive: false,
+        share_url: "",
+        isStarred: false
       };
 
       await collection.insertOne(newForm);
@@ -51,11 +63,11 @@ export async function createFormIfNotExists(form_ID: string, name?: string) {
 
     await disconnectFromDB(dbClient);
     return { success: true };
-  } catch (err) {
-    console.error("❌ Create Form Error:", err);
+  } catch (error) {
+    console.error("❌ Create Form Error:", error);
     return {
       success: false,
-      error: err instanceof Error ? err.message : "Unknown error",
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
@@ -81,7 +93,7 @@ export async function getFormsForUser(includeDeleted = false) {
     }
 
     const userID = userDoc.user_ID;
-    const formIDs = userDoc.forms.map((form: any) =>
+    const formIDs = userDoc.forms.map((form: UserFormReference) =>
       typeof form === "string" ? form : form.form_ID
     );
 
@@ -90,7 +102,7 @@ export async function getFormsForUser(includeDeleted = false) {
       return [];
     }
 
-    const query: any = {
+    const query: MongoQuery = {
       form_ID: { $in: formIDs },
       createdBy: userID,
     };
@@ -227,8 +239,12 @@ export async function restoreForm(form_ID: string) {
       success: result.modifiedCount === 1,
       message: "Form restored successfully",
     };
-  } catch (err) {
-    return { success: false, error: "Failed to restore form" };
+  } catch (error) {
+    console.error("❌ restoreForm Error:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to restore form" 
+    };
   }
 }
 
@@ -242,7 +258,11 @@ export async function permanentlyDeleteForm(form_ID: string) {
       success: result.deletedCount === 1,
       message: "Form permanently deleted",
     };
-  } catch (err) {
-    return { success: false, error: "Failed to delete form" };
+  } catch (error) {
+    console.error("❌ permanentlyDeleteForm Error:", error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to delete form" 
+    };
   }
 }
