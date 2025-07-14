@@ -19,9 +19,9 @@ export default function ConditionBlock({
   const question = allQuestions.find(
     (q) => q.question_ID === condition.fieldId
   );
-  const options =
+  const options: string[] =
     question?.type === "DROPDOWN" || question?.type === "MCQ"
-      ? question.config?.params.find((p) => p.name === "options")?.value || []
+      ? (question.config?.params.find((p) => p.name === "options")?.value as string[]) || []
       : [];
 
   return (

@@ -4,9 +4,8 @@ import React, { useEffect, useState } from "react";
 import QuestionTypeDropdown from "./RightNavDropdown";
 import { Question, QuestionType } from "@/lib/interface";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
-import { FaRegCircleUser } from "react-icons/fa6";
 import FAQs from "../NewUserPage/FAQs";
-
+import { FieldType } from "@/lib/interface";
 type Props = {
   selectedQuestion: Question | null;
   onUpdate: (id: string, updates: Partial<Question>) => void;
@@ -36,7 +35,7 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
   };
 
   // When config changes, replace it
-  const handleUpdateConfig = (config: any) => {
+  const handleUpdateConfig = (config: FieldType) => {
     if (selectedQuestion) {
       onUpdate(selectedQuestion.question_ID, { config });
     }
@@ -48,17 +47,17 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
     }
   };
 
-  const handleQuestionTextChange = (questionText: string) => {
-    if (selectedQuestion) {
-      onUpdate(selectedQuestion.question_ID, { questionText });
-    }
-  };
+  // const handleQuestionTextChange = (questionText: string) => {
+  //   if (selectedQuestion) {
+  //     onUpdate(selectedQuestion.question_ID, { questionText });
+  //   }
+  // };
 
-  const handleRequiredChange = (isRequired: boolean) => {
-    if (selectedQuestion) {
-      onUpdate(selectedQuestion.question_ID, { isRequired });
-    }
-  };
+  // const handleRequiredChange = (isRequired: boolean) => {
+  //   if (selectedQuestion) {
+  //     onUpdate(selectedQuestion.question_ID, { isRequired });
+  //   }
+  // };
 
   // Get display type for the UI
   const getDisplayType = () => {

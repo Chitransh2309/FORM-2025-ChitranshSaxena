@@ -3,7 +3,6 @@
 import { MdOutlineHome } from "react-icons/md";
 import { TbShare3 } from "react-icons/tb";
 import { FaRegStar } from "react-icons/fa";
-import { GrDocument } from "react-icons/gr";
 import { LuTrash2 } from "react-icons/lu";
 
 type Props = {
@@ -25,7 +24,7 @@ export default function BottomNav({ selected, setSelected }: Props) {
         {items.map(({ key, icon, label }) => (
           <li key={key}>
             <button
-              onClick={() => setSelected(key as Props["selected"])}
+              onClick={() => setSelected(key as "myForms" | "shared" | "starred" | "trash")}
               className={`flex flex-col items-center py-3 text-xs ${
                 selected === key
                   ? "text-[#56A37D]"

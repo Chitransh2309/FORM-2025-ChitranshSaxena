@@ -11,12 +11,9 @@ export function validateAnswer(question: Question, answer: Answer | undefined): 
     errors.push(`${question.questionText} is required`);
     return { isValid: false, errors };
   }
-
-  const config = question.config || {};
-  const validations: Validation[] = config.validations || [];
-
+  const validations: Validation[] = question.config?.validations || [];
   const getParam = (name: string) =>
-    config.params?.find((p: Param) => p.name === name)?.value;
+    question.config?.params?.find((p: Param) => p.name === name)?.value;
 
   const getValidationParam = (validationName: string, paramName: string) => {
     const v = validations.find((v) => v.name === validationName);
@@ -26,8 +23,8 @@ export function validateAnswer(question: Question, answer: Answer | undefined): 
   switch (question.type) {
     case QuestionType.TEXT: {
       // Char limit
-      const min = getValidationParam("charlimit", "min") ?? 0;
-      const max = getValidationParam("charlimit", "max") ?? Infinity;
+      const min = Number(getValidationParam("charlimit", "min")) ?? 0;
+      const max = Number(getValidationParam("charlimit", "max")) ?? Infinity;
       if (min && value.length < min) {
         errors.push(`${question.questionText} must be at least ${min} characters`);
       }
@@ -54,8 +51,8 @@ export function validateAnswer(question: Question, answer: Answer | undefined): 
       break;
     }
     case QuestionType.MCQ: {
-      const min = getParam("min") ?? 0;
-      const max = getParam("max") ?? Infinity;
+      const min = Number(getParam("min")) ?? 0;
+      const max = Number(getParam("max")) ?? Infinity;
       const selected = value.split(",").filter((v: string) => v.trim());
       if (min && selected.length < min) {
         errors.push(`${question.questionText} requires at least ${min} selection${min > 1 ? "s" : ""}`);
@@ -74,10 +71,10 @@ export function validateAnswer(question: Question, answer: Answer | undefined): 
       const maxDate = getValidationParam("dateRange", "maxDate");
       if (value) {
         const dateValue = new Date(value);
-        if (minDate && dateValue < new Date(minDate)) {
+        if (minDate && typeof minDate === 'string' && dateValue < new Date(minDate)) {
           errors.push(`${question.questionText} must be after ${minDate}`);
         }
-        if (maxDate && dateValue > new Date(maxDate)) {
+        if (maxDate && typeof maxDate === 'string' && dateValue > new Date(maxDate)) {
           errors.push(`${question.questionText} must be before ${maxDate}`);
         }
       }
@@ -98,8 +95,8 @@ export function validateAnswer(question: Question, answer: Answer | undefined): 
       break;
     }
     case QuestionType.LINEARSCALE: {
-      const min = getParam("min") ?? 1;
-      const max = getParam("max") ?? 5;
+      const min = Number(getParam("min")) ?? 1;
+      const max = Number(getParam("max")) ?? 5;
       const numValue = Number(value);
       if (numValue < min || numValue > max) {
         errors.push(`${question.questionText} must be between ${min} and ${max}`);

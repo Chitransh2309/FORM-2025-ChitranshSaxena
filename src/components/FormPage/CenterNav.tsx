@@ -4,13 +4,8 @@ import React, { useState, useEffect } from "react";
 import PreviewForm from "@/components/FormPage/PreviewForm";
 import BuildForm from "@/components/FormPage/BuildForm";
 import WorkflowPage from "./Workflow/WorkflowPage";
-import { Form } from "@/lib/interface";
+import { Form ,SectionForm} from "@/lib/interface";
 
-enum Section {
-  Builder,
-  Workflow,
-  Preview,
-}
 
 const CenterNav = ({
   form,
@@ -23,8 +18,8 @@ const CenterNav = ({
 }) => {
   const [isEditor, setIsEditor] = useState<boolean>(false);
   const [isViewer, setIsViewer] = useState<boolean>(false);
-  const [currentSection, setCurrentSection] = useState<Section>(
-    Section.Builder
+  const [currentSection, setCurrentSection] = useState<SectionForm>(
+    SectionForm.Builder
   );
 
   useEffect(() => {
@@ -59,7 +54,7 @@ const CenterNav = ({
 
     // If user is a viewer (and not an editor), set current section to Preview
     if (isInViewerList && !editorCheck) {
-      setCurrentSection(Section.Preview);
+      setCurrentSection(SectionForm.Preview);
     }
   }, [form, currentUserEmail, currentUserID]);
 
@@ -91,7 +86,7 @@ const CenterNav = ({
       {/* Main content area */}
       <div className="w-full h-full flex-grow overflow-auto">
   {/* Builder Section */}
-  {currentSection === Section.Builder && (
+  {currentSection === SectionForm.Builder && (
     <>
       {isEditor ? (
         <BuildForm
@@ -103,7 +98,7 @@ const CenterNav = ({
           {(() => {
             // If viewer tries to access Builder, show alert and redirect to Preview
             window.alert("Editor access required to open Builder section.");
-            setCurrentSection(Section.Preview);
+            setCurrentSection(SectionForm.Preview);
             return null; // Don't render anything here, let Preview section handle it
           })()}
         </>
@@ -117,7 +112,7 @@ const CenterNav = ({
   )}
 
   {/* Workflow Section */}
-  {currentSection === Section.Workflow && (
+  {currentSection === SectionForm.Workflow && (
     <>
       {isEditor ? (
         <WorkflowPage
@@ -130,7 +125,7 @@ const CenterNav = ({
           {(() => {
             // If viewer tries to access Workflow, show alert and redirect to Preview
             window.alert("Editor access required to open Workflow section.");
-            setCurrentSection(Section.Preview);
+            setCurrentSection(SectionForm.Preview);
             return null; // Don't render anything here, let Preview section handle it
           })()}
         </>
@@ -145,7 +140,7 @@ const CenterNav = ({
   )}
 
   {/* Preview Section */}
-  {currentSection === Section.Preview && (
+  {currentSection === SectionForm.Preview && (
     <div className="p-4 sm:p-6 dark:text-white">
       <PreviewForm
         form={form}

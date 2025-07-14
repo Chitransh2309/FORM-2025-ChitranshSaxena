@@ -30,7 +30,7 @@ export default function Footer() {
           <p
             className={`text-lg sm:text-xl lg:text-2xl text-[#F6F8F6] font-bold ${out_fit.className} dark:text-[#F6F8F6] leading-tight`}
           >
-            "Seamless forms,smarter data all in one place."
+            &quot;Seamless forms,smarter data all in one place.&quot;
           </p>
           <p
             className={`text-lg sm:text-xl font-bold mt-2 sm:mt-4 ${out_fit.className} text-[#F6F8F6] dark:text-[#F6F8F6]`}
