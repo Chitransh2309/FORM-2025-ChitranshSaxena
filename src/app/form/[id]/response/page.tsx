@@ -148,7 +148,7 @@ const DynamicInput = ({
       };
 
       return (
-        <div className="space-y-2">
+        <div className="space-y-2 h-screen overflow-auto">
           {options.map((option, index) => (
             <label
               key={index}
@@ -344,25 +344,24 @@ export default function ResponsesPage({
       }
       setLoading(true);
       const res = await getFormObject(formId);
-if (res.success && res.data && res.data.isActive) {
-  const now = new Date();
-  const start = new Date(res.data.settings?.startDate);
-  const end = new Date(res.data.settings?.endDate);
+      if (res.success && res.data && res.data.isActive) {
+        const now = new Date();
+        const start = new Date(res.data.settings?.startDate);
+        const end = new Date(res.data.settings?.endDate);
 
- if (res.data.settings?.timingEnabled) {
-  if (now < start || now > end) {
-    toast.error("This form is currently not accepting responses.");
-    setLoading(false);
-    return;
-  }
-}
+        if (res.data.settings?.timingEnabled) {
+          if (now < start || now > end) {
+            toast.error("This form is currently not accepting responses.");
+            setLoading(false);
+            return;
+          }
+        }
 
-
-  setForm(res.data);
-  setSectionIndex(0);
-} else {
-  toast.error("Failed to load form.");
-}
+        setForm(res.data);
+        setSectionIndex(0);
+      } else {
+        toast.error("Failed to load form.");
+      }
 
       setLoading(false);
     };
@@ -415,11 +414,12 @@ if (res.success && res.data && res.data.isActive) {
 
   function evaluateConditions(
     condition: NestedCondition | BaseCondition,
-    answers: Answer[]
+    answers: Answer[],
+    questions: Question[]
   ): boolean {
     if ("conditions" in condition) {
       const subResults = condition.conditions.map((sub) =>
-        evaluateConditions(sub, answers)
+        evaluateConditions(sub, answers, questions)
       );
 
       if (condition.op === "AND") {
@@ -430,7 +430,11 @@ if (res.success && res.data && res.data.isActive) {
     }
 
     if ("fieldId" in condition && condition.op === "equal") {
-      const answer = answers.find((a) => a.question_ID === condition.fieldId);
+      const answer = answers.find(
+        (a) =>
+          questions.find((q) => q.question_ID === a.question_ID)
+            ?.questionText === condition.fieldId
+      );
       return answer?.value === condition.value;
     }
 
@@ -464,7 +468,11 @@ if (res.success && res.data && res.data.isActive) {
     const nextJumps: number[] = [];
 
     for (const logic of allLogics) {
-      const isTrue = evaluateConditions(logic.action.condition, answers);
+      const isTrue = evaluateConditions(
+        logic.action.condition,
+        answers,
+        currentSection?.questions
+      );
       if (isTrue) {
         const jumpToIdx = form.sections.findIndex(
           (s) => s.section_ID === logic.action.to
@@ -529,16 +537,15 @@ if (res.success && res.data && res.data.isActive) {
   const handleSubmit = async () => {
     const currentSection = form?.sections[sectionIndex];
     const now = new Date();
-const start = new Date(form?.settings?.startDate || "");
-const end = new Date(form?.settings?.endDate || "");
+    const start = new Date(form?.settings?.startDate || "");
+    const end = new Date(form?.settings?.endDate || "");
 
-if (form?.settings?.timingEnabled) {
-  if (now < start || now > end) {
-    toast.error("This form is no longer accepting responses.");
-    return;
-  }
-}
-
+    if (form?.settings?.timingEnabled) {
+      if (now < start || now > end) {
+        toast.error("This form is no longer accepting responses.");
+        return;
+      }
+    }
 
     const unansweredRequired = currentSection?.questions.filter(
       (q) =>
