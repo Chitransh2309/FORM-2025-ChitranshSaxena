@@ -49,7 +49,9 @@ export default function Question({
     if (data.type === QuestionType.MCQ && data.config) {
       const config = data.config as any;
       if (config.params) {
-        const optionsParam = config.params.find((p: any) => p.name === "options");
+        const optionsParam = config.params.find(
+          (p: any) => p.name === "options"
+        );
         if (optionsParam?.value) {
           return Array.isArray(optionsParam.value)
             ? optionsParam.value
@@ -65,7 +67,9 @@ export default function Question({
     if (data.type === QuestionType.DROPDOWN && data.config) {
       const config = data.config as any;
       if (config.params) {
-        const optionsParam = config.params.find((p: any) => p.name === "options");
+        const optionsParam = config.params.find(
+          (p: any) => p.name === "options"
+        );
         if (optionsParam?.value) {
           return Array.isArray(optionsParam.value)
             ? optionsParam.value
@@ -80,12 +84,20 @@ export default function Question({
   const getDateConfig = () => {
     if (data.type === QuestionType.DATE && data.config) {
       const config = data.config as any;
-      const includeTime = !!config.params?.find((p: any) => p.name === "includeTime")?.value;
-      const dateRange = config.validations?.find((v: any) => v.name === "dateRange");
+      const includeTime = !!config.params?.find(
+        (p: any) => p.name === "includeTime"
+      )?.value;
+      const dateRange = config.validations?.find(
+        (v: any) => v.name === "dateRange"
+      );
       let minDate, maxDate;
       if (dateRange?.params) {
-        minDate = dateRange.params.find((p: any) => p.name === "minDate")?.value;
-        maxDate = dateRange.params.find((p: any) => p.name === "maxDate")?.value;
+        minDate = dateRange.params.find(
+          (p: any) => p.name === "minDate"
+        )?.value;
+        maxDate = dateRange.params.find(
+          (p: any) => p.name === "maxDate"
+        )?.value;
       }
       return { includeTime, minDate, maxDate };
     }
@@ -96,10 +108,16 @@ export default function Question({
   const getLinearScaleConfig = () => {
     if (data.type === QuestionType.LINEARSCALE && data.config) {
       const config = data.config as any;
-      const min = Number(config.params?.find((p: any) => p.name === "min")?.value ?? 1);
-      const max = Number(config.params?.find((p: any) => p.name === "max")?.value ?? 5);
-      const minLabel = config.params?.find((p: any) => p.name === "minLabel")?.value ?? "";
-      const maxLabel = config.params?.find((p: any) => p.name === "maxLabel")?.value ?? "";
+      const min = Number(
+        config.params?.find((p: any) => p.name === "min")?.value ?? 1
+      );
+      const max = Number(
+        config.params?.find((p: any) => p.name === "max")?.value ?? 5
+      );
+      const minLabel =
+        config.params?.find((p: any) => p.name === "minLabel")?.value ?? "";
+      const maxLabel =
+        config.params?.find((p: any) => p.name === "maxLabel")?.value ?? "";
       return { min, max, minLabel, maxLabel };
     }
     return { min: 1, max: 5, minLabel: "", maxLabel: "" };
@@ -109,22 +127,38 @@ export default function Question({
   const getTextConfig = () => {
     if (data.type === QuestionType.TEXT && data.config) {
       const config = data.config as any;
-      const placeholder = config.params?.find((p: any) => p.name === "placeholder")?.value || "Enter your answer...";
+      const placeholder =
+        config.params?.find((p: any) => p.name === "placeholder")?.value ||
+        "Enter your answer...";
       let charlimit: { min?: number; max?: number } | undefined;
-      const charlimitValidation = config.validations?.find((v: any) => v.name === "charlimit");
+      const charlimitValidation = config.validations?.find(
+        (v: any) => v.name === "charlimit"
+      );
       if (charlimitValidation?.params) {
-        const minParam = charlimitValidation.params.find((p: any) => p.name === "min");
-        const maxParam = charlimitValidation.params.find((p: any) => p.name === "max");
+        const minParam = charlimitValidation.params.find(
+          (p: any) => p.name === "min"
+        );
+        const maxParam = charlimitValidation.params.find(
+          (p: any) => p.name === "max"
+        );
         charlimit = {
           min: minParam?.value ? Number(minParam.value) : undefined,
           max: maxParam?.value ? Number(maxParam.value) : undefined,
         };
       }
-      let keywordChecker: { contains?: string[]; doesnotContain?: string[] } | undefined;
-      const keywordValidation = config.validations?.find((v: any) => v.name === "keywordChecker");
+      let keywordChecker:
+        | { contains?: string[]; doesnotContain?: string[] }
+        | undefined;
+      const keywordValidation = config.validations?.find(
+        (v: any) => v.name === "keywordChecker"
+      );
       if (keywordValidation?.params) {
-        const containsParam = keywordValidation.params.find((p: any) => p.name === "contains");
-        const doesnotContainParam = keywordValidation.params.find((p: any) => p.name === "doesnotContain");
+        const containsParam = keywordValidation.params.find(
+          (p: any) => p.name === "contains"
+        );
+        const doesnotContainParam = keywordValidation.params.find(
+          (p: any) => p.name === "doesnotContain"
+        );
         keywordChecker = {
           contains: containsParam?.value
             ? Array.isArray(containsParam.value)
@@ -270,9 +304,7 @@ export default function Question({
     }
   };
 
-  function handleChange(){
-
-  }
+  function handleChange() {}
 
   return (
     <div
@@ -292,17 +324,14 @@ export default function Question({
         </p>
 
         <button
-          className="flex items-center mr-3 gap-2 bg-[#8cc7aa] text-black py-0.5 px-3 rounded-md shadow dark:bg-[#353434] dark:text-white"
+          className="md:hidden flex items-center mr-3 gap-2 bg-[#8cc7aa] text-black py-0.5 px-3 rounded-md shadow dark:bg-[#353434] dark:text-white"
           onClick={onEditQuestion}
         >
           <Menu className="w-4 h-2 lg:h-4" />
           Edit
         </button>
 
-
-        
         <div className="flex flex-wrap items-center gap-2 sm:gap-4 justify-end max-w-full overflow-hidden">
-
           <div className="flex items-center gap-2">
             <label className="text-gray-700 text-sm dark:text-white">
               Required
