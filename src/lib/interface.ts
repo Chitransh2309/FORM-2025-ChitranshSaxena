@@ -67,7 +67,6 @@ export interface FormSettings {
   cameraRequired: boolean;
   copy_via_email?: boolean;
   timingEnabled?: boolean;
-
 }
 
 export interface Section {
