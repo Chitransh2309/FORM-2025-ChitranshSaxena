@@ -14,7 +14,9 @@ interface Form {
 
 export default function Drafts({ forms: initialForms }: { forms: Form[] }) {
   const router = useRouter();
-  const [forms, setForms] = useState(initialForms);
+  const [forms, setForms] = useState(
+  initialForms.filter((form) => form.publishedAt === null)
+);
   const [isPending, startTransition] = useTransition();
 
   const handleDiscard = (formId: string) => {
