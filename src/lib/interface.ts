@@ -140,7 +140,7 @@ export type ParamType =
 
 export interface Param {
   name: string;
-  type: ParamType;
+  type: ParamType; //
   value?: string | number | boolean | string[];
 }
 

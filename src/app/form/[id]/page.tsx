@@ -34,7 +34,7 @@ export default async function FormPage({ params }: PageProps) {
   if (!form) {
     return (
       <div className="text-center mt-20 text-xl text-red-600 font-bold">
-        🚫 Access Denied: You don't own this form.
+        🚫 Access Denied: You don&apos;t own this form.
       </div>
     );
   }
