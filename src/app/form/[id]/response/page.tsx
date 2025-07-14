@@ -281,9 +281,7 @@ export default function ResponsesPage({
   const [sectionHistory, setSectionHistory] = useState<number[]>([]);
   const [sectionIndex, setSectionIndex] = useState(0);
   const [jumpQueue, setJumpQueue] = useState<number[]>([]);
-  const [visitedSections, setVisitedSections] = useState<Set<number>>(
-    new Set()
-  );
+
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const section = form?.sections?.[sectionIndex];
@@ -295,7 +293,6 @@ export default function ResponsesPage({
   const startedAt = React.useRef(new Date());
 
   const debouncedSaveResponse = debounce(async () => {
-    const currentSection = form?.sections[sectionIndex];
 
     isSaving(0);
 
@@ -459,7 +456,6 @@ export default function ResponsesPage({
       const nextJump = jumpQueue[0];
       setJumpQueue((prev) => prev.slice(1));
       setSectionHistory((prev) => [...prev, sectionIndex]);
-      setVisitedSections((prev) => new Set(prev).add(nextJump));
       setSectionIndex(nextJump);
       return;
     }
@@ -485,7 +481,6 @@ export default function ResponsesPage({
       const [firstJump, ...rest] = nextJumps;
       setJumpQueue(rest);
       setSectionHistory((prev) => [...prev, sectionIndex]);
-      setVisitedSections((prev) => new Set(prev).add(firstJump));
       setSectionIndex(firstJump);
       return;
     }
@@ -493,7 +488,6 @@ export default function ResponsesPage({
     if (sectionIndex < form.sections.length - 1) {
       setSectionHistory((prev) => [...prev, sectionIndex]);
       setSectionIndex((prev) => prev + 1);
-      setVisitedSections((prev) => new Set(prev).add(sectionIndex + 1));
     }
   };
 

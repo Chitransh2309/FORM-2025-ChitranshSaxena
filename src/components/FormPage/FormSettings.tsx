@@ -4,11 +4,22 @@ import { useState } from 'react';
 import { updateFormSettings } from '@/app/action/forms';
 import { addEditor, addViewer } from '@/app/action/addEditorAndViewer';
 import { FormSettings as FormSettingsType } from '@/lib/interface';
+// place this just above the component (or in a separate types file)
+type FormSettingsKey = keyof FormSettingsType;
+
+interface FormSettingsInputEvent {
+  target: {
+    name: FormSettingsKey;               // ✅ must match a field in FormSettings
+    type: string;                        // "checkbox", "text", "number", …
+    value?: string | number | boolean;   // normal <input> values
+    checked?: boolean;                   // for check-boxes
+  };
+}
 
 interface FormSettingsProps {
   formId: string;
   formSettings: FormSettingsType;
-  setFormSettings: (settings: FormSettingsType) => void;
+  setFormSettings: React.Dispatch<React.SetStateAction<FormSettingsType>>;
   onClose: () => void;
 }
 
@@ -30,13 +41,15 @@ const FormSettings = ({
 
 
 
-  const handleChange = (e: { target: any }) => {
-    const { name, value, type, checked } = e.target;
-    setFormSettings((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
+// was:  const handleChange = (e: { target: any }) => {
+const handleChange = (e: FormSettingsInputEvent) => {
+  const { name, value, type, checked } = e.target;
+  setFormSettings((prev: FormSettingsType): FormSettingsType => ({
+    ...prev,
+    [name]: type === "checkbox" ? checked : value,
+  }));
+};
+
 
   const handleSave = async () => {
   const updatedSettings = {
