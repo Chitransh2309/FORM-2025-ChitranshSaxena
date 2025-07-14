@@ -30,17 +30,13 @@ import CustomNode from "./CustomNode";
 import { saveFormLogic } from "@/app/action/saveFormLogic";
 import ConditionGroup from "./ConditionGroup";
 import ConditionBlock from "./ConditionBlock";
-enum sectionform {
-  Build,
-  Workflow,
-  Preview,
-}
+import { SectionForm } from "@/lib/interface";
 interface formbuild {
-  currentSection: sectionform;
-  setCurrentSection: (section: sectionform) => void;
+  currentSection: SectionForm;
+  setCurrentSection: (section: SectionForm) => void;
 }
 interface WorkflowPageProps extends formbuild {
-  form_ID: string;
+  form_ID: string | undefined;
 }
 
 export default function WorkflowPage({
@@ -223,6 +219,14 @@ export default function WorkflowPage({
     setLogicRules(updatedRules);
     setShowModal(false);
 
+    if (!form_ID) {
+      toast.error("Form ID is missing");
+      return;
+    }
+    if (!form_ID) {
+      toast.error("Form ID is missing");
+      return;
+    }
     const saveResult = await saveFormLogic(form_ID, updatedRules);
     if (!saveResult.success) {
       toast.error("Failed to save logic.");
@@ -235,6 +239,10 @@ export default function WorkflowPage({
     const updatedRules = logicRules.filter((_, idx) => idx !== indexToDelete);
     setLogicRules(updatedRules);
 
+    if (!form_ID) {
+      toast.error("Form ID is missing");
+      return;
+    }
     const saveResult = await saveFormLogic(form_ID, updatedRules);
     if (!saveResult.success) {
       toast.error("Failed to delete logic.");
@@ -297,7 +305,7 @@ export default function WorkflowPage({
           {LABELS.map((label, i) => (
             <button
               key={label}
-              onClick={() => setCurrentSection(i as sectionform)}
+              onClick={() => setCurrentSection(i as SectionForm)}
               className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
                 currentSection === i
                   ? "bg-[#61A986] text-black dark:text-white"

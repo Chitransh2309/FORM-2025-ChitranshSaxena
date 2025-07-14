@@ -10,40 +10,49 @@ import {
   Validation,
 } from "@/lib/interface";
 
-/* ────────────────────────────────────────────────────────── */
-/*  Options shown in the type-selector dropdown               */
-/* ────────────────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────── */
+/* dropdown options                                             */
+/* ──────────────────────────────────────────────────────────── */
 const questionTypes = [
-  { label: "MCQ",          value: QuestionType.MCQ,         field: "mcq" },
-  { label: "Text",         value: QuestionType.TEXT,        field: "text" },
-  { label: "Dropdown",     value: QuestionType.DROPDOWN,    field: "dropdown" },
-  { label: "Date",         value: QuestionType.DATE,        field: "date" },
-  { label: "Linear Scale", value: QuestionType.LINEARSCALE, field: "linear_scale" },
-  { label: "Email",        value: QuestionType.EMAIL,       field: "email" },
-  { label: "Url",          value: QuestionType.URL,         field: "url" },
+  { label: "MCQ", value: QuestionType.MCQ, field: "mcq" },
+  { label: "Text", value: QuestionType.TEXT, field: "text" },
+  { label: "Dropdown", value: QuestionType.DROPDOWN, field: "dropdown" },
+  { label: "Date", value: QuestionType.DATE, field: "date" },
+  {
+    label: "Linear Scale",
+    value: QuestionType.LINEARSCALE,
+    field: "linear_scale",
+  },
+  { label: "Email", value: QuestionType.EMAIL, field: "email" },
+  { label: "Url", value: QuestionType.URL, field: "url" },
 ];
+
+/* extra ui-only keys allowed on <input> configs */
+type UIParam = Param & {
+  placeholder?: string;
+  isValidation?: true;
+  validationName?: string;
+};
 
 interface Props {
   selectedQuestion?: Question;
-  onChangeType?:    (t: QuestionType) => void;
-  onUpdateConfig?:  (c: FieldType)     => void;
+  onChangeType?: (t: QuestionType) => void;
+  onUpdateConfig?: (c: FieldType) => void;
 }
 
-/* ────────────────────────────────────────────────────────── */
-/*  Component                                                */
-/* ────────────────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────── */
 export default function QuestionTypeDropdown({
   selectedQuestion,
   onChangeType,
   onUpdateConfig,
 }: Props) {
   const [selectedType, setSelectedType] = useState(questionTypes[0].label);
-  const [isOpen, setIsOpen]             = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
-  /* keep header text in sync when a different question is selected */
+  /* keep the header text in sync with parent selection */
   useEffect(() => {
     if (selectedQuestion?.type) {
-      const found = questionTypes.find((qt) => qt.value === selectedQuestion.type);
+      const found = questionTypes.find((q) => q.value === selectedQuestion.type);
       setSelectedType(found?.label ?? questionTypes[0].label);
     } else {
       setSelectedType(questionTypes[0].label);
@@ -51,171 +60,174 @@ export default function QuestionTypeDropdown({
     setIsOpen(false);
   }, [selectedQuestion?.question_ID]);
 
-  /* ────────── helpers ────────── */
-  const handleTypeChange = (typeLabel: string) => {
-    setSelectedType(typeLabel);
+  /* ────────── type change ────────── */
+  const handleTypeChange = (label: string) => {
+    setSelectedType(label);
     setIsOpen(false);
 
-    const found = questionTypes.find((qt) => qt.label === typeLabel);
+    const found = questionTypes.find((q) => q.label === label);
     if (!found) return;
 
-    /* reset config when the type changes */
+    /* reset config for the newly chosen field type */
     if (onUpdateConfig) {
-      const selectedField = fieldtypes.find((f) => f.name === found.field);
-      if (selectedField) {
-        const newConfig: FieldType = {
-          ...selectedField,
-          params:       selectedField.params.map((p) => ({ ...p })),
-          validations:  selectedField.validations.map((v) => ({
+      const schema = fieldtypes.find((f) => f.name === found.field);
+      if (schema) {
+        const fresh: FieldType = {
+          ...schema,
+          params: schema.params.map((p) => ({ ...p })),
+          validations: schema.validations.map((v) => ({
             ...v,
             params: v.params?.map((p) => ({ ...p })) ?? [],
           })),
         };
-        onUpdateConfig(newConfig);
+        onUpdateConfig(fresh);
       }
     }
 
     onChangeType?.(found.value);
   };
 
-  /* update helpers for params & validations */
+  /* ────────── helpers to mutate params / validations ────────── */
   const updateParams = (newParam: Param) => {
     if (!selectedQuestion || !onUpdateConfig) return;
-    const oldCfg = selectedQuestion.config as FieldType | undefined;
-    const params = oldCfg?.params ?? [];
+    const cfg = selectedQuestion.config as FieldType | undefined;
+    if (!cfg) return;
 
-    const idx = params.findIndex((p) => p.name === newParam.name);
-    const updated =
-      idx >= 0 ? params.map((p) => (p.name === newParam.name ? newParam : p)) : [...params, newParam];
+    const idx = cfg.params.findIndex((p) => p.name === newParam.name);
+    const newParams =
+      idx >= 0
+        ? cfg.params.map((p) => (p.name === newParam.name ? newParam : p))
+        : [...cfg.params, newParam];
 
-    onUpdateConfig({ ...oldCfg, params: updated });
+    onUpdateConfig({ ...cfg, params: newParams });
   };
 
   const updateValidation = (
     validationName: string,
     paramName: string,
-    newValue: string | number | boolean | string[]
+    value: string | number | boolean | string[]
   ) => {
     if (!selectedQuestion || !onUpdateConfig) return;
-    const oldCfg         = selectedQuestion.config ?? ({} as FieldType);
-    const validationsArr = oldCfg.validations ?? [];
+    const cfg: FieldType = selectedQuestion.config ?? {
+      name: "",
+      type: "string",
+      params: [],
+      validations: [],
+    };
 
-    const vIdx = validationsArr.findIndex((v) => v.name === validationName);
+    const vIdx = cfg.validations.findIndex((v) => v.name === validationName);
     let newValidations: Validation[];
 
     if (vIdx >= 0) {
       /* update existing validation */
-      const validation   = validationsArr[vIdx];
-      const vParams      = validation.params ?? [];
-      const pIdx         = vParams.findIndex((p) => p.name === paramName);
-      const newParamList =
-        pIdx >= 0
-          ? vParams.map((p) =>
-              p.name === paramName ? { ...p, value: newValue } : p
-            )
-          : [...vParams, { name: paramName, type: "string", value: newValue }];
+      const validation = cfg.validations[vIdx];
+      const params = validation.params ?? [];
+      const pIdx = params.findIndex((p) => p.name === paramName);
 
-      newValidations = validationsArr.map((v) =>
-        v.name === validationName ? { ...v, params: newParamList } : v
+      const newParams =
+        pIdx >= 0
+          ? params.map((p) =>
+              p.name === paramName ? { ...p, value } : p
+            )
+          : [...params, { name: paramName, type: "string", value }];
+
+      newValidations = cfg.validations.map((v) =>
+        v.name === validationName ? { ...v, params: newParams as Param[] } : v
       );
     } else {
-      /* push new validation */
+      /* add new validation */
       newValidations = [
-        ...validationsArr,
+        ...cfg.validations,
         {
           name: validationName,
-          params: [{ name: paramName, type: "string", value: newValue }],
+          params: [{ name: paramName, type: "string", value }],
         },
       ];
     }
 
-    onUpdateConfig({ ...oldCfg, validations: newValidations });
+    onUpdateConfig({ ...cfg, validations: newValidations });
   };
 
-  /* render a single <input> (or equivalent) for a Param */
-  const renderParamInput = (param: Param & { isValidation?: true; validationName?: string }, key: string) => {
+  /* ────────── render <input> for each param ────────── */
+  const renderParamInput = (param: UIParam, key: string) => {
     const cls =
-      "w-full px-2 py-2 rounded bg-white outline-none dark:bg-[#5A5959] dark:text-white border-black-500";
+      "w-full px-2 py-2 rounded bg-white outline-none dark:bg-[#5A5959] dark:text-white";
 
-    /* value coercion helper */
-    const coerce = (type: string, raw: string) => {
-      if (type === "number")   return parseInt(raw, 10) || 0;
-      if (type === "boolean")  return undefined;           // unused (checkbox)
-      return raw;
-    };
-
-    /* For validation params delegate to updateValidation */
+    /* validation-specific handling */
     if (param.isValidation) {
-      const { validationName } = param;
-      const ph = param.placeholder ?? param.name;
+      const vn = param.validationName!;
+      const placeholder = param.placeholder ?? param.name;
 
-      const commonProps = {
-        key,
-        placeholder: ph,
-        className: cls,
-      };
-
-      switch (param.name) {
-        case "contains":
-        case "doesnotContain":
-          return (
-            <input
-              {...commonProps}
-              type="text"
-              value={Array.isArray(param.value) ? param.value.join(", ") : ""}
-              onChange={(e) =>
-                updateValidation(
-                  validationName!,
-                  param.name,
-                  e.target.value
-                    .split(",")
-                    .map((s) => s.trim())
-                    .filter((s) => s)
-                )
-              }
-            />
-          );
-
-        case "min":
-        case "max":
-          return (
-            <input
-              {...commonProps}
-              type="number"
-              value={param.value ?? ""}
-              onChange={(e) =>
-                updateValidation(validationName!, param.name, parseInt(e.target.value, 10) || 0)
-              }
-            />
-          );
-
-        default:
-          if (param.type === "date") {
-            return (
-              <input
-                {...commonProps}
-                type="date"
-                value={param.value as string | ""}
-                onChange={(e) =>
-                  updateValidation(validationName!, param.name, e.target.value)
-                }
-              />
-            );
-          }
-          return (
-            <input
-              {...commonProps}
-              type="text"
-              value={param.value ?? ""}
-              onChange={(e) =>
-                updateValidation(validationName!, param.name, e.target.value)
-              }
-            />
-          );
+      if (["contains", "doesnotContain"].includes(param.name)) {
+        const asText = Array.isArray(param.value)
+          ? param.value.join(", ")
+          : "";
+        return (
+          <input
+            key={key}
+            type="text"
+            placeholder={placeholder}
+            value={asText}
+            className={cls}
+            onChange={(e) =>
+              updateValidation(
+                vn,
+                param.name,
+                e.target.value
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+              )
+            }
+          />
+        );
       }
+
+      if (["min", "max"].includes(param.name)) {
+        return (
+          <input
+            key={key}
+            type="number"
+            placeholder={placeholder}
+            value={String(param.value ?? "")}
+            className={cls}
+            onChange={(e) =>
+              updateValidation(vn, param.name, parseInt(e.target.value, 10) || 0)
+            }
+          />
+        );
+      }
+
+      if (param.type === "date") {
+        return (
+          <input
+            key={key}
+            type="date"
+            placeholder={placeholder}
+            value={(param.value as string) ?? ""}
+            className={cls}
+            onChange={(e) =>
+              updateValidation(vn, param.name, e.target.value)
+            }
+          />
+        );
+      }
+
+      return (
+        <input
+          key={key}
+          type="text"
+          placeholder={placeholder}
+          value={String(param.value ?? "")}
+          className={cls}
+          onChange={(e) =>
+            updateValidation(vn, param.name, e.target.value)
+          }
+        />
+      );
     }
 
-    /* Otherwise treat as normal Param input */
+    /* normal param handling */
     switch (param.type) {
       case "string":
         return (
@@ -223,9 +235,11 @@ export default function QuestionTypeDropdown({
             key={key}
             type="text"
             placeholder={param.name}
-            value={param.value ?? ""}
+            value={String(param.value ?? "")}
             className={cls}
-            onChange={(e) => updateParams({ ...param, value: e.target.value })}
+            onChange={(e) =>
+              updateParams({ ...param, value: e.target.value })
+            }
           />
         );
 
@@ -235,10 +249,13 @@ export default function QuestionTypeDropdown({
             key={key}
             type="number"
             placeholder={param.name}
-            value={param.value ?? ""}
+            value={String(param.value ?? "")}
             className={cls}
             onChange={(e) =>
-              updateParams({ ...param, value: coerce("number", e.target.value) })
+              updateParams({
+                ...param,
+                value: parseInt(e.target.value, 10) || 0,
+              })
             }
           />
         );
@@ -272,7 +289,7 @@ export default function QuestionTypeDropdown({
                 value: e.target.value
                   .split(",")
                   .map((s) => s.trim())
-                  .filter((s) => s),
+                  .filter(Boolean),
               })
             }
           />
@@ -286,7 +303,9 @@ export default function QuestionTypeDropdown({
             placeholder={param.name}
             value={(param.value as string) ?? ""}
             className={cls}
-            onChange={(e) => updateParams({ ...param, value: e.target.value })}
+            onChange={(e) =>
+              updateParams({ ...param, value: e.target.value })
+            }
           />
         );
 
@@ -299,13 +318,14 @@ export default function QuestionTypeDropdown({
     }
   };
 
-  /* ────────── render the right-side config panel ────────── */
+  /* ────────── right-side config panel ────────── */
   const typeSelector = () => {
-    const found       = questionTypes.find((qt) => qt.label === selectedType);
-    const fieldName   = found ? found.field : questionTypes[0].field;
-    const fieldSchema = fieldtypes.find((f) => f.name === fieldName);
+    const fieldName =
+      questionTypes.find((q) => q.label === selectedType)?.field ??
+      questionTypes[0].field;
 
-    if (!fieldSchema) {
+    const schema = fieldtypes.find((f) => f.name === fieldName);
+    if (!schema) {
       return (
         <div className="bg-white p-4 text-black text-sm dark:bg-[#494949] dark:text-white">
           <p className="italic">{selectedType} configuration not found.</p>
@@ -313,28 +333,30 @@ export default function QuestionTypeDropdown({
       );
     }
 
-    /* helpers returning current values */
-    const getParamVal = (name: string) =>
-      selectedQuestion?.config?.params?.find((p) => p.name === name)?.value;
+    const getParamVal = (n: string) =>
+      selectedQuestion?.config?.params?.find((p) => p.name === n)?.value;
 
-    const getValidationVal = (vName: string, pName: string) =>
+    const getValidationVal = (v: string, n: string) =>
       selectedQuestion?.config?.validations
-        ?.find((v) => v.name === vName)
-        ?.params?.find((p) => p.name === pName)?.value;
+        ?.find((val) => val.name === v)
+        ?.params?.find((p) => p.name === n)?.value;
 
     return (
       <div className="bg-white p-4 text-black space-y-4 text-sm dark:bg-[#494949] dark:text-white">
-        {fieldSchema.params.length > 0 && (
+        {schema.params.length > 0 && (
           <>
             <h4 className="font-semibold">{selectedType} Parameters</h4>
             <div className="space-y-2">
-              {fieldSchema.params
+              {schema.params
                 .filter(
-                  (p) => !(fieldSchema.name === "mcq" && p.name === "options")
+                  (p) => !(schema.name === "mcq" && p.name === "options")
                 )
                 .map((p, i) =>
                   renderParamInput(
-                    { ...p, value: getParamVal(p.name) ?? p.value },
+                    {
+                      ...p,
+                      value: getParamVal(p.name) ?? p.value,
+                    } as UIParam,
                     String(i)
                   )
                 )}
@@ -342,11 +364,11 @@ export default function QuestionTypeDropdown({
           </>
         )}
 
-        {fieldSchema.validations.length > 0 && (
+        {schema.validations.length > 0 && (
           <>
             <h4 className="font-semibold">{selectedType} Validations</h4>
             <div className="space-y-3">
-              {fieldSchema.validations.map((v, vi) => (
+              {schema.validations.map((v, vi) => (
                 <div
                   key={vi}
                   className="border-l-2 border-gray-300 pl-3 dark:border-gray-600"
@@ -372,7 +394,7 @@ export default function QuestionTypeDropdown({
                               : p.name === "max"
                               ? "Maximum"
                               : p.name,
-                        },
+                        } as UIParam,
                         `${vi}-${pi}`
                       )
                     )}
@@ -400,7 +422,7 @@ export default function QuestionTypeDropdown({
         <span className="text-lg">{isOpen ? "▲" : "▼"}</span>
       </div>
 
-      {/* dropdown options */}
+      {/* dropdown list */}
       {isOpen && (
         <div className="absolute z-10 w-full bg-[#8CC7AA] text-black rounded-b-xl shadow-lg mt-1 dark:text-white dark:bg-[#494949]">
           <ul className="py-2 px-4 space-y-2 max-h-52 overflow-y-auto text-sm">
@@ -423,7 +445,7 @@ export default function QuestionTypeDropdown({
         </div>
       )}
 
-      {/* config panel */}
+      {/* right-side panel */}
       <div className="mt-5">{typeSelector()}</div>
     </div>
   );
