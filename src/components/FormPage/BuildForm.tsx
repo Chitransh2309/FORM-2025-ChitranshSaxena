@@ -15,9 +15,9 @@ import { renameSectionTitle } from "@/app/action/sections";
 import  debounce  from "lodash/debounce";
 
 enum SectionForm {
-  Build = 0,
-  Workflow = 1,
-  Preview = 2,
+  Builder,
+  Workflow,
+  Preview,
 }
 
 interface FormBuildProps {
@@ -31,7 +31,7 @@ export default function BuildPage({
 }: FormBuildProps) {
   const LABELS = ["Builder", "Workflow", "Preview"];
   const { id: formId } = useParams<{ id: string }>();
-  const [form, setForm] = useState<Form | null>(null);
+  const [form, setForm] = useState<Form>();
 
   const formRef = useRef<Form | null>(form);
 
@@ -101,7 +101,7 @@ export default function BuildPage({
     const loadData = async () => {
       if (!formId || typeof formId !== "string") return;
       const res = await getFormObject(formId);
-      if (res.success) {
+      if (res.success && res.data) {
         setForm(res.data);
         setSelectedSectionId(res.data.sections?.[0]?.section_ID ?? null);
       }

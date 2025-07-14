@@ -1,23 +1,25 @@
+// app/response/[id]/page.tsx
 import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
 import ClientResponseViewer from "@/components/ResponseViewerPage/ClientResponseViewer";
 import { auth } from "../../../../auth";
 import { redirect } from "next/navigation";
-type PageProps = {
-  params: { id: string };
+
+/* ✅ 1. Updated prop type for Next.js 15 - params is now a Promise */
+export type PageProps = {
+  params: Promise<{ id: string }>;
 };
+
+/* ✅ 2. Use that type for the default export */
 export default async function ResponsePage({ params }: PageProps) {
   try {
-    const formId = params.id;
+    const formId = (await params).id;
     const session = await auth();
-    if (!session?.user?.email) {
-      redirect("/");
-    }
-    const { dbClient, db } = await connectToDB();
+    if (!session?.user?.email) redirect("/");
+
+    const { db, dbClient } = await connectToDB();
 
     const form = await db.collection("forms").findOne({ form_ID: formId });
-    const user = await db
-      .collection("user")
-      .findOne({ email: session.user.email });
+    const user = await db.collection("user").findOne({ email: session.user.email });
     const userID = user?.user_ID;
     const responses = await db
       .collection("response")
@@ -34,16 +36,14 @@ export default async function ResponsePage({ params }: PageProps) {
       );
     }
     if (userID !== form.createdBy) {
-      {
-        return (
-          <div className="text-center mt-20 text-lg text-black">
-            User Don&apos;t own the form
-          </div>
-        );
-      } 
+      return (
+        <div className="text-center mt-20 text-lg text-black">
+          You don&apos;t own this form.
+        </div>
+      );
     }
 
-    // Ensure safe serialization of MongoDB documents
+    // Safely serialise Mongo docs for the client component
     return (
       <ClientResponseViewer
         form={JSON.parse(JSON.stringify(form))}

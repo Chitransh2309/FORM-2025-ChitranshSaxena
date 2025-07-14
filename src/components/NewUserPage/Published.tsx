@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -10,33 +10,17 @@ import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
 import {
   deleteFormFromDB,
   toggleStarForm,
-  getFormsForUser,
 } from "@/app/action/forms";
 
-interface Form {
-  form_ID: string;
-  title: string;
-  publishedAt: Date | string | null;
-  isStarred: boolean;
-  responseCount: number;
-}
+import { Form } from "@/lib/interface";
 
-export default function Published() {
+export default function Published({ forms: initialForms }: { forms: Form[] }) {
   const router = useRouter();
-  const [forms, setForms] = useState<Form[]>([]);
+  // Initialize state with the filtered published forms from props
+  const [forms, setForms] = useState<Form[]>(
+    initialForms.filter((f: Form) => f.isActive === true)
+  );
   const [isPending, startTransition] = useTransition();
-
-  // ────────── fetch on mount ──────────
-  useEffect(() => {
-    (async () => {
-      try {
-        const all = await getFormsForUser();
-        setForms(all.filter((f: Form) => f.publishedAt !== null));
-      } catch (err) {
-        console.error("Error fetching published forms:", err);
-      }
-    })();
-  }, []);
 
   // ────────── handlers ──────────
   const handleDelete = (id: string) =>
@@ -137,10 +121,7 @@ export default function Published() {
                 <div className="flex-grow flex items-center justify-center text-center font-semibold">
                   {form.title || "Untitled Form"}
                 </div>
-                <div className="text-left text-sm font-semibold px-1 mb-1">
-                  {form.responseCount}{" "}
-                  {form.responseCount === 1 ? "response" : "responses"}
-                </div>
+
               </div>
 
               {/* buttons */}

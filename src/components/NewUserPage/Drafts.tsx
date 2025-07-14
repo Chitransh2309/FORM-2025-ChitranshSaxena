@@ -3,13 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { deleteFormFromDB } from "@/app/action/forms";
-
-interface Form {
-  form_ID: string;
-  title: string;
-  publishedAt: Date | null;
-}
-
+import { Form } from "@/lib/interface";
 export default function Drafts({ forms: initialForms }: { forms: Form[] }) {
   const router = useRouter();
 
