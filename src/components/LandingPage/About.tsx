@@ -1,5 +1,4 @@
 import React from 'react';
-
 export default function About() {
   return (
     <div className="w-full px-16 sm:px-18 lg:px-32 pt-32 dark:bg-[#191719]">
