@@ -137,7 +137,7 @@ export default function Contact({ onClose, user_ID }: ContactProps) {
       </div>
     </div>
 
-    /// Mobile Version
+    {/*Mobile Version*/}
     
     <div className="fixed inset-0 z-50 min-h-screen flex items-center justify-center p-4 ${manrope.className} sm:hidden">
   <div className="relative p-8 max-w-md w-full bg-white dark:bg-[#000000] border-[5px] border-[#4B795F] rounded-[25px] shadow-[inset_0px_4px_40px_3px_#4B795F] transition-colors">
