@@ -1,6 +1,7 @@
 "use server";
 
 import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
+import { MongoClient } from "mongodb";
 import { randomUUID } from "crypto";
 
 export interface Contact {
@@ -18,11 +19,10 @@ export async function saveContact(
   email: string,
   message: string
 ): Promise<{ success: boolean; message: string }> {
-  let client: any = null;
+  const client: MongoClient | null = null;
 
   try {
     const connection = await connectToDB();
-    client = connection.client; // use `client` like in addEditorAndViewer.ts
     const db = connection.db;
 
     const contact: Contact = {

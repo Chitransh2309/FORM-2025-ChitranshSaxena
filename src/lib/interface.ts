@@ -74,7 +74,7 @@ export interface Section {
 }
 
 export interface Question {
-  params: any;
+
   question_ID: string;
   order: number;
   section_ID: string;
