@@ -433,7 +433,7 @@ export default function ResponsesPage({
       const answer = answers.find(
         (a) =>
           questions.find((q) => q.question_ID === a.question_ID)
-            ?.questionText === condition.fieldId
+            ?.question_ID === condition.fieldId
       );
       return answer?.value === condition.value;
     }
