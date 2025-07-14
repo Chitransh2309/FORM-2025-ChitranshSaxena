@@ -86,7 +86,7 @@ export default function SectionEditor({
           {/* Type and Config */}
           <div className="text-sm text-gray-600">
             <div>Answer type: {q.type?.toLowerCase() || 'text'}</div>
-            {q.config?.validations?.length > 0 && (
+            {q.config?.validations?.length && q.config.validations.length > 0 && (
               <div className="text-xs text-gray-500">
                 {q.config.validations
                   .map((v) => {

@@ -29,7 +29,7 @@ export default function FormHeader({
   useEffect(() => {
     async function getFormName() {
       const res = await getFormObject(form.form_ID);
-      setFormName(res.data?.title);
+      setFormName(res.data?.title || "Draft");
     }
     getFormName();
   }, []);

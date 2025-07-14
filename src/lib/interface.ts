@@ -32,6 +32,12 @@ export interface Form {
   isStarred: boolean;
   responseCount?: number; // Optional, can be derived from responses
 }
+// types/Section.ts
+export enum SectionForm {
+  Builder,
+  Workflow,
+  Preview,
+}
 
 export type NestedCondition = {
   op: "AND" | "OR";

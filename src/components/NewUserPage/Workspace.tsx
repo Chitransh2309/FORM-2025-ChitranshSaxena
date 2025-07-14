@@ -45,18 +45,28 @@ export default function Workspace({
       alert("Failed to create a new form. Try again.");
     }
   };
+useEffect(() => {
+  (async () => {
+    /* fetch everything in parallel */
+    const [rawForms, user] = await Promise.all([
+      getFormsForUser(), // returns { …Form, responseCount, _id }
+      getUser(),
+    ]);
 
-  useEffect(() => {
-    (async () => {
-      const res = await getFormsForUser();
-      const user = await getUser();
-      setName(user?.name || "");
-      setEmail(user?.email || "");
-      setImage(user?.image || "");
-      setForms(res);
-      setLoading(false);
-    })();
-  }, []);
+    /* profile info */
+    setName(user?.name ?? "");
+    setEmail(user?.email ?? "");
+    setImage(user?.image ?? "");
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const cleaned = rawForms.map(({ _id, responseCount, ...form }) => form as Form);
+
+setForms(cleaned);
+setLoading(false);
+
+  })();
+}, []);
+
 
   const drafts = forms.filter((f) => !f.isActive);
   const published = forms.filter((f) => f.isActive);

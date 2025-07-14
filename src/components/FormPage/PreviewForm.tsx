@@ -9,6 +9,7 @@ import {
   Question,
   QuestionType,
   Answer,
+  SectionForm,
 } from "@/lib/interface";
 import { validateAnswer } from "@/lib/validation";
 import FAQs from "../NewUserPage/FAQs";
@@ -50,8 +51,8 @@ const DynamicPreviewInput = ({
   const dateRange = question.config?.validations?.find(
     (v) => v.name === "dateRange"
   );
-  const minDate = dateRange?.params?.find((p) => p.name === "minDate")?.value;
-  const maxDate = dateRange?.params?.find((p) => p.name === "maxDate")?.value;
+  const minDate = dateRange?.params?.find((p) => p.name === "minDate")?.value as string | number | undefined;
+  const maxDate = dateRange?.params?.find((p) => p.name === "maxDate")?.value as string | number | undefined;
 
   switch (question.type) {
     case QuestionType.TEXT:
@@ -266,14 +267,11 @@ const DynamicPreviewInput = ({
       );
   }
 };
-enum sectionform {
-  Build,
-  Workflow,
-  Preview,
-}
+
 interface formbuild {
-  currentSection: sectionform;
-  setCurrentSection: (section: sectionform) => void;
+  currentSection: SectionForm;
+  setCurrentSection: (section: SectionForm) => void;
+  form : Form | undefined;
 }
 
 export default function PreviewForm({
@@ -310,7 +308,7 @@ export default function PreviewForm({
       }
     };
 
-    if (currentSection === sectionform.Preview) {
+    if (currentSection === SectionForm.Preview) {
       loadForm();
     }
   }, [currentSection, formId]);
@@ -373,7 +371,7 @@ export default function PreviewForm({
           {LABELS.map((label, i) => (
             <button
               key={label}
-              onClick={() => setCurrentSection(i as sectionform)}
+              onClick={() => setCurrentSection(i as SectionForm)}
               className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
                 currentSection === i
                   ? "bg-[#61A986] text-black dark:text-white"
