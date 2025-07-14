@@ -2,12 +2,10 @@ import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
 import ClientResponseViewer from "@/components/ResponseViewerPage/ClientResponseViewer";
 import { auth } from "../../../../auth";
 import { redirect } from "next/navigation";
-
-export default async function ResponsePage({
-  params,
-}: {
+type PageProps = {
   params: { id: string };
-}) {
+};
+export default async function ResponsePage({ params }: PageProps) {
   try {
     const formId = params.id;
     const session = await auth();

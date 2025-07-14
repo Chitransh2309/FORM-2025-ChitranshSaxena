@@ -1,8 +1,9 @@
 // /app/action/saveFormLogic.ts
 "use server";
 import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
-
-export async function saveFormLogic(form_ID: string, logicRules: any[]) {
+import { Section } from "@/lib/interface";
+import { LogicRule } from "@/lib/interface";
+export async function saveFormLogic(form_ID: string, logicRules: LogicRule[]) {
   try {
     const { db, dbClient } = await connectToDB();
 
@@ -12,9 +13,9 @@ export async function saveFormLogic(form_ID: string, logicRules: any[]) {
     }
 
 
-    const updatedSections = form.sections.map((section: any) => {
+    const updatedSections = form.sections.map((section: Section) => {
       const logicForThisSection = logicRules.filter(
-        (rule: any) => rule.triggerSectionId === section.section_ID
+        (rule: LogicRule) => rule.triggerSectionId === section.section_ID
       );
 
       return {
