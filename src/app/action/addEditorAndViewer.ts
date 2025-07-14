@@ -1,16 +1,13 @@
 "use server";
 
-import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
-import { auth } from "../../../auth";
-import { User, Form } from "@/lib/interface";
-import { ObjectId } from "mongodb";
-import { MongoClient } from "mongodb";
+import { connectToDB } from "@/lib/mongodb";
+// import { MongoClient } from "mongodb";
 
 export async function addEditor(form_ID: string, email_ID: string) {
   try {
-    let client: MongoClient | null = null;
+    // const client: MongoClient | null = null;
     const connection = await connectToDB();
-    client = connection.client;
+    //client = connection.dbClient;
     const db = connection.db;
 
     // Get the Users and Forms collections
@@ -54,9 +51,9 @@ export async function addEditor(form_ID: string, email_ID: string) {
 
 export async function addViewer(form_ID: string, email_ID: string) {
   try {
-    let client: MongoClient | null = null;
+    // const client: MongoClient | null = null;
     const connection = await connectToDB();
-    client = connection.client;
+    // client = connection.dbClient;
     const db = connection.db;
 
     const usersCollection = await db.collection("user");
