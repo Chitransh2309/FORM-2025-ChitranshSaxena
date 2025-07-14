@@ -148,7 +148,7 @@ const DynamicInput = ({
       };
 
       return (
-        <div className="space-y-2 h-screen">
+        <div className="space-y-2 h-screen overflow-auto">
           {options.map((option, index) => (
             <label
               key={index}
@@ -612,7 +612,7 @@ export default function ResponsesPage({
   }
 
   return (
-    <div className="h-screen bg-[#F6F8F6] dark:bg-[#2B2A2A]">
+    <div className="bg-[#F6F8F6] dark:bg-[#2B2A2A]">
       {showConfetti && <Confetti width={width} height={height} />}
       <div className="flex justify-around pt-5 pr-8 text-black">
         <div className="bg-[#91C4AB] p-3 rounded shadow">
