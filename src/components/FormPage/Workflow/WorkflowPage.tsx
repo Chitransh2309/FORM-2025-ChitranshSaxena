@@ -81,9 +81,7 @@ export default function WorkflowPage({
     };
   };
 
-  const getQuestionText(question_ID: string) {
-    
-  } 
+  function getQuestionText(question_ID: string) {}
 
   useEffect(() => {
     const loadForm = async () => {

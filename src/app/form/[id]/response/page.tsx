@@ -148,7 +148,7 @@ const DynamicInput = ({
       };
 
       return (
-        <div className="space-y-2 h-screen overflow-auto">
+        <div className="space-y-2">
           {options.map((option, index) => (
             <label
               key={index}
@@ -612,7 +612,7 @@ export default function ResponsesPage({
   }
 
   return (
-    <div className="bg-[#F6F8F6] dark:bg-[#2B2A2A]">
+    <div className="h-screen overflow-auto bg-[#F6F8F6] dark:bg-[#2B2A2A]">
       {showConfetti && <Confetti width={width} height={height} />}
       <div className="flex justify-around pt-5 pr-8 text-black">
         <div className="bg-[#91C4AB] p-3 rounded shadow">
@@ -620,7 +620,7 @@ export default function ResponsesPage({
         </div>
         <ToggleSwitch />
       </div>
-      <div className="relative flex justify-center items-start py-4 font-[Outfit] w-full h-full">
+      <div className="max-h-full relative flex justify-center items-start py-4 font-[Outfit] w-full">
         <div className=" w-[80%] mx-auto px-2 sm:px-4 transition-all duration-300 ease-in-out dark:bg-[#2B2A2A]">
           <div className="w-full bg-white rounded-[8px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 sm:px-6 py-6 mb-6 dark:bg-[#5A5959] dark:text-white">
             <h2 className="text-black mb-1 font-semibold text-[25px] dark:text-white">
