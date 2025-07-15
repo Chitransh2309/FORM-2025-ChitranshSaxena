@@ -7,12 +7,14 @@ import { Outfit } from "next/font/google";
 import ContactButton from "./ContactButton";
 import { getUser } from "@/app/action/getUser";
 import TermsModal from "@/components/LandingPage/TermsConditions";
+import useSmoothScrollTo from "@/hooks/useSmoothScrollTo";
 
 const out_fit = Outfit({ subsets: ["latin"], weight: ["400", "800"] });
 
 export default function Footer() {
   const [user_ID, setUser_ID] = useState("");
   const [showTerms, setShowTerms] = useState(false);
+  const scrollToSection = useSmoothScrollTo(); 
 
   useEffect(() => {
     async function fetchUser() {
@@ -47,9 +49,13 @@ export default function Footer() {
               Terms and Conditions
             </span>
 
-            <Link href="/about" className="hover:underline">
+
+            <span
+              onClick={() => scrollToSection("about")}
+              className="hover:underline cursor-pointer"
+            >
               About Us
-            </Link>
+            </span>
           </div>
         </div>
 
