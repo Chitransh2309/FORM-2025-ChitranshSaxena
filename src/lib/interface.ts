@@ -18,7 +18,7 @@ export interface Form {
   createdBy: string; // user_ID reference
   editorID?: string[];
   viewerID?: string[];
-  publishedAt?: Date;
+  publishedAt?: Date | null;
   isActive: boolean;
   publishedAt: Date;
   isActive: boolean;

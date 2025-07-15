@@ -72,68 +72,73 @@ export async function createFormIfNotExists(form_ID: string, name?: string) {
   }
 }
 
-// ✅ Get all forms for the user with response count
 export async function getFormsForUser(includeDeleted = false) {
+  let dbClient: Awaited<ReturnType<typeof connectToDB>>["dbClient"] | null =
+    null;
+
   try {
-    const { db, dbClient } = await connectToDB();
+    const { db, dbClient: client } = await connectToDB();
+    dbClient = client;
+
+    /* ── 1. who’s logged in? ────────────────────────────────────────── */
     const session = await auth();
+    const email = session?.user?.email;
+    if (!email) return [];
 
-    if (!session?.user?.email) {
-      await disconnectFromDB(dbClient);
-      return [];
-    }
-
-    const userDoc = await db
-      .collection("user")
-      .findOne({ email: session.user.email });
-
-    if (!userDoc?.user_ID || !Array.isArray(userDoc.forms)) {
-      await disconnectFromDB(dbClient);
-      return [];
-    }
+    /* ── 2. look up the user doc (stores form refs) ─────────────────── */
+    const userDoc = await db.collection("user").findOne({ email });
+    if (!userDoc?.user_ID || !Array.isArray(userDoc.forms)) return [];
 
     const userID = userDoc.user_ID;
-    const formIDs = userDoc.forms.map((form: UserFormReference) =>
-      typeof form === "string" ? form : form.form_ID
+    const formIDs = userDoc.forms.map((f: UserFormReference) =>
+      typeof f === "string" ? f : f.form_ID,
     );
+    if (formIDs.length === 0) return [];
 
-    if (formIDs.length === 0) {
-      await disconnectFromDB(dbClient);
-      return [];
-    }
+    /* ── 3. build query ─────────────────────────────────────────────── */
+    const query: MongoQuery = { form_ID: { $in: formIDs }, createdBy: userID };
+    if (!includeDeleted) query.isDeleted = { $ne: true };
 
-    const query: MongoQuery = {
-      form_ID: { $in: formIDs },
-      createdBy: userID,
-    };
+    /* ── 4. aggregate + count responses in one round trip ───────────── */
+    const raw = await db
+      .collection("forms")
+      .aggregate([
+        { $match: query },
+        {
+          $lookup: {
+            from: "responses",
+            localField: "form_ID",
+            foreignField: "form_ID",
+            pipeline: [{ $count: "n" }],
+            as: "resp",
+          },
+        },
+        {
+          $addFields: {
+            responseCount: { $ifNull: [{ $arrayElemAt: ["$resp.n", 0] }, 0] },
+          },
+        },
+        { $project: { resp: 0 } }, // drop helper array
+      ])
+      .toArray();
 
-    if (!includeDeleted) {
-      query.isDeleted = { $ne: true };
-    }
-
-    const forms = await db.collection("forms").find(query).toArray();
-
-    // 🔁 Count responses for each form
-    const responseCounts = await Promise.all(
-      forms.map(async (form) => {
-        const count = await db
-          .collection("responses")
-          .countDocuments({ form_ID: form.form_ID });
-        return count;
-      })
-    );
-
-    await disconnectFromDB(dbClient);
-    return forms.map((form, index) => ({
-      ...form,
-      responseCount: responseCounts[index]
+    /* ── 5. normalise for the client (no ObjectId, no Date) ─────────── */
+    const forms = raw.map((f) => ({
+      ...f,
+      _id:        String(f._id),                 // ObjectId → string
+      createdAt:  f.createdAt?.toISOString?.() ?? null,
+      updatedAt:  f.updatedAt?.toISOString?.() ?? null,
+      // add more field conversions if you store nested ObjectIds / Dates
     }));
-  } catch (error) {
-    console.error("❌ getFormsForUser error:", error);
+
+    return forms;
+  } catch (err) {
+    console.error("❌ getFormsForUser error:", err);
     return [];
+  } finally {
+    if (dbClient) await disconnectFromDB(dbClient);
   }
 }
-
 // ✅ Update form settings
 export async function updateFormSettings(
   formId: string,

@@ -78,7 +78,6 @@ function Workspace({
           form_ID: form._id.toString(),
           title: '',
           description: '',
-          createdAt: new Date(),
           createdBy: '',
           isActive: false,
           version: 0,
@@ -119,13 +118,13 @@ const published = forms.filter((f) => {
   return startDate && now >= startDate && !f.isDeleted;
 });
 
-const drafts = forms.filter((f) => {
-  const startDate = f.settings?.startDate
-    ? new Date(f.settings.startDate)
-    : null;
+// const drafts = forms.filter((f) => {
+//   const startDate = f.settings?.startDate
+//     ? new Date(f.settings.startDate)
+//     : null;
 
-  return (!startDate || now < startDate) && !f.isDeleted;
-});
+//   return (!startDate || now < startDate) && !f.isDeleted;
+// });
 
   const trash = forms.filter((f) => f.isDeleted);
 
@@ -136,10 +135,9 @@ const drafts = forms.filter((f) => {
           form.title?.toLowerCase().includes(searchTerm.toLowerCase())
         );
 
-  const filteredDrafts = filterBySearch(drafts);
   const filteredPublished = filterBySearch(published);
   const filteredTrash = filterBySearch(trash);
-  const isEmpty = !loading && drafts.length === 0 && published.length === 0;
+  const isEmpty = !loading && forms.length === 0 && published.length === 0;
 
   const handleCreate = async () => {
     if (!formName.trim()) return alert("Please enter a form name");
@@ -276,7 +274,7 @@ const drafts = forms.filter((f) => {
           ) : (
             <div className="w-full h-full overflow-y-auto flex flex-col items-center">
               <div className="flex flex-col lg:flex-row flex-1 w-full max-w-7xl gap-6 px-4">
-                <Drafts forms={filteredDrafts} />
+                <Drafts forms={forms} />
                 <Published forms={filteredPublished} />
               </div>
             </div>
