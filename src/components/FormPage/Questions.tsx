@@ -309,78 +309,108 @@ export default function Question({
   };
 
   return (
+   <div
+  ref={containerRef}
+  className={`bg-[#FEFEFE] shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl
+              w-[90%] min-h-[20%] mx-auto mb-10 transition-all duration-200
+              ${isSelected ? "ring-4 ring-black dark:ring-[#64ad8b]" : ""}
+              ${isDuplicate ? "border-2 border-red-500" : ""}
+              dark:bg-[#5A5959] dark:text-white hover:shadow-lg`}
+>
+  {/* ─── Header row ──────────────────────────────────────── */}
+  <div
+    className="flex flex-col gap-2
+               sm:flex-row sm:items-center sm:justify-between
+               dark:text-white"
+  >
+    {/* Title */}
+    <div className="flex items-center justify-between">
+    <p className="font-bold text-xl break-words bg-transparent flex-1">
+      Question
+    </p>
+
+    {/* Edit button – shown only on mobile already */}
+   
+      <button
+        className="text-gray-700 hover:text-red-500 hover:bg-gray-100
+                   p-2 rounded-full transition-colors cursor-pointer
+                   dark:text-white dark:hover:bg-[#494949]"
+        onClick={() => onDelete(id)}
+      >
+        <Trash2 size={18} />
+      </button>
+      </div>
+    {/* Required toggle + trash */}
     <div
-      ref={containerRef}
-      className={`bg-[#FEFEFE] shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl w-[90%] min-h-[20%] mx-auto mb-10 transition-all duration-200 
-    ${isSelected ? "ring-4 ring-black dark:ring-[#64ad8b]" : ""}
-    ${isDuplicate ? "border-2 border-red-500" : ""}
-    dark:bg-[#5A5959] dark:text-white hover:shadow-lg`}
+      className="flex flex-wrap items-center gap-2 sm:gap-4
+                 justify-end max-w-full sm:max-w-none"
     >
-      <div className="flex justify-between items-center dark:text-white">
-        {/* Display the question title as a paragraph instead of an input */}
-        <p
-          className="font-bold text-xl text-black dark:text-white bg-transparent flex-1 mr-4"
-          style={{ margin: 0, padding: 0 }}
-        >
-          Question
-        </p>
+      <div className="flex items-center gap-2 w-full justify-between">
+        <div>
+           <button
+      className="lg:hidden flex items-center gap-2 self-start
+                 bg-[#8cc7aa] text-black py-0.5 px-2 rounded-md shadow
+                 dark:bg-[#353434] dark:text-white"
+      onClick={onEditQuestion}
+    >
+      <Menu className="w-4 h-4" />
+      Edit
+    </button>
 
-        <button
-          className="md:hidden flex items-center mr-3 gap-2 bg-[#8cc7aa] text-black py-0.5 px-3 rounded-md shadow dark:bg-[#353434] dark:text-white"
-          onClick={onEditQuestion}
-        >
-          <Menu className="w-4 h-2 lg:h-4" />
-          Edit
-        </button>
-
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4 justify-end max-w-full overflow-hidden">
-          <div className="flex items-center gap-2">
-            <label className="text-gray-700 text-sm dark:text-white">
-              Required
-            </label>
-            <label
-              htmlFor={toggleId}
-              className="relative inline-flex items-center cursor-pointer"
-            >
-              <input
-                type="checkbox"
-                id={toggleId}
-                className="sr-only peer"
-                checked={data.isRequired || false}
-                onChange={(e) => onUpdate(id, { isRequired: e.target.checked })}
-              />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:border-gray-300 after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-            </label>
-          </div>
-
-          <button
-            className="text-gray-700 hover:text-red-500 hover:bg-gray-100 p-2 rounded-full transition-colors cursor-pointer dark:text-white dark:hover:bg-[#494949]"
-            onClick={() => onDelete(id)}
-          >
-            <Trash2 size={18} />
-          </button>
         </div>
+        <div className="flex justify-center items-center space-x-2">
+        <label className="text-gray-700 text-sm dark:text-white">
+          Required
+        </label>
+
+        <label
+          htmlFor={toggleId}
+          className="relative inline-flex items-center cursor-pointer"
+        >
+          <input
+            type="checkbox"
+            id={toggleId}
+            className="sr-only peer"
+            checked={data.isRequired || false}
+            onChange={(e) => onUpdate(id, { isRequired: e.target.checked })}
+          />
+          <div className="w-11 h-6 bg-gray-200 rounded-full peer
+                          dark:bg-gray-700 peer-checked:after:translate-x-full
+                          after:absolute after:top-[2px] after:left-[2px]
+                          after:w-5 after:h-5 after:bg-white after:rounded-full
+                          after:transition-all peer-checked:bg-blue-600" />
+        </label>
+      </div>
       </div>
 
-      <div className="mt-3 text-black text-lg dark:text-white">
-        <textarea
-          ref={textareaRef}
-          onInput={handleInput}
-          placeholder="Write your question here *"
-          className="resize-none focus:outline-none w-full min-h-[40px] overflow-hidden p-0 bg-transparent dark:text-white dark:placeholder-white"
-          value={data.questionText || ""}
-          onChange={(e) => onUpdate(id, { questionText: e.target.value })}
-        />
-      </div>
-
-      {renderAnswerSection()}
-
-      <div className="mt-4 flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
-        <div className="bg-[#F6F6F6] rounded-md px-3 py-1 dark:bg-[#494949]">
-          Type: {data.type || "MCQ"}
-        </div>
-        <div>Order: {data.order}</div>
-      </div>
     </div>
+  </div>
+
+  {/* ─── Question text area ──────────────────────────────── */}
+  <div className="mt-3 text-black text-lg dark:text-white">
+    <textarea
+      ref={textareaRef}
+      onInput={handleInput}
+      placeholder="Write your question here *"
+      className="w-full min-h-[40px] resize-none bg-transparent
+                 focus:outline-none break-words
+                 dark:text-white dark:placeholder-white"
+      value={data.questionText || ""}
+      onChange={(e) => onUpdate(id, { questionText: e.target.value })}
+    />
+  </div>
+
+  {renderAnswerSection()}
+
+  {/* ─── Footer row ──────────────────────────────────────── */}
+  <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-between
+                  text-sm text-gray-500 dark:text-gray-400">
+    <div className="bg-[#F6F6F6] rounded-md px-3 py-1 dark:bg-[#494949]">
+      Type: {data.type || "MCQ"}
+    </div>
+    <div>Order: {data.order}</div>
+  </div>
+</div>
+
   );
 }
