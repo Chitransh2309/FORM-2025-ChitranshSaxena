@@ -34,9 +34,8 @@ export default function Drafts({ forms: initialForms }: { forms: Form[] }) {
   return (
     <>
       {loading && (
-        <div className="absolute top-4 right-4 z-60">
+        <div className=" z-60">
           <Loader />
-          <p>Creating Form for you...</p>
         </div>
       )}
       <section className="relative w-full xl:w-1/2 text-black p-4 dark:text-white mb-20 xl:mb-0">

@@ -14,6 +14,7 @@ import {
 import { validateAnswer } from "@/lib/validation";
 import FAQs from "../NewUserPage/FAQs";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
+import Loader from "../Loader";
 
 // Dynamic Input Renderer (Preview Mode, with validation)
 const DynamicPreviewInput = ({
@@ -29,7 +30,6 @@ const DynamicPreviewInput = ({
 }) => {
   const baseInputClass =
     "w-full px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black placeholder:text-[#676767] outline-none border border-transparent focus:border-gray-300 font-[Outfit] dark:text-white dark:placeholder-white dark:bg-[#494949]";
-
 
   // MCQ Options
   const options =
@@ -51,8 +51,10 @@ const DynamicPreviewInput = ({
   const dateRange = question.config?.validations?.find(
     (v) => v.name === "dateRange"
   );
-  const minDate = dateRange?.params?.find((p) => p.name === "minDate")?.value as string | number | undefined;
-  const maxDate = dateRange?.params?.find((p) => p.name === "maxDate")?.value as string | number | undefined;
+  const minDate = dateRange?.params?.find((p) => p.name === "minDate")
+    ?.value as string | number | undefined;
+  const maxDate = dateRange?.params?.find((p) => p.name === "maxDate")
+    ?.value as string | number | undefined;
 
   switch (question.type) {
     case QuestionType.TEXT:
@@ -271,7 +273,7 @@ const DynamicPreviewInput = ({
 interface formbuild {
   currentSection: SectionForm;
   setCurrentSection: (section: SectionForm) => void;
-  form : Form | undefined;
+  form: Form | undefined;
 }
 
 export default function PreviewForm({
@@ -290,6 +292,7 @@ export default function PreviewForm({
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loadedForm, setLoadedForm] = useState<Form | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const section = loadedForm?.sections?.[sectionIndex];
 
@@ -297,6 +300,7 @@ export default function PreviewForm({
     const loadForm = async () => {
       if (!formId || typeof formId !== "string") return;
 
+      setLoading(true);
       const res = await getFormObject(formId);
       if (res.success && res.data) {
         setLoadedForm(res.data);
@@ -306,6 +310,7 @@ export default function PreviewForm({
       } else {
         alert("❌ Failed to load form.");
       }
+      setLoading(false);
     };
 
     if (currentSection === SectionForm.Preview) {
@@ -363,183 +368,196 @@ export default function PreviewForm({
 
   const isLastSection = form && sectionIndex === form.sections.length - 1;
 
-
   return (
-    <div className="relative flex justify-center items-center min-h-screen bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full overflow-scroll h-full dark:bg-[#2B2A2A]">
-      <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full flex justify-center px-4 sm:px-0">
-        <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
-          {LABELS.map((label, i) => (
-            <button
-              key={label}
-              onClick={() => setCurrentSection(i as SectionForm)}
-              className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
-                currentSection === i
-                  ? "bg-[#61A986] text-black dark:text-white"
-                  : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+    <>
+      {loading && (
+        <div className="z-60">
+          <Loader />
         </div>
-      </div>
-      <div
-        className={`w-full ${
-          selectedDevice === "mobile" ? "max-w-[375px] scale-[0.95]" : "w-[80%]"
-        } mx-auto px-2 sm:px-4 transition-all duration-300 ease-in-out`}
-      >
-        {!form || !section ? (
-          <div className="w-full text-center mt-20 text-lg font-semibold">
-            No form or section data available.
+      )}
+      <div className="relative flex justify-center items-center min-h-screen bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full overflow-scroll h-full dark:bg-[#2B2A2A]">
+        <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full flex justify-center px-4 sm:px-0">
+          <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
+            {LABELS.map((label, i) => (
+              <button
+                key={label}
+                onClick={() => setCurrentSection(i as SectionForm)}
+                className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
+                  currentSection === i
+                    ? "bg-[#61A986] text-black dark:text-white"
+                    : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
-        ) : (
-          <>
-            {/* Device Switcher (unique to preview) */}
-            <div className="flex items-center justify-between px-2 mb-6 w-full max-w-[200px] h-[62px] mt-20 rounded-[10px] mx-auto shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 dark:bg-[#414141]">
-              {["desktop", "mobile"].map((device) => (
-                <button
-                  key={device}
-                  onClick={() =>
-                    setSelectedDevice(device as "desktop" | "mobile")
-                  }
-                  className={`cursor-pointer w-[70px] h-[44px] rounded-[7px] flex items-center justify-center transition-colors duration-200 ${
-                    selectedDevice === device ? "bg-[#61A986]" : ""
-                  }`}
-                >
-                  <Image
-                    src={`/${device}-icon-light.svg`}
-                    alt={device}
-                    width={device === "desktop" ? 32 : 23}
-                    height={27}
-                    style={{
-                      filter:
-                        selectedDevice === device ? "none" : "brightness(0)",
-                    }}
-                  />
-                </button>
-              ))}
-            </div>
-            {/* === FORM HEADER === */}
-            <div className="w-full bg-white rounded-[8px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 sm:px-6 py-6 flex flex-col justify-between mb-6 dark:bg-[#5A5959] dark:text-white">
-              <h2 className="text-black mb-1 font-[Outfit] font-semibold text-[25px] leading-[100%] tracking-[0%] dark:text-white">
-                {form.title || "Untitled Form"}
-              </h2>
-              <p className="text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-6 sm:mb-12 dark:text-white">
-                {form.description || "No description provided"}
-              </p>
-              <hr className="border-t border-black mb-2 dark:border-white" />
-              <p className="text-[#676767] font-[Outfit] font-normal text-[20px] leading-[100%] tracking-[0%] dark:text-white">
-                <span className="text-red-500">*</span> implies compulsory
-              </p>
-            </div>
-
-            {/* === SECTION BODY === */}
-            <div className="w-full bg-white px-4 sm:px-6 py-6 shadow-[0_0_10px_rgba(0,0,0,0.3)] rounded-[8px] dark:bg-[#5A5959] dark:text-white">
-              <h3 className="text-lg sm:text-xl font-semibold mb-6 text-black font-[Outfit] dark:text-white">
-                {section.title}
-              </h3>
-
-              {section.questions.map((q) => (
-                <div
-                  key={q.question_ID}
-                  className="mb-6 w-full bg-white rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 py-3 dark:bg-[#353434]"
-                >
-                  <label
-                    className="block text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-2 font-[Outfit] dark:text-white"
-                    style={{ textShadow: "0.3px 0.6px 1px rgba(0, 0, 0, 0.1)" }}
-                  >
-                    {q.questionText}{" "}
-                    {q.isRequired && <span className="text-red-500">*</span>}
-                  </label>
-                  <DynamicPreviewInput
-                    question={q}
-                    value={
-                      answers.find((a) => a.question_ID === q.question_ID)
-                        ?.value || ""
-                    }
-                    onChange={(value) =>
-                      handleInputChange(q.question_ID, value)
-                    }
-                    error={errors[q.question_ID]}
-                  />
-                  {/* Config summary for preview */}
-                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                    <span className="italic">Type: {q.type}</span>
-                    {q.type === "DATE" && (
-                      <>
-                        {q.config?.validations?.find(
-                          (v) => v.name === "dateRange"
-                        ) && (
-                          <>
-                            {" | Range: "}
-                            {q.config.validations
-                              .find((v) => v.name === "dateRange")
-                              ?.params?.find((p) => p.name === "minDate")
-                              ?.value || "Any"}
-                            {" to "}
-                            {q.config.validations
-                              .find((v) => v.name === "dateRange")
-                              ?.params?.find((p) => p.name === "maxDate")
-                              ?.value || "Any"}
-                          </>
-                        )}
-                      </>
-                    )}
-                    {q.type === "MCQ" && (
-                      <span>
-                        {" | Min: "}
-                        {q.config?.params?.find((p) => p.name === "min")
-                          ?.value || 0}
-                        {", Max: "}
-                        {q.config?.params?.find((p) => p.name === "max")
-                          ?.value ||
-                          (
-                            q.config?.params?.find((p) => p.name === "options")
-                              ?.value as string[]
-                          )?.length ||
-                          0}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-
-              {/* Navigation Buttons */}
-              <div className="flex justify-between items-center mt-4 flex-wrap gap-3 mb-10">
-                {sectionIndex > 0 && (
-                  <button
-                    onClick={goBack}
-                    className="cursor-pointer min-w-[90px] h-[34px] sm:w-[108px] sm:h-[30px] bg-[#91C4AB] active:bg-[#61A986] text-black rounded-[7px] font-[Outfit] font-medium text-[14px] sm:text-[16px]"
-                  >
-                    Back
-                  </button>
-                )}
-                <button
-                  onClick={
-                    isLastSection ? () => alert("Preview Complete") : goNext
-                  }
-                  className="cursor-pointer min-w-[90px] h-[34px] sm:w-[108px] sm:h-[30px] bg-[#91C4AB] active:bg-[#61A986] text-black rounded-[7px] font-[Outfit] font-medium text-[14px] sm:text-[16px] right-0 ml-auto"
-                >
-                  {isLastSection ? "Submit" : "Next"}
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* FAQ Button - Mobile Only */}
-      <div className="fixed bottom-6 right-6 z-40">
-        <button
-          className="flex items-center justify-center w-12 h-12 text-black rounded-full dark:text-white hover:shadow-xl transition-shadow"
-          onClick={() => setShowFaq(true)}
+        </div>
+        <div
+          className={`w-full ${
+            selectedDevice === "mobile"
+              ? "max-w-[375px] scale-[0.95]"
+              : "w-[80%]"
+          } mx-auto px-2 sm:px-4 transition-all duration-300 ease-in-out`}
         >
-          <HiOutlineQuestionMarkCircle className="w-6 h-6" />
-        </button>
-      </div>
+          {!form || !section ? (
+            !loading && (
+              <div className="w-full text-center text-lg font-semibold">
+                No form or section data available.
+              </div>
+            )
+          ) : (
+            <>
+              {/* Device Switcher (unique to preview) */}
+              <div className="flex items-center justify-between px-2 mb-6 w-full max-w-[200px] h-[62px] mt-20 rounded-[10px] mx-auto shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 dark:bg-[#414141]">
+                {["desktop", "mobile"].map((device) => (
+                  <button
+                    key={device}
+                    onClick={() =>
+                      setSelectedDevice(device as "desktop" | "mobile")
+                    }
+                    className={`cursor-pointer w-[70px] h-[44px] rounded-[7px] flex items-center justify-center transition-colors duration-200 ${
+                      selectedDevice === device ? "bg-[#61A986]" : ""
+                    }`}
+                  >
+                    <Image
+                      src={`/${device}-icon-light.svg`}
+                      alt={device}
+                      width={device === "desktop" ? 32 : 23}
+                      height={27}
+                      style={{
+                        filter:
+                          selectedDevice === device ? "none" : "brightness(0)",
+                      }}
+                    />
+                  </button>
+                ))}
+              </div>
+              {/* === FORM HEADER === */}
+              <div className="w-full bg-white rounded-[8px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 sm:px-6 py-6 flex flex-col justify-between mb-6 dark:bg-[#5A5959] dark:text-white">
+                <h2 className="text-black mb-1 font-[Outfit] font-semibold text-[25px] leading-[100%] tracking-[0%] dark:text-white">
+                  {form.title || "Untitled Form"}
+                </h2>
+                <p className="text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-6 sm:mb-12 dark:text-white">
+                  {form.description || "No description provided"}
+                </p>
+                <hr className="border-t border-black mb-2 dark:border-white" />
+                <p className="text-[#676767] font-[Outfit] font-normal text-[20px] leading-[100%] tracking-[0%] dark:text-white">
+                  <span className="text-red-500">*</span> implies compulsory
+                </p>
+              </div>
 
-      {/* FAQ Modal Component */}
-      <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />
-    </div>
+              {/* === SECTION BODY === */}
+              <div className="w-full bg-white px-4 sm:px-6 py-6 shadow-[0_0_10px_rgba(0,0,0,0.3)] rounded-[8px] dark:bg-[#5A5959] dark:text-white">
+                <h3 className="text-lg sm:text-xl font-semibold mb-6 text-black font-[Outfit] dark:text-white">
+                  {section.title}
+                </h3>
+
+                {section.questions.map((q) => (
+                  <div
+                    key={q.question_ID}
+                    className="mb-6 w-full bg-white rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 py-3 dark:bg-[#353434]"
+                  >
+                    <label
+                      className="block text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-2 font-[Outfit] dark:text-white"
+                      style={{
+                        textShadow: "0.3px 0.6px 1px rgba(0, 0, 0, 0.1)",
+                      }}
+                    >
+                      {q.questionText}{" "}
+                      {q.isRequired && <span className="text-red-500">*</span>}
+                    </label>
+                    <DynamicPreviewInput
+                      question={q}
+                      value={
+                        answers.find((a) => a.question_ID === q.question_ID)
+                          ?.value || ""
+                      }
+                      onChange={(value) =>
+                        handleInputChange(q.question_ID, value)
+                      }
+                      error={errors[q.question_ID]}
+                    />
+                    {/* Config summary for preview */}
+                    <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                      <span className="italic">Type: {q.type}</span>
+                      {q.type === "DATE" && (
+                        <>
+                          {q.config?.validations?.find(
+                            (v) => v.name === "dateRange"
+                          ) && (
+                            <>
+                              {" | Range: "}
+                              {q.config.validations
+                                .find((v) => v.name === "dateRange")
+                                ?.params?.find((p) => p.name === "minDate")
+                                ?.value || "Any"}
+                              {" to "}
+                              {q.config.validations
+                                .find((v) => v.name === "dateRange")
+                                ?.params?.find((p) => p.name === "maxDate")
+                                ?.value || "Any"}
+                            </>
+                          )}
+                        </>
+                      )}
+                      {q.type === "MCQ" && (
+                        <span>
+                          {" | Min: "}
+                          {q.config?.params?.find((p) => p.name === "min")
+                            ?.value || 0}
+                          {", Max: "}
+                          {q.config?.params?.find((p) => p.name === "max")
+                            ?.value ||
+                            (
+                              q.config?.params?.find(
+                                (p) => p.name === "options"
+                              )?.value as string[]
+                            )?.length ||
+                            0}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Navigation Buttons */}
+                <div className="flex justify-between items-center mt-4 flex-wrap gap-3 mb-10">
+                  {sectionIndex > 0 && (
+                    <button
+                      onClick={goBack}
+                      className="cursor-pointer min-w-[90px] h-[34px] sm:w-[108px] sm:h-[30px] bg-[#91C4AB] active:bg-[#61A986] text-black rounded-[7px] font-[Outfit] font-medium text-[14px] sm:text-[16px]"
+                    >
+                      Back
+                    </button>
+                  )}
+                  <button
+                    onClick={
+                      isLastSection ? () => alert("Preview Complete") : goNext
+                    }
+                    className="cursor-pointer min-w-[90px] h-[34px] sm:w-[108px] sm:h-[30px] bg-[#91C4AB] active:bg-[#61A986] text-black rounded-[7px] font-[Outfit] font-medium text-[14px] sm:text-[16px] right-0 ml-auto"
+                  >
+                    {isLastSection ? "Submit" : "Next"}
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* FAQ Button - Mobile Only */}
+        <div className="fixed bottom-6 right-6 z-40">
+          <button
+            className="flex items-center justify-center w-12 h-12 text-black rounded-full dark:text-white hover:shadow-xl transition-shadow"
+            onClick={() => setShowFaq(true)}
+          >
+            <HiOutlineQuestionMarkCircle className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* FAQ Modal Component */}
+        <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />
+      </div>
+    </>
   );
 }
