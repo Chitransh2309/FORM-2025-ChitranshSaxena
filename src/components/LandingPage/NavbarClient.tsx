@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { X, Grip } from "lucide-react";
-import Loader from "./Loader";
+import Loader from "../Loader";
 
 // 🍔 Mobile-only hamburger and dropdown
 export function MobileMenu() {
