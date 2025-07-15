@@ -423,59 +423,59 @@ export default function WorkflowPage({
       )}
 
       <div className="relative">
-        {/* Hamburger Button - visible only on small screens */}
-        <button
-          className="md:hidden fixed top-20 ml-2 left-2 z-30 p-2 rounded  dark:bg-[#363535] bg-[#fefefe] text-black dark:text-white shadow mt-20"
-          onClick={() => setShowSavedLogic((prev) => !prev)}
-        >
-          <Grip size={20} />
-        </button>
+  {/* Hamburger Button - visible only on xl screens and below (up to ~1280px) */}
+  <button
+    className="xl:hidden fixed top-20 ml-2 left-2 z-30 p-2 rounded dark:bg-[#363535] bg-[#fefefe] text-black dark:text-white shadow mt-20"
+    onClick={() => setShowSavedLogic((prev) => !prev)}
+  >
+    <Grip size={20} />
+  </button>
 
-        {/* Logic Sidebar */}
+  {/* Logic Sidebar */}
+  <div
+    className={`
+    fixed top-0 left-0 h-full w-[75%] z-40 p-4 mt-20 xl:mt-0 dark:bg-[#363535] bg-[#fefefe] xl:bg-none overflow-y-auto transition-transform duration-300
+    ${showSavedLogic ? "translate-x-0" : "-translate-x-full"}
+    xl:relative xl:translate-x-0 xl:w-[300px]
+  `}
+  >
+    <div className="flex justify-end mb-4 xl:hidden">
+      <button
+        onClick={() => setShowSavedLogic(false)}
+        className="text-red-500 font-semibold px-3 py-1 rounded hover:bg-red-500 hover:text-white transition"
+      >
+        Close
+      </button>
+    </div>
+
+    <h3 className="text-sm dark:text-white font-medium mb-2">
+      Saved Logic:
+    </h3>
+    <div className="space-y-1">
+      {logicRules.map((rule, idx) => (
         <div
-          className={`
-          fixed top-0 left-0 h-full w-[75%] z-40 p-4 mt-20 md:mt-0 dark:bg-[#363535] bg-[#fefefe] md:bg-none overflow-y-auto transition-transform duration-300
-          ${showSavedLogic ? "translate-x-0" : "-translate-x-full"}
-          md:relative md:translate-x-0 md:w-[300px]
-        `}
+          key={idx}
+          className="bg-[#E0E0E0] px-2 py-1 rounded text-sm break-words"
         >
-          <div className="flex justify-end mb-4 md:hidden">
-            <button
-              onClick={() => setShowSavedLogic(false)}
-              className="text-red-500 font-semibold px-3 py-1 rounded hover:bg-red-500 hover:text-white transition"
-            >
-              Close
-            </button>
-          </div>
-
-          <h3 className="text-sm dark:text-white font-medium mb-2">
-            Saved Logic:
-          </h3>
-          <div className="space-y-1">
-            {logicRules.map((rule, idx) => (
-              <div
-                key={idx}
-                className="bg-[#E0E0E0] px-2 py-1 rounded text-sm break-words"
-              >
-                <p className="text-gray-700 mb-1 leading-snug">
-                  <strong>{rule.triggerSectionId}</strong> →{" "}
-                  <strong>{rule.action.to}</strong>
-                  <br />
-                  <em className="text-gray-600">
-                    {renderCondition(rule.action.condition)}
-                  </em>
-                </p>
-                <button
-                  onClick={() => handleDeleteLogic(idx)}
-                  className="text-red-500 text-xs hover:underline"
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
-          </div>
+          <p className="text-gray-700 mb-1 leading-snug">
+            <strong>{rule.triggerSectionId}</strong> →{" "}
+            <strong>{rule.action.to}</strong>
+            <br />
+            <em className="text-gray-600">
+              {renderCondition(rule.action.condition)}
+            </em>
+          </p>
+          <button
+            onClick={() => handleDeleteLogic(idx)}
+            className="text-red-500 text-xs hover:underline"
+          >
+            Delete
+          </button>
         </div>
-      </div>
+      ))}
+    </div>
+  </div>
+</div>
     </div>
   );
 }
