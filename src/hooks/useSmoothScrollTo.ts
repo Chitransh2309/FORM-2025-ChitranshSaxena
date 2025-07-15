@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 export default function useSmoothScrollTo() {
   const router = useRouter();
 
-  const scrollToSection = (sectionId: string) => {
+  const scrollToSection = async (sectionId: string) => {
     if (typeof window === "undefined") return;
 
     const handleScroll = () => {
@@ -18,9 +18,8 @@ export default function useSmoothScrollTo() {
     if (window.location.pathname === "/") {
       handleScroll();
     } else {
-      router.push("/").then(() => {
-        setTimeout(handleScroll, 100);
-      });
+      await router.push("/");
+      setTimeout(handleScroll, 100);
     }
   };
 

@@ -6,12 +6,12 @@ import { deleteFormFromDB } from "@/app/action/forms";
 import { Form } from "@/lib/interface";
 export default function Drafts({ forms: initialForms }: { forms: Form[] }) {
   const router = useRouter();
-
+console.log("Initial forms received in Drafts component:", initialForms);
   // only keep items that are still drafts
   const [forms, setForms] = useState(
     initialForms.filter((f) => f.publishedAt === null)
   );
-
+console.log("Drafts component rendered with forms:", forms);
   const [isPending, startTransition] = useTransition();
 
   const handleDiscard = (id: string) =>
