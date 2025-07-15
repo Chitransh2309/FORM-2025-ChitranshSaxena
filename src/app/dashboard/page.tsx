@@ -26,25 +26,7 @@ import { getFormsForUser } from "@/app/action/forms";
 import { createNewForm } from "@/app/action/createnewform";
 import { getUser } from "@/app/action/getUser";
 import { Form } from "@/lib/interface";
-import { FormSettings, Section } from "@/lib/interface";
-interface NewUserPageProps {
- form_ID: string;
-  title: string;
-  description: string;
-  createdAt: Date;
-  createdBy: string; // user_ID reference
-  editorID?: string[];
-  viewerID?: string[];
-  publishedAt?: Date;
-  isActive: boolean;
-  version: number;
-  share_url: string;
-  settings: FormSettings;
-  sections: Section[];
-  isDeleted: boolean;
-  isStarred: boolean;
-  responseCount?: number;
-}
+
 function Workspace({
   searchTerm,
   setSearchTerm,
@@ -55,7 +37,7 @@ function Workspace({
   selected: "myForms" | "starred" | "shared" | "trash";
 }) {
   const router = useRouter();
-  const [forms, setForms] = useState<NewUserPageProps[]>([]);
+  const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
   const [formName, setFormName] = useState("");
@@ -126,7 +108,6 @@ const published = forms.filter((f) => {
 //   return (!startDate || now < startDate) && !f.isDeleted;
 // });
 
-  const trash = forms.filter((f) => f.isDeleted);
 
   const filterBySearch = (forms: Form[]) =>
     !searchTerm
@@ -136,7 +117,6 @@ const published = forms.filter((f) => {
         );
 
   const filteredPublished = filterBySearch(published);
-  const filteredTrash = filterBySearch(trash);
   const isEmpty = !loading && forms.length === 0 && published.length === 0;
 
   const handleCreate = async () => {
@@ -274,20 +254,23 @@ const published = forms.filter((f) => {
           ) : (
             <div className="w-full h-full overflow-y-auto flex flex-col items-center">
               <div className="flex flex-col lg:flex-row flex-1 w-full max-w-7xl gap-6 px-4">
-                <Drafts forms={forms} />
-                <Published forms={filteredPublished} />
+                <Drafts forms={forms} setForms={setForms}/>
+                <Published forms={filteredPublished} setForms={setForms}/>
               </div>
             </div>
           )
         ) : selected === "trash" ? (
           <Trash
-            forms={filteredTrash}
+            forms={forms}
+            setForms={setForms}
             searchTerm={searchTerm}
             onRestore={handleRestoreInWorkspace}
           />
         ) : selected === "starred" ? (
           <Starred
             searchTerm={searchTerm}
+            forms={forms}
+            setForms={setForms}
           />
         ) : selected === "shared" ? (
           <>

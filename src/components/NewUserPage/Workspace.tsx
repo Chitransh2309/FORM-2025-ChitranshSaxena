@@ -216,8 +216,8 @@ setLoading(false);
         ) : (
           <div className="h-full border-black mx-auto flex flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white overflow-y-auto">
             <div className="flex flex-col lg:flex-row flex-1 w-full gap-4">
-              <Drafts forms={forms} />
-              <Published forms={forms} />
+              <Drafts forms={forms} setForms={setForms}/>
+              <Published  forms={forms} setForms={setForms} />
             </div>
           </div>
         )}
