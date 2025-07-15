@@ -204,6 +204,7 @@ export async function toggleStarForm(form_ID: string) {
     if (!form) throw new Error("Form not found");
 
     const newStarStatus = !form.isStarred;
+    console.log("⭐ Toggling star status for form:", form_ID, "to", newStarStatus);
     await db.collection("forms").updateOne(
       { form_ID },
       { $set: { isStarred: newStarStatus } }

@@ -321,7 +321,7 @@ export default function QuestionTypeDropdown({
         ?.params?.find((p) => p.name === n)?.value;
 
     return (
-      <div className="bg-white p-4 text-black space-y-4 text-sm dark:bg-[#494949] dark:text-white">
+      <div className="bg-white py-4 px-2 text-black space-y-4 text-sm dark:bg-[#494949] dark:text-white">
         {schema.params.length > 0 && (
           <>
             <h4 className="font-semibold">{selectedType} Parameters</h4>
@@ -346,10 +346,7 @@ export default function QuestionTypeDropdown({
             <h4 className="font-semibold">{selectedType} Validations</h4>
             <div className="space-y-3">
               {schema.validations.map((v, vi) => (
-                <div
-                  key={vi}
-                  className="border-l-2 border-gray-300 pl-3 dark:border-gray-600"
-                >
+                <div key={vi} className="">
                   <h5 className="font-medium text-sm mb-2 capitalize">
                     {v.name}
                   </h5>
@@ -419,7 +416,8 @@ export default function QuestionTypeDropdown({
         </div>
       )}
 
-      <div className="mt-5">{typeSelector()}</div>
+      {/* right-side panel */}
+      <div className="">{typeSelector()}</div>
     </div>
   );
 }
