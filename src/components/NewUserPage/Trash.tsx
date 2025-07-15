@@ -5,11 +5,7 @@ import {
   restoreForm,
   permanentlyDeleteForm,
 } from "@/app/action/forms";
-
-interface Form {
-  form_ID: string;
-  title?: string;
-}
+import { Form } from "@/lib/interface";
 
 interface TrashProps {
   forms: Form[];
@@ -28,7 +24,8 @@ export default function Trash({
   const filteredForms = useMemo(
     () =>
       forms.filter((form) =>
-        form.title?.toLowerCase().includes(searchTerm.toLowerCase())
+        form.title?.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        form.isDeleted === true
       ),
     [forms, searchTerm]
   );
