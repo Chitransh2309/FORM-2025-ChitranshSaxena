@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 
 export default function About() {
   return (
-    <div className="w-full px-16 sm:px-18 lg:px-32 pt-32 dark:bg-[#191719]">
+    <div className="px-10 font-[Outfit] w-full pt-30 dark:bg-[#191719]">
       <div className="flex flex-col lg:flex-row items-center lg:items-start gap-10">
         {/* LEFT: Text Content */}
         <div className="w-full lg:w-1/2">

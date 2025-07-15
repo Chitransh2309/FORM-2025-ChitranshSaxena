@@ -4,18 +4,10 @@ import Footer from "../components/LandingPage/Footer";
 import Hero from "../components/LandingPage/Hero";
 import Navbar from "../components/LandingPage/Navbar";
 import Image from "next/image";
-import { auth } from "../../auth";
-import { redirect } from "next/navigation";
 
 export default async function Home() {
-  const session = await auth();
-
-  if (session) {
-    redirect("/dashboard");
-  }
-
   return (
-    <div className="min-h-screen w-full bg-[#F6F8F6] overflow-x-hidden dark:bg-[#191719]">
+    <div className="font-[Outfit] min-h-screen w-full bg-[#F6F8F6] overflow-x-hidden dark:bg-[#191719]">
       <Navbar />
       <Hero />
 
@@ -69,7 +61,7 @@ export default async function Home() {
             ].map((card, i) => (
               <div
                 key={i}
-                className={`w-full max-w-[340px] min-h-[360px] border-2 border-[${card.color}] rounded-[25px] hover:scale-[1.05] transition-transform duration-300 cursor-pointer px-4 sm:px-6 pt-6 pb-4 flex flex-col justify-between`}
+                className={`w-full border-2 border-[${card.color}] rounded-[25px] hover:scale-[1.05] transition-transform duration-300 cursor-pointer px-4 sm:px-6 pt-6 pb-4 flex flex-col justify-between`}
                 style={{ boxShadow: card.shadow }}
               >
                 <div
@@ -80,8 +72,8 @@ export default async function Home() {
                 <Image
                   src={card.image}
                   alt={card.title}
-                  width={240}
-                  height={240}
+                  width={540}
+                  height={540}
                   className="self-center max-w-full h-auto"
                 />
               </div>
