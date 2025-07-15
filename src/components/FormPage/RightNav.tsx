@@ -124,8 +124,6 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
     );
   }
 
-
-
   return (
     <div className="relative p-4 md:p-6 w-full h-full overflow-y-auto bg-gray-50 dark:bg-[#363535]">
       {/* Header */}
@@ -207,7 +205,7 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
       </div>
 
       {/* Bottom Right FAQ Icon - Fixed Position */}
-      <div className="fixed bottom-4 right-4 md:absolute md:bottom-6 md:right-6 z-50">
+      <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50">
         <button
           onClick={() => setShowFaq(true)}
           className="p-3 md:p-2 rounded-full bg-white dark:bg-gray-700 shadow-lg hover:shadow-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-all duration-200 border border-gray-200 dark:border-gray-600"

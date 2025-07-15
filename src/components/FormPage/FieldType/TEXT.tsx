@@ -9,11 +9,11 @@ interface TextProps {
   disabled?: boolean;
 }
 
-export default function Text({ 
-  placeholder = "Enter your answer...", 
+export default function Text({
+  placeholder = "Enter your answer...",
   charlimit,
   keywordChecker,
-  disabled = false 
+  disabled = false,
 }: TextProps) {
   const [inputValue, setInputValue] = useState("");
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -35,25 +35,30 @@ export default function Text({
     // Keyword validation
     if (keywordChecker && value.trim()) {
       const lowerValue = value.toLowerCase();
-      
+
       // Check required keywords (contains)
       if (keywordChecker.contains && keywordChecker.contains.length > 0) {
-        const hasRequiredKeywords = keywordChecker.contains.some(keyword => 
+        const hasRequiredKeywords = keywordChecker.contains.some((keyword) =>
           lowerValue.includes(keyword.toLowerCase())
         );
         if (!hasRequiredKeywords) {
-          errors.push(`Must contain one of: ${keywordChecker.contains.join(", ")}`);
+          errors.push(
+            `Must contain one of: ${keywordChecker.contains.join(", ")}`
+          );
         }
       }
 
       // Check forbidden keywords (doesnotContain)
-      if (keywordChecker.doesnotContain && keywordChecker.doesnotContain.length > 0) {
-        const hasForbiddenKeywords = keywordChecker.doesnotContain.some(keyword => 
-          lowerValue.includes(keyword.toLowerCase())
+      if (
+        keywordChecker.doesnotContain &&
+        keywordChecker.doesnotContain.length > 0
+      ) {
+        const hasForbiddenKeywords = keywordChecker.doesnotContain.some(
+          (keyword) => lowerValue.includes(keyword.toLowerCase())
         );
         if (hasForbiddenKeywords) {
-          const foundKeywords = keywordChecker.doesnotContain.filter(keyword =>
-            lowerValue.includes(keyword.toLowerCase())
+          const foundKeywords = keywordChecker.doesnotContain.filter(
+            (keyword) => lowerValue.includes(keyword.toLowerCase())
           );
           errors.push(`Cannot contain: ${foundKeywords.join(", ")}`);
         }
@@ -66,12 +71,12 @@ export default function Text({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
-    
+
     // Enforce max character limit by preventing further input
     if (charlimit?.max && value.length > charlimit.max) {
       return;
     }
-    
+
     setInputValue(value);
     validateInput(value);
   };
@@ -90,7 +95,7 @@ export default function Text({
         <textarea
           disabled
           placeholder={placeholder}
-          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-50 text-gray-500 resize-none focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400 dark:placeholder-gray-500"
+          className="w-full px-3 py-2 text-sm rounded-md bg-gray-50 text-gray-500 resize-none focus:outline-none dark:[background-color:#494949] dark:text-white dark:placeholder-grey-300"
           rows={3}
           style={{ minHeight: "80px" }}
         />
@@ -106,9 +111,12 @@ export default function Text({
             {keywordChecker?.contains && keywordChecker.contains.length > 0 && (
               <div>Must contain: {keywordChecker.contains.join(", ")}</div>
             )}
-            {keywordChecker?.doesnotContain && keywordChecker.doesnotContain.length > 0 && (
-              <div>Cannot contain: {keywordChecker.doesnotContain.join(", ")}</div>
-            )}
+            {keywordChecker?.doesnotContain &&
+              keywordChecker.doesnotContain.length > 0 && (
+                <div>
+                  Cannot contain: {keywordChecker.doesnotContain.join(", ")}
+                </div>
+              )}
           </div>
         )}
       </div>
@@ -128,9 +136,9 @@ export default function Text({
           onChange={handleInputChange}
           onInput={handleInput}
           placeholder={placeholder}
-          className={`w-full px-3 py-2 text-sm border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-[#5A5959] dark:border-gray-600 dark:text-white dark:placeholder-gray-400 ${
-            validationErrors.length > 0 
-              ? "border-red-300 focus:ring-red-500" 
+          className={`w-full px-3 py-2 text-sm border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-[#5A5959] dark:[border-color:#494949] dark:text-white dark:placeholder-gray-300 ${
+            validationErrors.length > 0
+              ? "border-red-300 focus:ring-red-500"
               : "border-gray-300"
           }`}
           rows={3}
@@ -168,11 +176,12 @@ export default function Text({
                 Must contain: {keywordChecker.contains.join(", ")}
               </div>
             )}
-            {keywordChecker?.doesnotContain && keywordChecker.doesnotContain.length > 0 && (
-              <div className="text-red-600 dark:text-red-400">
-                Cannot contain: {keywordChecker.doesnotContain.join(", ")}
-              </div>
-            )}
+            {keywordChecker?.doesnotContain &&
+              keywordChecker.doesnotContain.length > 0 && (
+                <div className="text-red-600 dark:text-red-400">
+                  Cannot contain: {keywordChecker.doesnotContain.join(", ")}
+                </div>
+              )}
           </div>
         )}
       </div>
