@@ -30,17 +30,13 @@ import CustomNode from "./CustomNode";
 import { saveFormLogic } from "@/app/action/saveFormLogic";
 import ConditionGroup from "./ConditionGroup";
 import ConditionBlock from "./ConditionBlock";
-enum sectionform {
-  Build,
-  Workflow,
-  Preview,
-}
+import { SectionForm } from "@/lib/interface";
 interface formbuild {
-  currentSection: sectionform;
-  setCurrentSection: (section: sectionform) => void;
+  currentSection: SectionForm;
+  setCurrentSection: (section: SectionForm) => void;
 }
 interface WorkflowPageProps extends formbuild {
-  form_ID: string;
+  form_ID: string | undefined;
 }
 
 export default function WorkflowPage({
@@ -106,7 +102,7 @@ export default function WorkflowPage({
         const formSections = res.data.sections;
         setSections(formSections);
 
-        const flowNodes: Node[] = formSections.map((section: any, idx: any) => {
+        const flowNodes: Node[] = formSections.map((section: Section, idx: number) => {
           const pos = generateRandomPosition(idx);
           return {
             id: section.section_ID,
@@ -123,8 +119,8 @@ export default function WorkflowPage({
         setNodes(flowNodes);
 
         // Extract logic from each section that has it
-        const extractedLogicRules = formSections.flatMap((section: any) =>
-          (section.logic || []).map((logic: any) => ({
+        const extractedLogicRules = formSections.flatMap((section: Section) =>
+          (section.logic || []).map((logic: LogicRule) => ({
             ...logic,
             triggerSectionId: section.section_ID,
           }))
@@ -173,17 +169,17 @@ export default function WorkflowPage({
     setEdges(flowEdges);
   }, [logicRules]);
 
-  const formatCondition = (cond: NestedCondition): string => {
-    return cond.conditions
-      .map((c) => {
-        if ("fieldId" in c) {
-          return `${getQuestionText(c.fieldId)} == ${c.value}`;
-        } else {
-          return `(${formatCondition(c)})`;
-        }
-      })
-      .join(` ${cond.op} `);
-  };
+  // const formatCondition = (cond: NestedCondition): string => {
+  //   return cond.conditions
+  //     .map((c) => {
+  //       if ("fieldId" in c) {
+  //         return `${getQuestionText(c.fieldId)} == ${c.value}`;
+  //       } else {
+  //         return `(${formatCondition(c)})`;
+  //       }
+  //     })
+  //     .join(` ${cond.op} `);
+  // };
 
   const handleOpenModal = (sectionId: string) => {
     setSelectedSectionId(sectionId);
@@ -223,6 +219,14 @@ export default function WorkflowPage({
     setLogicRules(updatedRules);
     setShowModal(false);
 
+    if (!form_ID) {
+      toast.error("Form ID is missing");
+      return;
+    }
+    if (!form_ID) {
+      toast.error("Form ID is missing");
+      return;
+    }
     const saveResult = await saveFormLogic(form_ID, updatedRules);
     if (!saveResult.success) {
       toast.error("Failed to save logic.");
@@ -235,6 +239,10 @@ export default function WorkflowPage({
     const updatedRules = logicRules.filter((_, idx) => idx !== indexToDelete);
     setLogicRules(updatedRules);
 
+    if (!form_ID) {
+      toast.error("Form ID is missing");
+      return;
+    }
     const saveResult = await saveFormLogic(form_ID, updatedRules);
     if (!saveResult.success) {
       toast.error("Failed to delete logic.");
@@ -297,7 +305,7 @@ export default function WorkflowPage({
           {LABELS.map((label, i) => (
             <button
               key={label}
-              onClick={() => setCurrentSection(i as Section)}
+              onClick={() => setCurrentSection(i as SectionForm)}
               className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
                 currentSection === i
                   ? "bg-[#61A986] text-black dark:text-white"
@@ -415,59 +423,59 @@ export default function WorkflowPage({
       )}
 
       <div className="relative">
-        {/* Hamburger Button - visible only on small screens */}
-        <button
-          className="md:hidden fixed top-20 ml-2 left-2 z-30 p-2 rounded  dark:bg-[#363535] bg-[#fefefe] text-black dark:text-white shadow mt-20"
-          onClick={() => setShowSavedLogic((prev) => !prev)}
-        >
-          <Grip size={20} />
-        </button>
+  {/* Hamburger Button - visible only on xl screens and below (up to ~1280px) */}
+  <button
+    className="xl:hidden fixed top-20 ml-2 left-2 z-30 p-2 rounded dark:bg-[#363535] bg-[#fefefe] text-black dark:text-white shadow mt-20"
+    onClick={() => setShowSavedLogic((prev) => !prev)}
+  >
+    <Grip size={20} />
+  </button>
 
-        {/* Logic Sidebar */}
+  {/* Logic Sidebar */}
+  <div
+    className={`
+    fixed top-0 left-0 h-full w-[75%] z-40 p-4 mt-20 xl:mt-0 dark:bg-[#363535] bg-[#fefefe] xl:bg-none overflow-y-auto transition-transform duration-300
+    ${showSavedLogic ? "translate-x-0" : "-translate-x-full"}
+    xl:relative xl:translate-x-0 xl:w-[300px]
+  `}
+  >
+    <div className="flex justify-end mb-4 xl:hidden">
+      <button
+        onClick={() => setShowSavedLogic(false)}
+        className="text-red-500 font-semibold px-3 py-1 rounded hover:bg-red-500 hover:text-white transition"
+      >
+        Close
+      </button>
+    </div>
+
+    <h3 className="text-sm dark:text-white font-medium mb-2">
+      Saved Logic:
+    </h3>
+    <div className="space-y-1">
+      {logicRules.map((rule, idx) => (
         <div
-          className={`
-          fixed top-0 left-0 h-full w-[75%] z-40 p-4 mt-20 md:mt-0 dark:bg-[#363535] bg-[#fefefe] md:bg-none overflow-y-auto transition-transform duration-300
-          ${showSavedLogic ? "translate-x-0" : "-translate-x-full"}
-          md:relative md:translate-x-0 md:w-[300px]
-        `}
+          key={idx}
+          className="bg-[#E0E0E0] px-2 py-1 rounded text-sm break-words"
         >
-          <div className="flex justify-end mb-4 md:hidden">
-            <button
-              onClick={() => setShowSavedLogic(false)}
-              className="text-red-500 font-semibold px-3 py-1 rounded hover:bg-red-500 hover:text-white transition"
-            >
-              Close
-            </button>
-          </div>
-
-          <h3 className="text-sm dark:text-white font-medium mb-2">
-            Saved Logic:
-          </h3>
-          <div className="space-y-1">
-            {logicRules.map((rule, idx) => (
-              <div
-                key={idx}
-                className="bg-[#E0E0E0] px-2 py-1 rounded text-sm break-words"
-              >
-                <p className="text-gray-700 mb-1 leading-snug">
-                  <strong>{rule.triggerSectionId}</strong> →{" "}
-                  <strong>{rule.action.to}</strong>
-                  <br />
-                  <em className="text-gray-600">
-                    {renderCondition(rule.action.condition)}
-                  </em>
-                </p>
-                <button
-                  onClick={() => handleDeleteLogic(idx)}
-                  className="text-red-500 text-xs hover:underline"
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
-          </div>
+          <p className="text-gray-700 mb-1 leading-snug">
+            <strong>{rule.triggerSectionId}</strong> →{" "}
+            <strong>{rule.action.to}</strong>
+            <br />
+            <em className="text-gray-600">
+              {renderCondition(rule.action.condition)}
+            </em>
+          </p>
+          <button
+            onClick={() => handleDeleteLogic(idx)}
+            className="text-red-500 text-xs hover:underline"
+          >
+            Delete
+          </button>
         </div>
-      </div>
+      ))}
+    </div>
+  </div>
+</div>
     </div>
   );
 }

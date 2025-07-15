@@ -4,77 +4,131 @@ import { useEffect, useState, useMemo, useTransition } from "react";
 import { Trash2 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar as regularStar } from "@fortawesome/free-regular-svg-icons";
-import { faStar as solidStar } from "@fortawesome/free-solid-svg-icons";
+import { faStar as solidStar }   from "@fortawesome/free-solid-svg-icons";
 import { useRouter } from "next/navigation";
 
-import { toggleStarForm, deleteFormFromDB, getFormsForUser } from "@/app/action/forms";
-
-interface Form {
-  form_ID: string;
-  title: string;
-  createdAt: string;
-  isStarred: boolean;
-}
+import {
+  toggleStarForm,
+  deleteFormFromDB,
+  getFormsForUser,
+} from "@/app/action/forms";
+import { Form } from "@/lib/interface";
 
 export default function Starred({ searchTerm }: { searchTerm: string }) {
-  const [forms, setForms] = useState<Form[]>([]);
-  const [isPending, startTransition] = useTransition();
+  const [forms,       setForms]       = useState<Form[]>([]);
+  const [loading,     setLoading]     = useState(true);          // 🆕
+  const [isPending,   startTransition] = useTransition();
   const router = useRouter();
 
-  // ⏬ Fetch starred forms on mount
+  /* ────────────────────────── fetch on mount ────────────────────────── */
   useEffect(() => {
-    async function fetchStarredForms() {
+    (async () => {
       try {
-        const allForms = await getFormsForUser(); // ✅ this returns an array
-        const starredForms = allForms.filter((form: Form) => form.isStarred);
-        setForms(starredForms);
-      } catch (err) {
-        console.error("Error fetching forms:", err);
-      }
-    }
+        setLoading(true);
+        const formsRes = await getFormsForUser(true);             // starred
 
-    fetchStarredForms();
+        const mapped: Form[] = formsRes.map((form: { _id: string, createdAt: Date, updatedAt: Date } & Partial<Form>) => ({
+          form_ID    : form._id.toString(),
+          title      : form.title ?? "",
+          description: form.description ?? "",
+          createdAt  : form.createdAt as Date,
+          createdBy  : form.createdBy ?? "",
+          isActive   : !!form.isActive,
+          version    : form.version ?? 0,
+          share_url  : form.share_url ?? "",
+          settings   : {
+            maxResponses   : 0,
+            endDate        : undefined,
+            startDate      : form.settings?.startDate as Date,
+            timingEnabled  : false,
+            cameraRequired : form.settings?.cameraRequired ?? false,
+            ...(form.settings ?? {}),
+          },
+          sections  : form.sections ?? [],
+          isDeleted : !!form.isDeleted,
+          isStarred : form.isStarred ?? true,                     // keep flag
+        }));
+
+        setForms(mapped);
+      } catch (err) {
+        console.error("Error fetching starred forms:", err);
+      } finally {
+        setLoading(false);                                        // 🆕
+      }
+    })();
   }, []);
 
-  const filteredForms = useMemo(() => {
-    return forms.filter((form) =>
-      form.title?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [forms, searchTerm]);
+  /* ────────────────────────── search filter ─────────────────────────── */
+  const filteredForms = useMemo(
+    () =>
+      forms.filter(
+        (f) =>
+          f.title?.toLowerCase().includes(searchTerm.toLowerCase()) &&
+          f.isStarred &&
+          !f.isDeleted,
+      ),
+    [forms, searchTerm],
+  );
 
-  const handleStarToggle = (formId: string) => {
+  /* ────────────────────────── handlers ──────────────────────────────── */
+  const handleStarToggle = (id: string) =>
     startTransition(async () => {
       try {
-        const res = await toggleStarForm(formId);
-        setForms((prev) => prev.filter((f) => f.form_ID !== formId)); // ⬅️ remove from starred list
-      } catch (err) {
-        console.error("Failed to toggle star:", err);
+        await toggleStarForm(id);
+        setForms((prev) => prev.filter((f) => f.form_ID !== id));
+      } catch {
         alert("Something went wrong while toggling star.");
       }
     });
-  };
 
-  const handleDelete = (formId: string) => {
+  const handleDelete = (id: string) =>
     startTransition(async () => {
-      const confirmDelete = confirm("Are you sure you want to delete this form?");
-      if (!confirmDelete) return;
-
+      if (!confirm("Are you sure you want to delete this form?")) return;
       try {
-        const res = await deleteFormFromDB(formId);
-        setForms((prev) => prev.filter((f) => f.form_ID !== formId));
-      } catch (err) {
-        console.error("Failed to delete form:", err);
+        await deleteFormFromDB(id);
+        setForms((prev) => prev.filter((f) => f.form_ID !== id));
+      } catch {
         alert("Something went wrong while deleting.");
       }
     });
-  };
+
+  /* ──────────────────────────── UI ──────────────────────────────────── */
+  const busy = loading || isPending;                               // 🆕
 
   return (
-    <section className="w-full px-4 xl:px-10 py-6 text-black dark:text-white">
+    <section className="relative w-full px-4 xl:px-10 py-6 text-black dark:text-white">
+      {/* ─── loader overlay ─── */}
+      {busy && (                                                     /* 🆕 */
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/70 dark:bg-black/60">
+          <svg
+            className="animate-spin h-8 w-8 text-[#61A986]"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            />
+          </svg>
+        </div>
+      )}
+
       <h2 className="text-xl font-semibold px-4 py-3">⭐ Starred</h2>
 
       <div className="border-2 border-dashed border-gray-400 dark:border-white rounded-lg p-6 min-h-[60vh]">
-        {filteredForms.length === 0 ? (
+        {loading ? (                                                  /* 🆕 */
+          <p className="text-center text-gray-500 dark:text-gray-400">
+            Loading…
+          </p>
+        ) : filteredForms.length === 0 ? (
           <p className="text-center text-gray-500 dark:text-gray-400">
             No starred forms found.
           </p>
@@ -82,45 +136,57 @@ export default function Starred({ searchTerm }: { searchTerm: string }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredForms.map((form) => (
               <div key={form.form_ID} className="flex flex-col relative">
-                {/* ⭐ Star Toggle */}
+                {/* ⭐ toggle */}
                 <button
                   className={`absolute top-1.5 right-9 z-10 ${
-                    form.isStarred ? "text-yellow-500" : "text-gray-500 hover:text-yellow-500"
+                    form.isStarred
+                      ? "text-yellow-500"
+                      : "text-gray-500 hover:text-yellow-500"
                   }`}
-                  title="Unstar Form"
                   onClick={() => handleStarToggle(form.form_ID)}
+                  title="Unstar Form"
+                  disabled={busy}
                 >
-                  <FontAwesomeIcon icon={form.isStarred ? solidStar : regularStar} />
+                  <FontAwesomeIcon
+                    icon={form.isStarred ? solidStar : regularStar}
+                  />
                 </button>
 
-                {/* 🗑️ Delete Button */}
+                {/* 🗑 delete */}
                 <button
                   onClick={() => handleDelete(form.form_ID)}
-                  className="absolute top-2 right-2 z-10 text-red-600 hover:text-red-800"
+                  className="absolute top-2 right-2 z-10 text-red-600 hover:text-red-800 disabled:opacity-60"
                   title="Delete Form"
+                  disabled={busy}
                 >
                   <Trash2 size={18} />
                 </button>
 
-                {/* 📄 Form Title */}
+                {/* 📄 card */}
                 <div
-                  className="w-full aspect-square bg-gray-300 text-center flex items-center justify-center rounded-lg dark:bg-[#353434] cursor-pointer hover:bg-[#d1ebdb] dark:hover:bg-[#3f3d3d]"
+                  className="w-full aspect-square bg-gray-300 flex items-center justify-center
+                             rounded-lg dark:bg-[#353434] cursor-pointer hover:bg-[#d1ebdb]
+                             dark:hover:bg-[#3f3d3d] p-3"
                   onClick={() => router.push(`/form/${form.form_ID}`)}
                 >
-                  {form.title || "Untitled Form"}
+                  <div className="text-center font-semibold">
+                    {form.title || "Untitled Form"}
+                  </div>
                 </div>
 
-                {/* ✏️ Edit + View */}
+                {/* buttons */}
                 <div className="flex gap-2 mt-2">
                   <button
                     onClick={() => router.push(`/form/${form.form_ID}`)}
-                    className="flex-1 rounded bg-[#56A37D] text-white text-xs py-1"
+                    className="flex-1 rounded bg-[#56A37D] text-white text-xs py-1 disabled:opacity-60"
+                    disabled={busy}
                   >
                     Edit Form
                   </button>
                   <button
                     onClick={() => router.push(`/response/${form.form_ID}`)}
-                    className="flex-1 rounded bg-[#3D3D3D] text-white text-xs py-1"
+                    className="flex-1 rounded bg-[#3D3D3D] text-white text-xs py-1 disabled:opacity-60"
+                    disabled={busy}
                   >
                     View Response
                   </button>

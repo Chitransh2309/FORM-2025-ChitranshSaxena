@@ -5,19 +5,34 @@ import { updateFormSettings } from "@/app/action/forms";
 import { addEditor, addViewer } from "@/app/action/addEditorAndViewer";
 import { FormSettings as FormSettingsType } from "@/lib/interface";
 
+// ─────────────────────────────────────────────────────────────────────────
+// types ------------------------------------------------------------------
+type FormSettingsKey = keyof FormSettingsType;
+
+interface FormSettingsInputEvent {
+  target: {
+    name: FormSettingsKey;
+    type: string;
+    value?: string | number | boolean;
+    checked?: boolean;
+  };
+}
+
 interface FormSettingsProps {
   formId: string;
   formSettings: FormSettingsType;
-  setFormSettings: (settings: FormSettingsType) => void;
+  setFormSettings: React.Dispatch<React.SetStateAction<FormSettingsType>>;
   onClose: () => void;
 }
 
+// ─────────────────────────────────────────────────────────────────────────
 const FormSettings = ({
   formId,
   formSettings,
   setFormSettings,
   onClose,
 }: FormSettingsProps) => {
+  /* dates */
   const [startDate, setStartDate] = useState<Date>(
     formSettings?.startDate ? new Date(formSettings.startDate) : new Date()
   );
@@ -25,12 +40,14 @@ const FormSettings = ({
     formSettings?.endDate ? new Date(formSettings.endDate) : new Date()
   );
 
-  const [editorEmail, setEditorEmail] = useState<string>("");
+  /* role-based sharing */
+  const [editorEmail, setEditorEmail] = useState("");
   const [selectedRole, setSelectedRole] = useState<"editor" | "viewer">(
     "editor"
   );
 
-  const handleChange = (e: { target: any }) => {
+  /* generic field handler */
+  const handleChange = (e: FormSettingsInputEvent) => {
     const { name, value, type, checked } = e.target;
     setFormSettings((prev) => ({
       ...prev,
@@ -38,58 +55,54 @@ const FormSettings = ({
     }));
   };
 
+  /* save */
   const handleSave = async () => {
-    const updatedSettings = {
+    const updated = {
       ...formSettings,
       startDate,
       endDate,
-      timingEnabled: formSettings?.timingEnabled ?? true, // Add this line
+      timingEnabled: formSettings?.timingEnabled ?? true,
     };
 
-    const result = await updateFormSettings(formId, updatedSettings);
-    setFormSettings(result.data.settings);
+    const res = await updateFormSettings(formId, updated);
+    setFormSettings(res.data.settings);
 
     if (editorEmail.trim()) {
-      let res;
-
-      if (selectedRole === "editor") {
-        res = await addEditor(formId, editorEmail.trim());
-      } else if (selectedRole === "viewer") {
-        res = await addViewer(formId, editorEmail.trim());
-      }
-
-      console.log("Add Role Result:", res);
-
-      if (!res?.success) {
-        alert(`Failed to add ${selectedRole}: ${res?.message}`);
-      }
+      const fn = selectedRole === "editor" ? addEditor : addViewer;
+      const out = await fn(formId, editorEmail.trim());
+      if (!out?.success)
+        alert(`Failed to add ${selectedRole}: ${out?.message}`);
     }
 
     onClose();
   };
 
+  /* ──────────────────────────────────────────── render ─────────────── */
   return (
-    <div className="fixed inset-0 z-50 dark:text-white text-black flex items-center justify-center bg-opacity-50 backdrop-blur-xs">
-      <div className="dark:bg-black bg-white rounded-2xl shadow-xl w-full max-w-3xl p-6 overflow-y-auto max-h-[90vh]">
-        {/* Header */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs">
+      <div
+        className="bg-white dark:bg-[#2c2c2c] rounded-2xl shadow-xl w-full max-w-3xl
+                   p-6 overflow-y-auto max-h-[90vh] text-black dark:text-white"
+      >
+        {/* header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-300">
-            Form Settings
-          </h2>
+          <h2 className="text-2xl font-bold">Form Settings</h2>
           <button
             onClick={onClose}
-            className="text-xl  font-bold hover:text-red-500"
+            className="text-xl font-bold hover:text-red-500"
           >
-            x
+            ✕
           </button>
         </div>
 
-        {/* Form Availability */}
-        <div className="border border-gray-500 rounded-xl p-4 mb-6">
+        {/* availability */}
+        <div
+          className="border border-gray-500 dark:border-gray-600
+                     rounded-xl p-4 mb-6"
+        >
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-lg text-gray-900 dark:text-gray-300">
-              Form Availability
-            </h3>
+            <h3 className="font-bold text-lg">Form Availability</h3>
+
             <label className="relative inline-flex items-center cursor-pointer">
               <input
                 type="checkbox"
@@ -105,19 +118,29 @@ const FormSettings = ({
                   })
                 }
               />
-              <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#61A986] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#61A986]"></div>
+              <div
+                className="w-11 h-6 bg-gray-300 dark:bg-gray-700 rounded-full
+                           peer peer-checked:bg-[#61A986] after:content-['']
+                           after:absolute after:top-[2px] after:left-[2px]
+                           after:bg-white after:dark:bg-gray-200 after:rounded-full
+                           after:h-5 after:w-5 after:transition-all
+                           peer-checked:after:translate-x-full"
+              />
             </label>
           </div>
 
           {formSettings?.timingEnabled && (
             <div className="grid grid-cols-2 gap-4 mt-4">
-              {/* Start DateTime */}
+              {/* start */}
               <div className="flex flex-col gap-2">
                 <label className="font-medium">Start Date</label>
-                <div className="border border-gray-500 rounded-xl px-2 py-2">
+                <div
+                  className="border border-gray-500 dark:border-gray-600
+                             rounded-xl px-2 py-2"
+                >
                   <input
                     type="date"
-                    className="w-full bg-transparent border-none outline-none"
+                    className="w-full bg-transparent outline-none"
                     value={
                       isNaN(startDate.getTime())
                         ? ""
@@ -128,32 +151,31 @@ const FormSettings = ({
                         const timePart = isNaN(prev.getTime())
                           ? "00:00:00.000Z"
                           : prev.toISOString().split("T")[1];
-                        const selected = new Date(
-                          `${e.target.value}T${timePart}`
-                        );
-                        const now = new Date();
-                        now.setHours(0, 0, 0, 0);
-
-                        if (selected < now) {
+                        const sel = new Date(`${e.target.value}T${timePart}`);
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        if (sel < today) {
                           alert("Start date cannot be in the past.");
                           return prev;
                         }
-
-                        return selected;
+                        return sel;
                       })
                     }
                   />
                 </div>
 
                 <label className="font-medium">Start Time</label>
-                <div className="border border-gray-500 rounded-xl px-2 py-2">
+                <div
+                  className="border border-gray-500 dark:border-gray-600
+                             rounded-xl px-2 py-2"
+                >
                   <input
                     type="time"
-                    className="w-full bg-transparent border-none outline-none"
+                    className="w-full bg-transparent outline-none"
                     value={
                       isNaN(startDate.getTime())
                         ? ""
-                        : startDate.toTimeString().split(" ")[0].slice(0, 5)
+                        : startDate.toTimeString().slice(0, 5)
                     }
                     onChange={(e) =>
                       setStartDate((prev) => {
@@ -163,13 +185,10 @@ const FormSettings = ({
                         const newStart = new Date(
                           `${datePart}T${e.target.value}`
                         );
-                        const now = new Date();
-
-                        if (newStart < now) {
+                        if (newStart < new Date()) {
                           alert("Start time cannot be in the past.");
                           return prev;
                         }
-
                         return newStart;
                       })
                     }
@@ -177,13 +196,16 @@ const FormSettings = ({
                 </div>
               </div>
 
-              {/* End DateTime */}
+              {/* end */}
               <div className="flex flex-col gap-2">
-                <label className="font-medium ">End Date</label>
-                <div className="border border-gray-500 rounded-xl px-2 py-2">
+                <label className="font-medium">End Date</label>
+                <div
+                  className="border border-gray-500 dark:border-gray-600
+                             rounded-xl px-2 py-2"
+                >
                   <input
                     type="date"
-                    className="w-full bg-transparent border-none outline-none"
+                    className="w-full bg-transparent outline-none"
                     value={
                       isNaN(endDate.getTime())
                         ? ""
@@ -191,33 +213,32 @@ const FormSettings = ({
                     }
                     onChange={(e) =>
                       setEndDate((prev) => {
-                        const timePart = isNaN(prev.getTime())
+                        const tp = isNaN(prev.getTime())
                           ? "00:00:00.000Z"
                           : prev.toISOString().split("T")[1];
-                        const selected = new Date(
-                          `${e.target.value}T${timePart}`
-                        );
-
-                        if (selected < startDate) {
+                        const sel = new Date(`${e.target.value}T${tp}`);
+                        if (sel < startDate) {
                           alert("End date must be after start date.");
                           return prev;
                         }
-
-                        return selected;
+                        return sel;
                       })
                     }
                   />
                 </div>
 
-                <label className="font-medium ">End Time</label>
-                <div className="border border-gray-500  rounded-xl px-2 py-2">
+                <label className="font-medium">End Time</label>
+                <div
+                  className="border border-gray-500 dark:border-gray-600
+                             rounded-xl px-2 py-2"
+                >
                   <input
                     type="time"
-                    className="w-full bg-transparent border-none outline-none"
+                    className="w-full bg-transparent outline-none"
                     value={
                       isNaN(endDate.getTime())
                         ? ""
-                        : endDate.toTimeString().split(" ")[0].slice(0, 5)
+                        : endDate.toTimeString().slice(0, 5)
                     }
                     onChange={(e) =>
                       setEndDate((prev) => {
@@ -227,22 +248,17 @@ const FormSettings = ({
                         const newEnd = new Date(
                           `${datePart}T${e.target.value}`
                         );
-
-                        const isSameDay =
+                        const sameDay =
                           datePart === startDate.toISOString().split("T")[0];
-
-                        if (isSameDay) {
-                          const diff =
-                            (newEnd.getTime() - startDate.getTime()) / 60000;
-
-                          if (diff < 1) {
-                            alert(
-                              "End time must be at least 1 minute after start time."
-                            );
-                            return prev;
-                          }
+                        if (
+                          sameDay &&
+                          newEnd.getTime() - startDate.getTime() < 60000
+                        ) {
+                          alert(
+                            "End time must be at least 1 minute after start time."
+                          );
+                          return prev;
                         }
-
                         return newEnd;
                       })
                     }
@@ -253,28 +269,37 @@ const FormSettings = ({
           )}
         </div>
 
-        {/* User Controls*/}
-        <div className="border border-gray-500 rounded-xl p-4 mb-6">
-          <h3 className="font-bold text-lg text-gray-900 dark:text-gray-300">
-            User Controls
-          </h3>
+        {/* user controls */}
+        <div
+          className="border border-gray-500 dark:border-gray-600
+                     rounded-xl p-4 mb-6"
+        >
+          <h3 className="font-bold text-lg">User Controls</h3>
+
           <div className="grid grid-cols-2 mt-4 gap-4">
-            <div className="gap-2">
-              <label className=" font-medium">Select User</label>
-              <div className="border border-gray-500 px-2 py-2 rounded-xl">
+            <div>
+              <label className="font-medium">Select User</label>
+              <div
+                className="border border-gray-500 dark:border-gray-600
+                           rounded-xl px-2 py-2"
+              >
                 <input
-                  className="placeholder-gray-500 outline-none"
-                  placeholder="Type Your Email ID"
+                  className="w-full bg-transparent outline-none"
+                  placeholder="Type Email ID"
                   value={editorEmail}
                   onChange={(e) => setEditorEmail(e.target.value)}
                 />
               </div>
             </div>
+
             <div>
-              <label className=" font-medium">Assign Role</label>
-              <div className="border border-gray-500 px-2 py-2 rounded-xl">
+              <label className="font-medium">Assign Role</label>
+              <div
+                className="border border-gray-500 dark:border-gray-600
+                           rounded-xl px-2 py-2"
+              >
                 <select
-                  className="outline-none w-full "
+                  className="w-full bg-transparent outline-none"
                   value={selectedRole}
                   onChange={(e) =>
                     setSelectedRole(e.target.value as "editor" | "viewer")
@@ -288,14 +313,16 @@ const FormSettings = ({
           </div>
         </div>
 
-        {/* General Settings */}
-        <div className="border border-gray-500 rounded-xl p-4 mb-6">
-          <h3 className="font-bold text-lg text-gray-900 dark:text-gray-300">
-            General
-          </h3>
+        {/* general toggles */}
+        <div
+          className="border border-gray-500 dark:border-gray-600
+                     rounded-xl p-4 mb-6"
+        >
+          <h3 className="font-bold text-lg">General</h3>
+
           <div className="space-y-4 mt-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-bold text-gray-900 dark:text-gray-300">
+              <span className="text-sm font-bold">
                 Count Number of Tab Switches
               </span>
               <input
@@ -315,7 +342,7 @@ const FormSettings = ({
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-sm font-bold text-gray-900 dark:text-gray-300">
+              <span className="text-sm font-bold">
                 Allow Users To Receive A Copy Via Email
               </span>
               <input
@@ -336,16 +363,20 @@ const FormSettings = ({
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {/* action buttons */}
         <div className="flex justify-end mt-6 gap-4">
           <button
-            className="px-5 py-2 bg-gray-200 dark:bg-gray-900 text-gray-800 dark:text-gray-400 rounded-lg hover:bg-gray-300 hover:bg-gray-700"
+            className="px-5 py-2 bg-gray-200 dark:bg-gray-600
+                       text-gray-800 dark:text-white rounded-lg
+                       hover:bg-gray-300 dark:hover:bg-gray-500"
             onClick={onClose}
           >
             Cancel
           </button>
+
           <button
-            className="px-5 py-2 bg-[#61A986] text-white rounded-lg hover:bg-[#4d8a6b] cursor-pointer"
+            className="px-5 py-2 bg-[#61A986] hover:bg-[#4d8a6b]
+                       text-white rounded-lg"
             onClick={handleSave}
           >
             Apply

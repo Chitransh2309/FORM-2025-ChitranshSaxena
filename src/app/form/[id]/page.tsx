@@ -3,7 +3,6 @@ import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
 import { auth } from "../../../../auth";
 import CenterNav from "@/components/FormPage/CenterNav";
 import FormWrapper from "@/components/FormPage/FormHeader";
-import { Form } from "@/lib/interface";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -27,14 +26,14 @@ export default async function FormPage({ params }: PageProps) {
 
   const form = (await db
     .collection("forms")
-    .findOne({ form_ID: formId })) as Form;
+    .findOne({ form_ID: formId }));
 
   await disconnectFromDB(dbClient);
 
   if (!form) {
     return (
       <div className="text-center mt-20 text-xl text-red-600 font-bold">
-        🚫 Access Denied: You don't own this form.
+        🚫 Access Denied: You don&apos;t own this form.
       </div>
     );
   }
@@ -50,7 +49,7 @@ export default async function FormPage({ params }: PageProps) {
     <FormWrapper form={safeForm}>
       <div className="bg-[#e8ede8] h-screen w-screen overflow-y-auto">
         <CenterNav
-          form={form}
+          form={safeForm}
           currentUserEmail={session.user.email}
           currentUserID={userID}
         />

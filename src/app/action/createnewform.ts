@@ -32,7 +32,24 @@ export async function createNewForm(name: string) {
       createdBy: userID,
       version: 1.0,
       sections: [],
+      isActive: false,
+      publishedAt: null,
+      share_url:"",
+      isDeleted: false,
+      isStarred: false,
+      settings: {
+        maxResponses: 0,
+        startDate: new Date(),
+        endDate: undefined,
+        tab_switch_count: false,
+        timer: 0,
+        autoSubmit: false,
+        cameraRequired: false,
+        copy_via_email: false,
+        timingEnabled: false,
+      },
     };
+
 
     // Insert the form into the collection
     await db.collection("forms").insertOne(newForm);

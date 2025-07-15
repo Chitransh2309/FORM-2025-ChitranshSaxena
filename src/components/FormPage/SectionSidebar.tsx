@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Section } from "@/lib/interface";
 import SectionItem from "./SectionItem";
-import { CircleUser, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 
 interface SectionSidebarProps {
   sections: Section[];
@@ -28,7 +28,7 @@ export default function SectionSidebar({
         <h2 className="mb-2 mt-5 text-base font-semibold px-4">SECTIONS</h2>
         <div className="border-t-2 border-black mb-4 dark:border-white mx-4"></div>
 
-        <div className="flex-1 pr-1 text-sm overflow-y-auto h-full scrollbar-thin scrollbar-thumb-gray-300 px-4">
+        <div className="flex-1 text-sm overflow-y-auto h-full scrollbar-thin scrollbar-thumb-gray-300 px-4">
           {sections.map((section, index) => (
             <SectionItem
               key={`${section.section_ID}-${index}`}
