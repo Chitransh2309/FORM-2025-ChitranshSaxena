@@ -69,16 +69,14 @@ const FormSettings = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 dark:text-white text-black flex items-center justify-center bg-opacity-50 backdrop-blur-xs">
-      <div className="dark:bg-black bg-white rounded-2xl shadow-xl w-full max-w-3xl p-6 overflow-y-auto max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-50 backdrop-blur-xs">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl p-6 overflow-y-auto max-h-[90vh]">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-300">
-            Form Settings
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900">Form Settings</h2>
           <button
             onClick={onClose}
-            className="text-xl  font-bold hover:text-red-500"
+            className="text-xl text-black font-bold hover:text-red-500"
           >
             x
           </button>
@@ -87,7 +85,7 @@ const FormSettings = ({
         {/* Form Availability */}
         <div className="border border-gray-500 rounded-xl p-4 mb-6">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-lg text-gray-900 dark:text-gray-300">
+            <h3 className="font-bold text-lg text-gray-900">
               Form Availability
             </h3>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -113,8 +111,8 @@ const FormSettings = ({
             <div className="grid grid-cols-2 gap-4 mt-4">
               {/* Start DateTime */}
               <div className="flex flex-col gap-2">
-                <label className="font-medium">Start Date</label>
-                <div className="border border-gray-500 rounded-xl px-2 py-2">
+                <label className="font-medium text-black">Start Date</label>
+                <div className="border border-gray-500 text-black rounded-xl px-2 py-2">
                   <input
                     type="date"
                     className="w-full bg-transparent border-none outline-none"
@@ -145,8 +143,8 @@ const FormSettings = ({
                   />
                 </div>
 
-                <label className="font-medium">Start Time</label>
-                <div className="border border-gray-500 rounded-xl px-2 py-2">
+                <label className="font-medium text-black">Start Time</label>
+                <div className="border border-gray-500 text-black rounded-xl px-2 py-2">
                   <input
                     type="time"
                     className="w-full bg-transparent border-none outline-none"
@@ -179,8 +177,8 @@ const FormSettings = ({
 
               {/* End DateTime */}
               <div className="flex flex-col gap-2">
-                <label className="font-medium ">End Date</label>
-                <div className="border border-gray-500 rounded-xl px-2 py-2">
+                <label className="font-medium text-black">End Date</label>
+                <div className="border border-gray-500 text-black rounded-xl px-2 py-2">
                   <input
                     type="date"
                     className="w-full bg-transparent border-none outline-none"
@@ -209,8 +207,8 @@ const FormSettings = ({
                   />
                 </div>
 
-                <label className="font-medium ">End Time</label>
-                <div className="border border-gray-500  rounded-xl px-2 py-2">
+                <label className="font-medium text-black">End Time</label>
+                <div className="border border-gray-500 text-black rounded-xl px-2 py-2">
                   <input
                     type="time"
                     className="w-full bg-transparent border-none outline-none"
@@ -255,15 +253,13 @@ const FormSettings = ({
 
         {/* User Controls*/}
         <div className="border border-gray-500 rounded-xl p-4 mb-6">
-          <h3 className="font-bold text-lg text-gray-900 dark:text-gray-300">
-            User Controls
-          </h3>
+          <h3 className="font-bold text-lg text-gray-900">User Controls</h3>
           <div className="grid grid-cols-2 mt-4 gap-4">
             <div className="gap-2">
-              <label className=" font-medium">Select User</label>
+              <label className="text-black font-medium">Select User</label>
               <div className="border border-gray-500 px-2 py-2 rounded-xl">
                 <input
-                  className="placeholder-gray-500 outline-none"
+                  className="placeholder-gray-500 placeholder:text-sm sm:placeholder:text-base text-black outline-none"
                   placeholder="Type Your Email ID"
                   value={editorEmail}
                   onChange={(e) => setEditorEmail(e.target.value)}
@@ -271,10 +267,10 @@ const FormSettings = ({
               </div>
             </div>
             <div>
-              <label className=" font-medium">Assign Role</label>
+              <label className="text-black font-medium">Assign Role</label>
               <div className="border border-gray-500 px-2 py-2 rounded-xl">
                 <select
-                  className="outline-none w-full "
+                  className="outline-none w-full text-black"
                   value={selectedRole}
                   onChange={(e) =>
                     setSelectedRole(e.target.value as "editor" | "viewer")
@@ -290,12 +286,10 @@ const FormSettings = ({
 
         {/* General Settings */}
         <div className="border border-gray-500 rounded-xl p-4 mb-6">
-          <h3 className="font-bold text-lg text-gray-900 dark:text-gray-300">
-            General
-          </h3>
+          <h3 className="font-bold text-lg text-gray-900">General</h3>
           <div className="space-y-4 mt-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-bold text-gray-900 dark:text-gray-300">
+              <span className="text-sm font-bold text-gray-900">
                 Count Number of Tab Switches
               </span>
               <input
@@ -315,7 +309,7 @@ const FormSettings = ({
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-sm font-bold text-gray-900 dark:text-gray-300">
+              <span className="text-sm font-bold text-gray-900">
                 Allow Users To Receive A Copy Via Email
               </span>
               <input
@@ -339,7 +333,7 @@ const FormSettings = ({
         {/* Action Buttons */}
         <div className="flex justify-end mt-6 gap-4">
           <button
-            className="px-5 py-2 bg-gray-200 dark:bg-gray-900 text-gray-800 dark:text-gray-400 rounded-lg hover:bg-gray-300 hover:bg-gray-700"
+            className="px-5 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
             onClick={onClose}
           >
             Cancel
