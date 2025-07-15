@@ -1,4 +1,3 @@
-// components/Shared.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -7,27 +6,39 @@ import getFormObject from "@/app/action/getFormObject";
 import { getUser } from "@/app/action/getUser";
 import { Form } from "@/lib/interface";
 
+type SharedFormWithRole = {
+  form: Form;
+  role: "editor" | "viewer";
+};
+
 export default function Shared() {
   const router = useRouter();
-  const [sharedForms, setSharedForms] = useState<Form[]>([]);
+  const [sharedForms, setSharedForms] = useState<SharedFormWithRole[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchSharedForms() {
       try {
         const user = await getUser();
-        console.log("👤 User object:", user); // <-- DEBUG
+        console.log("👤 User object:", user);
+
         if (!user?.sharedForms || user.sharedForms.length === 0) {
           setSharedForms([]);
           return;
         }
 
-        const fetchedForms: Form[] = [];
+        const fetchedForms: SharedFormWithRole[] = [];
 
         for (const formId of user.sharedForms) {
           const res = await getFormObject(formId);
           if (res.success && res.data) {
-            fetchedForms.push(res.data);
+            const form = res.data;
+
+            const role = form.editorID?.includes(user.user_ID)
+              ? "editor"
+              : "viewer";
+
+            fetchedForms.push({ form, role });
           }
         }
 
@@ -61,7 +72,7 @@ export default function Shared() {
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {sharedForms.map((form) => (
+            {sharedForms.map(({ form, role }) => (
               <div key={form.form_ID} className="flex flex-col relative">
                 <button
                   onClick={() => router.push(`/form/${form.form_ID}`)}
@@ -74,7 +85,7 @@ export default function Shared() {
                     onClick={() => router.push(`/form/${form.form_ID}`)}
                     className="flex-1 rounded bg-[#56A37D] text-white text-xs py-1"
                   >
-                    Edit Form
+                    {role === "editor" ? "Edit Form" : "Preview Form"}
                   </button>
                 </div>
               </div>
