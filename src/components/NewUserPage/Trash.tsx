@@ -29,11 +29,12 @@ export default function Trash({
     try {
       const res = await restoreForm(formId);
       if (res.success) {
-        setForms((prev) =>
-          prev.map((f) =>
-            f.form_ID === formId ? { ...f, isDeleted: false } : f,
-          ),
-        );
+       setForms(prev =>
+  prev.map(f =>
+    f.form_ID === formId ? { ...f, isDeleted: false } : f
+  )
+);
+
         onRestore(formId);
       } else {
         alert(res.message || "Failed to restore");
