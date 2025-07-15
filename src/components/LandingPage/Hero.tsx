@@ -12,13 +12,29 @@ export default function Hero() {
   return (
     <div
       id="home"
-      className={`w-full flex items-center justify-center ${tilt.className} dark:bg-[#191719]`}
+      className={`w-screen flex items-center justify-center ${tilt.className} dark:bg-[#191719]`}
     >
-      <div className="px-10 mt-5 md:mt-10 w-full max-w-[1440px]">
+      <div className="w-full px-4 lg:px-8">
         {/* Mobile & Tablet View */}
         <div className="flex flex-col lg:hidden items-center gap-10 px-4">
           <HeroText />
-          <GridBoxes />
+          <div className="w-full">
+            <Image
+              src="/formlightmode.svg"
+              alt="Form Light Mode"
+              width={3000}
+              height={1600}
+              className="hidden light:block w-full h-auto object-contain"
+            />
+            <Image
+              src="/formdarkmode.svg"
+              alt="Form Dark Mode"
+              width={3000}
+              height={1600}
+              priority
+              className="hidden dark:block w-full h-auto object-contain"
+            />
+          </div>
         </div>
 
         {/* Desktop View: Text left, image right */}
@@ -27,7 +43,24 @@ export default function Hero() {
             <HeroText />
           </div>
           <div className="flex-1 flex justify-end">
-            <GridBoxes />
+            <div className="w-full">
+              <Image
+                src="/formlightmode.svg"
+                alt="Form Light Mode"
+                width={3000}
+                height={1600}
+                priority
+                className="block w-full h-auto object-contain scale-[1.4] mt-5"
+              />
+              <Image
+                src="/formdarkmode.svg"
+                alt="Form Dark Mode"
+                width={3000}
+                height={1600}
+                priority
+                className="hidden dark:block w-full h-auto object-contain"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -58,28 +91,5 @@ function HeroText() {
         </span>
       </span>
     </h1>
-  );
-}
-
-function GridBoxes() {
-  return (
-    <div className="w-full min-w-200 min-h-100">
-      <Image
-        src="/formlightmode.svg"
-        alt="Form Light Mode"
-        width={200}
-        height={100}
-        priority
-        className="block dark:hidden w-full h-auto object-contain"
-      />
-      <Image
-        src="/formdarkmode.svg"
-        alt="Form Dark Mode"
-        width={200}
-        height={100}
-        priority
-        className="hidden dark:block w-full h-auto object-contain"
-      />
-    </div>
   );
 }

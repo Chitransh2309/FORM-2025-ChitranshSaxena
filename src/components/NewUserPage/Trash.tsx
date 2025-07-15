@@ -1,99 +1,95 @@
 "use client";
 
-import { useState, useTransition, useMemo } from "react";
 import {
   restoreForm,
   permanentlyDeleteForm,
 } from "@/app/action/forms";
-import { Form } from "@/lib/interface";
+import type { Form } from "@/lib/interface";
 
 interface TrashProps {
   forms: Form[];
   searchTerm: string;
   onRestore: (formId: string) => void;
+  setForms: React.Dispatch<React.SetStateAction<Form[]>>;
 }
 
 export default function Trash({
-  forms: initialForms,
+  forms,
   searchTerm,
   onRestore,
+  setForms,
 }: TrashProps) {
-  const [forms, setForms] = useState(initialForms);
-  const [isPending, startTransition] = useTransition();
+  /* common predicate so we don’t repeat the logic string-literal style */
+  const matches = (f: Form) =>
+    f.isDeleted &&
+    f.title?.toLowerCase().includes(searchTerm.toLowerCase());
 
-  const filteredForms = useMemo(
-    () =>
-      forms.filter((form) =>
-        form.title?.toLowerCase().includes(searchTerm.toLowerCase()) &&
-        form.isDeleted === true
-      ),
-    [forms, searchTerm]
-  );
-
-  const handleRestore = (formId: string) => {
-    startTransition(async () => {
+  /* ───────── handlers ───────── */
+  const handleRestore = async (formId: string) => {
+    try {
       const res = await restoreForm(formId);
       if (res.success) {
-        setForms((prev) => prev.filter((f) => f.form_ID !== formId));
+       setForms(prev =>
+  prev.map(f =>
+    f.form_ID === formId ? { ...f, isDeleted: false } : f
+  )
+);
+
         onRestore(formId);
       } else {
         alert(res.message || "Failed to restore");
       }
-    });
+    } catch (error) {
+      alert("An error occurred while restoring the form");
+      console.error(error);
+    }
   };
 
-  const handlePermanentDelete = (formId: string) => {
-    const confirm = window.confirm("Permanently delete this form?");
-    if (!confirm) return;
-
-    startTransition(async () => {
+  const handlePermanentDelete = async (formId: string) => {
+    if (!confirm("Permanently delete this form?")) return;
+    try {
       const res = await permanentlyDeleteForm(formId);
       if (res.success) {
         setForms((prev) => prev.filter((f) => f.form_ID !== formId));
       } else {
         alert(res.message || "Failed to permanently delete");
       }
-    });
+    } catch (error) {
+      alert("An error occurred while permanently deleting the form");
+      console.error(error);
+    }
   };
 
+  /* ───────── UI ───────── */
   return (
-    <section className="w-full px-4 xl:px-10 py-6 text-black dark:text-white relative">
-      {/* ───── overlay while pending ───── */}
-      {isPending && (
-        <div className="absolute inset-0 bg-white/70 dark:bg-black/60 flex items-center justify-center z-50">
-          <span className="animate-pulse font-medium">
-            Updating…
-          </span>
-        </div>
-      )}
+    <section className="relative w-full px-4 xl:px-10 py-6 text-black dark:text-white">
+      <h2 className="px-4 py-3 text-xl font-semibold">Trash</h2>
 
-      <h2 className="text-xl font-semibold px-4 py-3">Trash</h2>
-
-      <div className="border-2 border-dashed border-gray-400 dark:border-white rounded-lg p-6 min-h-[60vh]">
-        {filteredForms.length === 0 ? (
+      <div className="min-h-[60vh] rounded-lg border-2 border-dashed border-gray-400 p-6 dark:border-white">
+        {forms.filter(matches).length === 0 ? (
           <p className="text-center text-gray-500 dark:text-gray-400">
             No deleted forms found.
           </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredForms.map((form) => (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {forms.filter(matches).map((form) => (
               <div key={form.form_ID} className="flex flex-col">
-                <div className="w-full aspect-square bg-gray-300 text-center flex items-center justify-center rounded-lg dark:bg-[#353434]">
+                {/* thumbnail */}
+                <div className="aspect-square w-full rounded-lg bg-gray-300 text-center flex items-center justify-center dark:bg-[#353434]">
                   {form.title || "Untitled Form"}
                 </div>
 
-                <div className="flex gap-2 mt-2">
+                {/* buttons */}
+                <div className="mt-2 flex gap-2">
                   <button
                     onClick={() => handleRestore(form.form_ID)}
-                    disabled={isPending}
-                    className="flex-1 bg-[#56A37D] hover:bg-[#4d8a6b] text-white text-xs py-1 rounded disabled:opacity-60"
+                    className="flex-1 rounded bg-[#56A37D] py-1 text-xs text-white hover:bg-[#4d8a6b]"
                   >
                     Restore
                   </button>
                   <button
                     onClick={() => handlePermanentDelete(form.form_ID)}
-                    disabled={isPending}
-                    className="flex-1 bg-[#2B2A2A] hover:bg-[#1f1e1e] text-white text-xs py-1 rounded disabled:opacity-60"
+                    className="flex-1 rounded bg-[#2B2A2A] py-1 text-xs text-white hover:bg-[#1f1e1e]"
                   >
                     Permanent Delete
                   </button>

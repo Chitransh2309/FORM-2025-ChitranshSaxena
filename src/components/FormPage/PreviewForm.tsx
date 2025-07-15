@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { useParams } from "next/navigation";
-import getFormObject from "@/app/action/getFormObject";
+
 import {
   Form,
   Question,
@@ -273,50 +272,56 @@ const DynamicPreviewInput = ({
 interface formbuild {
   currentSection: SectionForm;
   setCurrentSection: (section: SectionForm) => void;
-  form: Form | undefined;
+  form: Form;
 }
 
+/* PreviewForm.tsx */
 export default function PreviewForm({
   currentSection,
   setCurrentSection,
   form,
 }: formbuild) {
-  const { id: formId } = useParams();
-  const [showFaq, setShowFaq] = useState(false);
+  const [loadedForm, setLoadedForm] = useState<Form | undefined>(form);
   const [sectionIndex, setSectionIndex] = useState(0);
+  const [answers, setAnswers] = useState<Answer[]>([]);
+
+  const LABELS = ["Builder", "Workflow", "Preview"];
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedDevice, setSelectedDevice] = useState<"desktop" | "mobile">(
     "desktop"
   );
-  const LABELS = ["Builder", "Workflow", "Preview"];
-
-  const [answers, setAnswers] = useState<Answer[]>([]);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loadedForm, setLoadedForm] = useState<Form | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const section = loadedForm?.sections?.[sectionIndex];
-
+  const [showFaq, setShowFaq] = useState(false);
+  // ---------------------------------------------------
+  // Keep local copy of the form in sync with the prop.
+  // Reset section/answers when a *new* form arrives.
+  // ---------------------------------------------------
   useEffect(() => {
-    const loadForm = async () => {
-      if (!formId || typeof formId !== "string") return;
+    if (!form) return;
+    setLoadedForm(form);
+    setSectionIndex(0);
+    setAnswers([]);
+    setErrors({});
+  }, [form]);
 
-      setLoading(true);
-      const res = await getFormObject(formId);
-      if (res.success && res.data) {
-        setLoadedForm(res.data);
-        setSectionIndex(0);
-        setAnswers([]);
-        setErrors({});
-      } else {
-        alert("❌ Failed to load form.");
-      }
-      setLoading(false);
-    };
+  // useEffect(() => {
+  //   const loadForm = async () => {
+  //     if (!formId || typeof formId !== "string") return;
 
-    if (currentSection === SectionForm.Preview) {
-      loadForm();
-    }
-  }, [currentSection, formId]);
+  //     const res = await getFormObject(formId);
+  //     if (res.success && res.data) {
+  //       setLoadedForm(res.data);
+  //       setSectionIndex(0);
+  //       setAnswers([]);
+  //       setErrors({});
+  //     } else {
+  //       alert("❌ Failed to load form.");
+  //     }
+  //   };
+
+  //   if (currentSection === SectionForm.Preview) {
+  //     loadForm();
+  //   }
+  // }, [currentSection, formId]);
 
   // Simulate answer state for preview
   const handleInputChange = (questionId: string, value: string) => {
@@ -366,86 +371,78 @@ export default function PreviewForm({
     }
   };
 
-  const isLastSection = form && sectionIndex === form.sections.length - 1;
+  const section = loadedForm?.sections?.[sectionIndex];
+  const isLastSection =
+    loadedForm && sectionIndex === loadedForm.sections.length - 1;
 
   return (
-    <>
-      {loading && (
-        <div className="z-60">
-          <Loader />
+    <div className="relative flex justify-center items-center min-h-screen bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full overflow-scroll h-full dark:bg-[#2B2A2A]">
+      <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full flex justify-center px-4 sm:px-0">
+        <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
+          {LABELS.map((label, i) => (
+            <button
+              key={label}
+              onClick={() => setCurrentSection(i as SectionForm)}
+              className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
+                currentSection === i
+                  ? "bg-[#61A986] text-black dark:text-white"
+                  : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
-      )}
-      <div className="relative flex justify-center items-center min-h-screen bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full overflow-scroll h-full dark:bg-[#2B2A2A]">
-        <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full flex justify-center px-4 sm:px-0">
-          <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
-            {LABELS.map((label, i) => (
-              <button
-                key={label}
-                onClick={() => setCurrentSection(i as SectionForm)}
-                className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
-                  currentSection === i
-                    ? "bg-[#61A986] text-black dark:text-white"
-                    : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+      </div>
+      <div
+        className={`pt-[130px] md:pt-0 w-full ${
+          selectedDevice === "mobile" ? "max-w-[375px] scale-[0.95]" : "w-[80%]"
+        } mx-auto px-2 sm:px-4 transition-all duration-300 ease-in-out`}
+      >
+        {!form || !section ? (
+          <div className="w-full text-center mt-20 text-lg font-semibold">
+            No form or section data available.
           </div>
-        </div>
-        <div
-          className={`w-full ${
-            selectedDevice === "mobile"
-              ? "max-w-[375px] scale-[0.95]"
-              : "w-[80%]"
-          } mx-auto px-2 sm:px-4 transition-all duration-300 ease-in-out`}
-        >
-          {!form || !section ? (
-            !loading && (
-              <div className="w-full text-center text-lg font-semibold">
-                No form or section data available.
-              </div>
-            )
-          ) : (
-            <>
-              {/* Device Switcher (unique to preview) */}
-              <div className="flex items-center justify-between px-2 mb-6 w-full max-w-[200px] h-[62px] mt-20 rounded-[10px] mx-auto shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 dark:bg-[#414141]">
-                {["desktop", "mobile"].map((device) => (
-                  <button
-                    key={device}
-                    onClick={() =>
-                      setSelectedDevice(device as "desktop" | "mobile")
-                    }
-                    className={`cursor-pointer w-[70px] h-[44px] rounded-[7px] flex items-center justify-center transition-colors duration-200 ${
-                      selectedDevice === device ? "bg-[#61A986]" : ""
-                    }`}
-                  >
-                    <Image
-                      src={`/${device}-icon-light.svg`}
-                      alt={device}
-                      width={device === "desktop" ? 32 : 23}
-                      height={27}
-                      style={{
-                        filter:
-                          selectedDevice === device ? "none" : "brightness(0)",
-                      }}
-                    />
-                  </button>
-                ))}
-              </div>
-              {/* === FORM HEADER === */}
-              <div className="w-full bg-white rounded-[8px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 sm:px-6 py-6 flex flex-col justify-between mb-6 dark:bg-[#5A5959] dark:text-white">
-                <h2 className="text-black mb-1 font-[Outfit] font-semibold text-[25px] leading-[100%] tracking-[0%] dark:text-white">
-                  {form.title || "Untitled Form"}
-                </h2>
-                <p className="text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-6 sm:mb-12 dark:text-white">
-                  {form.description || "No description provided"}
-                </p>
-                <hr className="border-t border-black mb-2 dark:border-white" />
-                <p className="text-[#676767] font-[Outfit] font-normal text-[20px] leading-[100%] tracking-[0%] dark:text-white">
-                  <span className="text-red-500">*</span> implies compulsory
-                </p>
-              </div>
+        ) : (
+          <>
+            {/* Device Switcher (unique to preview) */}
+            <div className="hidden md:flex items-center justify-between px-2 mb-6 w-full max-w-[200px] h-[62px] mt-20 rounded-[10px] mx-auto shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 dark:bg-[#414141]">
+              {["desktop", "mobile"].map((device) => (
+                <button
+                  key={device}
+                  onClick={() =>
+                    setSelectedDevice(device as "desktop" | "mobile")
+                  }
+                  className={`cursor-pointer w-[70px] h-[44px] rounded-[7px] flex items-center justify-center transition-colors duration-200 ${
+                    selectedDevice === device ? "bg-[#61A986]" : ""
+                  }`}
+                >
+                  <Image
+                    src={`/${device}-icon-light.svg`}
+                    alt={device}
+                    width={device === "desktop" ? 32 : 23}
+                    height={27}
+                    style={{
+                      filter:
+                        selectedDevice === device ? "none" : "brightness(0)",
+                    }}
+                  />
+                </button>
+              ))}
+            </div>
+            {/* === FORM HEADER === */}
+            <div className=" w-full bg-white rounded-[8px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 sm:px-6 py-6 flex flex-col justify-between mb-6 dark:bg-[#5A5959] dark:text-white">
+              <h2 className="text-black mb-1 font-[Outfit] font-semibold text-[25px] leading-[100%] tracking-[0%] dark:text-white">
+                {form.title || "Untitled Form"}
+              </h2>
+              <p className="text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-6 sm:mb-12 dark:text-white">
+                {form.description || "No description provided"}
+              </p>
+              <hr className="border-t border-black mb-2 dark:border-white" />
+              <p className="text-[#676767] font-[Outfit] font-normal text-[20px] leading-[100%] tracking-[0%] dark:text-white">
+                <span className="text-red-500">*</span> implies compulsory
+              </p>
+            </div>
 
               {/* === SECTION BODY === */}
               <div className="w-full bg-white px-4 sm:px-6 py-6 shadow-[0_0_10px_rgba(0,0,0,0.3)] rounded-[8px] dark:bg-[#5A5959] dark:text-white">

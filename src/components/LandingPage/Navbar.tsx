@@ -20,11 +20,11 @@ export default function Navbar() {
           <MobileMenu />
           <Link href="/" className="flex items-center gap-1 sm:gap-2">
             <Image
-              src="/logo-component.svg"
+              src="/logoform.svg"
               alt="LOGO"
               width={32}
               height={32}
-              className="h-7 w-7 sm:h-8 sm:w-8 md:h-10 md:w-10"
+              className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10"
             />
             <span className="text-lg sm:text-xl md:text-2xl font-bold">
               FormSpace

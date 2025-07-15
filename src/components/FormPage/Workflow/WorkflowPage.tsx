@@ -1,20 +1,16 @@
+/* --------------------------------------------------------------------------
+ * WorkflowPage.tsx
+ * Renders the Workflow tab (logic graph editor) for a form.
+ * Relies entirely on the `form` object passed down from the parent and
+ * keeps the parent copy in-sync through `setForm`.
+ * ------------------------------------------------------------------------ */
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
-import getFormObject from "@/app/action/getFormObject";
 import { Grip } from "lucide-react";
 import { useWindowSize } from "react-use";
-import { useReactFlow } from "reactflow";
-import Loader from "@/components/Loader";
-import {
-  LogicRule,
-  Section,
-  ConditionGroupType,
-  NestedCondition,
-  BaseCondition,
-  Question,
-} from "@/lib/interface";
+
 import ReactFlow, {
   ReactFlowProvider,
   Background,
@@ -24,147 +20,116 @@ import ReactFlow, {
   Edge,
   applyNodeChanges,
   applyEdgeChanges,
+  useReactFlow,
 } from "reactflow";
+import "reactflow/dist/style.css";
 
 import CustomNode from "./CustomNode";
-import { saveFormLogic } from "@/app/action/saveFormLogic";
-import ConditionGroup from "./ConditionGroup";
 import ConditionBlock from "./ConditionBlock";
-import { SectionForm } from "@/lib/interface";
-interface formbuild {
+import ConditionGroup from "./ConditionGroup";
+import { saveFormLogic } from "@/app/action/saveFormLogic";
+
+import type {
+  Form,
+  Section,
+  Question,
+  LogicRule,
+  SectionForm,
+  BaseCondition,
+  ConditionGroupType,
+  NestedCondition,
+} from "@/lib/interface";
+
+interface WorkflowPageProps {
+  form: Form; // live copy of the form
+  setForm: (f: Form) => void; // parent updater
   currentSection: SectionForm;
-  setCurrentSection: (section: SectionForm) => void;
-}
-interface WorkflowPageProps extends formbuild {
-  form_ID: string | undefined;
+  setCurrentSection: (s: SectionForm) => void;
 }
 
 export default function WorkflowPage({
-  form_ID,
+  form,
+  setForm,
   currentSection,
   setCurrentSection,
 }: WorkflowPageProps) {
-  const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
+  /* ────────────────────────── state ────────────────────────── */
   const LABELS = ["Builder", "Workflow", "Preview"];
-
-  const [showSavedLogic, setShowSavedLogic] = useState(true);
+  const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
 
   const [sections, setSections] = useState<Section[]>([]);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [logicRules, setLogicRules] = useState<LogicRule[]>([]);
+
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
     null
   );
   const [showModal, setShowModal] = useState(false);
-  const [targetSection, setTargetSection] = useState<string>("");
-  const [allQuestions, setAllQuestions] = useState<Question[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [targetSection, setTargetSection] = useState("");
+  const [showSavedLogic, setShowSavedLogic] = useState(true);
 
+  const [allQuestions, setAllQuestions] = useState<Question[]>([]);
   const [logicCondition, setLogicCondition] = useState<
     BaseCondition | ConditionGroupType
   >({
-    fieldId: "", // default blank BaseCondition
+    fieldId: "",
     op: "equal",
     value: "",
   });
 
+  /* ───────────────────── derive local copies from form ────────────────── */
   useEffect(() => {
-    const flatQuestions = sections.flatMap(
-      (section) => section.questions || []
+    if (!form) return;
+
+    const formSections = form.sections || [];
+    setSections(formSections);
+    setAllQuestions(formSections.flatMap((sec) => sec.questions || []));
+
+    /* nodes */
+    const nodesFromSections: Node[] = formSections.map((sec, idx) => ({
+      id: sec.section_ID,
+      type: "custom",
+      position: {
+        x: idx * 0 + Math.random() * 10,
+        y: 200 * idx + Math.random() * 100,
+      },
+      data: {
+        label: sec.title || `Section ${idx + 1}`,
+        id: sec.section_ID,
+        onClick: handleOpenModal,
+      },
+    }));
+    setNodes(nodesFromSections);
+
+    /* logic rules */
+    const extractedRules: LogicRule[] = formSections.flatMap((sec) =>
+      (sec.logic || []).map((rule) => ({
+        ...rule,
+        triggerSectionId: sec.section_ID,
+      }))
     );
-    setAllQuestions(flatQuestions);
-  }, [sections]);
+    setLogicRules(extractedRules);
+  }, [form]);
 
-  const generateRandomPosition = (index: number) => {
-    const baseX = 0;
-    const baseY = 200;
-    const offsetX = Math.floor(Math.random() * 10);
-    const offsetY = Math.floor(Math.random() * 100);
-    return {
-      x: baseX * index + offsetX,
-      y: baseY * index + offsetY,
-    };
-  };
+  /* ────────────────────── render helpers ────────────────────── */
+  const getQuestionText = (id: string) =>
+    allQuestions.find((q) => q.question_ID === id)?.questionText || id;
 
-  function getQuestionText(question_ID: string): string {
-    return (
-      allQuestions.find((q) => q.question_ID === question_ID)?.questionText ||
-      question_ID
-    );
-  }
+  const renderCondition = (c: NestedCondition | BaseCondition): string => {
+    if (!c) return "";
 
-  useEffect(() => {
-    const loadForm = async () => {
-      if (!form_ID) return;
+    if ("fieldId" in c) return `${getQuestionText(c.fieldId)} == ${c.value}`;
 
-      setLoading(true);
-
-      const res = await getFormObject(form_ID);
-      if (res.success && res.data?.sections) {
-        const formSections = res.data.sections;
-        setSections(formSections);
-
-        const flowNodes: Node[] = formSections.map(
-          (section: Section, idx: number) => {
-            const pos = generateRandomPosition(idx);
-            return {
-              id: section.section_ID,
-              type: "custom",
-              position: pos,
-              data: {
-                label: section.title || `Section ${idx + 1}`,
-                id: section.section_ID,
-                onClick: handleOpenModal,
-              },
-            };
-          }
-        );
-
-        setNodes(flowNodes);
-
-        // Extract logic from each section that has it
-        const extractedLogicRules = formSections.flatMap((section: Section) =>
-          (section.logic || []).map((logic: LogicRule) => ({
-            ...logic,
-            triggerSectionId: section.section_ID,
-          }))
-        );
-
-        setLogicRules(extractedLogicRules);
-        setLoading(false);
-      } else {
-        setLoading(false);
-        toast.error("Failed to load form.");
-      }
-    };
-
-    loadForm();
-  }, [form_ID]);
-
-  function renderCondition(condition: NestedCondition | BaseCondition): string {
-    if (!condition) return "";
-
-    if ("fieldId" in condition) {
-      return `${getQuestionText(condition.fieldId)} == ${condition.value}`;
-    }
-
-    if (
-      "conditions" in condition &&
-      Array.isArray(condition.conditions) &&
-      condition.conditions.length > 0
-    ) {
-      const rendered = condition.conditions
-        .map(renderCondition)
-        .join(` ${condition.op} `);
-      return `(${rendered})`;
-    }
+    if ("conditions" in c && c.conditions.length)
+      return `(${c.conditions.map(renderCondition).join(` ${c.op} `)})`;
 
     return "";
-  }
+  };
 
+  /* ─────────────────── sync edges with logicRules ─────────────────── */
   useEffect(() => {
-    const flowEdges: Edge[] = logicRules.map((rule, idx) => ({
+    const newEdges: Edge[] = logicRules.map((rule, idx) => ({
       id: `e-${rule.triggerSectionId}-${rule.action.to}-${idx}`,
       source: rule.triggerSectionId,
       target: rule.action.to,
@@ -172,32 +137,19 @@ export default function WorkflowPage({
       label: renderCondition(rule.action.condition),
       labelStyle: { fontSize: 12 },
     }));
-
-    setEdges(flowEdges);
+    setEdges(newEdges);
   }, [logicRules]);
 
-  // const formatCondition = (cond: NestedCondition): string => {
-  //   return cond.conditions
-  //     .map((c) => {
-  //       if ("fieldId" in c) {
-  //         return `${getQuestionText(c.fieldId)} == ${c.value}`;
-  //       } else {
-  //         return `(${formatCondition(c)})`;
-  //       }
-  //     })
-  //     .join(` ${cond.op} `);
-  // };
-
-  const handleOpenModal = (sectionId: string) => {
-    setSelectedSectionId(sectionId);
+  /* ────────────────────── handlers ────────────────────── */
+  const handleOpenModal = (secId: string) => {
+    setSelectedSectionId(secId);
     setShowModal(true);
     setTargetSection("");
 
-    const firstQuestion = sections.find((s) => s.section_ID === sectionId)
-      ?.questions?.[0];
+    const firstQ = sections.find((s) => s.section_ID === secId)?.questions?.[0];
 
     setLogicCondition({
-      fieldId: firstQuestion?.questionText || "",
+      fieldId: firstQ?.question_ID || "",
       op: "equal",
       value: "",
     });
@@ -226,37 +178,68 @@ export default function WorkflowPage({
     setLogicRules(updatedRules);
     setShowModal(false);
 
-    if (!form_ID) {
-      toast.error("Form ID is missing");
-      return;
-    }
-    if (!form_ID) {
-      toast.error("Form ID is missing");
-      return;
-    }
-    const saveResult = await saveFormLogic(form_ID, updatedRules);
-    if (!saveResult.success) {
+    const saveRes = await saveFormLogic(form.form_ID, updatedRules);
+    if (!saveRes.success) {
       toast.error("Failed to save logic.");
-    } else {
-      toast.success("Logic saved!");
+      return;
     }
+    toast.success("Logic saved!");
+
+    /* update parent form so other tabs stay in sync */
+    const newSecs = sections.map((sec) =>
+      sec.section_ID === selectedSectionId
+        ? { ...sec, logic: [...(sec.logic || []), newRule] }
+        : sec
+    );
+    setForm({ ...form, sections: newSecs });
   };
 
-  const handleDeleteLogic = async (indexToDelete: number) => {
-    const updatedRules = logicRules.filter((_, idx) => idx !== indexToDelete);
+  const handleDeleteLogic = async (idxToDel: number) => {
+    const updatedRules = logicRules.filter((_, i) => i !== idxToDel);
     setLogicRules(updatedRules);
 
-    if (!form_ID) {
-      toast.error("Form ID is missing");
+    const saveRes = await saveFormLogic(form.form_ID, updatedRules);
+    if (!saveRes.success) {
+      toast.error("Failed to delete logic.");
       return;
     }
-    const saveResult = await saveFormLogic(form_ID, updatedRules);
-    if (!saveResult.success) {
-      toast.error("Failed to delete logic.");
-    } else {
-      toast.success("Logic deleted.");
-    }
+    toast.success("Logic deleted.");
+
+    /* reflect in parent */
+    const rule = logicRules[idxToDel];
+    const newSecs = sections.map((sec) =>
+      sec.section_ID === rule.triggerSectionId
+        ? {
+            ...sec,
+            logic: (sec.logic || []).filter((_, i) => i !== idxToDel),
+          }
+        : sec
+    );
+    setForm({ ...form, sections: newSecs });
   };
+
+  /* ─────────────────────── UI helpers ─────────────────────── */
+  /** responsive MiniMap size */
+  const { width: winW } = useWindowSize();
+  const mapSize = {
+    width: winW < 500 ? 100 : winW > 1000 ? 200 : 160,
+    height: winW < 500 ? 80 : winW > 1000 ? 150 : 120,
+  };
+
+  /** auto-fit view on small screens */
+  function AutoCenter() {
+    const { fitView } = useReactFlow();
+    useEffect(() => {
+      if (winW < 768) {
+        const t = setTimeout(
+          () => fitView({ padding: 0.2, duration: 500 }),
+          200
+        );
+        return () => clearTimeout(t);
+      }
+    }, [winW, fitView]);
+    return null;
+  }
 
   const selectedSection = sections.find(
     (s) => s.section_ID === selectedSectionId
@@ -265,233 +248,177 @@ export default function WorkflowPage({
     (s) => s.section_ID !== selectedSectionId
   );
 
-  function MiniMapDimensions() {
-    const { width } = useWindowSize();
-    let miniMapWidth = 160;
-    let miniMapHeight = 120;
-
-    if (width < 500) {
-      miniMapWidth = 100;
-      miniMapHeight = 80;
-    } else if (width > 1000) {
-      miniMapWidth = 200;
-      miniMapHeight = 150;
-    }
-
-    return {
-      width: miniMapWidth,
-      height: miniMapHeight,
-    };
-  }
-
-  function AutoCenter() {
-    const { width } = useWindowSize();
-    const { fitView } = useReactFlow();
-
-    // Auto-center nodes when screen size changes (like switching to mobile)
-    useEffect(() => {
-      if (width < 768) {
-        // Small screen — refit view
-        const timeout = setTimeout(() => {
-          fitView({ padding: 0.2, duration: 500 });
-        }, 200); // slight delay to wait for DOM layout
-
-        return () => clearTimeout(timeout);
-      }
-    }, [width, fitView]);
-
-    return null;
-  }
-
-  const { width, height } = MiniMapDimensions();
-
+  /* ───────────────────────── render ───────────────────────── */
   return (
-    <>
-      {loading && (
-        <div className="z-60">
-          <Loader />
-        </div>
-      )}
-      <div className="text-black w-full h-[90vh] p-4 flex gap-6">
-        <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full flex justify-center px-4 sm:px-0">
-          <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
-            {LABELS.map((label, i) => (
-              <button
-                key={label}
-                onClick={() => setCurrentSection(i as SectionForm)}
-                className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
-                  currentSection === i
-                    ? "bg-[#61A986] text-black dark:text-white"
-                    : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="flex-1 rounded-md">
-          <ReactFlowProvider>
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              onNodesChange={(changes) =>
-                setNodes((nds) => applyNodeChanges(changes, nds))
-              }
-              onEdgesChange={(changes) =>
-                setEdges((eds) => applyEdgeChanges(changes, eds))
-              }
-              nodeTypes={nodeTypes}
-              defaultEdgeOptions={{
-                style: { stroke: "#999" },
-                labelBgStyle: { fill: "#fff", color: "#000", fillOpacity: 0.9 },
-                labelBgPadding: [6, 4],
-                labelBgBorderRadius: 4,
-                labelStyle: { fontSize: 12 }, // ✅ Works inside labelBgStyle/labelStyle now
-              }}
-              fitView
+    <div className="w-full h-[90vh] p-4 flex gap-6 dark:bg-[#2B2A2A]">
+      {/* floating nav */}
+      <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full px-4">
+        <div className="mx-auto flex w-full max-w-[480px] h-[68px] items-center justify-between rounded-[10px] bg-[#91C4AB]/45 px-2 shadow dark:bg-[#414141]">
+          {LABELS.map((l, i) => (
+            <button
+              key={l}
+              onClick={() => setCurrentSection(i as SectionForm)}
+              className={`flex-1 mx-1 py-2 rounded-[7px] text-sm sm:text-base transition-colors ${
+                currentSection === i
+                  ? "bg-[#61A986] text-black dark:text-white"
+                  : "text-black hover:bg-[#b9d9c8] dark:text-white dark:hover:bg-[#353434]"
+              }`}
             >
-              <Background />
-              <MiniMap
-                pannable={true}
-                style={{
-                  width: width,
-                  height: height,
-                }}
-              />
-              <Controls />
-              <AutoCenter />
-            </ReactFlow>
-          </ReactFlowProvider>
-        </div>
-
-        {showModal && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-[1000px] max-h-[500px] overflow-auto shadow-lg">
-              <h2 className="text-lg font-semibold mb-4">
-                Add Logic Condition
-              </h2>
-
-              {"fieldId" in logicCondition ? (
-                <ConditionBlock
-                  allQuestions={selectedSection?.questions || []}
-                  condition={logicCondition}
-                  onChange={(newCond) => setLogicCondition(newCond)}
-                  onRemove={() => {}}
-                />
-              ) : (
-                <ConditionGroup
-                  group={logicCondition}
-                  onUpdate={setLogicCondition}
-                  allQuestions={selectedSection?.questions || []}
-                />
-              )}
-
-              {"fieldId" in logicCondition && (
-                <button
-                  onClick={() =>
-                    setLogicCondition({
-                      op: "AND",
-                      conditions: [logicCondition], // wrap existing block in group
-                    })
-                  }
-                  className="mt-2 text-sm text-blue-600 hover:underline"
-                >
-                  ➕ Convert to Group
-                </button>
-              )}
-
-              <div className="mb-3">
-                <label className="block mb-1 text-sm font-medium">
-                  Go to Section
-                </label>
-                <select
-                  className="w-full border rounded px-2 py-1"
-                  value={targetSection}
-                  onChange={(e) => setTargetSection(e.target.value)}
-                >
-                  <option value="">Select destination</option>
-                  {otherSections.map((s) => (
-                    <option key={s.section_ID} value={s.section_ID}>
-                      {s.title || s.section_ID}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex justify-end gap-3 mt-4">
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="px-3 py-1 border rounded text-sm"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleAddLogic}
-                  className="bg-blue-600 text-white px-4 py-1 rounded text-sm hover:bg-blue-700"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="relative">
-          {/* Hamburger Button - visible only on xl screens and below (up to ~1280px) */}
-          <button
-            className="xl:hidden fixed top-20 ml-2 left-2 z-30 p-2 rounded dark:bg-[#363535] bg-[#fefefe] text-black dark:text-white shadow mt-20"
-            onClick={() => setShowSavedLogic((prev) => !prev)}
-          >
-            <Grip size={20} />
-          </button>
-
-          {/* Logic Sidebar */}
-          <div
-            className={`
-    fixed top-0 left-0 h-full w-[75%] z-40 p-4 mt-20 xl:mt-0 dark:bg-[#363535] bg-[#fefefe] xl:bg-none overflow-y-auto transition-transform duration-300
-    ${showSavedLogic ? "translate-x-0" : "-translate-x-full"}
-    xl:relative xl:translate-x-0 xl:w-[300px]
-  `}
-          >
-            <div className="flex justify-end mb-4 xl:hidden">
-              <button
-                onClick={() => setShowSavedLogic(false)}
-                className="text-red-500 font-semibold px-3 py-1 rounded hover:bg-red-500 hover:text-white transition"
-              >
-                Close
-              </button>
-            </div>
-
-            <h3 className="text-sm dark:text-white font-medium mb-2">
-              Saved Logic:
-            </h3>
-            <div className="space-y-1">
-              {logicRules.map((rule, idx) => (
-                <div
-                  key={idx}
-                  className="bg-[#E0E0E0] px-2 py-1 rounded text-sm break-words"
-                >
-                  <p className="text-gray-700 mb-1 leading-snug">
-                    <strong>{rule.triggerSectionId}</strong> →{" "}
-                    <strong>{rule.action.to}</strong>
-                    <br />
-                    <em className="text-gray-600">
-                      {renderCondition(rule.action.condition)}
-                    </em>
-                  </p>
-                  <button
-                    onClick={() => handleDeleteLogic(idx)}
-                    className="text-red-500 text-xs hover:underline"
-                  >
-                    Delete
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
+              {l}
+            </button>
+          ))}
         </div>
       </div>
-    </>
+
+      {/* main graph */}
+      <div className="flex-1 rounded-md">
+        <ReactFlowProvider>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            nodeTypes={nodeTypes}
+            onNodesChange={(c) => setNodes((nds) => applyNodeChanges(c, nds))}
+            onEdgesChange={(c) => setEdges((eds) => applyEdgeChanges(c, eds))}
+            defaultEdgeOptions={{
+              style: { stroke: "#999" },
+              labelBgStyle: { fill: "#fff", color: "#000", fillOpacity: 0.9 },
+              labelBgPadding: [6, 4],
+              labelBgBorderRadius: 4,
+              labelStyle: { fontSize: 12 },
+            }}
+            fitView
+          >
+            <Background />
+            <MiniMap pannable style={mapSize} />
+            <Controls />
+            <AutoCenter />
+          </ReactFlow>
+        </ReactFlowProvider>
+      </div>
+
+      {/* logic sidebar & toggle on small screens */}
+      <div className="relative">
+        <button
+          className="xl:hidden fixed top-20 left-2 z-30 mt-20 rounded bg-[#fefefe] p-2 shadow dark:bg-[#363535] dark:text-white"
+          onClick={() => setShowSavedLogic((p) => !p)}
+        >
+          <Grip size={20} />
+        </button>
+
+        <aside
+          className={`
+            fixed top-0 left-0 z-40 h-full w-[75%] overflow-y-auto p-4
+            shadow transition-transform duration-300
+            dark:bg-[#363535] bg-[#fefefe]
+            ${showSavedLogic ? "translate-x-0" : "-translate-x-full"}
+            xl:relative xl:translate-x-0 xl:w-[300px] xl:bg-none
+          `}
+        >
+          <div className="mb-4 flex justify-end xl:hidden">
+            <button
+              onClick={() => setShowSavedLogic(false)}
+              className="rounded px-3 py-1 font-semibold text-red-500 transition hover:bg-red-500 hover:text-white"
+            >
+              Close
+            </button>
+          </div>
+
+          <h3 className="mb-2 text-sm font-medium dark:text-white">
+            Saved Logic
+          </h3>
+          <div className="space-y-1">
+            {logicRules.map((rule, idx) => (
+              <div key={idx} className="rounded bg-[#E0E0E0] px-2 py-1 text-sm">
+                <p className="mb-1 leading-snug text-gray-700">
+                  <strong>{rule.triggerSectionId}</strong> →{" "}
+                  <strong>{rule.action.to}</strong>
+                  <br />
+                  <em className="text-gray-600">
+                    {renderCondition(rule.action.condition)}
+                  </em>
+                </p>
+                <button
+                  onClick={() => handleDeleteLogic(idx)}
+                  className="text-xs text-red-500 hover:underline"
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+          </div>
+        </aside>
+      </div>
+
+      {/* modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="max-h-[500px] w-[1000px] overflow-auto rounded-lg bg-white p-6 shadow-lg">
+            <h2 className="mb-4 text-lg font-semibold">Add Logic Condition</h2>
+
+            {"fieldId" in logicCondition ? (
+              <ConditionBlock
+                allQuestions={selectedSection?.questions || []}
+                condition={logicCondition}
+                onChange={setLogicCondition}
+                onRemove={() => {}}
+              />
+            ) : (
+              <ConditionGroup
+                group={logicCondition}
+                onUpdate={setLogicCondition}
+                allQuestions={selectedSection?.questions || []}
+              />
+            )}
+
+            {"fieldId" in logicCondition && (
+              <button
+                onClick={() =>
+                  setLogicCondition({
+                    op: "AND",
+                    conditions: [logicCondition],
+                  })
+                }
+                className="mt-2 text-sm text-blue-600 hover:underline"
+              >
+                ➕ Convert to Group
+              </button>
+            )}
+
+            <div className="mb-3">
+              <label className="mb-1 block text-sm font-medium">
+                Go to Section
+              </label>
+              <select
+                className="w-full rounded border px-2 py-1"
+                value={targetSection}
+                onChange={(e) => setTargetSection(e.target.value)}
+              >
+                <option value="">Select destination</option>
+                {otherSections.map((s) => (
+                  <option key={s.section_ID} value={s.section_ID}>
+                    {s.title || s.section_ID}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mt-4 flex justify-end gap-3">
+              <button
+                onClick={() => setShowModal(false)}
+                className="rounded border px-3 py-1 text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddLogic}
+                className="rounded bg-blue-600 px-4 py-1 text-sm text-white hover:bg-blue-700"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

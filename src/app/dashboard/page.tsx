@@ -27,25 +27,7 @@ import { getFormsForUser } from "@/app/action/forms";
 import { createNewForm } from "@/app/action/createnewform";
 import { getUser } from "@/app/action/getUser";
 import { Form } from "@/lib/interface";
-import { FormSettings, Section } from "@/lib/interface";
-interface NewUserPageProps {
-  form_ID: string;
-  title: string;
-  description: string;
-  createdAt: Date;
-  createdBy: string; // user_ID reference
-  editorID?: string[];
-  viewerID?: string[];
-  publishedAt?: Date;
-  isActive: boolean;
-  version: number;
-  share_url: string;
-  settings: FormSettings;
-  sections: Section[];
-  isDeleted: boolean;
-  isStarred: boolean;
-  responseCount?: number;
-}
+
 function Workspace({
   searchTerm,
   setSearchTerm,
@@ -56,7 +38,7 @@ function Workspace({
   selected: "myForms" | "starred" | "shared" | "trash";
 }) {
   const router = useRouter();
-  const [forms, setForms] = useState<NewUserPageProps[]>([]);
+  const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
   const [formName, setFormName] = useState("");
@@ -127,7 +109,6 @@ function Workspace({
   //   return (!startDate || now < startDate) && !f.isDeleted;
   // });
 
-  const trash = forms.filter((f) => f.isDeleted);
 
   const filterBySearch = (forms: Form[]) =>
     !searchTerm
@@ -137,7 +118,6 @@ function Workspace({
         );
 
   const filteredPublished = filterBySearch(published);
-  const filteredTrash = filterBySearch(trash);
   const isEmpty = !loading && forms.length === 0 && published.length === 0;
 
   const handleCreate = async () => {
@@ -260,52 +240,56 @@ function Workspace({
           </div>
         )}
 
-        <div className="flex-1 px-4 md:px-6 pb-4 h-full flex items-center justify-center">
-          {selected === "myForms" ? (
-            loading ? (
-              <div className={wrapperStyles + " text-black dark:text-white"}>
-                Loading…
+      <div className="flex-1 px-4 md:px-6 pb-4 h-full flex items-center justify-center">
+        {selected === "myForms" ? (
+          loading ? (
+            <div className={wrapperStyles + " text-black dark:text-white"}>
+              Loading…
+            </div>
+          ) : isEmpty ? (
+            <div className={wrapperStyles + " dark:border-white"}>
+              <p className="text-lg md:text-2xl text-center text-gray-600 dark:text-gray-200">
+                You have not created any forms yet.
+              </p>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-center text-gray-800 dark:text-white">
+                Create Your First Form Today!
+              </h2>
+              <button
+                onClick={() => setShowDialog(true)}
+                className="mt-2 px-8 py-4 bg-[#61A986] text-lg sm:text-xl text-white rounded-lg hover:bg-[#4d8a6b] transition-colors"
+              >
+                Create Now
+              </button>
+            </div>
+          ) : (
+            <div className="w-full h-full overflow-y-auto flex flex-col items-center">
+              <div className="flex flex-col lg:flex-row flex-1 w-full max-w-7xl gap-6 px-4">
+                <Drafts forms={forms} setForms={setForms}/>
+                <Published forms={filteredPublished} setForms={setForms}/>
               </div>
-            ) : isEmpty ? (
-              <div className={wrapperStyles + " dark:border-white"}>
-                <p className="text-lg md:text-2xl text-center text-gray-600 dark:text-gray-200">
-                  You have not created any forms yet.
-                </p>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-center text-gray-800 dark:text-white">
-                  Create Your First Form Today!
-                </h2>
-                <button
-                  onClick={() => setShowDialog(true)}
-                  className="mt-2 px-8 py-4 bg-[#61A986] text-lg sm:text-xl text-white rounded-lg hover:bg-[#4d8a6b] transition-colors"
-                >
-                  Create Now
-                </button>
-              </div>
-            ) : (
-              <div className="w-full h-full overflow-y-auto flex flex-col items-center">
-                <div className="flex flex-col lg:flex-row flex-1 w-full max-w-7xl gap-6 px-4">
-                  <Drafts forms={forms} />
-                  <Published forms={filteredPublished} />
-                </div>
-              </div>
-            )
-          ) : selected === "trash" ? (
-            <Trash
-              forms={filteredTrash}
-              searchTerm={searchTerm}
-              onRestore={handleRestoreInWorkspace}
-            />
-          ) : selected === "starred" ? (
-            <Starred searchTerm={searchTerm} />
-          ) : selected === "shared" ? (
-            <>
-              <Shared />
-            </>
-          ) : null}
-          {showFaq && <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />}
-        </div>
+            </div>
+          )
+        ) : selected === "trash" ? (
+          <Trash
+            forms={forms}
+            setForms={setForms}
+            searchTerm={searchTerm}
+            onRestore={handleRestoreInWorkspace}
+          />
+        ) : selected === "starred" ? (
+          <Starred
+            searchTerm={searchTerm}
+            forms={forms}
+            setForms={setForms}
+          />
+        ) : selected === "shared" ? (
+          <>
+            <Shared />
+          </>
+        ) : null}
+        {showFaq && <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />}
       </div>
-    </>
+    </div>
   );
 }
 
