@@ -20,7 +20,7 @@ export default function Navbar() {
           <MobileMenu />
           <Link href="/" className="flex items-center gap-1 sm:gap-2">
             <Image
-              src="/FormLogo.svg"
+              src="/logo-component.svg"
               alt="LOGO"
               width={32}
               height={32}

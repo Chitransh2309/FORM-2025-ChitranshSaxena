@@ -1,11 +1,11 @@
-'use client';
-import { useState } from 'react';
-import Image from 'next/image';
-import { FaRegCircleUser } from 'react-icons/fa6';
-import { HiOutlineQuestionMarkCircle } from 'react-icons/hi2';
-import ToggleSwitch from '../LandingPage/ToggleSwitch';
-import FAQs from './FAQs';
-import Profile from './Profile';
+"use client";
+import { useState } from "react";
+import Image from "next/image";
+import { FaRegCircleUser } from "react-icons/fa6";
+import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
+import ToggleSwitch from "../LandingPage/ToggleSwitch";
+import FAQs from "./FAQs";
+import Profile from "./Profile";
 
 export default function Navbar({
   image,
@@ -24,12 +24,13 @@ export default function Navbar({
       {/* left: logo + title */}
       <div className="flex items-center gap-2">
         <Image
-          src="/FormLogo.svg"
+          src="/logo-component.svg"
           alt="LOGO"
           width={32}
           height={32}
           className="h-7 w-7 sm:h-8 sm:w-8 md:h-10 md:w-10"
         />
+
         <span className="text-lg sm:text-xl md:text-2xl font-bold">
           FormSpace
         </span>
@@ -45,7 +46,7 @@ export default function Navbar({
           />
         </button>
         <button onClick={() => setShowProfile(!showProfile)}>
-          {image !== '' ? (
+          {image !== "" ? (
             <Image
               src={image}
               width={26}
