@@ -22,6 +22,7 @@ import FAQs from "../NewUserPage/FAQs";
 import toast from "react-hot-toast";
 import { renameSectionTitle } from "@/app/action/sections";
 import debounce from "lodash/debounce";
+import Loader from "../Loader";
 
 enum SectionForm {
   Builder,
@@ -47,10 +48,10 @@ export default function BuildPage({
   useEffect(() => void (formRef.current = form), [form]);
 
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
-    null,
+    null
   );
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
-    null,
+    null
   );
 
   const [showRightNav, setShowRightNav] = useState(false);
@@ -59,11 +60,12 @@ export default function BuildPage({
   const [saved, setSaved] = useState(0);
 
   const selectedSection = form?.sections.find(
-    (s) => s.section_ID === selectedSectionId,
+    (s) => s.section_ID === selectedSectionId
   );
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
+  const [loading, setLoading] = useState(false);
 
   /* ──────────────────── auto-save with debounce ─────────────────────── */
   const debouncedSaveForm = useCallback(
@@ -74,7 +76,7 @@ export default function BuildPage({
       const res = await saveFormToDB(formRef.current);
       if (!res.success) console.error("Failed to save form");
     }, 2500),
-    [],
+    []
   );
 
   /* countdown “Saved X sec ago” */
@@ -89,27 +91,29 @@ export default function BuildPage({
   /* ─────────────────────── data loading ─────────────────────────────── */
   useEffect(() => {
     (async () => {
+      setLoading(true);
       if (!formId || typeof formId !== "string") return;
       const res = await getFormObject(formId);
       if (res.success && res.data) {
         setForm(res.data);
         setSelectedSectionId(res.data.sections?.[0]?.section_ID ?? null);
+        setLoading(false);
       }
     })();
   }, [formId]);
 
   useEffect(() => setSelectedQuestion(null), [selectedSectionId]);
-  useEffect(() => setEditedTitle(selectedSection?.title || ""), [
-    selectedSectionId,
-    selectedSection?.title,
-  ]);
+  useEffect(
+    () => setEditedTitle(selectedSection?.title || ""),
+    [selectedSectionId, selectedSection?.title]
+  );
 
   /* ───────────────────── theme (dark / light) ───────────────────────── */
   useEffect(() => {
     const stored = localStorage.getItem("theme");
     document.documentElement.classList.toggle("dark", stored === "dark");
   }, []);
-const FaqButton = () => (
+  const FaqButton = () => (
     <button
       onClick={() => setShowFAQ(true)}
       className="absolute bottom-5 right-5 md:bottom-6 md:right-6 z-40
@@ -162,7 +166,7 @@ const FaqButton = () => (
       setForm((prev) => {
         if (!prev) return prev;
         const sections = prev.sections.map((s) =>
-          s.section_ID === sid ? { ...s, title } : s,
+          s.section_ID === sid ? { ...s, title } : s
         );
         return { ...prev, sections };
       });
@@ -187,7 +191,7 @@ const FaqButton = () => (
     const sections = form.sections.map((sec) =>
       sec.section_ID === selectedSectionId
         ? { ...sec, questions: [...sec.questions, newQ] }
-        : sec,
+        : sec
     );
 
     setForm({ ...form, sections });
@@ -212,7 +216,7 @@ const FaqButton = () => (
               return q;
             }),
           }
-        : sec,
+        : sec
     );
 
     setForm({ ...form, sections });
@@ -229,7 +233,7 @@ const FaqButton = () => (
             ...sec,
             questions: sec.questions.filter((q) => q.question_ID !== id),
           }
-        : sec,
+        : sec
     );
 
     setForm({ ...form, sections });
@@ -239,47 +243,15 @@ const FaqButton = () => (
 
   /* ──────────────────────── render ──────────────────────────────────── */
   return (
-    <div className="flex flex-col lg:flex-row h-[92vh] xl:h-[calc(100%-68px)] w-full">
-      {/* ⬅️ Desktop Sidebar */}
-      <div className="hidden lg:flex w-1/3 border-r border-gray-300 dark:border-gray-500 overflow-y-auto h-screen">
-        <SectionSidebar
-          sections={form?.sections || []}
-          selectedSectionId={selectedSectionId}
-          setSelectedSectionId={setSelectedSectionId}
-          onAddSection={addSection}
-          onDeleteSection={deleteSection}
-        />
-      </div>
-
-      {/* 📝 Main column */}
-      <div
-        className="w-full lg:px-10 overflow-y-auto overflow-x-hidden
-                   flex flex-col space-y-6 h-full max-w-full"
-      >
-        {/* Top Tabs */}
-        <div className="w-full flex justify-center px-4 sm:px-0 py-[15px]">
-          <div className="flex justify-between items-center w-full max-w-[480px]
-                          h-[68px] rounded-[10px] dark:bg-[#414141]
-                          bg-[#91C4AB]/45 shadow px-2 sm:px-4">
-            {LABELS.map((label, i) => (
-              <button
-                key={label}
-                onClick={() => setCurrentSection(i as SectionForm)}
-                className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors
-                            duration-200 ${
-                              currentSection === i
-                                ? "bg-[#61A986] text-black dark:text-white"
-                                : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
-                            }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+    <>
+      {loading && (
+        <div className="z-60">
+          <Loader />
         </div>
-
-        {/* 📱 Mobile Section Sidebar */}
-        <div className="lg:hidden w-full px-4 flex flex-row justify-between items-center">
+      )}
+      <div className="flex flex-col lg:flex-row h-[92vh] xl:h-[calc(100%-68px)] w-full">
+        {/* ⬅️ Desktop Sidebar */}
+        <div className="hidden lg:flex w-1/3 border-r border-gray-300 dark:border-gray-500 overflow-y-auto h-screen">
           <SectionSidebar
             sections={form?.sections || []}
             selectedSectionId={selectedSectionId}
@@ -287,127 +259,175 @@ const FaqButton = () => (
             onAddSection={addSection}
             onDeleteSection={deleteSection}
           />
-          <div className="bg-[#91C4AB] p-3 rounded shadow mr-2">
-            {saved !== 0 ? <h4>Saved {saved} sec ago</h4> : <h4>Saving…</h4>}
-          </div>
         </div>
 
-        {/* Section title + autosave badge (desktop) */}
-        <div className="flex flex-row justify-between w-full px-10 items-center">
-          <div className="flex flex-row items-center gap-2 mt-6 mb-3">
-            {isEditingTitle ? (
-              <input
-                className="text-xl font-semibold border-b border-black dark:border-white bg-transparent
-                           focus:outline-none px-1"
-                value={editedTitle}
-                onChange={(e) => setEditedTitle(e.target.value)}
-                onBlur={() => {
-                  if (
-                    editedTitle.trim() &&
-                    selectedSection?.section_ID &&
-                    editedTitle.trim() !== selectedSection.title
-                  )
-                    handleRenameSection(
-                      selectedSection.section_ID,
-                      editedTitle.trim(),
-                    );
-                  setIsEditingTitle(false);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") e.currentTarget.blur();
-                  if (e.key === "Escape") {
-                    setEditedTitle(selectedSection?.title || "");
-                    setIsEditingTitle(false);
-                  }
-                }}
-                autoFocus
-              />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">
-                  {selectedSection?.title || "No Section Selected"}
-                </div>
+        {/* 📝 Main column */}
+        <div
+          className="w-full lg:px-10 overflow-y-auto overflow-x-hidden
+                   flex flex-col space-y-6 h-full max-w-full"
+        >
+          {/* Top Tabs */}
+          <div className="w-full flex justify-center px-4 sm:px-0 py-[15px]">
+            <div
+              className="flex justify-between items-center w-full max-w-[480px]
+                          h-[68px] rounded-[10px] dark:bg-[#414141]
+                          bg-[#91C4AB]/45 shadow px-2 sm:px-4"
+            >
+              {LABELS.map((label, i) => (
                 <button
-                  className="pl-2"
-                  onClick={() => {
-                    setEditedTitle(selectedSection?.title || "");
-                    setIsEditingTitle(true);
-                  }}
+                  key={label}
+                  onClick={() => setCurrentSection(i as SectionForm)}
+                  className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors
+                            duration-200 ${
+                              currentSection === i
+                                ? "bg-[#61A986] text-black dark:text-white"
+                                : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
+                            }`}
                 >
-                  <Pencil className="w-5 h-5" />
+                  {label}
                 </button>
-              </>
-            )}
+              ))}
+            </div>
           </div>
+
+          {/* 📱 Mobile Section Sidebar */}
+          <div className="lg:hidden w-full px-4 flex flex-row justify-between items-center">
+            <SectionSidebar
+              sections={form?.sections || []}
+              selectedSectionId={selectedSectionId}
+              setSelectedSectionId={setSelectedSectionId}
+              onAddSection={addSection}
+              onDeleteSection={deleteSection}
+            />
+            <div className="bg-[#91C4AB] p-3 rounded shadow mr-2">
+              {saved !== 0 ? <h4>Saved {saved} sec ago</h4> : <h4>Saving…</h4>}
+            </div>
+          </div>
+
+          {/* Section title + autosave badge (desktop) */}
+          <div className="flex flex-row justify-between w-full px-10 items-center">
+            <div className="flex flex-row items-center gap-2 mt-6 mb-3">
+              {isEditingTitle ? (
+                <input
+                  className="text-xl font-semibold border-b border-black dark:border-white bg-transparent
+                           focus:outline-none px-1"
+                  value={editedTitle}
+                  onChange={(e) => setEditedTitle(e.target.value)}
+                  onBlur={() => {
+                    if (
+                      editedTitle.trim() &&
+                      selectedSection?.section_ID &&
+                      editedTitle.trim() !== selectedSection.title
+                    )
+                      handleRenameSection(
+                        selectedSection.section_ID,
+                        editedTitle.trim()
+                      );
+                    setIsEditingTitle(false);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") e.currentTarget.blur();
+                    if (e.key === "Escape") {
+                      setEditedTitle(selectedSection?.title || "");
+                      setIsEditingTitle(false);
+                    }
+                  }}
+                  autoFocus
+                />
+              ) : (
+                <>
+                  <div className="text-2xl font-bold">
+                    {selectedSection?.title || "No Section Selected"}
+                  </div>
+                  <button
+                    className="pl-2"
+                    onClick={() => {
+                      setEditedTitle(selectedSection?.title || "");
+                      setIsEditingTitle(true);
+                    }}
+                  >
+                    <Pencil className="w-5 h-5" />
+                  </button>
+                </>
+              )}
+            </div>
 
             <div className="bg-[#91C4AB] p-3 rounded shadow hidden lg:block mt-3">
-            {saved <1 ? (
-              <h4>Saving...</h4>
-            ) : saved < 60 ? (
-              <h4>Synced moments ago</h4>
-            ) : saved < 3600 ? (
-              <h4>Synced {Math.floor(saved / 60)} minutes ago</h4>
-            ) : (
-              <h4>Synced {Math.floor(saved / 3600)} hours ago</h4>
-            )}
+              {saved < 1 ? (
+                <h4>Saving...</h4>
+              ) : saved < 60 ? (
+                <h4>Synced moments ago</h4>
+              ) : saved < 3600 ? (
+                <h4>Synced {Math.floor(saved / 60)} minutes ago</h4>
+              ) : (
+                <h4>Synced {Math.floor(saved / 3600)} hours ago</h4>
+              )}
             </div>
+          </div>
+
+          {/* Question list */}
+          {selectedSection && (
+            <QuestionParent
+              ques={selectedSection.questions}
+              onUpdate={updateQuestion}
+              onDelete={deleteQuestion}
+              onAdd={addQuestion}
+              selectedQuestion={selectedQuestion}
+              setSelectedQuestion={setSelectedQuestion}
+              onEditQuestion={() => setShowRightNav(!showRightNav)}
+            />
+          )}
         </div>
 
-        {/* Question list */}
-        {selectedSection && (
-          <QuestionParent
-            ques={selectedSection.questions}
-            onUpdate={updateQuestion}
-            onDelete={deleteQuestion}
-            onAdd={addQuestion}
-            selectedQuestion={selectedQuestion}
-            setSelectedQuestion={setSelectedQuestion}
-            onEditQuestion={() => setShowRightNav(!showRightNav)}
-          />
-        )}
-      </div>
-
-      {/* ➕ Floating FAB — mobile only */}
-      {currentSection === SectionForm.Builder && selectedSectionId && (
-        <button
-          onClick={addQuestion}
-          className="lg:hidden fixed bottom-6 right-6 z-40
+        {/* ➕ Floating FAB — mobile only */}
+        {currentSection === SectionForm.Builder && selectedSectionId && (
+          <button
+            onClick={addQuestion}
+            className="lg:hidden fixed bottom-6 right-6 z-40
                      h-14 w-14 rounded-full bg-[#61A986] text-white
                      flex items-center justify-center text-3xl shadow-lg
                      active:scale-95 transition-transform"
-          aria-label="Add question"
+            aria-label="Add question"
+          >
+            +
+          </button>
+        )}
+
+        {/* 🧾 RightNav (desktop) */}
+        <div
+          className="hidden lg:block w-1/3 h-full sticky border-l border-gray-300
+                      bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500 overflow-y-auto"
         >
-          +
-        </button>
-      )}
-
-      {/* 🧾 RightNav (desktop) */}
-      <div className="hidden lg:block w-1/3 h-full sticky border-l border-gray-300
-                      bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500 overflow-y-auto">
-        <RightNav selectedQuestion={selectedQuestion} onUpdate={updateQuestion} />
-      </div>
-
-      {/* 📱 RightNav overlay (mobile) */}
-      {showRightNav && (
-        <div className="lg:hidden fixed top-0 left-0 w-full h-full bg-white z-50 overflow-y-auto dark:bg-[#2a2b2b]">
-          <div className="flex justify-between items-center p-4 border-b dark:border-gray-500">
-            <h2 className="text-lg font-semibold">Edit Question</h2>
-            <button
-              onClick={() => setShowRightNav(false)}
-              className="text-red-500 font-semibold"
-            >
-              Close
-            </button>
-          </div>
-          <div className="p-4">
-            <RightNav selectedQuestion={selectedQuestion} onUpdate={updateQuestion} />
-          </div>
-          
+          <RightNav
+            selectedQuestion={selectedQuestion}
+            onUpdate={updateQuestion}
+          />
         </div>
-      )}
-{showFAQ && <FAQs showFaq={showFAQ} setShowFaq={setShowFAQ} />}
-      {/* FAQ modal */}
-       <FaqButton />
-    </div>
+
+        {/* 📱 RightNav overlay (mobile) */}
+        {showRightNav && (
+          <div className="lg:hidden fixed top-0 left-0 w-full h-full bg-white z-50 overflow-y-auto dark:bg-[#2a2b2b]">
+            <div className="flex justify-between items-center p-4 border-b dark:border-gray-500">
+              <h2 className="text-lg font-semibold">Edit Question</h2>
+              <button
+                onClick={() => setShowRightNav(false)}
+                className="text-red-500 font-semibold"
+              >
+                Close
+              </button>
+            </div>
+            <div className="p-4">
+              <RightNav
+                selectedQuestion={selectedQuestion}
+                onUpdate={updateQuestion}
+              />
+            </div>
+          </div>
+        )}
+        {showFAQ && <FAQs showFaq={showFAQ} setShowFaq={setShowFAQ} />}
+        {/* FAQ modal */}
+        <FaqButton />
+      </div>
+    </>
   );
 }
