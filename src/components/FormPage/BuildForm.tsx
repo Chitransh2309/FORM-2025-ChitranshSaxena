@@ -1,7 +1,16 @@
+/**
+ * BuildPage.tsx
+ *
+ * Form-builder main screen — now 100 % responsive:
+ * • No horizontal scroll on narrow view-ports
+ * • Floating “Add Question” FAB on mobile so the action is always reachable
+ */
+
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
+import { HiOutlineQuestionMarkCircle } from "react-icons/hi";
 import SectionSidebar from "@/components/FormPage/SectionSidebar";
 import RightNav from "@/components/FormPage/RightNav";
 import QuestionParent from "@/components/FormPage/QuestionParent";
@@ -12,7 +21,7 @@ import { Pencil } from "lucide-react";
 import FAQs from "../NewUserPage/FAQs";
 import toast from "react-hot-toast";
 import { renameSectionTitle } from "@/app/action/sections";
-import  debounce  from "lodash/debounce";
+import debounce from "lodash/debounce";
 
 enum SectionForm {
   Builder,
@@ -29,239 +38,208 @@ export default function BuildPage({
   currentSection,
   setCurrentSection,
 }: FormBuildProps) {
+  /* ─────────────────────────────── state ─────────────────────────────── */
   const LABELS = ["Builder", "Workflow", "Preview"];
   const { id: formId } = useParams<{ id: string }>();
+
   const [form, setForm] = useState<Form>();
-
   const formRef = useRef<Form | null>(form);
-
-  useEffect(() => {
-    formRef.current = form;
-  }, [form]);
+  useEffect(() => void (formRef.current = form), [form]);
 
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
-    null
+    null,
   );
-  const [showRightNav, setShowRightNav] = useState<boolean>(false);
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
-    null
+    null,
   );
-  const [showFAQ, setShowFAQ] = useState<boolean>(false);
 
-  const [saved, setSaved] = useState<number>(0);
+  const [showRightNav, setShowRightNav] = useState(false);
+  const [showFAQ, setShowFAQ] = useState(false);
+
+  const [saved, setSaved] = useState(0);
 
   const selectedSection = form?.sections.find(
-    (s) => s.section_ID === selectedSectionId
+    (s) => s.section_ID === selectedSectionId,
   );
 
-  const [isEditingTitle, setIsEditingTitle] = useState<boolean>(false);
-  const [editedTitle, setEditedTitle] = useState<string>("");
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState("");
 
-  const debouncedSaveForm = React.useCallback(
+  /* ──────────────────── auto-save with debounce ─────────────────────── */
+  const debouncedSaveForm = useCallback(
     debounce(async () => {
       if (!formRef.current) return;
 
       setSaved(0);
-
       const res = await saveFormToDB(formRef.current);
-      if (!res.success) {
-        console.error("Failed to save form response");
-      }
+      if (!res.success) console.error("Failed to save form");
     }, 2500),
-    []
+    [],
   );
 
+  /* countdown “Saved X sec ago” */
   useEffect(() => {
-    let intervalId: NodeJS.Timeout | null = null;
-    intervalId = setInterval(() => {
-      setSaved((prev) => prev + 1);
-    }, 1000);
+    const id = setInterval(() => setSaved((p) => p + 1), 1000);
     return () => {
-      if (intervalId) clearInterval(intervalId);
-      debouncedSaveForm.flush(); // Flush pending saves on unmount
+      clearInterval(id);
+      debouncedSaveForm.flush();
     };
   }, [debouncedSaveForm]);
 
+  /* ─────────────────────── data loading ─────────────────────────────── */
   useEffect(() => {
-    setEditedTitle(selectedSection?.title || "");
-  }, [selectedSectionId, selectedSection?.title]);
-
-  const handleTitleSave = () => {
-    if (
-      editedTitle.trim() &&
-      selectedSection?.section_ID &&
-      editedTitle.trim() !== selectedSection.title
-    ) {
-      handleRenameSection(selectedSection.section_ID, editedTitle.trim());
-    }
-    setIsEditingTitle(false);
-  };
-
-  useEffect(() => {
-    const loadData = async () => {
+    (async () => {
       if (!formId || typeof formId !== "string") return;
       const res = await getFormObject(formId);
       if (res.success && res.data) {
         setForm(res.data);
         setSelectedSectionId(res.data.sections?.[0]?.section_ID ?? null);
       }
-    };
-    loadData();
+    })();
   }, [formId]);
 
-  useEffect(() => {
-    setSelectedQuestion(null);
-  }, [selectedSectionId]);
+  useEffect(() => setSelectedQuestion(null), [selectedSectionId]);
+  useEffect(() => setEditedTitle(selectedSection?.title || ""), [
+    selectedSectionId,
+    selectedSection?.title,
+  ]);
 
+  /* ───────────────────── theme (dark / light) ───────────────────────── */
+  useEffect(() => {
+    const stored = localStorage.getItem("theme");
+    document.documentElement.classList.toggle("dark", stored === "dark");
+  }, []);
+const FaqButton = () => (
+    <button
+      onClick={() => setShowFAQ(true)}
+      className="absolute bottom-5 right-5 md:bottom-6 md:right-6 z-40
+                 p-3 rounded-full bg-white dark:bg-gray-700 border border-gray-200
+                 dark:border-gray-600 shadow-lg hover:shadow-xl transition"
+    >
+      <HiOutlineQuestionMarkCircle
+        size={24}
+        className="text-gray-600 dark:text-gray-300"
+      />
+    </button>
+  );
+  /* ─────────────────────── section helpers ──────────────────────────── */
   const addSection = () => {
     if (!form) return;
 
-    const existingNumbers = form.sections
-      .map((s) => {
-        const match = s.section_ID.match(/section-(\d+)/);
-        return match ? parseInt(match[1]) : 0;
-      })
-      .filter((num) => num > 0);
+    const nums = form.sections
+      .map((s) => Number(s.section_ID.match(/section-(\d+)/)?.[1] ?? 0))
+      .filter(Boolean);
 
-    let nextNumber = 1;
-    while (existingNumbers.includes(nextNumber)) {
-      nextNumber++;
-    }
+    let next = 1;
+    while (nums.includes(next)) next++;
 
-    const newId = `section-${nextNumber}`;
     const newSection: Section = {
-      section_ID: newId,
-      title: `Section ${nextNumber}`,
+      section_ID: `section-${next}`,
+      title: `Section ${next}`,
       description: "",
       questions: [],
     };
 
-    setForm({
-      ...form,
-      sections: [...form.sections, newSection],
-    });
-    setSelectedSectionId(newId);
-    debouncedSaveForm();
-  };
-
-  const handleRenameSection = async (sectionId: string, newTitle: string) => {
-    if (!formId || typeof formId !== "string") return;
-
-    const res = await renameSectionTitle(formId, sectionId, newTitle);
-
-    if (res.success) {
-      setForm((prev) => {
-        if (!prev) return prev;
-        const updatedSections = prev.sections.map((s) =>
-          s.section_ID === sectionId ? { ...s, title: newTitle } : s
-        );
-        return { ...prev, sections: updatedSections };
-      });
-      toast.success("Section renamed");
-    } else {
-      toast.error(res.error || "Rename failed");
-    }
+    setForm({ ...form, sections: [...form.sections, newSection] });
+    setSelectedSectionId(newSection.section_ID);
     debouncedSaveForm();
   };
 
   const deleteSection = (sectionId: string) => {
     if (!form) return;
-    const filteredSections = form.sections.filter(
-      (s) => s.section_ID !== sectionId
-    );
-    setForm({ ...form, sections: filteredSections });
-    if (sectionId === selectedSectionId) {
-      setSelectedSectionId(filteredSections[0]?.section_ID ?? null);
-    }
+    const sections = form.sections.filter((s) => s.section_ID !== sectionId);
+    setForm({ ...form, sections });
+    if (sectionId === selectedSectionId)
+      setSelectedSectionId(sections[0]?.section_ID ?? null);
     debouncedSaveForm();
   };
 
+  const handleRenameSection = async (sid: string, title: string) => {
+    if (!formId || typeof formId !== "string") return;
+    const res = await renameSectionTitle(formId, sid, title);
+
+    if (res.success) {
+      setForm((prev) => {
+        if (!prev) return prev;
+        const sections = prev.sections.map((s) =>
+          s.section_ID === sid ? { ...s, title } : s,
+        );
+        return { ...prev, sections };
+      });
+      toast.success("Section renamed");
+    } else toast.error(res.error || "Rename failed");
+    debouncedSaveForm();
+  };
+
+  /* ───────────────────── question helpers ───────────────────────────── */
   const addQuestion = () => {
     if (!form || !selectedSectionId) return;
 
-    const newQuestion: Question = {
+    const newQ: Question = {
       question_ID: `q-${Date.now()}`,
       section_ID: selectedSectionId,
       questionText: "",
       isRequired: false,
-      order: (selectedSection?.questions.length || 0) + 1,
+      order: (selectedSection?.questions.length ?? 0) + 1,
       type: QuestionType.TEXT,
     };
 
-    const updatedSections = form.sections.map((section) =>
-      section.section_ID === selectedSectionId
-        ? {
-            ...section,
-            questions: [...section.questions, newQuestion],
-          }
-        : section
+    const sections = form.sections.map((sec) =>
+      sec.section_ID === selectedSectionId
+        ? { ...sec, questions: [...sec.questions, newQ] }
+        : sec,
     );
 
-    setForm({ ...form, sections: updatedSections });
-    setSelectedQuestion(newQuestion);
+    setForm({ ...form, sections });
+    setSelectedQuestion(newQ);
     debouncedSaveForm();
   };
 
-  const updateQuestion = (id: string, updates: Partial<Question>) => {
+  const updateQuestion = (id: string, u: Partial<Question>) => {
     if (!form || !selectedSectionId) return;
+    let newSel: Question | null = null;
 
-    let newSelected: Question | null = null;
-
-    const updatedSections = form.sections.map((section) =>
-      section.section_ID === selectedSectionId
+    const sections = form.sections.map((sec) =>
+      sec.section_ID === selectedSectionId
         ? {
-            ...section,
-            questions: section.questions.map((q) => {
+            ...sec,
+            questions: sec.questions.map((q) => {
               if (q.question_ID === id) {
-                const updated = { ...q, ...updates };
-                if (selectedQuestion?.question_ID === id) {
-                  newSelected = updated;
-                }
-                return updated;
+                const upd = { ...q, ...u };
+                if (selectedQuestion?.question_ID === id) newSel = upd;
+                return upd;
               }
               return q;
             }),
           }
-        : section
+        : sec,
     );
 
-    setForm({ ...form, sections: updatedSections });
-    if (newSelected) {
-      setSelectedQuestion(newSelected);
-    }
+    setForm({ ...form, sections });
+    if (newSel) setSelectedQuestion(newSel);
     debouncedSaveForm();
   };
 
   const deleteQuestion = (id: string) => {
     if (!form || !selectedSectionId) return;
 
-    const updatedSections = form.sections.map((section) =>
-      section.section_ID === selectedSectionId
+    const sections = form.sections.map((sec) =>
+      sec.section_ID === selectedSectionId
         ? {
-            ...section,
-            questions: section.questions.filter((q) => q.question_ID !== id),
+            ...sec,
+            questions: sec.questions.filter((q) => q.question_ID !== id),
           }
-        : section
+        : sec,
     );
 
-    setForm({ ...form, sections: updatedSections });
-    if (selectedQuestion?.question_ID === id) {
-      setSelectedQuestion(null);
-    }
+    setForm({ ...form, sections });
+    if (selectedQuestion?.question_ID === id) setSelectedQuestion(null);
     debouncedSaveForm();
   };
 
-  useEffect(() => {
-    const storedTheme = localStorage.getItem("theme");
-    if (storedTheme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, []);
-
+  /* ──────────────────────── render ──────────────────────────────────── */
   return (
-    <div className="flex flex-col lg:flex-row h-[90vh] w-full">
+    <div className="flex flex-col lg:flex-row h-[92vh] xl:h-[calc(100%-68px)] w-full">
       {/* ⬅️ Desktop Sidebar */}
       <div className="hidden lg:flex w-1/3 border-r border-gray-300 dark:border-gray-500 overflow-y-auto h-screen">
         <SectionSidebar
@@ -273,21 +251,26 @@ export default function BuildPage({
         />
       </div>
 
-      {/* 📝 Main Content */}
-      <div className="w-full lg:px-10 overflow-y-auto flex flex-col space-y-6 ">
+      {/* 📝 Main column */}
+      <div
+        className="w-full lg:px-10 overflow-y-auto overflow-x-hidden
+                   flex flex-col space-y-6 h-full max-w-full"
+      >
         {/* Top Tabs */}
-       <div className="w-full flex justify-center px-4 sm:px-0 py-[15px]">
-
-          <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
+        <div className="w-full flex justify-center px-4 sm:px-0 py-[15px]">
+          <div className="flex justify-between items-center w-full max-w-[480px]
+                          h-[68px] rounded-[10px] dark:bg-[#414141]
+                          bg-[#91C4AB]/45 shadow px-2 sm:px-4">
             {LABELS.map((label, i) => (
               <button
                 key={label}
                 onClick={() => setCurrentSection(i as SectionForm)}
-                className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors duration-200 ${
-                  currentSection === i
-                    ? "bg-[#61A986] text-black dark:text-white"
-                    : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
-                }`}
+                className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors
+                            duration-200 ${
+                              currentSection === i
+                                ? "bg-[#61A986] text-black dark:text-white"
+                                : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
+                            }`}
               >
                 {label}
               </button>
@@ -304,32 +287,41 @@ export default function BuildPage({
             onAddSection={addSection}
             onDeleteSection={deleteSection}
           />
-          
           <div className="bg-[#91C4AB] p-3 rounded shadow mr-2">
-            {saved !== 0 ? <h4>Saved {saved} sec ago</h4> : <h4>Saving...</h4>}
+            {saved !== 0 ? <h4>Saved {saved} sec ago</h4> : <h4>Saving…</h4>}
           </div>
         </div>
 
-        {/* Section Title */}
+        {/* Section title + autosave badge (desktop) */}
         <div className="flex flex-row justify-between w-full px-10 items-center">
-          <div className="flex flex-row justify-center items-center gap-2 mt-6 mb-3">
+          <div className="flex flex-row items-center gap-2 mt-6 mb-3">
             {isEditingTitle ? (
-              <>
-                <input
-                  className="text-xl font-semibold border-b border-black dark:border-white bg-transparent focus:outline-none px-1"
-                  value={editedTitle}
-                  onChange={(e) => setEditedTitle(e.target.value)}
-                  onBlur={handleTitleSave}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleTitleSave();
-                    if (e.key === "Escape") {
-                      setEditedTitle(selectedSection?.title || "");
-                      setIsEditingTitle(false);
-                    }
-                  }}
-                  autoFocus
-                />
-              </>
+              <input
+                className="text-xl font-semibold border-b border-black dark:border-white bg-transparent
+                           focus:outline-none px-1"
+                value={editedTitle}
+                onChange={(e) => setEditedTitle(e.target.value)}
+                onBlur={() => {
+                  if (
+                    editedTitle.trim() &&
+                    selectedSection?.section_ID &&
+                    editedTitle.trim() !== selectedSection.title
+                  )
+                    handleRenameSection(
+                      selectedSection.section_ID,
+                      editedTitle.trim(),
+                    );
+                  setIsEditingTitle(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") e.currentTarget.blur();
+                  if (e.key === "Escape") {
+                    setEditedTitle(selectedSection?.title || "");
+                    setIsEditingTitle(false);
+                  }
+                }}
+                autoFocus
+              />
             ) : (
               <>
                 <div className="text-2xl font-bold">
@@ -348,12 +340,20 @@ export default function BuildPage({
             )}
           </div>
 
-          <div className="bg-[#91C4AB] p-3 rounded shadow hidden lg:block mt-3">
-            {saved !== 0 ? <h4>Saved {saved} sec ago</h4> : <h4>Saving...</h4>}
-          </div>
+            <div className="bg-[#91C4AB] p-3 rounded shadow hidden lg:block mt-3">
+            {saved <1 ? (
+              <h4>Saving...</h4>
+            ) : saved < 60 ? (
+              <h4>Synced moments ago</h4>
+            ) : saved < 3600 ? (
+              <h4>Synced {Math.floor(saved / 60)} minutes ago</h4>
+            ) : (
+              <h4>Synced {Math.floor(saved / 3600)} hours ago</h4>
+            )}
+            </div>
         </div>
 
-        {/* Question List */}
+        {/* Question list */}
         {selectedSection && (
           <QuestionParent
             ques={selectedSection.questions}
@@ -367,15 +367,27 @@ export default function BuildPage({
         )}
       </div>
 
+      {/* ➕ Floating FAB — mobile only */}
+      {currentSection === SectionForm.Builder && selectedSectionId && (
+        <button
+          onClick={addQuestion}
+          className="lg:hidden fixed bottom-6 right-6 z-40
+                     h-14 w-14 rounded-full bg-[#61A986] text-white
+                     flex items-center justify-center text-3xl shadow-lg
+                     active:scale-95 transition-transform"
+          aria-label="Add question"
+        >
+          +
+        </button>
+      )}
+
       {/* 🧾 RightNav (desktop) */}
-      <div className="hidden lg:block w-1/3 h-full sticky border-l border-gray-300 bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500">
-        <RightNav
-          selectedQuestion={selectedQuestion}
-          onUpdate={updateQuestion}
-        />
+      <div className="hidden lg:block w-1/3 h-full sticky border-l border-gray-300
+                      bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500 overflow-y-auto">
+        <RightNav selectedQuestion={selectedQuestion} onUpdate={updateQuestion} />
       </div>
 
-      {/* 📱 Mobile RightNav Overlay */}
+      {/* 📱 RightNav overlay (mobile) */}
       {showRightNav && (
         <div className="lg:hidden fixed top-0 left-0 w-full h-full bg-white z-50 overflow-y-auto dark:bg-[#2a2b2b]">
           <div className="flex justify-between items-center p-4 border-b dark:border-gray-500">
@@ -388,16 +400,14 @@ export default function BuildPage({
             </button>
           </div>
           <div className="p-4">
-            <RightNav
-              selectedQuestion={selectedQuestion}
-              onUpdate={updateQuestion}
-            />
+            <RightNav selectedQuestion={selectedQuestion} onUpdate={updateQuestion} />
           </div>
+          
         </div>
       )}
-
-      {/* FAQ */}
-      <FAQs showFaq={showFAQ} setShowFaq={setShowFAQ} />
+{showFAQ && <FAQs showFaq={showFAQ} setShowFaq={setShowFAQ} />}
+      {/* FAQ modal */}
+       <FaqButton />
     </div>
   );
 }

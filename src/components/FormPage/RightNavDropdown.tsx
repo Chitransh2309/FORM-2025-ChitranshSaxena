@@ -10,6 +10,9 @@ import {
   Validation,
 } from "@/lib/interface";
 
+/* ──────────────────────────────────────────────────────────── */
+/* dropdown options                                             */
+/* ──────────────────────────────────────────────────────────── */
 const questionTypes = [
   { label: "MCQ", value: QuestionType.MCQ, field: "mcq" },
   { label: "Text", value: QuestionType.TEXT, field: "text" },
@@ -24,6 +27,7 @@ const questionTypes = [
   { label: "Url", value: QuestionType.URL, field: "url" },
 ];
 
+/* extra ui-only keys allowed on <input> configs */
 type UIParam = Param & {
   placeholder?: string;
   isValidation?: true;
@@ -36,6 +40,7 @@ interface Props {
   onUpdateConfig?: (c: FieldType) => void;
 }
 
+/* ──────────────────────────────────────────────────────────── */
 export default function QuestionTypeDropdown({
   selectedQuestion,
   onChangeType,
@@ -44,11 +49,10 @@ export default function QuestionTypeDropdown({
   const [selectedType, setSelectedType] = useState(questionTypes[0].label);
   const [isOpen, setIsOpen] = useState(false);
 
+  /* keep the header text in sync with parent selection */
   useEffect(() => {
     if (selectedQuestion?.type) {
-      const found = questionTypes.find(
-        (q) => q.value === selectedQuestion.type
-      );
+      const found = questionTypes.find((q) => q.value === selectedQuestion.type);
       setSelectedType(found?.label ?? questionTypes[0].label);
     } else {
       setSelectedType(questionTypes[0].label);
@@ -56,6 +60,7 @@ export default function QuestionTypeDropdown({
     setIsOpen(false);
   }, [selectedQuestion?.question_ID]);
 
+  /* ────────── type change ────────── */
   const handleTypeChange = (label: string) => {
     setSelectedType(label);
     setIsOpen(false);
@@ -63,6 +68,7 @@ export default function QuestionTypeDropdown({
     const found = questionTypes.find((q) => q.label === label);
     if (!found) return;
 
+    /* reset config for the newly chosen field type */
     if (onUpdateConfig) {
       const schema = fieldtypes.find((f) => f.name === found.field);
       if (schema) {
@@ -81,6 +87,7 @@ export default function QuestionTypeDropdown({
     onChangeType?.(found.value);
   };
 
+  /* ────────── helpers to mutate params / validations ────────── */
   const updateParams = (newParam: Param) => {
     if (!selectedQuestion || !onUpdateConfig) return;
     const cfg = selectedQuestion.config as FieldType | undefined;
@@ -112,19 +119,23 @@ export default function QuestionTypeDropdown({
     let newValidations: Validation[];
 
     if (vIdx >= 0) {
+      /* update existing validation */
       const validation = cfg.validations[vIdx];
       const params = validation.params ?? [];
       const pIdx = params.findIndex((p) => p.name === paramName);
 
       const newParams =
         pIdx >= 0
-          ? params.map((p) => (p.name === paramName ? { ...p, value } : p))
+          ? params.map((p) =>
+              p.name === paramName ? { ...p, value } : p
+            )
           : [...params, { name: paramName, type: "string", value }];
 
       newValidations = cfg.validations.map((v) =>
         v.name === validationName ? { ...v, params: newParams as Param[] } : v
       );
     } else {
+      /* add new validation */
       newValidations = [
         ...cfg.validations,
         {
@@ -137,32 +148,23 @@ export default function QuestionTypeDropdown({
     onUpdateConfig({ ...cfg, validations: newValidations });
   };
 
+  /* ────────── render <input> for each param ────────── */
   const renderParamInput = (param: UIParam, key: string) => {
     const cls =
       "w-full px-2 py-2 rounded bg-white outline-none dark:bg-[#5A5959] dark:text-white";
 
-    const label = (
-      <div className="text-xs font-semibold text-gray-600 dark:text-gray-300 capitalize">
-        {param.name}
-      </div>
-    );
-
-    const wrap = (input: React.ReactNode) => (
-      <div key={key} className="space-y-1">
-        {label}
-        {input}
-      </div>
-    );
-
-    const placeholder = param.placeholder ?? param.name;
-
+    /* validation-specific handling */
     if (param.isValidation) {
       const vn = param.validationName!;
+      const placeholder = param.placeholder ?? param.name;
 
       if (["contains", "doesnotContain"].includes(param.name)) {
-        const asText = Array.isArray(param.value) ? param.value.join(", ") : "";
-        return wrap(
+        const asText = Array.isArray(param.value)
+          ? param.value.join(", ")
+          : "";
+        return (
           <input
+            key={key}
             type="text"
             placeholder={placeholder}
             value={asText}
@@ -182,60 +184,69 @@ export default function QuestionTypeDropdown({
       }
 
       if (["min", "max"].includes(param.name)) {
-        return wrap(
+        return (
           <input
+            key={key}
             type="number"
             placeholder={placeholder}
             value={String(param.value ?? "")}
             className={cls}
             onChange={(e) =>
-              updateValidation(
-                vn,
-                param.name,
-                parseInt(e.target.value, 10) || 0
-              )
+              updateValidation(vn, param.name, parseInt(e.target.value, 10) || 0)
             }
           />
         );
       }
 
       if (param.type === "date") {
-        return wrap(
+        return (
           <input
+            key={key}
             type="date"
             placeholder={placeholder}
             value={(param.value as string) ?? ""}
             className={cls}
-            onChange={(e) => updateValidation(vn, param.name, e.target.value)}
+            onChange={(e) =>
+              updateValidation(vn, param.name, e.target.value)
+            }
           />
         );
       }
 
-      return wrap(
+      return (
         <input
+          key={key}
           type="text"
           placeholder={placeholder}
           value={String(param.value ?? "")}
           className={cls}
-          onChange={(e) => updateValidation(vn, param.name, e.target.value)}
+          onChange={(e) =>
+            updateValidation(vn, param.name, e.target.value)
+          }
         />
       );
     }
 
+    /* normal param handling */
     switch (param.type) {
       case "string":
-        return wrap(
+        return (
           <input
+            key={key}
             type="text"
             placeholder={param.name}
             value={String(param.value ?? "")}
             className={cls}
-            onChange={(e) => updateParams({ ...param, value: e.target.value })}
+            onChange={(e) =>
+              updateParams({ ...param, value: e.target.value })
+            }
           />
         );
+
       case "number":
-        return wrap(
+        return (
           <input
+            key={key}
             type="number"
             placeholder={param.name}
             value={String(param.value ?? "")}
@@ -248,9 +259,10 @@ export default function QuestionTypeDropdown({
             }
           />
         );
+
       case "boolean":
-        return wrap(
-          <label className="flex items-center gap-2">
+        return (
+          <label key={key} className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={!!param.value}
@@ -262,9 +274,11 @@ export default function QuestionTypeDropdown({
             <span>{param.name}</span>
           </label>
         );
+
       case "array[string]":
-        return wrap(
+        return (
           <input
+            key={key}
             type="text"
             placeholder={`${param.name} (comma-separated)`}
             value={Array.isArray(param.value) ? param.value.join(", ") : ""}
@@ -280,16 +294,21 @@ export default function QuestionTypeDropdown({
             }
           />
         );
+
       case "date":
-        return wrap(
+        return (
           <input
+            key={key}
             type="date"
             placeholder={param.name}
             value={(param.value as string) ?? ""}
             className={cls}
-            onChange={(e) => updateParams({ ...param, value: e.target.value })}
+            onChange={(e) =>
+              updateParams({ ...param, value: e.target.value })
+            }
           />
         );
+
       default:
         return (
           <div key={key} className="italic text-red-600">
@@ -299,12 +318,13 @@ export default function QuestionTypeDropdown({
     }
   };
 
+  /* ────────── right-side config panel ────────── */
   const typeSelector = () => {
     const fieldName =
       questionTypes.find((q) => q.label === selectedType)?.field ??
       questionTypes[0].field;
-    const schema = fieldtypes.find((f) => f.name === fieldName);
 
+    const schema = fieldtypes.find((f) => f.name === fieldName);
     if (!schema) {
       return (
         <div className="bg-white p-4 text-black text-sm dark:bg-[#494949] dark:text-white">
@@ -315,19 +335,22 @@ export default function QuestionTypeDropdown({
 
     const getParamVal = (n: string) =>
       selectedQuestion?.config?.params?.find((p) => p.name === n)?.value;
+
     const getValidationVal = (v: string, n: string) =>
       selectedQuestion?.config?.validations
         ?.find((val) => val.name === v)
         ?.params?.find((p) => p.name === n)?.value;
 
     return (
-      <div className="bg-white p-4 text-black space-y-4 text-sm dark:bg-[#494949] dark:text-white">
+      <div className="bg-white py-4 px-2 text-black space-y-4 text-sm dark:bg-[#494949] dark:text-white">
         {schema.params.length > 0 && (
           <>
             <h4 className="font-semibold">{selectedType} Parameters</h4>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {schema.params
-                .filter((p) => !(schema.name === "mcq" && p.name === "options"))
+                .filter(
+                  (p) => !(schema.name === "mcq" && p.name === "options")
+                )
                 .map((p, i) =>
                   renderParamInput(
                     {
@@ -348,7 +371,7 @@ export default function QuestionTypeDropdown({
               {schema.validations.map((v, vi) => (
                 <div
                   key={vi}
-                  className="border-l-2 border-gray-300 pl-3 dark:border-gray-600"
+                  className=""
                 >
                   <h5 className="font-medium text-sm mb-2 capitalize">
                     {v.name}
@@ -385,8 +408,10 @@ export default function QuestionTypeDropdown({
     );
   };
 
+  /* ────────── main render ────────── */
   return (
-    <div className="w-full h-full max-w-sm sm:max-w-xs mx-auto relative rounded-xl bg-white dark:bg-[#494949]">
+    <div className="w-full h-full max-w-sm sm:max-w-xs mx-auto relative rounded-xl">
+      {/* dropdown header */}
       <div
         className="bg-[#8CC7AA] dark:bg-[#5A5959] dark:text-white rounded-xl px-4 py-3 flex justify-between items-center cursor-pointer"
         onClick={() => setIsOpen((o) => !o)}
@@ -397,6 +422,7 @@ export default function QuestionTypeDropdown({
         <span className="text-lg">{isOpen ? "▲" : "▼"}</span>
       </div>
 
+      {/* dropdown list */}
       {isOpen && (
         <div className="absolute z-10 w-full bg-[#8CC7AA] text-black rounded-b-xl shadow-lg mt-1 dark:text-white dark:bg-[#494949]">
           <ul className="py-2 px-4 space-y-2 max-h-52 overflow-y-auto text-sm">
@@ -419,7 +445,8 @@ export default function QuestionTypeDropdown({
         </div>
       )}
 
-      <div className="mt-5">{typeSelector()}</div>
+      {/* right-side panel */}
+      <div className="">{typeSelector()}</div>
     </div>
   );
 }
