@@ -27,7 +27,7 @@ export default function Starred({ searchTerm }: { searchTerm: string }) {
         setLoading(true);
         const formsRes = await getFormsForUser(true);             // starred
 
-        const mapped: Form[] = formsRes.map((form: { _id: { toString: () => string }, responseCount: number } & Partial<Form>) => ({
+        const mapped: Form[] = formsRes.map((form: { _id: string, createdAt: Date, updatedAt: Date } & Partial<Form>) => ({
           form_ID    : form._id.toString(),
           title      : form.title ?? "",
           description: form.description ?? "",
@@ -36,7 +36,14 @@ export default function Starred({ searchTerm }: { searchTerm: string }) {
           isActive   : !!form.isActive,
           version    : form.version ?? 0,
           share_url  : form.share_url ?? "",
-          settings   : form.settings ?? { startDate: new Date(), cameraRequired: false },
+          settings   : {
+            maxResponses   : 0,
+            endDate        : undefined,
+            startDate      : form.settings?.startDate as Date,
+            timingEnabled  : false,
+            cameraRequired : form.settings?.cameraRequired ?? false,
+            ...(form.settings ?? {}),
+          },
           sections  : form.sections ?? [],
           isDeleted : !!form.isDeleted,
           isStarred : form.isStarred ?? true,                     // keep flag
