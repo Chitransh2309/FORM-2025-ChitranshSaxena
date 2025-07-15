@@ -36,15 +36,18 @@ export function MobileMenu() {
 export function Links() {
   return (
     <>
+    <div className='flex gap-16'>
       <Link href="#home">
-        <span className="dark:text-white">Home</span>
+        <span className="text-base sm:text-lg md:text-xl lg:text-2xl dark:text-white">Home</span>
       </Link>
       <Link href="dashboard">
-        <span className="dark:text-white">Dashboard</span>
+        <span className="text-base sm:text-lg md:text-xl lg:text-2xl dark:text-white">Dashboard</span>
       </Link>
       <Link href="#features">
-        <span className="dark:text-white">Features</span>
+        <span className="text-base sm:text-lg md:text-xl lg:text-2xl dark:text-white">Features</span>
       </Link>
+      </div>
     </>
   );
 }
+
