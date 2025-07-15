@@ -14,7 +14,6 @@ import { HiOutlineQuestionMarkCircle } from "react-icons/hi";
 import SectionSidebar from "@/components/FormPage/SectionSidebar";
 import RightNav from "@/components/FormPage/RightNav";
 import QuestionParent from "@/components/FormPage/QuestionParent";
-import getFormObject from "@/app/action/getFormObject";
 import { saveFormToDB } from "@/app/action/saveformtodb";
 import { Form, Question, Section, QuestionType } from "@/lib/interface";
 import { Pencil } from "lucide-react";
@@ -32,17 +31,20 @@ enum SectionForm {
 interface FormBuildProps {
   currentSection: SectionForm;
   setCurrentSection: (section: SectionForm) => void;
+  form: Form;
+  setForm: React.Dispatch<React.SetStateAction<Form>>;
 }
 
 export default function BuildPage({
   currentSection,
   setCurrentSection,
+  form,
+  setForm,
 }: FormBuildProps) {
   /* ─────────────────────────────── state ─────────────────────────────── */
   const LABELS = ["Builder", "Workflow", "Preview"];
   const { id: formId } = useParams<{ id: string }>();
 
-  const [form, setForm] = useState<Form>();
   const formRef = useRef<Form | null>(form);
   useEffect(() => void (formRef.current = form), [form]);
 
@@ -86,17 +88,17 @@ export default function BuildPage({
     };
   }, [debouncedSaveForm]);
 
-  /* ─────────────────────── data loading ─────────────────────────────── */
-  useEffect(() => {
-    (async () => {
-      if (!formId || typeof formId !== "string") return;
-      const res = await getFormObject(formId);
-      if (res.success && res.data) {
-        setForm(res.data);
-        setSelectedSectionId(res.data.sections?.[0]?.section_ID ?? null);
-      }
-    })();
-  }, [formId]);
+  // /* ─────────────────────── data loading ─────────────────────────────── */
+  // useEffect(() => {
+  //   (async () => {
+  //     if (!formId || typeof formId !== "string") return;
+  //     const res = await getFormObject(formId);
+  //     if (res.success && res.data) {
+  //       setForm(res.data);
+  //       setSelectedSectionId(res.data.sections?.[0]?.section_ID ?? null);
+  //     }
+  //   })();
+  // }, [formId]);
 
   useEffect(() => setSelectedQuestion(null), [selectedSectionId]);
   useEffect(
@@ -159,10 +161,9 @@ export default function BuildPage({
     const res = await renameSectionTitle(formId, sid, title);
 
     if (res.success) {
-      setForm((prev) => {
-        if (!prev) return prev;
-        const sections = prev.sections.map((s) =>
-          s.section_ID === sid ? { ...s, title } : s
+      setForm((prev: Form): Form => {
+        const sections: Section[] = prev.sections.map(
+          (s: Section): Section => (s.section_ID === sid ? { ...s, title } : s)
         );
         return { ...prev, sections };
       });

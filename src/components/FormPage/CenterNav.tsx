@@ -12,7 +12,7 @@ const CenterNav = ({
   currentUserEmail,
   currentUserID,
 }: {
-  form?: Form;
+  form: Form;
   currentUserEmail: string;
   currentUserID?: string;
 }) => {
@@ -60,7 +60,7 @@ const CenterNav = ({
 
   console.log("Current isEditor state:", isEditor);
   console.log("Current isViewer state:", isViewer);
-
+const[myForm,setMyForm] = useState<Form>(form);
   return (
     <div className="w-full bg-[#F6F8F6] dark:bg-[#2B2A2A] dark:text-white overflow-hidden font-[Outfit] h-full">
       {/* Top tab nav */}
@@ -91,6 +91,8 @@ const CenterNav = ({
       {isEditor ? (
         <BuildForm
           currentSection={currentSection}
+          form={myForm}
+          setForm={setMyForm}
           setCurrentSection={setCurrentSection}
         />
       ) : isViewer ? (
@@ -105,6 +107,8 @@ const CenterNav = ({
       ) : (
         <BuildForm
           currentSection={currentSection}
+          form={myForm}
+          setForm={setMyForm}
           setCurrentSection={setCurrentSection}
         />
       )}
@@ -116,9 +120,10 @@ const CenterNav = ({
     <>
       {isEditor ? (
         <WorkflowPage
-          form_ID={form?.form_ID}
           currentSection={currentSection}
           setCurrentSection={setCurrentSection}
+          form={myForm}
+          setForm={setMyForm}
         />
       ) : isViewer ? (
         <>
@@ -131,7 +136,8 @@ const CenterNav = ({
         </>
       ) : (
         <WorkflowPage
-          form_ID={form?.form_ID}
+          form={myForm}
+          setForm={setMyForm}
           currentSection={currentSection}
           setCurrentSection={setCurrentSection}
         />
@@ -143,7 +149,7 @@ const CenterNav = ({
   {currentSection === SectionForm.Preview && (
     <div className="p-4 sm:p-6 dark:text-white">
       <PreviewForm
-        form={form}
+        form={myForm}
         currentSection={currentSection}
         setCurrentSection={setCurrentSection}
       />
