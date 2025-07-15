@@ -39,7 +39,7 @@ export default function BuildPage({
   currentSection,
   setCurrentSection,
   form,
-  setForm
+  setForm,
 }: FormBuildProps) {
   /* ─────────────────────────────── state ─────────────────────────────── */
   const LABELS = ["Builder", "Workflow", "Preview"];
@@ -49,10 +49,10 @@ export default function BuildPage({
   useEffect(() => void (formRef.current = form), [form]);
 
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
-    null,
+    null
   );
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(
-    null,
+    null
   );
 
   const [showRightNav, setShowRightNav] = useState(false);
@@ -61,7 +61,7 @@ export default function BuildPage({
   const [saved, setSaved] = useState(0);
 
   const selectedSection = form?.sections.find(
-    (s) => s.section_ID === selectedSectionId,
+    (s) => s.section_ID === selectedSectionId
   );
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -76,7 +76,7 @@ export default function BuildPage({
       const res = await saveFormToDB(formRef.current);
       if (!res.success) console.error("Failed to save form");
     }, 2500),
-    [],
+    []
   );
 
   /* countdown “Saved X sec ago” */
@@ -101,17 +101,17 @@ export default function BuildPage({
   // }, [formId]);
 
   useEffect(() => setSelectedQuestion(null), [selectedSectionId]);
-  useEffect(() => setEditedTitle(selectedSection?.title || ""), [
-    selectedSectionId,
-    selectedSection?.title,
-  ]);
+  useEffect(
+    () => setEditedTitle(selectedSection?.title || ""),
+    [selectedSectionId, selectedSection?.title]
+  );
 
   /* ───────────────────── theme (dark / light) ───────────────────────── */
   useEffect(() => {
     const stored = localStorage.getItem("theme");
     document.documentElement.classList.toggle("dark", stored === "dark");
   }, []);
-const FaqButton = () => (
+  const FaqButton = () => (
     <button
       onClick={() => setShowFAQ(true)}
       className="absolute bottom-5 right-5 md:bottom-6 md:right-6 z-40
@@ -162,8 +162,8 @@ const FaqButton = () => (
 
     if (res.success) {
       setForm((prev: Form): Form => {
-        const sections: Section[] = prev.sections.map((s: Section): Section =>
-          s.section_ID === sid ? { ...s, title } : s,
+        const sections: Section[] = prev.sections.map(
+          (s: Section): Section => (s.section_ID === sid ? { ...s, title } : s)
         );
         return { ...prev, sections };
       });
@@ -188,7 +188,7 @@ const FaqButton = () => (
     const sections = form.sections.map((sec) =>
       sec.section_ID === selectedSectionId
         ? { ...sec, questions: [...sec.questions, newQ] }
-        : sec,
+        : sec
     );
 
     setForm({ ...form, sections });
@@ -213,7 +213,7 @@ const FaqButton = () => (
               return q;
             }),
           }
-        : sec,
+        : sec
     );
 
     setForm({ ...form, sections });
@@ -230,7 +230,7 @@ const FaqButton = () => (
             ...sec,
             questions: sec.questions.filter((q) => q.question_ID !== id),
           }
-        : sec,
+        : sec
     );
 
     setForm({ ...form, sections });
@@ -259,9 +259,11 @@ const FaqButton = () => (
       >
         {/* Top Tabs */}
         <div className="w-full flex justify-center px-4 sm:px-0 py-[15px]">
-          <div className="flex justify-between items-center w-full max-w-[480px]
+          <div
+            className="flex justify-between items-center w-full max-w-[480px]
                           h-[68px] rounded-[10px] dark:bg-[#414141]
-                          bg-[#91C4AB]/45 shadow px-2 sm:px-4">
+                          bg-[#91C4AB]/45 shadow px-2 sm:px-4"
+          >
             {LABELS.map((label, i) => (
               <button
                 key={label}
@@ -310,7 +312,7 @@ const FaqButton = () => (
                   )
                     handleRenameSection(
                       selectedSection.section_ID,
-                      editedTitle.trim(),
+                      editedTitle.trim()
                     );
                   setIsEditingTitle(false);
                 }}
@@ -341,8 +343,8 @@ const FaqButton = () => (
             )}
           </div>
 
-            <div className="bg-[#91C4AB] p-3 rounded shadow hidden lg:block mt-3">
-            {saved <1 ? (
+          <div className="bg-[#91C4AB] p-3 rounded shadow hidden lg:block mt-3">
+            {saved < 1 ? (
               <h4>Saving...</h4>
             ) : saved < 60 ? (
               <h4>Synced moments ago</h4>
@@ -351,7 +353,7 @@ const FaqButton = () => (
             ) : (
               <h4>Synced {Math.floor(saved / 3600)} hours ago</h4>
             )}
-            </div>
+          </div>
         </div>
 
         {/* Question list */}
@@ -368,24 +370,15 @@ const FaqButton = () => (
         )}
       </div>
 
-      {/* ➕ Floating FAB — mobile only */}
-      {currentSection === SectionForm.Builder && selectedSectionId && (
-        <button
-          onClick={addQuestion}
-          className="lg:hidden fixed bottom-6 right-6 z-40
-                     h-14 w-14 rounded-full bg-[#61A986] text-white
-                     flex items-center justify-center text-3xl shadow-lg
-                     active:scale-95 transition-transform"
-          aria-label="Add question"
-        >
-          +
-        </button>
-      )}
-
       {/* 🧾 RightNav (desktop) */}
-      <div className="hidden lg:block w-1/3 h-full sticky border-l border-gray-300
-                      bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500 overflow-y-auto">
-        <RightNav selectedQuestion={selectedQuestion} onUpdate={updateQuestion} />
+      <div
+        className="hidden lg:block w-1/3 h-full sticky border-l border-gray-300
+                      bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500 overflow-y-auto"
+      >
+        <RightNav
+          selectedQuestion={selectedQuestion}
+          onUpdate={updateQuestion}
+        />
       </div>
 
       {/* 📱 RightNav overlay (mobile) */}
@@ -401,14 +394,16 @@ const FaqButton = () => (
             </button>
           </div>
           <div className="p-4">
-            <RightNav selectedQuestion={selectedQuestion} onUpdate={updateQuestion} />
+            <RightNav
+              selectedQuestion={selectedQuestion}
+              onUpdate={updateQuestion}
+            />
           </div>
-          
         </div>
       )}
-{showFAQ && <FAQs showFaq={showFAQ} setShowFaq={setShowFAQ} />}
+      {showFAQ && <FAQs showFaq={showFAQ} setShowFaq={setShowFAQ} />}
       {/* FAQ modal */}
-       <FaqButton />
+      <FaqButton />
     </div>
   );
 }
