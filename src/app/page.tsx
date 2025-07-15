@@ -6,7 +6,7 @@ import Image from "next/image";
 
 export default async function Home() {
   return (
-    <div className="min-h-screen w-full bg-[#F6F8F6] dark:bg-[#191719] text-black dark:text-white overflow-x-hidden">
+    <div className="font-[Outfit] min-h-screen w-full bg-[#F6F8F6] dark:bg-[#191719] text-black dark:text-white overflow-x-hidden">
       <Navbar />
       <main className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 xl:px-20 2xl:px-24">
         <section className="py-8 sm:py-10 md:py-14 lg:py-20">

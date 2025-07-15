@@ -63,20 +63,20 @@ function HeroText() {
 
 function GridBoxes() {
   return (
-    <div className="w-full max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px]">
+    <div className="w-full min-w-200 min-h-100">
       <Image
         src="/formlightmode.svg"
         alt="Form Light Mode"
-        width={3000}
-        height={1600}
+        width={200}
+        height={100}
         priority
         className="block dark:hidden w-full h-auto object-contain"
       />
       <Image
         src="/formdarkmode.svg"
         alt="Form Dark Mode"
-        width={3000}
-        height={1600}
+        width={200}
+        height={100}
         priority
         className="hidden dark:block w-full h-auto object-contain"
       />

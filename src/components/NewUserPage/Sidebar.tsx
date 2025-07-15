@@ -1,14 +1,14 @@
-import { TbShare3 } from 'react-icons/tb';
-import { GrDocument } from 'react-icons/gr';
-import { FaRegStar } from 'react-icons/fa';
-import { LuTrash2 } from 'react-icons/lu';
-import Image from 'next/image';
+import { TbShare3 } from "react-icons/tb";
+import { GrDocument } from "react-icons/gr";
+import { FaRegStar } from "react-icons/fa";
+import { LuTrash2 } from "react-icons/lu";
+import Image from "next/image";
 
 interface SidebarProps {
   searchTerm: string;
   setSearchTerm: (t: string) => void;
-  selected: 'myForms' | 'shared' | 'starred' | 'trash';
-  setSelected: (s: 'myForms' | 'shared' | 'starred' | 'trash') => void;
+  selected: "myForms" | "shared" | "starred" | "trash";
+  setSelected: (s: "myForms" | "shared" | "starred" | "trash") => void;
 }
 
 export default function Sidebar({
@@ -18,11 +18,11 @@ export default function Sidebar({
   setSelected,
 }: SidebarProps) {
   /* helper: returns hover class or active class */
-  const linkClass = (key: SidebarProps['selected']) =>
+  const linkClass = (key: SidebarProps["selected"]) =>
     `w-full text-left px-4 py-3 flex items-center gap-3 text-lg rounded ${
       selected === key
-        ? 'bg-[#4a9470] text-white dark:bg-[#333333]'
-        : 'hover:bg-[#4a9470] dark:hover:bg-[#333333]'
+        ? "bg-[#4a9470] text-white dark:bg-[#333333]"
+        : "hover:bg-[#4a9470] dark:hover:bg-[#333333]"
     }`;
 
   return (
@@ -30,7 +30,7 @@ export default function Sidebar({
       {/* ─── logo ─── */}
       <div className="flex items-center gap-3 mb-8">
         <Image
-          src="/FormLogo.svg"
+          src="/logo-component.svg"
           alt="LOGO"
           width={32}
           height={32}
@@ -56,32 +56,32 @@ export default function Sidebar({
       {/* ─── nav buttons ─── */}
       <div className="flex-1 space-y-2">
         <button
-          className={linkClass('myForms')}
-          onClick={() => setSelected('myForms')}
+          className={linkClass("myForms")}
+          onClick={() => setSelected("myForms")}
         >
           <GrDocument size={20} />
           My Forms
         </button>
 
         <button
-          className={linkClass('shared')}
-          onClick={() => setSelected('shared')}
+          className={linkClass("shared")}
+          onClick={() => setSelected("shared")}
         >
           <TbShare3 size={20} />
           Shared with me
         </button>
 
         <button
-          className={linkClass('starred')}
-          onClick={() => setSelected('starred')}
+          className={linkClass("starred")}
+          onClick={() => setSelected("starred")}
         >
           <FaRegStar size={20} />
           Starred
         </button>
 
         <button
-          className={linkClass('trash')}
-          onClick={() => setSelected('trash')}
+          className={linkClass("trash")}
+          onClick={() => setSelected("trash")}
         >
           <LuTrash2 size={20} />
           Trash
