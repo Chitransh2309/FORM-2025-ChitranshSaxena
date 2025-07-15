@@ -23,14 +23,6 @@ const CenterNav = ({
   );
 
   useEffect(() => {
-    console.log("=== Editor Check Debug ===");
-    console.log("Form:", form);
-    console.log("Current User Email:", currentUserEmail);
-    console.log("Current User ID:", currentUserID);
-    console.log("Form Creator ID:", form?.createdBy);
-    console.log("Form Editor IDs:", form?.editorID);
-    console.log("Form Viewer IDs:", form?.viewerID);
-
     if (!form || !currentUserID) {
       console.log("No form or current user ID found");
       setIsEditor(false);
@@ -43,11 +35,6 @@ const CenterNav = ({
     const isInEditorList = form.editorID?.includes(currentUserID) ?? false;
     const editorCheck = isCreator || isInEditorList;
     const isInViewerList = form.viewerID?.includes(currentUserID) ?? false;
-
-    console.log("Is Creator:", isCreator);
-    console.log("Is In Editor List:", isInEditorList);
-    console.log("Is In Viewer List:", isInViewerList);
-    console.log("Is Editor Result:", editorCheck);
 
     setIsEditor(editorCheck);
     setIsViewer(isInViewerList);
