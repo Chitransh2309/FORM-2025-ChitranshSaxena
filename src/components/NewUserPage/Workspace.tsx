@@ -59,7 +59,7 @@ useEffect(() => {
     setImage(user?.image ?? "");
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const cleaned = rawForms.map(({ _id, responseCount, ...form }) => form as Form);
+const cleaned = rawForms.map(({ _id, ...form }) => form as unknown as Form);
 
 setForms(cleaned);
 setLoading(false);
@@ -70,18 +70,6 @@ setLoading(false);
 
   const drafts = forms.filter((f) => !f.isActive);
   const published = forms.filter((f) => f.isActive);
-
-  const filteredDrafts = !searchTerm
-    ? drafts
-    : drafts.filter((form) =>
-        form.title?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-
-  const filteredPublished = !searchTerm
-    ? published
-    : published.filter((form) =>
-        form.title?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
 
   const isEmpty = !loading && drafts.length === 0 && published.length === 0;
 
@@ -228,8 +216,8 @@ setLoading(false);
         ) : (
           <div className="h-full border-black mx-auto flex flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white overflow-y-auto">
             <div className="flex flex-col lg:flex-row flex-1 w-full gap-4">
-              <Drafts forms={filteredDrafts} />
-              <Published forms={filteredPublished} />
+              <Drafts forms={forms} setForms={setForms}/>
+              <Published  forms={forms} setForms={setForms} />
             </div>
           </div>
         )}

@@ -1,7 +1,7 @@
 // app/components/Navbar.tsx
 import Link from 'next/link';
 import AuthBtn from './AuthBtn';
-import { MobileMenu, Links } from './NavbarClient'; // ✅ named imports
+import { MobileMenu, Links } from './NavbarClient';
 import NavbarToggle from './NavbarToggle';
 import { Outfit } from 'next/font/google';
 import Image from 'next/image';
@@ -11,34 +11,33 @@ const out_font = Outfit({ subsets: ['latin'], weight: ['400', '800'] });
 export default function Navbar() {
   return (
     <header
-      className={`px-4 py-4 text-black text-2xl font-bold bg-[#F6F8F6] ${out_font.className} dark:bg-[#191719] dark:text-white`}
+      className={`px-4 sm:px-6 md:px-10 lg:px-16 py-3 sm:py-4 bg-[#F6F8F6] dark:bg-[#191719] text-black dark:text-white ${out_font.className}`}
     >
-      <nav className="flex items-center justify-between relative flex-wrap gap-x-4">
-        {/* LEFT: Hamburger + Logo */}
-        <div className="flex items-center gap-3">
+      <nav className="flex items-center justify-between w-full">
+        {/* LEFT: Logo + Hamburger */}
+        <div className="flex items-center gap-2 sm:gap-3">
           <MobileMenu />
-          <Link href="/" className="flex items-center gap-2 lg:pl-20 md:pl-5">
+          <Link href="/" className="flex items-center gap-1 sm:gap-2">
             <Image
-              src="/FormLogo.svg"
+              src="/logoform.svg"
               alt="LOGO"
-              width={40}
-              height={40}
-              className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12"
+              width={32}
+              height={32}
+              className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10"
             />
-
-            <span className="text-xl sm:text-2xl md:text-3xl font-bold dark:text-white">
+            <span className="text-lg sm:text-xl md:text-2xl font-bold">
               FormSpace
             </span>
           </Link>
         </div>
 
-        {/* CENTER: Links (visible only on desktop) */}
-        <div className="hidden lg:flex gap-6">
+        {/* CENTER: Nav Links for Desktop */}
+        <div className="hidden lg:flex gap-4 xl:gap-6">
           <Links />
         </div>
 
-        {/* RIGHT: Toggle + Auth */}
-        <div className="flex items-center gap-2 sm:gap-3 pr-2 sm:pr-4 md:pr-5">
+        {/* RIGHT: Toggle + Auth Button */}
+        <div className="flex items-center gap-2 sm:gap-3">
           <NavbarToggle />
           <AuthBtn pos="nav" />
         </div>

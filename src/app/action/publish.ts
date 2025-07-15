@@ -18,7 +18,7 @@ export async function publishForm(formId: string) {
     const formsCollection = db.collection<Form>("forms");
 
     const publishedAt = new Date();
-    const formLink = `http://localhost:3000/form/${formId}`;
+    const formLink = `https://form-2025.vercel.app/form/${formId}`;
 
     const result = await formsCollection.updateOne(
       { form_ID: formId },

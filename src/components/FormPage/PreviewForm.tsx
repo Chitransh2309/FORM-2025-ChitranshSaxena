@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { useParams } from "next/navigation";
-import getFormObject from "@/app/action/getFormObject";
+
 import {
   Form,
   Question,
@@ -30,7 +29,6 @@ const DynamicPreviewInput = ({
   const baseInputClass =
     "w-full px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black placeholder:text-[#676767] outline-none border border-transparent focus:border-gray-300 font-[Outfit] dark:text-white dark:placeholder-white dark:bg-[#494949]";
 
-
   // MCQ Options
   const options =
     (question.config?.params?.find((p) => p.name === "options")
@@ -51,8 +49,10 @@ const DynamicPreviewInput = ({
   const dateRange = question.config?.validations?.find(
     (v) => v.name === "dateRange"
   );
-  const minDate = dateRange?.params?.find((p) => p.name === "minDate")?.value as string | number | undefined;
-  const maxDate = dateRange?.params?.find((p) => p.name === "maxDate")?.value as string | number | undefined;
+  const minDate = dateRange?.params?.find((p) => p.name === "minDate")
+    ?.value as string | number | undefined;
+  const maxDate = dateRange?.params?.find((p) => p.name === "maxDate")
+    ?.value as string | number | undefined;
 
   switch (question.type) {
     case QuestionType.TEXT:
@@ -271,47 +271,56 @@ const DynamicPreviewInput = ({
 interface formbuild {
   currentSection: SectionForm;
   setCurrentSection: (section: SectionForm) => void;
-  form : Form | undefined;
+  form: Form;
 }
 
+/* PreviewForm.tsx */
 export default function PreviewForm({
   currentSection,
   setCurrentSection,
   form,
 }: formbuild) {
-  const { id: formId } = useParams();
-  const [showFaq, setShowFaq] = useState(false);
+  const [loadedForm, setLoadedForm] = useState<Form | undefined>(form);
   const [sectionIndex, setSectionIndex] = useState(0);
+  const [answers, setAnswers] = useState<Answer[]>([]);
+
+  const LABELS = ["Builder", "Workflow", "Preview"];
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedDevice, setSelectedDevice] = useState<"desktop" | "mobile">(
     "desktop"
   );
-  const LABELS = ["Builder", "Workflow", "Preview"];
-
-  const [answers, setAnswers] = useState<Answer[]>([]);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loadedForm, setLoadedForm] = useState<Form | null>(null);
-
-  const section = loadedForm?.sections?.[sectionIndex];
-
+  const [showFaq, setShowFaq] = useState(false);
+  // ---------------------------------------------------
+  // Keep local copy of the form in sync with the prop.
+  // Reset section/answers when a *new* form arrives.
+  // ---------------------------------------------------
   useEffect(() => {
-    const loadForm = async () => {
-      if (!formId || typeof formId !== "string") return;
+    if (!form) return;
+    setLoadedForm(form);
+    setSectionIndex(0);
+    setAnswers([]);
+    setErrors({});
+  }, [form]);
 
-      const res = await getFormObject(formId);
-      if (res.success && res.data) {
-        setLoadedForm(res.data);
-        setSectionIndex(0);
-        setAnswers([]);
-        setErrors({});
-      } else {
-        alert("❌ Failed to load form.");
-      }
-    };
+  // useEffect(() => {
+  //   const loadForm = async () => {
+  //     if (!formId || typeof formId !== "string") return;
 
-    if (currentSection === SectionForm.Preview) {
-      loadForm();
-    }
-  }, [currentSection, formId]);
+  //     const res = await getFormObject(formId);
+  //     if (res.success && res.data) {
+  //       setLoadedForm(res.data);
+  //       setSectionIndex(0);
+  //       setAnswers([]);
+  //       setErrors({});
+  //     } else {
+  //       alert("❌ Failed to load form.");
+  //     }
+  //   };
+
+  //   if (currentSection === SectionForm.Preview) {
+  //     loadForm();
+  //   }
+  // }, [currentSection, formId]);
 
   // Simulate answer state for preview
   const handleInputChange = (questionId: string, value: string) => {
@@ -361,8 +370,9 @@ export default function PreviewForm({
     }
   };
 
-  const isLastSection = form && sectionIndex === form.sections.length - 1;
-
+  const section = loadedForm?.sections?.[sectionIndex];
+  const isLastSection =
+    loadedForm && sectionIndex === loadedForm.sections.length - 1;
 
   return (
     <div className="relative flex justify-center items-center min-h-screen bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full overflow-scroll h-full dark:bg-[#2B2A2A]">
@@ -384,7 +394,7 @@ export default function PreviewForm({
         </div>
       </div>
       <div
-        className={`w-full ${
+        className={`pt-[130px] md:pt-0 w-full ${
           selectedDevice === "mobile" ? "max-w-[375px] scale-[0.95]" : "w-[80%]"
         } mx-auto px-2 sm:px-4 transition-all duration-300 ease-in-out`}
       >
@@ -395,7 +405,7 @@ export default function PreviewForm({
         ) : (
           <>
             {/* Device Switcher (unique to preview) */}
-            <div className="flex items-center justify-between px-2 mb-6 w-full max-w-[200px] h-[62px] mt-20 rounded-[10px] mx-auto shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 dark:bg-[#414141]">
+            <div className="hidden md:flex items-center justify-between px-2 mb-6 w-full max-w-[200px] h-[62px] mt-20 rounded-[10px] mx-auto shadow-[0px_0px_4px_rgba(0,0,0,0.5)] bg-[#91C4AB]/45 dark:bg-[#414141]">
               {["desktop", "mobile"].map((device) => (
                 <button
                   key={device}
@@ -420,7 +430,7 @@ export default function PreviewForm({
               ))}
             </div>
             {/* === FORM HEADER === */}
-            <div className="w-full bg-white rounded-[8px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 sm:px-6 py-6 flex flex-col justify-between mb-6 dark:bg-[#5A5959] dark:text-white">
+            <div className=" w-full bg-white rounded-[8px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 sm:px-6 py-6 flex flex-col justify-between mb-6 dark:bg-[#5A5959] dark:text-white">
               <h2 className="text-black mb-1 font-[Outfit] font-semibold text-[25px] leading-[100%] tracking-[0%] dark:text-white">
                 {form.title || "Untitled Form"}
               </h2>

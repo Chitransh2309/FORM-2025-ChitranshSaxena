@@ -33,6 +33,7 @@ export async function createNewForm(name: string) {
       version: 1.0,
       sections: [],
       isActive: false,
+      publishedAt: null,
       share_url:"",
       isDeleted: false,
       isStarred: false,

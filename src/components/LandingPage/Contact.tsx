@@ -45,14 +45,15 @@ export default function Contact({ onClose, user_ID }: ContactProps) {
   }
 
   return (
+    <>
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 ${manrope.className}`}
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 ${manrope.className} hidden sm:flex`}
     >
       <div className="w-[793px] h-[617px] bg-white dark:bg-[#000000] border-[5px] border-[#4B795F] rounded-[25px] shadow-[inset_0px_4px_40px_3px_#4B795F] relative transition-colors">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-black dark:text-white hover:text-red-400 transition"
+          className="absolute top-3 right-3 text-black dark:text-white hover:text-red-400 transition cursor-pointer"
         >
           <X className="w-6 h-6" />
         </button>
@@ -135,5 +136,99 @@ export default function Contact({ onClose, user_ID }: ContactProps) {
         </div>
       </div>
     </div>
+
+    {/*Mobile Version*/}
+    
+    <div className="fixed inset-0 z-50 min-h-screen flex items-center justify-center p-4 ${manrope.className} sm:hidden">
+  <div className="relative p-8 max-w-md w-full bg-white dark:bg-[#000000] border-[5px] border-[#4B795F] rounded-[25px] shadow-[inset_0px_4px_40px_3px_#4B795F] transition-colors">
+
+    {/* Close button fixed to top-right */}
+    <button
+      onClick={onClose}
+      className="absolute top-4 right-4 text-black dark:text-white hover:text-red-400 transition"
+    >
+      <X className="w-6 h-6" />
+    </button>
+
+    <div className="bg-[#4B795F] p-6 rounded-xl">
+      {/* Header */}
+      <div className="text-center mb-6">
+        <h1 className="text-white text-3xl font-bold mb-2">Get in touch</h1>
+        <p className="text-green-100 text-sm">Feel free to drop us a line below!</p>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Your name"
+          required
+          disabled={loading}
+          className="w-full p-3 rounded bg-[#D1D1D1] text-black placeholder-gray-600 focus:outline-none focus:ring-2  transition"
+        />
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Your email"
+          required
+          disabled={loading}
+          className="w-full p-3 rounded bg-[#D1D1D1] text-black placeholder-gray-600 focus:outline-none focus:ring-2  transition"
+        />
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Type your message here"
+          rows={4}
+          required
+          disabled={loading}
+          className="w-full p-3 rounded bg-[#D1D1D1] text-black placeholder-gray-600 resize-none focus:outline-none focus:ring-2  transition"
+        />
+
+        <div className="w-full flex justify-center">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-1/2 p-3 bg-[#CCCCCC] hover:bg-[#BBBBBB] text-black font-bold rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2  focus:ring-offset-2 focus:r"
+          >
+            {loading ? "Sending..." : "SEND"}
+          </button>
+        </div>
+      </form>
+
+      {/* Contact Info */}
+      <div className="bg-[#CCCCCC] p-4 rounded-lg">
+        <h2 className="text-black text-xl font-bold mb-3">Contact us</h2>
+        <div className="space-y-2">
+          <div className="flex items-center text-black">
+            <Instagram className="w-5 h-5 mr-3" />
+            <a
+              href="https://www.instagram.com/acmvit?igsh=MTRmM2g0aWhxYzg0cA=="
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-base font-medium"
+            >
+              acmvit
+            </a>
+          </div>
+
+          <div className="flex items-center text-black">
+            <MailIcon className="w-5 h-5 mr-3" />
+            <a
+              href="mailto:form.ktech800@gmail.com"
+              className="text-base font-medium underline"
+            >
+              form.ktech800@gmail.com
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    </>
   );
 }
