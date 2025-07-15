@@ -13,13 +13,14 @@ interface DraftsProps {
   forms: Form[];                                            // parent-owned data
   setForms: React.Dispatch<React.SetStateAction<Form[]>>;   // parent updater
 }
-
 export default function Drafts({ forms, setForms }: DraftsProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  /* keep only drafts for display */
-  const drafts = forms.filter((f) => f.publishedAt === null);
+  /* draft = unpublished AND not deleted */
+  const drafts = forms.filter(
+    (f) => f.publishedAt === null && !f.isDeleted,
+  );
 
   const handleDiscard = (id: string) =>
     startTransition(async () => {
@@ -27,13 +28,16 @@ export default function Drafts({ forms, setForms }: DraftsProps) {
 
       const res = await deleteFormFromDB(id);
       if (res.success) {
-        /* remove the draft from the *parent* state */
-        setForms((prev) => prev.filter((f) => f.form_ID !== id));
+        /* keep the object, just flag it as deleted */
+        setForms((prev) =>
+          prev.map((f) =>
+            f.form_ID === id ? { ...f, isDeleted: true } : f,
+          ),
+        );
       } else {
         alert(res.message || res.error || "Failed to discard draft.");
       }
     });
-
   return (
     <section className="relative w-full xl:w-1/2 p-4 mb-20 xl:mb-0 text-black dark:text-white">
       {/* ── loader overlay ── */}
