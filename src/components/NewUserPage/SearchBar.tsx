@@ -2,7 +2,6 @@
 
 import { FaSearch } from "react-icons/fa";
 import { RiExpandUpDownLine } from "react-icons/ri";
-import { useState, useEffect } from "react";
 
 const Searchbar = () => {
   return (

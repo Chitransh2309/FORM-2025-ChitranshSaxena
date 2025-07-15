@@ -14,7 +14,7 @@ export default function About() {
             for driving technological innovation since 2009, reflects our
             ongoing commitment to accessible, impactful technology. Continuing
             that legacy, FormSpace is a powerful, user-friendly platform for
-            building smart, dynamic forms. Whether you're running surveys,
+            building smart, dynamic forms. Whether you&apos;re running surveys,
             collecting feedback, or organizing events, FormSpace simplifies the
             way you create, share, and analyze data. With an intuitive
             interface, flexible conditional logic, and real-time analytics,

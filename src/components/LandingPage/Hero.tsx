@@ -1,13 +1,12 @@
-import React from "react";
-import AuthBtn from "./AuthBtn";
-import { Tilt_Warp } from "next/font/google";
-import Image from "next/image";
+import React from 'react';
+import { Tilt_Warp } from 'next/font/google';
+import Image from 'next/image';
 
 const tilt = Tilt_Warp({ subsets: ["latin"], weight: ["400"] });
 
-interface GridBoxesProps {
-  large?: boolean;
-}
+// interface GridBoxesProps {
+//   large?: boolean;
+// }
 
 export default function Hero() {
   return (
@@ -59,7 +58,7 @@ function HeroText() {
   );
 }
 
-function GridBoxes({ large = false }: GridBoxesProps) {
+function GridBoxes() {
   return (
     <div className="flex items-center justify-center w-full mt-12 md:mt-16 lg:mt-20">
       <Image

@@ -87,7 +87,7 @@ export default function ConditionGroup({
             <div>
               <ConditionGroup
                 group={cond}
-                onUpdate={(newGroup: any) => updateCondition(idx, newGroup)}
+                onUpdate={(newGroup: ConditionGroupType) => updateCondition(idx, newGroup)}
                 allQuestions={allQuestions}
               />
               <button

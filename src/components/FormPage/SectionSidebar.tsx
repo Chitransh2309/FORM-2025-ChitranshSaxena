@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Section } from "@/lib/interface";
 import SectionItem from "./SectionItem";
-import { CircleUser, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 
 interface SectionSidebarProps {
   sections: Section[];

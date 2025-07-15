@@ -2,8 +2,11 @@
 import React, { useRef } from "react";
 import { Trash2, Menu } from "lucide-react";
 import {
+  FieldType,
+  Param,
   Question as QuestionInterface,
   QuestionType,
+  Validation,
   fieldtypes,
 } from "@/lib/interface";
 import MCQ from "./FieldType/MCQ";
@@ -47,15 +50,15 @@ export default function Question({
   // Get MCQ options from config
   const getMcqOptions = (): string[] => {
     if (data.type === QuestionType.MCQ && data.config) {
-      const config = data.config as any;
+      const config : FieldType = data.config;
       if (config.params) {
         const optionsParam = config.params.find(
-          (p: any) => p.name === "options"
+          (p: Param) => p.name === "options"
         );
         if (optionsParam?.value) {
           return Array.isArray(optionsParam.value)
             ? optionsParam.value
-            : optionsParam.value.split(", ");
+            : String(optionsParam.value).split(", ");
         }
       }
     }
@@ -65,15 +68,15 @@ export default function Question({
   // Get Dropdown options from config
   const getDropdownOptions = (): string[] => {
     if (data.type === QuestionType.DROPDOWN && data.config) {
-      const config = data.config as any;
+      const config: FieldType = data.config;
       if (config.params) {
         const optionsParam = config.params.find(
-          (p: any) => p.name === "options"
+          (p: Param) => p.name === "options"
         );
         if (optionsParam?.value) {
           return Array.isArray(optionsParam.value)
             ? optionsParam.value
-            : optionsParam.value.split(", ");
+            : String(optionsParam.value).split(", ");
         }
       }
     }
@@ -83,20 +86,20 @@ export default function Question({
   // Get Date config
   const getDateConfig = () => {
     if (data.type === QuestionType.DATE && data.config) {
-      const config = data.config as any;
+      const config : FieldType= data.config;
       const includeTime = !!config.params?.find(
-        (p: any) => p.name === "includeTime"
+        (p: Param) => p.name === "includeTime"
       )?.value;
       const dateRange = config.validations?.find(
-        (v: any) => v.name === "dateRange"
+        (v: Validation) => v.name === "dateRange"
       );
       let minDate, maxDate;
       if (dateRange?.params) {
         minDate = dateRange.params.find(
-          (p: any) => p.name === "minDate"
+          (p: Param) => p.name === "minDate"
         )?.value;
         maxDate = dateRange.params.find(
-          (p: any) => p.name === "maxDate"
+          (p: Param) => p.name === "maxDate"
         )?.value;
       }
       return { includeTime, minDate, maxDate };
@@ -107,17 +110,17 @@ export default function Question({
   // Get Linear Scale config
   const getLinearScaleConfig = () => {
     if (data.type === QuestionType.LINEARSCALE && data.config) {
-      const config = data.config as any;
+      const config: FieldType = data.config;
       const min = Number(
-        config.params?.find((p: any) => p.name === "min")?.value ?? 1
+        config.params?.find((p: Param) => p.name === "min")?.value ?? 1
       );
       const max = Number(
-        config.params?.find((p: any) => p.name === "max")?.value ?? 5
+        config.params?.find((p: Param) => p.name === "max")?.value ?? 5
       );
       const minLabel =
-        config.params?.find((p: any) => p.name === "minLabel")?.value ?? "";
+        config.params?.find((p: Param) => p.name === "minLabel")?.value ?? "";
       const maxLabel =
-        config.params?.find((p: any) => p.name === "maxLabel")?.value ?? "";
+        config.params?.find((p: Param) => p.name === "maxLabel")?.value ?? "";
       return { min, max, minLabel, maxLabel };
     }
     return { min: 1, max: 5, minLabel: "", maxLabel: "" };
@@ -126,20 +129,21 @@ export default function Question({
   // Get Text configuration from config
   const getTextConfig = () => {
     if (data.type === QuestionType.TEXT && data.config) {
-      const config = data.config as any;
-      const placeholder =
-        config.params?.find((p: any) => p.name === "placeholder")?.value ||
-        "Enter your answer...";
+      const config: FieldType = data.config;
+      const placeholder = String(
+        config.params?.find((p: Param) => p.name === "placeholder")?.value ||
+        "Enter your answer..."
+      );
       let charlimit: { min?: number; max?: number } | undefined;
       const charlimitValidation = config.validations?.find(
-        (v: any) => v.name === "charlimit"
+        (v: Validation) => v.name === "charlimit"
       );
       if (charlimitValidation?.params) {
         const minParam = charlimitValidation.params.find(
-          (p: any) => p.name === "min"
+          (p: Param) => p.name === "min"
         );
         const maxParam = charlimitValidation.params.find(
-          (p: any) => p.name === "max"
+          (p: Param) => p.name === "max"
         );
         charlimit = {
           min: minParam?.value ? Number(minParam.value) : undefined,
@@ -150,25 +154,25 @@ export default function Question({
         | { contains?: string[]; doesnotContain?: string[] }
         | undefined;
       const keywordValidation = config.validations?.find(
-        (v: any) => v.name === "keywordChecker"
+        (v: Validation) => v.name === "keywordChecker"
       );
       if (keywordValidation?.params) {
         const containsParam = keywordValidation.params.find(
-          (p: any) => p.name === "contains"
+          (p: Param) => p.name === "contains"
         );
         const doesnotContainParam = keywordValidation.params.find(
-          (p: any) => p.name === "doesnotContain"
+          (p: Param) => p.name === "doesnotContain"
         );
         keywordChecker = {
           contains: containsParam?.value
             ? Array.isArray(containsParam.value)
-              ? containsParam.value
-              : [containsParam.value]
+              ? containsParam.value.map(String)
+              : [String(containsParam.value)]
             : undefined,
           doesnotContain: doesnotContainParam?.value
             ? Array.isArray(doesnotContainParam.value)
-              ? doesnotContainParam.value
-              : [doesnotContainParam.value]
+              ? doesnotContainParam.value.map(String)
+              : [String(doesnotContainParam.value)]
             : undefined,
         };
       }
@@ -180,7 +184,7 @@ export default function Question({
   // Handle MCQ options change
   const handleMcqOptionsChange = (options: string[]) => {
     if (data.config && data.config.params) {
-      const updatedParams = data.config.params.map((param: any) => {
+      const updatedParams = data.config.params.map((param: Param) => {
         if (param.name === "options") {
           return { ...param, value: options };
         }
@@ -212,7 +216,7 @@ export default function Question({
   // Handle Dropdown options change
   const handleDropdownOptionsChange = (options: string[]) => {
     if (data.config && data.config.params) {
-      const updatedParams = data.config.params.map((param: any) => {
+      const updatedParams = data.config.params.map((param: Param) => {
         if (param.name === "options") {
           return { ...param, value: options };
         }
@@ -277,8 +281,8 @@ export default function Question({
         return (
           <DateField
             includeTime={includeTime}
-            minDate={minDate}
-            maxDate={maxDate}
+            minDate={minDate?.toString()}
+            maxDate={maxDate?.toString()}
             disabled={!isSelected}
           />
         );
@@ -289,8 +293,8 @@ export default function Question({
           <LinearScale
             min={min}
             max={max}
-            minLabel={minLabel}
-            maxLabel={maxLabel}
+            minLabel={minLabel ? String(minLabel) : undefined}
+            maxLabel={maxLabel ? String(maxLabel) : undefined}
             disabled={!isSelected}
           />
         );
@@ -303,8 +307,6 @@ export default function Question({
         return null;
     }
   };
-
-  function handleChange() {}
 
   return (
     <div

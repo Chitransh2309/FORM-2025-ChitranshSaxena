@@ -26,7 +26,25 @@ import { getFormsForUser } from "@/app/action/forms";
 import { createNewForm } from "@/app/action/createnewform";
 import { getUser } from "@/app/action/getUser";
 import { Form } from "@/lib/interface";
-
+import { FormSettings, Section } from "@/lib/interface";
+interface NewUserPageProps {
+ form_ID: string;
+  title: string;
+  description: string;
+  createdAt: Date;
+  createdBy: string; // user_ID reference
+  editorID?: string[];
+  viewerID?: string[];
+  publishedAt?: Date;
+  isActive: boolean;
+  version: number;
+  share_url: string;
+  settings: FormSettings;
+  sections: Section[];
+  isDeleted: boolean;
+  isStarred: boolean;
+  responseCount?: number;
+}
 function Workspace({
   searchTerm,
   setSearchTerm,
@@ -37,7 +55,7 @@ function Workspace({
   selected: "myForms" | "starred" | "shared" | "trash";
 }) {
   const router = useRouter();
-  const [forms, setForms] = useState<Form[]>([]);
+  const [forms, setForms] = useState<NewUserPageProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
   const [formName, setFormName] = useState("");
@@ -55,7 +73,33 @@ function Workspace({
           getFormsForUser(true),
           getUser(),
         ]);
-        setForms(formsRes);
+        console.log("Fetched forms:", formsRes);
+        const mappedForms = formsRes.map(form => ({
+          form_ID: form._id.toString(),
+          title: '',
+          description: '',
+          createdAt: new Date(),
+          createdBy: '',
+          isActive: false,
+          version: 0,
+          share_url: '',
+          settings: {
+            maxResponses: 0,
+            startDate: new Date(),
+            endDate: undefined,
+            tab_switch_count: false,
+            timer: 0,
+            autoSubmit: false,
+            cameraRequired: false,
+            copy_via_email: false,
+            timingEnabled: false,
+          },
+          sections: [],
+          isDeleted: false,
+          isStarred: false,
+          ...form
+        }));
+        setForms(mappedForms);
         setName(user?.name || "");
         setEmail(user?.email || "");
         setImage(user?.image || "");
@@ -83,7 +127,6 @@ const drafts = forms.filter((f) => {
   return (!startDate || now < startDate) && !f.isDeleted;
 });
 
-  const starred = forms.filter((f) => f.isStarred && !f.isDeleted);
   const trash = forms.filter((f) => f.isDeleted);
 
   const filterBySearch = (forms: Form[]) =>
@@ -95,7 +138,6 @@ const drafts = forms.filter((f) => {
 
   const filteredDrafts = filterBySearch(drafts);
   const filteredPublished = filterBySearch(published);
-  const filteredStarred = filterBySearch(starred);
   const filteredTrash = filterBySearch(trash);
   const isEmpty = !loading && drafts.length === 0 && published.length === 0;
 
@@ -106,11 +148,7 @@ const drafts = forms.filter((f) => {
     else alert("Failed to create a new form. Try again.");
   };
 
-  const handleUnstarInWorkspace = (formId: string) => {
-    setForms((prev) =>
-      prev.map((f) => (f.form_ID === formId ? { ...f, isStarred: false } : f))
-    );
-  };
+
 
   const handleRestoreInWorkspace = (formId: string) => {
     setForms((prev) =>
@@ -251,9 +289,7 @@ const drafts = forms.filter((f) => {
           />
         ) : selected === "starred" ? (
           <Starred
-            forms={filteredStarred}
             searchTerm={searchTerm}
-            onUnstar={handleUnstarInWorkspace}
           />
         ) : selected === "shared" ? (
           <>

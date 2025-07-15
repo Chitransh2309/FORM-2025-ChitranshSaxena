@@ -17,7 +17,7 @@ export interface Form {
   createdBy: string; // user_ID reference
   editorID?: string[];
   viewerID?: string[];
-  publishedAt: Date;
+  publishedAt?: Date;
   isActive: boolean;
   version: number;
   share_url: string;
@@ -25,6 +25,13 @@ export interface Form {
   sections: Section[];
   isDeleted: boolean;
   isStarred: boolean;
+  responseCount?: number; // Optional, can be derived from responses
+}
+// types/Section.ts
+export enum SectionForm {
+  Builder,
+  Workflow,
+  Preview,
 }
 
 export type NestedCondition = {
@@ -82,7 +89,7 @@ export interface Question {
   isRequired: boolean;
   config?: FieldType;
   image?: string;
-  logic?: Record<string, any>;
+  //logic?: Record<string, any>;
 }
 
 export enum QuestionType {
@@ -135,7 +142,7 @@ export type ParamType =
 
 export interface Param {
   name: string;
-  type: ParamType;
+  type: ParamType; //
   value?: string | number | boolean | string[];
 }
 
