@@ -1,6 +1,7 @@
 "use client";
 import React, { use, useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
+import ThankYouPage from "@/components/ResponseViewerPage/Thankyou";
 import Confetti from "react-confetti";
 import getFormObject from "@/app/action/getFormObject";
 import {
@@ -583,9 +584,7 @@ console.log("Form loaded:", res.data);
 
   if (!loading && hasUserSubmitted(formId, userId) && !showConfetti) {
     return (
-      <div className="text-black text-center mt-20 text-lg font-semibold">
-        Your response has been submitted.
-      </div>
+      <ThankYouPage formId={formId}/>
     );
   }
 
