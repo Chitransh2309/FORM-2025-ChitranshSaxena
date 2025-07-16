@@ -5,7 +5,6 @@ import { MobileMenu, Links } from "./NavbarClient";
 import NavbarToggle from "./NavbarToggle";
 import { Outfit } from "next/font/google";
 import Image from "next/image";
-import Loader from "../Loader";
 
 const out_font = Outfit({ subsets: ["latin"], weight: ["400", "800"] });
 
