@@ -30,7 +30,8 @@ const faqData = [
       "Yes. Set rules to show or hide specific fields when certain answers are selected, allowing for dynamic and responsive forms.",
   },
   {
-    question: "Is it possible to validate dates, numbers, or specific input ranges?",
+    question:
+      "Is it possible to validate dates, numbers, or specific input ranges?",
     answer:
       "Absolutely. You can set validations for dates, numbers, or ranges—for example, minimum/maximum age or future dates only—ensuring users enter valid data.",
   },
@@ -47,8 +48,8 @@ export default function FAQs({ showFaq, setShowFaq }: FAQProps) {
     setActiveIndex((prev) => (prev === idx ? null : idx));
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/40 flex items-center justify-center px-4 py-6 sm:py-12 overflow-y-auto dark:bg-white/10 backdrop-blur-[3px]">
-      <div className="relative w-full max-w-2xl bg-white dark:bg-neutral-800 text-black dark:text-white rounded-xl p-6 sm:p-8 shadow-2xl border border-gray-200 dark:border-neutral-700">
+    <div className="fixed inset-0 z-[100] bg-black/40 flex items-center justify-center px-4 py-6 sm:py-12 dark:bg-white/10 backdrop-blur-[3px]">
+      <div className="overflow-y-auto max-h-[75%] sm:max-h-fit relative w-full max-w-2xl bg-white dark:bg-neutral-800 text-black dark:text-white rounded-xl p-6 sm:p-8 shadow-2xl border border-gray-200 dark:border-neutral-700">
         {/* header */}
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold mb-1 text-gray-900 dark:text-white">
