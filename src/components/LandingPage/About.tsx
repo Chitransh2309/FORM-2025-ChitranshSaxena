@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import React from "react";
-import Lottie from "lottie-react";
+import React from 'react';
+import Lottie from 'lottie-react';
 
-import DarkAnim_2 from "@/lotties/Darkmode_2.json";
-import LightAnim from "@/lotties/Lightmode.json";
+import DarkAnim from '@/lotties/Darkmode.json';
+import LightAnim from '@/lotties/Lightmode.json';
 
 export default function About() {
   return (
@@ -19,7 +19,7 @@ export default function About() {
 
           {/* Dark Mode Animation */}
           <div className="hidden dark:block w-full max-w-[500px] h-auto">
-            <Lottie animationData={DarkAnim_2} loop autoplay />
+            <Lottie animationData={DarkAnim} loop autoplay />
           </div>
         </div>
 
@@ -30,15 +30,14 @@ export default function About() {
           </h1>
           <p className="font-medium text-base sm:text-lg md:text-xl lg:text-2xl text-black dark:text-white leading-relaxed sm:leading-8">
             FormSpace, created by ACM-VIT, a leading student organization known
-            for driving technological innovation since 2009, reflects our
-            ongoing commitment to accessible, impactful technology. Continuing
-            that legacy, FormSpace is a powerful, user-friendly platform for
-            building smart, dynamic forms. Whether you&apos;re running surveys,
-            collecting feedback, or organizing events, FormSpace simplifies the
-            way you create, share, and analyze data. With an intuitive
-            interface, flexible conditional logic, and real-time analytics,
-            FormSpace empowers users to build adaptive forms that perfectly fit
-            their purpose.
+            for driving technological innovation since 2009, reflects our ongoing
+            commitment to accessible, impactful technology. Continuing that legacy,
+            FormSpace is a powerful, user-friendly platform for building smart,
+            dynamic forms. Whether you&apos;re running surveys, collecting feedback,
+            or organizing events, FormSpace simplifies the way you create, share,
+            and analyze data. With an intuitive interface, flexible conditional logic,
+            and real-time analytics, FormSpace empowers users to build adaptive forms
+            that perfectly fit their purpose.
           </p>
         </div>
       </div>
