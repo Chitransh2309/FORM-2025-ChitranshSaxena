@@ -5,20 +5,50 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useTransition } from "react";
 import { deleteFormFromDB } from "@/app/action/forms";
-import type { Form } from "@/lib/interface";
+import { updateFormInfo } from "@/app/action/updateFormInfo";
+import { Form } from "@/lib/interface";
 
-interface DraftsProps {
-  forms: Form[]; // parent-owned data
-  setForms: React.Dispatch<React.SetStateAction<Form[]>>; // parent updater
-}
-export default function Drafts({ forms, setForms }: DraftsProps) {
+export default function Drafts({ forms: initialForms }: { forms: Form[] }) {
   const router = useRouter();
+
+  // only keep items that are still drafts
+  const [forms, setForms] = useState(
+    initialForms.filter((f) => f.publishedAt === null)
+  );
+  const [showDialog, setShowDialog] = useState(false);
+  const [title, setTitle] = useState("Untitled Form");
+  const [description, setDescription] = useState("");
+  const [selectedFormId, setSelectedFormId] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  /* draft = unpublished AND not deleted */
-  const drafts = forms.filter((f) => f.publishedAt === null && !f.isDeleted);
+  const handleOpenDialog = (form: Form) => {
+    setTitle(form.title || "Untitled Form");
+    setDescription(form.description || "");
+    setSelectedFormId(form.form_ID);
+    setShowDialog(true);
+  };
+
+  const handleSave = () => {
+    if (!selectedFormId) return;
+
+    startTransition(async () => {
+      const res = await updateFormInfo(selectedFormId, title, description);
+
+      if (res.success) {
+        setForms((prev) =>
+          prev.map((f) =>
+            f.form_ID === selectedFormId ? { ...f, title, description } : f
+          )
+        );
+        setShowDialog(false);
+      } else {
+        alert(res.message || res.error || "Failed to update");
+      }
+    });
+  };
 
   const handleDiscard = (id: string) =>
     startTransition(async () => {
@@ -34,6 +64,7 @@ export default function Drafts({ forms, setForms }: DraftsProps) {
         alert(res.message || res.error || "Failed to discard draft.");
       }
     });
+
   return (
     <section className="relative w-full xl:w-1/2 p-4 mb-20 xl:mb-0 text-black dark:text-white">
       {/* ── loader overlay ── */}
@@ -64,46 +95,87 @@ export default function Drafts({ forms, setForms }: DraftsProps) {
 
       <h2 className="px-4 py-3 text-xl font-semibold">Drafts</h2>
 
-      <div className="rounded-lg border-2 border-dashed border-gray p-4 dark:border-white xl:min-h-90 lg:min-h-120">
-        {drafts.length === 0 ? (
-          <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-            No draft forms found.
-          </p>
-        ) : (
-          <div className="grid grid-cols-2 gap-3">
-            {drafts.map((form) => (
-              <div key={form.form_ID} className="relative flex flex-col">
-                {/* form card */}
+      <div className="border-2 border-gray border-dashed rounded-lg p-4 overflow-visible xl:min-h-90 lg:min-h-120 dark:border-white">
+        <div className="grid grid-cols-2 gap-3">
+          {forms.map((form) => (
+            <div key={form.form_ID} className="flex flex-col relative">
+              {/* form card */}
+              <button
+                onClick={() => handleOpenDialog(form)}
+                disabled={isPending}
+                className="w-full aspect-square bg-gray-300 hover:bg-[#d1ebdb]
+                  rounded-lg shadow transition p-3 dark:bg-[#353434] dark:hover:bg-[#3f3d3d]
+                  text-center font-semibold disabled:opacity-60"
+              >
+                {form.title || "Untitled Form"}
+              </button>
+
+              {/* action buttons */}
+              <div className="mt-2 flex gap-2">
                 <button
                   onClick={() => router.push(`/form/${form.form_ID}`)}
                   disabled={isPending}
-                  className="aspect-square w-full rounded-lg bg-gray-300 p-3 text-center font-semibold shadow transition hover:bg-[#d1ebdb] disabled:opacity-60 dark:bg-[#353434] dark:hover:bg-[#3f3d3d]"
+                  className="flex-1 rounded bg-[#56A37D] py-1 text-xs text-white disabled:opacity-60"
                 >
-                  {form.title || "Untitled Form"}
+                  Edit Form
                 </button>
-
-                {/* action buttons */}
-                <div className="mt-2 flex gap-2">
-                  <button
-                    onClick={() => router.push(`/form/${form.form_ID}`)}
-                    disabled={isPending}
-                    className="flex-1 rounded bg-[#56A37D] py-1 text-xs text-white disabled:opacity-60"
-                  >
-                    Edit Form
-                  </button>
-                  <button
-                    onClick={() => handleDiscard(form.form_ID)}
-                    disabled={isPending}
-                    className="flex-1 rounded bg-[#3D3D3D] py-1 text-xs text-white disabled:opacity-60"
-                  >
-                    Discard Draft
-                  </button>
-                </div>
+                <button
+                  onClick={() => handleDiscard(form.form_ID)}
+                  disabled={isPending}
+                  className="flex-1 rounded bg-[#3D3D3D] py-1 text-xs text-white disabled:opacity-60"
+                >
+                  Discard Draft
+                </button>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
       </div>
+
+      {/* Modal Dialog */}
+      {showDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center m-6">
+          <div className="bg-white border-2 border-gray-800 rounded-xl shadow-2xl w-[42rem] max-w-full p-8 animate-pop-in dark:bg-[#353434] dark:border-gray-500">
+            <label className="text-gray-950 mb-6 font-bold text-3xl flex items-center justify-center dark:text-white">
+              Form Info
+            </label>
+            <input
+              className="w-full px-5 py-4 border-2 border-gray-300 rounded-lg mb-6 text-black placeholder-gray-500 text-lg focus:outline-none focus:ring-2 focus:ring-[#61A986] focus:border-transparent transition-all dark:text-white dark:placeholder-white"
+              placeholder="Enter form name"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <textarea
+              className="w-full px-5 py-4 border-2 border-gray-300 rounded-lg mb-8 text-black placeholder-gray-500 text-lg focus:outline-none focus:ring-2 focus:ring-[#61A986] focus:border-transparent transition-all dark:text-white dark:placeholder-white"
+              placeholder="Enter description"
+              value={description}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                e.target.style.height = "auto";
+                e.target.style.height = `${e.target.scrollHeight}px`;
+              }}
+              rows={1}
+              style={{ maxHeight: "calc(1.5rem * 8)" }}
+              autoFocus
+            />
+
+            <div className="flex gap-4 justify-end">
+              <button
+                onClick={() => setShowDialog(false)}
+                className="px-6 py-3 bg-white text-gray-700 rounded-lg hover:bg-gray-200 text-lg font-medium transition-all duration-200 border-2 border-gray-300 hover:border-gray-400 shadow-sm hover:shadow-md"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                className="px-6 py-3 bg-[#61A986] text-white rounded-lg hover:bg-[#4d8a6b] text-lg font-medium transition-all duration-200 hover:shadow-md"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
