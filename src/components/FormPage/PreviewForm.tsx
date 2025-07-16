@@ -13,7 +13,6 @@ import {
 import { validateAnswer } from "@/lib/validation";
 import FAQs from "../NewUserPage/FAQs";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
-import Loader from "../Loader";
 
 // Dynamic Input Renderer (Preview Mode, with validation)
 const DynamicPreviewInput = ({
