@@ -67,7 +67,7 @@ export default function BuildPage({
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   /* ──────────────────── auto-save with debounce ─────────────────────── */
   const debouncedSaveForm = useCallback(
