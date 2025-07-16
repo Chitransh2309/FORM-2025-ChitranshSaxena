@@ -109,7 +109,6 @@ function Workspace({
   //   return (!startDate || now < startDate) && !f.isDeleted;
   // });
 
-
   const filterBySearch = (forms: Form[]) =>
     !searchTerm
       ? forms
@@ -143,9 +142,9 @@ function Workspace({
   return (
     <>
       {creatingFile && (
-        <div>
+        <div className="flex flex-row bg-black w-screen h-screen">
           <Loader />
-          Creating a Form for you...
+          <p>Creating a Form for you...</p>
         </div>
       )}
       <div className="min-h-screen flex flex-col">
@@ -240,56 +239,57 @@ function Workspace({
           </div>
         )}
 
-      <div className="flex-1 px-4 md:px-6 pb-4 h-full flex items-center justify-center">
-        {selected === "myForms" ? (
-          loading ? (
-            <div className={wrapperStyles + " text-black dark:text-white"}>
-              Loading…
-            </div>
-          ) : isEmpty ? (
-            <div className={wrapperStyles + " dark:border-white"}>
-              <p className="text-lg md:text-2xl text-center text-gray-600 dark:text-gray-200">
-                You have not created any forms yet.
-              </p>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-center text-gray-800 dark:text-white">
-                Create Your First Form Today!
-              </h2>
-              <button
-                onClick={() => setShowDialog(true)}
-                className="mt-2 px-8 py-4 bg-[#61A986] text-lg sm:text-xl text-white rounded-lg hover:bg-[#4d8a6b] transition-colors"
-              >
-                Create Now
-              </button>
-            </div>
-          ) : (
-            <div className="w-full h-full overflow-y-auto flex flex-col items-center">
-              <div className="flex flex-col lg:flex-row flex-1 w-full max-w-7xl gap-6 px-4">
-                <Drafts forms={forms} setForms={setForms}/>
-                <Published forms={filteredPublished} setForms={setForms}/>
+        <div className="flex-1 px-4 md:px-6 pb-4 h-full flex items-center justify-center">
+          {selected === "myForms" ? (
+            loading ? (
+              <div className={wrapperStyles + " text-black dark:text-white"}>
+                Loading…
               </div>
-            </div>
-          )
-        ) : selected === "trash" ? (
-          <Trash
-            forms={forms}
-            setForms={setForms}
-            searchTerm={searchTerm}
-            onRestore={handleRestoreInWorkspace}
-          />
-        ) : selected === "starred" ? (
-          <Starred
-            searchTerm={searchTerm}
-            forms={forms}
-            setForms={setForms}
-          />
-        ) : selected === "shared" ? (
-          <>
-            <Shared />
-          </>
-        ) : null}
-        {showFaq && <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />}
+            ) : isEmpty ? (
+              <div className={wrapperStyles + " dark:border-white"}>
+                <p className="text-lg md:text-2xl text-center text-gray-600 dark:text-gray-200">
+                  You have not created any forms yet.
+                </p>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-center text-gray-800 dark:text-white">
+                  Create Your First Form Today!
+                </h2>
+                <button
+                  onClick={() => setShowDialog(true)}
+                  className="mt-2 px-8 py-4 bg-[#61A986] text-lg sm:text-xl text-white rounded-lg hover:bg-[#4d8a6b] transition-colors"
+                >
+                  Create Now
+                </button>
+              </div>
+            ) : (
+              <div className="w-full h-full overflow-y-auto flex flex-col items-center">
+                <div className="flex flex-col lg:flex-row flex-1 w-full max-w-7xl gap-6 px-4">
+                  <Drafts forms={forms} setForms={setForms} />
+                  <Published forms={filteredPublished} setForms={setForms} />
+                </div>
+              </div>
+            )
+          ) : selected === "trash" ? (
+            <Trash
+              forms={forms}
+              setForms={setForms}
+              searchTerm={searchTerm}
+              onRestore={handleRestoreInWorkspace}
+            />
+          ) : selected === "starred" ? (
+            <Starred
+              searchTerm={searchTerm}
+              forms={forms}
+              setForms={setForms}
+            />
+          ) : selected === "shared" ? (
+            <>
+              <Shared />
+            </>
+          ) : null}
+          {showFaq && <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

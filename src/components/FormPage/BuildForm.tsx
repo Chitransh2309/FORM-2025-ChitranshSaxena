@@ -264,19 +264,19 @@ export default function BuildPage({
         <div
           className="w-full lg:px-10 overflow-y-auto overflow-x-hidden
                    flex flex-col space-y-6 h-full max-w-full"
-      >
-        {/* Top Tabs */}
-        <div className="w-full flex justify-center px-4 sm:px-0 py-[15px]">
-          <div
-            className="flex justify-between items-center w-full max-w-[480px]
+        >
+          {/* Top Tabs */}
+          <div className="w-full flex justify-center px-4 sm:px-0 py-[15px]">
+            <div
+              className="flex justify-between items-center w-full max-w-[480px]
                           h-[68px] rounded-[10px] dark:bg-[#414141]
                           bg-[#91C4AB]/45 shadow px-2 sm:px-4"
-          >
-            {LABELS.map((label, i) => (
-              <button
-                key={label}
-                onClick={() => setCurrentSection(i as SectionForm)}
-                className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors
+            >
+              {LABELS.map((label, i) => (
+                <button
+                  key={label}
+                  onClick={() => setCurrentSection(i as SectionForm)}
+                  className={`flex-1 mx-1 text-[14px] sm:text-[16px] py-2 rounded-[7px] transition-colors
                             duration-200 ${
                               currentSection === i
                                 ? "bg-[#61A986] text-black dark:text-white"
@@ -310,108 +310,109 @@ export default function BuildPage({
                 <input
                   className="text-xl font-semibold border-b border-black dark:border-white bg-transparent
                            focus:outline-none px-1"
-                value={editedTitle}
-                onChange={(e) => setEditedTitle(e.target.value)}
-                onBlur={() => {
-                  if (
-                    editedTitle.trim() &&
-                    selectedSection?.section_ID &&
-                    editedTitle.trim() !== selectedSection.title
-                  )
-                    handleRenameSection(
-                      selectedSection.section_ID,
-                      editedTitle.trim()
-                    );
-                  setIsEditingTitle(false);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") e.currentTarget.blur();
-                  if (e.key === "Escape") {
-                    setEditedTitle(selectedSection?.title || "");
+                  value={editedTitle}
+                  onChange={(e) => setEditedTitle(e.target.value)}
+                  onBlur={() => {
+                    if (
+                      editedTitle.trim() &&
+                      selectedSection?.section_ID &&
+                      editedTitle.trim() !== selectedSection.title
+                    )
+                      handleRenameSection(
+                        selectedSection.section_ID,
+                        editedTitle.trim()
+                      );
                     setIsEditingTitle(false);
-                  }
-                }}
-                autoFocus
-              />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">
-                  {selectedSection?.title || "No Section Selected"}
-                </div>
-                <button
-                  className="pl-2"
-                  onClick={() => {
-                    setEditedTitle(selectedSection?.title || "");
-                    setIsEditingTitle(true);
                   }}
-                >
-                  <Pencil className="w-5 h-5" />
-                </button>
-              </>
-            )}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") e.currentTarget.blur();
+                    if (e.key === "Escape") {
+                      setEditedTitle(selectedSection?.title || "");
+                      setIsEditingTitle(false);
+                    }
+                  }}
+                  autoFocus
+                />
+              ) : (
+                <>
+                  <div className="text-2xl font-bold">
+                    {selectedSection?.title || "No Section Selected"}
+                  </div>
+                  <button
+                    className="pl-2"
+                    onClick={() => {
+                      setEditedTitle(selectedSection?.title || "");
+                      setIsEditingTitle(true);
+                    }}
+                  >
+                    <Pencil className="w-5 h-5" />
+                  </button>
+                </>
+              )}
+            </div>
+
+            <div className="bg-[#91C4AB] p-3 rounded shadow hidden lg:block mt-3">
+              {saved < 1 ? (
+                <h4>Saving...</h4>
+              ) : saved < 60 ? (
+                <h4>Synced moments ago</h4>
+              ) : saved < 3600 ? (
+                <h4>Synced {Math.floor(saved / 60)} minutes ago</h4>
+              ) : (
+                <h4>Synced {Math.floor(saved / 3600)} hours ago</h4>
+              )}
+            </div>
           </div>
 
-          <div className="bg-[#91C4AB] p-3 rounded shadow hidden lg:block mt-3">
-            {saved < 1 ? (
-              <h4>Saving...</h4>
-            ) : saved < 60 ? (
-              <h4>Synced moments ago</h4>
-            ) : saved < 3600 ? (
-              <h4>Synced {Math.floor(saved / 60)} minutes ago</h4>
-            ) : (
-              <h4>Synced {Math.floor(saved / 3600)} hours ago</h4>
-            )}
-          </div>
-        </div>
-
-        {/* Question list */}
-        {selectedSection && (
-          <QuestionParent
-            ques={selectedSection.questions}
-            onUpdate={updateQuestion}
-            onDelete={deleteQuestion}
-            onAdd={addQuestion}
-            selectedQuestion={selectedQuestion}
-            setSelectedQuestion={setSelectedQuestion}
-            onEditQuestion={() => setShowRightNav(!showRightNav)}
-          />
-        )}
-      </div>
-
-      {/* 🧾 RightNav (desktop) */}
-      <div
-        className="hidden lg:block w-1/3 h-full sticky border-l border-gray-300
-                      bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500 overflow-y-auto"
-      >
-        <RightNav
-          selectedQuestion={selectedQuestion}
-          onUpdate={updateQuestion}
-        />
-      </div>
-
-      {/* 📱 RightNav overlay (mobile) */}
-      {showRightNav && (
-        <div className="lg:hidden fixed top-0 left-0 w-full h-full bg-white z-50 overflow-y-auto dark:bg-[#2a2b2b]">
-          <div className="flex justify-between items-center p-4 border-b dark:border-gray-500">
-            <h2 className="text-lg font-semibold">Edit Question</h2>
-            <button
-              onClick={() => setShowRightNav(false)}
-              className="text-red-500 font-semibold"
-            >
-              Close
-            </button>
-          </div>
-          <div className="p-4">
-            <RightNav
-              selectedQuestion={selectedQuestion}
+          {/* Question list */}
+          {selectedSection && (
+            <QuestionParent
+              ques={selectedSection.questions}
               onUpdate={updateQuestion}
+              onDelete={deleteQuestion}
+              onAdd={addQuestion}
+              selectedQuestion={selectedQuestion}
+              setSelectedQuestion={setSelectedQuestion}
+              onEditQuestion={() => setShowRightNav(!showRightNav)}
             />
-          </div>
+          )}
         </div>
-      )}
-      {showFAQ && <FAQs showFaq={showFAQ} setShowFaq={setShowFAQ} />}
-      {/* FAQ modal */}
-      <FaqButton />
-    </div>
+
+        {/* 🧾 RightNav (desktop) */}
+        <div
+          className="hidden lg:block w-1/3 h-full sticky border-l border-gray-300
+                      bg-[#fefefe] dark:bg-[#363535] dark:border-gray-500 overflow-y-auto"
+        >
+          <RightNav
+            selectedQuestion={selectedQuestion}
+            onUpdate={updateQuestion}
+          />
+        </div>
+
+        {/* 📱 RightNav overlay (mobile) */}
+        {showRightNav && (
+          <div className="lg:hidden fixed top-0 left-0 w-full h-full bg-white z-50 overflow-y-auto dark:bg-[#2a2b2b]">
+            <div className="flex justify-between items-center p-4 border-b dark:border-gray-500">
+              <h2 className="text-lg font-semibold">Edit Question</h2>
+              <button
+                onClick={() => setShowRightNav(false)}
+                className="text-red-500 font-semibold"
+              >
+                Close
+              </button>
+            </div>
+            <div className="p-4">
+              <RightNav
+                selectedQuestion={selectedQuestion}
+                onUpdate={updateQuestion}
+              />
+            </div>
+          </div>
+        )}
+        {showFAQ && <FAQs showFaq={showFAQ} setShowFaq={setShowFAQ} />}
+        {/* FAQ modal */}
+        <FaqButton />
+      </div>
+    </>
   );
 }

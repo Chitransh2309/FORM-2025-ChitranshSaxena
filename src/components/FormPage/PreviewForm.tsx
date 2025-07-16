@@ -444,117 +444,115 @@ export default function PreviewForm({
               </p>
             </div>
 
-              {/* === SECTION BODY === */}
-              <div className="w-full bg-white px-4 sm:px-6 py-6 shadow-[0_0_10px_rgba(0,0,0,0.3)] rounded-[8px] dark:bg-[#5A5959] dark:text-white">
-                <h3 className="text-lg sm:text-xl font-semibold mb-6 text-black font-[Outfit] dark:text-white">
-                  {section.title}
-                </h3>
+            {/* === SECTION BODY === */}
+            <div className="w-full bg-white px-4 sm:px-6 py-6 shadow-[0_0_10px_rgba(0,0,0,0.3)] rounded-[8px] dark:bg-[#5A5959] dark:text-white">
+              <h3 className="text-lg sm:text-xl font-semibold mb-6 text-black font-[Outfit] dark:text-white">
+                {section.title}
+              </h3>
 
-                {section.questions.map((q) => (
-                  <div
-                    key={q.question_ID}
-                    className="mb-6 w-full bg-white rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 py-3 dark:bg-[#353434]"
+              {section.questions.map((q) => (
+                <div
+                  key={q.question_ID}
+                  className="mb-6 w-full bg-white rounded-[10px] shadow-[0_0_10px_rgba(0,0,0,0.3)] px-4 py-3 dark:bg-[#353434]"
+                >
+                  <label
+                    className="block text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-2 font-[Outfit] dark:text-white"
+                    style={{
+                      textShadow: "0.3px 0.6px 1px rgba(0, 0, 0, 0.1)",
+                    }}
                   >
-                    <label
-                      className="block text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-2 font-[Outfit] dark:text-white"
-                      style={{
-                        textShadow: "0.3px 0.6px 1px rgba(0, 0, 0, 0.1)",
-                      }}
-                    >
-                      {q.questionText}{" "}
-                      {q.isRequired && <span className="text-red-500">*</span>}
-                    </label>
-                    <DynamicPreviewInput
-                      question={q}
-                      value={
-                        answers.find((a) => a.question_ID === q.question_ID)
-                          ?.value || ""
-                      }
-                      onChange={(value) =>
-                        handleInputChange(q.question_ID, value)
-                      }
-                      error={errors[q.question_ID]}
-                    />
-                    {/* Config summary for preview */}
-                    <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                      <span className="italic">Type: {q.type}</span>
-                      {q.type === "DATE" && (
-                        <>
-                          {q.config?.validations?.find(
-                            (v) => v.name === "dateRange"
-                          ) && (
-                            <>
-                              {" | Range: "}
-                              {q.config.validations
-                                .find((v) => v.name === "dateRange")
-                                ?.params?.find((p) => p.name === "minDate")
-                                ?.value || "Any"}
-                              {" to "}
-                              {q.config.validations
-                                .find((v) => v.name === "dateRange")
-                                ?.params?.find((p) => p.name === "maxDate")
-                                ?.value || "Any"}
-                            </>
-                          )}
-                        </>
-                      )}
-                      {q.type === "MCQ" && (
-                        <span>
-                          {" | Min: "}
-                          {q.config?.params?.find((p) => p.name === "min")
-                            ?.value || 0}
-                          {", Max: "}
-                          {q.config?.params?.find((p) => p.name === "max")
-                            ?.value ||
-                            (
-                              q.config?.params?.find(
-                                (p) => p.name === "options"
-                              )?.value as string[]
-                            )?.length ||
-                            0}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-
-                {/* Navigation Buttons */}
-                <div className="flex justify-between items-center mt-4 flex-wrap gap-3 mb-10">
-                  {sectionIndex > 0 && (
-                    <button
-                      onClick={goBack}
-                      className="cursor-pointer min-w-[90px] h-[34px] sm:w-[108px] sm:h-[30px] bg-[#91C4AB] active:bg-[#61A986] text-black rounded-[7px] font-[Outfit] font-medium text-[14px] sm:text-[16px]"
-                    >
-                      Back
-                    </button>
-                  )}
-                  <button
-                    onClick={
-                      isLastSection ? () => alert("Preview Complete") : goNext
+                    {q.questionText}{" "}
+                    {q.isRequired && <span className="text-red-500">*</span>}
+                  </label>
+                  <DynamicPreviewInput
+                    question={q}
+                    value={
+                      answers.find((a) => a.question_ID === q.question_ID)
+                        ?.value || ""
                     }
-                    className="cursor-pointer min-w-[90px] h-[34px] sm:w-[108px] sm:h-[30px] bg-[#91C4AB] active:bg-[#61A986] text-black rounded-[7px] font-[Outfit] font-medium text-[14px] sm:text-[16px] right-0 ml-auto"
-                  >
-                    {isLastSection ? "Submit" : "Next"}
-                  </button>
+                    onChange={(value) =>
+                      handleInputChange(q.question_ID, value)
+                    }
+                    error={errors[q.question_ID]}
+                  />
+                  {/* Config summary for preview */}
+                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    <span className="italic">Type: {q.type}</span>
+                    {q.type === "DATE" && (
+                      <>
+                        {q.config?.validations?.find(
+                          (v) => v.name === "dateRange"
+                        ) && (
+                          <>
+                            {" | Range: "}
+                            {q.config.validations
+                              .find((v) => v.name === "dateRange")
+                              ?.params?.find((p) => p.name === "minDate")
+                              ?.value || "Any"}
+                            {" to "}
+                            {q.config.validations
+                              .find((v) => v.name === "dateRange")
+                              ?.params?.find((p) => p.name === "maxDate")
+                              ?.value || "Any"}
+                          </>
+                        )}
+                      </>
+                    )}
+                    {q.type === "MCQ" && (
+                      <span>
+                        {" | Min: "}
+                        {q.config?.params?.find((p) => p.name === "min")
+                          ?.value || 0}
+                        {", Max: "}
+                        {q.config?.params?.find((p) => p.name === "max")
+                          ?.value ||
+                          (
+                            q.config?.params?.find((p) => p.name === "options")
+                              ?.value as string[]
+                          )?.length ||
+                          0}
+                      </span>
+                    )}
+                  </div>
                 </div>
+              ))}
+
+              {/* Navigation Buttons */}
+              <div className="flex justify-between items-center mt-4 flex-wrap gap-3 mb-10">
+                {sectionIndex > 0 && (
+                  <button
+                    onClick={goBack}
+                    className="cursor-pointer min-w-[90px] h-[34px] sm:w-[108px] sm:h-[30px] bg-[#91C4AB] active:bg-[#61A986] text-black rounded-[7px] font-[Outfit] font-medium text-[14px] sm:text-[16px]"
+                  >
+                    Back
+                  </button>
+                )}
+                <button
+                  onClick={
+                    isLastSection ? () => alert("Preview Complete") : goNext
+                  }
+                  className="cursor-pointer min-w-[90px] h-[34px] sm:w-[108px] sm:h-[30px] bg-[#91C4AB] active:bg-[#61A986] text-black rounded-[7px] font-[Outfit] font-medium text-[14px] sm:text-[16px] right-0 ml-auto"
+                >
+                  {isLastSection ? "Submit" : "Next"}
+                </button>
               </div>
-            </>
-          )}
-        </div>
-
-        {/* FAQ Button - Mobile Only */}
-        <div className="fixed bottom-6 right-6 z-40">
-          <button
-            className="flex items-center justify-center w-12 h-12 text-black rounded-full dark:text-white hover:shadow-xl transition-shadow"
-            onClick={() => setShowFaq(true)}
-          >
-            <HiOutlineQuestionMarkCircle className="w-6 h-6" />
-          </button>
-        </div>
-
-        {/* FAQ Modal Component */}
-        <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />
+            </div>
+          </>
+        )}
       </div>
-    </>
+
+      {/* FAQ Button - Mobile Only */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <button
+          className="flex items-center justify-center w-12 h-12 text-black rounded-full dark:text-white hover:shadow-xl transition-shadow"
+          onClick={() => setShowFaq(true)}
+        >
+          <HiOutlineQuestionMarkCircle className="w-6 h-6" />
+        </button>
+      </div>
+
+      {/* FAQ Modal Component */}
+      <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />
+    </div>
   );
 }
