@@ -14,7 +14,6 @@ import { HiOutlineQuestionMarkCircle } from "react-icons/hi";
 import SectionSidebar from "@/components/FormPage/SectionSidebar";
 import RightNav from "@/components/FormPage/RightNav";
 import QuestionParent from "@/components/FormPage/QuestionParent";
-import getFormObject from "@/app/action/getFormObject";
 import { saveFormToDB } from "@/app/action/saveformtodb";
 import { Form, Question, Section, QuestionType } from "@/lib/interface";
 import { Pencil } from "lucide-react";
@@ -32,17 +31,20 @@ enum SectionForm {
 interface FormBuildProps {
   currentSection: SectionForm;
   setCurrentSection: (section: SectionForm) => void;
+  form: Form;
+  setForm: React.Dispatch<React.SetStateAction<Form>>;
 }
 
 export default function BuildPage({
   currentSection,
   setCurrentSection,
+  form,
+  setForm,
 }: FormBuildProps) {
   /* ─────────────────────────────── state ─────────────────────────────── */
   const LABELS = ["Builder", "Workflow", "Preview"];
   const { id: formId } = useParams<{ id: string }>();
 
-  const [form, setForm] = useState<Form>();
   const formRef = useRef<Form | null>(form);
   useEffect(() => void (formRef.current = form), [form]);
 
@@ -86,17 +88,17 @@ export default function BuildPage({
     };
   }, [debouncedSaveForm]);
 
-  /* ─────────────────────── data loading ─────────────────────────────── */
-  useEffect(() => {
-    (async () => {
-      if (!formId || typeof formId !== "string") return;
-      const res = await getFormObject(formId);
-      if (res.success && res.data) {
-        setForm(res.data);
-        setSelectedSectionId(res.data.sections?.[0]?.section_ID ?? null);
-      }
-    })();
-  }, [formId]);
+  // /* ─────────────────────── data loading ─────────────────────────────── */
+  // useEffect(() => {
+  //   (async () => {
+  //     if (!formId || typeof formId !== "string") return;
+  //     const res = await getFormObject(formId);
+  //     if (res.success && res.data) {
+  //       setForm(res.data);
+  //       setSelectedSectionId(res.data.sections?.[0]?.section_ID ?? null);
+  //     }
+  //   })();
+  // }, [formId]);
 
   useEffect(() => setSelectedQuestion(null), [selectedSectionId]);
   useEffect(
@@ -159,10 +161,9 @@ export default function BuildPage({
     const res = await renameSectionTitle(formId, sid, title);
 
     if (res.success) {
-      setForm((prev) => {
-        if (!prev) return prev;
-        const sections = prev.sections.map((s) =>
-          s.section_ID === sid ? { ...s, title } : s
+      setForm((prev: Form): Form => {
+        const sections: Section[] = prev.sections.map(
+          (s: Section): Section => (s.section_ID === sid ? { ...s, title } : s)
         );
         return { ...prev, sections };
       });
@@ -239,21 +240,22 @@ export default function BuildPage({
 
   /* ──────────────────────── render ──────────────────────────────────── */
   return (
-    <div className="flex flex-col lg:flex-row h-[92vh] xl:h-[calc(100%-68px)] w-full">
-      {/* ⬅️ Desktop Sidebar */}
-      <div className="hidden lg:flex w-1/3 border-r border-gray-300 dark:border-gray-500 overflow-y-auto h-screen">
-        <SectionSidebar
-          sections={form?.sections || []}
-          selectedSectionId={selectedSectionId}
-          setSelectedSectionId={setSelectedSectionId}
-          onAddSection={addSection}
-          onDeleteSection={deleteSection}
-        />
-      </div>
+    <>
+      <div className="flex flex-col lg:flex-row h-[92vh] xl:h-[calc(100%-68px)] w-full">
+        {/* ⬅️ Desktop Sidebar */}
+        <div className="hidden lg:flex w-1/3 border-r border-gray-300 dark:border-gray-500 overflow-y-auto h-screen">
+          <SectionSidebar
+            sections={form?.sections || []}
+            selectedSectionId={selectedSectionId}
+            setSelectedSectionId={setSelectedSectionId}
+            onAddSection={addSection}
+            onDeleteSection={deleteSection}
+          />
+        </div>
 
-      {/* 📝 Main column */}
-      <div
-        className="w-full lg:px-10 overflow-y-auto overflow-x-hidden
+        {/* 📝 Main column */}
+        <div
+          className="w-full lg:px-10 overflow-y-auto overflow-x-hidden
                    flex flex-col space-y-6 h-full max-w-full"
         >
           {/* Top Tabs */}
@@ -273,33 +275,33 @@ export default function BuildPage({
                                 ? "bg-[#61A986] text-black dark:text-white"
                                 : "text-black dark:text-white hover:bg-[#b9d9c8] dark:hover:bg-[#353434]"
                             }`}
-              >
-                {label}
-              </button>
-            ))}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* 📱 Mobile Section Sidebar */}
-        <div className="lg:hidden w-full px-4 flex flex-row justify-between items-center">
-          <SectionSidebar
-            sections={form?.sections || []}
-            selectedSectionId={selectedSectionId}
-            setSelectedSectionId={setSelectedSectionId}
-            onAddSection={addSection}
-            onDeleteSection={deleteSection}
-          />
-          <div className="bg-[#91C4AB] p-3 rounded shadow mr-2">
-            {saved !== 0 ? <h4>Saved {saved} sec ago</h4> : <h4>Saving…</h4>}
+          {/* 📱 Mobile Section Sidebar */}
+          <div className="lg:hidden w-full px-4 flex flex-row justify-between items-center">
+            <SectionSidebar
+              sections={form?.sections || []}
+              selectedSectionId={selectedSectionId}
+              setSelectedSectionId={setSelectedSectionId}
+              onAddSection={addSection}
+              onDeleteSection={deleteSection}
+            />
+            <div className="bg-[#91C4AB] p-3 rounded shadow mr-2">
+              {saved !== 0 ? <h4>Saved {saved} sec ago</h4> : <h4>Saving…</h4>}
+            </div>
           </div>
-        </div>
 
-        {/* Section title + autosave badge (desktop) */}
-        <div className="flex flex-row justify-between w-full px-10 items-center">
-          <div className="flex flex-row items-center gap-2 mt-6 mb-3">
-            {isEditingTitle ? (
-              <input
-                className="text-xl font-semibold border-b border-black dark:border-white bg-transparent
+          {/* Section title + autosave badge (desktop) */}
+          <div className="flex flex-row justify-between w-full px-10 items-center">
+            <div className="flex flex-row items-center gap-2 mt-6 mb-3">
+              {isEditingTitle ? (
+                <input
+                  className="text-xl font-semibold border-b border-black dark:border-white bg-transparent
                            focus:outline-none px-1"
                   value={editedTitle}
                   onChange={(e) => setEditedTitle(e.target.value)}
