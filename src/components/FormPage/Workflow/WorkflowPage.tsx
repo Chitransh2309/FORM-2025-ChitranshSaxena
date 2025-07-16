@@ -41,8 +41,8 @@ import type {
 } from "@/lib/interface";
 
 interface WorkflowPageProps {
-  form: Form;                             // live copy of the form
-  setForm: (f: Form) => void;             // parent updater
+  form: Form; // live copy of the form
+  setForm: (f: Form) => void; // parent updater
   currentSection: SectionForm;
   setCurrentSection: (s: SectionForm) => void;
 }
@@ -58,12 +58,12 @@ export default function WorkflowPage({
   const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
 
   const [sections, setSections] = useState<Section[]>([]);
-  const [nodes, setNodes]       = useState<Node[]>([]);
-  const [edges, setEdges]       = useState<Edge[]>([]);
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
   const [logicRules, setLogicRules] = useState<LogicRule[]>([]);
 
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
-    null,
+    null
   );
   const [showModal, setShowModal] = useState(false);
   const [targetSection, setTargetSection] = useState("");
@@ -107,7 +107,7 @@ export default function WorkflowPage({
       (sec.logic || []).map((rule) => ({
         ...rule,
         triggerSectionId: sec.section_ID,
-      })),
+      }))
     );
     setLogicRules(extractedRules);
   }, [form]);
@@ -116,9 +116,7 @@ export default function WorkflowPage({
   const getQuestionText = (id: string) =>
     allQuestions.find((q) => q.question_ID === id)?.questionText || id;
 
-  const renderCondition = (
-    c: NestedCondition | BaseCondition,
-  ): string => {
+  const renderCondition = (c: NestedCondition | BaseCondition): string => {
     if (!c) return "";
 
     if ("fieldId" in c) return `${getQuestionText(c.fieldId)} == ${c.value}`;
@@ -148,8 +146,7 @@ export default function WorkflowPage({
     setShowModal(true);
     setTargetSection("");
 
-    const firstQ = sections.find((s) => s.section_ID === secId)
-      ?.questions?.[0];
+    const firstQ = sections.find((s) => s.section_ID === secId)?.questions?.[0];
 
     setLogicCondition({
       fieldId: firstQ?.question_ID || "",
@@ -192,7 +189,7 @@ export default function WorkflowPage({
     const newSecs = sections.map((sec) =>
       sec.section_ID === selectedSectionId
         ? { ...sec, logic: [...(sec.logic || []), newRule] }
-        : sec,
+        : sec
     );
     setForm({ ...form, sections: newSecs });
   };
@@ -216,7 +213,7 @@ export default function WorkflowPage({
             ...sec,
             logic: (sec.logic || []).filter((_, i) => i !== idxToDel),
           }
-        : sec,
+        : sec
     );
     setForm({ ...form, sections: newSecs });
   };
@@ -234,15 +231,22 @@ export default function WorkflowPage({
     const { fitView } = useReactFlow();
     useEffect(() => {
       if (winW < 768) {
-        const t = setTimeout(() => fitView({ padding: 0.2, duration: 500 }), 200);
+        const t = setTimeout(
+          () => fitView({ padding: 0.2, duration: 500 }),
+          200
+        );
         return () => clearTimeout(t);
       }
     }, [winW, fitView]);
     return null;
   }
 
-  const selectedSection = sections.find((s) => s.section_ID === selectedSectionId);
-  const otherSections   = sections.filter((s) => s.section_ID !== selectedSectionId);
+  const selectedSection = sections.find(
+    (s) => s.section_ID === selectedSectionId
+  );
+  const otherSections = sections.filter(
+    (s) => s.section_ID !== selectedSectionId
+  );
 
   /* ───────────────────────── render ───────────────────────── */
   return (

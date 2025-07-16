@@ -13,6 +13,7 @@ import {
 import { validateAnswer } from "@/lib/validation";
 import FAQs from "../NewUserPage/FAQs";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
+import Loader from "../Loader";
 
 // Dynamic Input Renderer (Preview Mode, with validation)
 const DynamicPreviewInput = ({
@@ -456,7 +457,9 @@ export default function PreviewForm({
                 >
                   <label
                     className="block text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-2 font-[Outfit] dark:text-white"
-                    style={{ textShadow: "0.3px 0.6px 1px rgba(0, 0, 0, 0.1)" }}
+                    style={{
+                      textShadow: "0.3px 0.6px 1px rgba(0, 0, 0, 0.1)",
+                    }}
                   >
                     {q.questionText}{" "}
                     {q.isRequired && <span className="text-red-500">*</span>}

@@ -34,16 +34,16 @@ const FormSettings = ({
 }: FormSettingsProps) => {
   /* dates */
   const [startDate, setStartDate] = useState<Date>(
-    formSettings?.startDate ? new Date(formSettings.startDate) : new Date(),
+    formSettings?.startDate ? new Date(formSettings.startDate) : new Date()
   );
   const [endDate, setEndDate] = useState<Date>(
-    formSettings?.endDate ? new Date(formSettings.endDate) : new Date(),
+    formSettings?.endDate ? new Date(formSettings.endDate) : new Date()
   );
 
   /* role-based sharing */
   const [editorEmail, setEditorEmail] = useState("");
   const [selectedRole, setSelectedRole] = useState<"editor" | "viewer">(
-    "editor",
+    "editor"
   );
 
   /* generic field handler */
@@ -70,7 +70,8 @@ const FormSettings = ({
     if (editorEmail.trim()) {
       const fn = selectedRole === "editor" ? addEditor : addViewer;
       const out = await fn(formId, editorEmail.trim());
-      if (!out?.success) alert(`Failed to add ${selectedRole}: ${out?.message}`);
+      if (!out?.success)
+        alert(`Failed to add ${selectedRole}: ${out?.message}`);
     }
 
     onClose();
@@ -182,7 +183,7 @@ const FormSettings = ({
                           ? new Date().toISOString().split("T")[0]
                           : prev.toISOString().split("T")[0];
                         const newStart = new Date(
-                          `${datePart}T${e.target.value}`,
+                          `${datePart}T${e.target.value}`
                         );
                         if (newStart < new Date()) {
                           alert("Start time cannot be in the past.");
@@ -245,7 +246,7 @@ const FormSettings = ({
                           ? new Date().toISOString().split("T")[0]
                           : prev.toISOString().split("T")[0];
                         const newEnd = new Date(
-                          `${datePart}T${e.target.value}`,
+                          `${datePart}T${e.target.value}`
                         );
                         const sameDay =
                           datePart === startDate.toISOString().split("T")[0];
@@ -254,7 +255,7 @@ const FormSettings = ({
                           newEnd.getTime() - startDate.getTime() < 60000
                         ) {
                           alert(
-                            "End time must be at least 1 minute after start time.",
+                            "End time must be at least 1 minute after start time."
                           );
                           return prev;
                         }

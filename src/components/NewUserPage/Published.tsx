@@ -30,10 +30,12 @@ export default function Published({ forms, setForms }: PublishedProps) {
     if (!confirm("Are you sure you want to delete this form?")) return;
     try {
       await deleteFormFromDB(id);
-      setForms((prev) => prev.map((f) => f.form_ID === id ? { ...f, isDeleted: true } : f));
+      setForms((prev) =>
+        prev.map((f) => (f.form_ID === id ? { ...f, isDeleted: true } : f))
+      );
     } catch {
       alert("Something went wrong while deleting.");
-    } 
+    }
   };
 
   /* star/unstar -------------------------------------------------------- */
@@ -41,8 +43,8 @@ export default function Published({ forms, setForms }: PublishedProps) {
     /* optimistic local flip */
     setForms((prev) =>
       prev.map((f) =>
-        f.form_ID === id ? { ...f, isStarred: !f.isStarred } : f,
-      ),
+        f.form_ID === id ? { ...f, isStarred: !f.isStarred } : f
+      )
     );
 
     try {
@@ -50,8 +52,8 @@ export default function Published({ forms, setForms }: PublishedProps) {
       if (res && "isStarred" in res) {
         setForms((prev) =>
           prev.map((f) =>
-            f.form_ID === id ? { ...f, isStarred: !!res.isStarred } : f,
-          ),
+            f.form_ID === id ? { ...f, isStarred: !!res.isStarred } : f
+          )
         );
       }
     } catch {
@@ -59,10 +61,10 @@ export default function Published({ forms, setForms }: PublishedProps) {
       /* roll back optimistic change on error */
       setForms((prev) =>
         prev.map((f) =>
-          f.form_ID === id ? { ...f, isStarred: !f.isStarred } : f,
-        ),
+          f.form_ID === id ? { ...f, isStarred: !f.isStarred } : f
+        )
       );
-    } 
+    }
   };
 
   /* ------------------------------ UI ------------------------------- */
@@ -89,7 +91,9 @@ export default function Published({ forms, setForms }: PublishedProps) {
                   onClick={() => handleStarToggle(form.form_ID)}
                   title="Star Form"
                 >
-                  <FontAwesomeIcon icon={form.isStarred ? solidStar : regularStar} />
+                  <FontAwesomeIcon
+                    icon={form.isStarred ? solidStar : regularStar}
+                  />
                 </button>
 
                 {/* 🗑 delete */}
