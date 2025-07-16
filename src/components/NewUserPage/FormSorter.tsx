@@ -30,11 +30,11 @@ function Formsorter() {
   return (
     <>
       {loading && (
-        <div className="z-60">
+        <div className="z-60 fixed inset flex flex-row justify-center align-center dark:text-white text-black dark:bg-[#2B2A2A] bg-[#F5F7F5] w-screen h-screen">
           <Loader />
+          <p>Creating a Form for you...</p>
         </div>
       )}
-
       <div className="px-8 py-6 ">
         <div className="flex justify-between items-start relative">
           <button className="flex gap-2 items-center bg-[#61A986] text-lg px-6 py-3 text-white rounded-lg cursor-pointer hover:bg-[#4d8a6b] transition-all duration-300 hover:scale-[1.02] shadow-md hover:shadow-lg dark:text-black">
