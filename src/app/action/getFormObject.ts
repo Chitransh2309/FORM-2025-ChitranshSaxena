@@ -11,9 +11,7 @@ export default async function getFormObject(form_ID: string) {
     const { db, dbClient } = await connectToDB();
 
     // raw Mongo document (may include _id and lack strict typing)
-    const raw = await db
-      .collection<Form>("forms")
-      .findOne({ form_ID });
+    const raw = await db.collection<Form>("forms").findOne({ form_ID });
 
     await disconnectFromDB(dbClient);
 
