@@ -8,7 +8,7 @@ import LightAnim from '@/lotties/Lightmode.json';
 
 export default function About() {
   return (
-    <div className="w-full px-6 sm:px-10 lg:px-24 xl:px-32 pb-12 dark:bg-[#191719] font-[Outfit]">
+    <div className="w-full px-2 sm:px-6 lg:px-20 xl:px-26 pb-6 dark:bg-[#191719] font-[Outfit]">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
         {/* Animation LEFT on desktop, BELOW on mobile */}
         <div className="order-2 lg:order-1 flex justify-center lg:justify-start lg:-ml-6">

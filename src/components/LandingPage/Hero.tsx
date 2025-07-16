@@ -14,7 +14,7 @@ export default function Hero() {
       id="home"
       className={`w-full flex items-center justify-center ${tilt.className} dark:bg-[#191719]`}
     >
-      <div className="w-full max-w-[1440px] px-4 lg:px-8">
+      <div className="w-full max-w-[1440px] px-4 lg:px-6">
         {/* Mobile & Tablet View */}
         <div className="flex flex-col lg:hidden items-center gap-10 px-4">
           <HeroText />

@@ -21,6 +21,7 @@ import FAQs from "../NewUserPage/FAQs";
 import toast from "react-hot-toast";
 import { renameSectionTitle } from "@/app/action/sections";
 import debounce from "lodash/debounce";
+import Loader from "../Loader";
 
 enum SectionForm {
   Builder,
@@ -66,6 +67,7 @@ export default function BuildPage({
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState("");
+  const [loading] = useState(false);
 
   /* ──────────────────── auto-save with debounce ─────────────────────── */
   const debouncedSaveForm = useCallback(
@@ -241,6 +243,11 @@ export default function BuildPage({
   /* ──────────────────────── render ──────────────────────────────────── */
   return (
     <>
+      {loading && (
+        <div className="z-60">
+          <Loader />
+        </div>
+      )}
       <div className="flex flex-col lg:flex-row h-[92vh] xl:h-[calc(100%-68px)] w-full">
         {/* ⬅️ Desktop Sidebar */}
         <div className="hidden lg:flex w-1/3 border-r border-gray-300 dark:border-gray-500 overflow-y-auto h-screen">

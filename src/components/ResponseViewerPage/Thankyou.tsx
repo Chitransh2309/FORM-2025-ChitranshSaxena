@@ -7,7 +7,7 @@ import { Pathway_Extreme } from "next/font/google";
 
 const pathway = Pathway_Extreme({ subsets: ["latin"], weight: ["500", "600", "700"] });
 
-export default function ThankYouPage({ formId }: { formId: string }) {
+export default function ThankYouPage({ }: { formId: string }) {
   return (
     <div
       className={`min-h-screen flex flex-col md:flex-row bg-white dark:bg-[#2B2A2A] text-black dark:text-white ${pathway.className}`}
