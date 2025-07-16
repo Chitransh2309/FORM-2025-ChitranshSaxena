@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { useParams } from "next/navigation";
-import getFormObject from "@/app/action/getFormObject";
+
 import {
   Form,
   Question,
@@ -14,6 +13,7 @@ import {
 import { validateAnswer } from "@/lib/validation";
 import FAQs from "../NewUserPage/FAQs";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
+import Loader from "../Loader";
 
 // Dynamic Input Renderer (Preview Mode, with validation)
 const DynamicPreviewInput = ({
@@ -272,47 +272,56 @@ const DynamicPreviewInput = ({
 interface formbuild {
   currentSection: SectionForm;
   setCurrentSection: (section: SectionForm) => void;
-  form: Form | undefined;
+  form: Form;
 }
 
+/* PreviewForm.tsx */
 export default function PreviewForm({
   currentSection,
   setCurrentSection,
   form,
 }: formbuild) {
-  const { id: formId } = useParams();
-  const [showFaq, setShowFaq] = useState(false);
+  const [loadedForm, setLoadedForm] = useState<Form | undefined>(form);
   const [sectionIndex, setSectionIndex] = useState(0);
+  const [answers, setAnswers] = useState<Answer[]>([]);
+
+  const LABELS = ["Builder", "Workflow", "Preview"];
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedDevice, setSelectedDevice] = useState<"desktop" | "mobile">(
     "desktop"
   );
-  const LABELS = ["Builder", "Workflow", "Preview"];
-
-  const [answers, setAnswers] = useState<Answer[]>([]);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loadedForm, setLoadedForm] = useState<Form | null>(null);
-
-  const section = loadedForm?.sections?.[sectionIndex];
-
+  const [showFaq, setShowFaq] = useState(false);
+  // ---------------------------------------------------
+  // Keep local copy of the form in sync with the prop.
+  // Reset section/answers when a *new* form arrives.
+  // ---------------------------------------------------
   useEffect(() => {
-    const loadForm = async () => {
-      if (!formId || typeof formId !== "string") return;
+    if (!form) return;
+    setLoadedForm(form);
+    setSectionIndex(0);
+    setAnswers([]);
+    setErrors({});
+  }, [form]);
 
-      const res = await getFormObject(formId);
-      if (res.success && res.data) {
-        setLoadedForm(res.data);
-        setSectionIndex(0);
-        setAnswers([]);
-        setErrors({});
-      } else {
-        alert("❌ Failed to load form.");
-      }
-    };
+  // useEffect(() => {
+  //   const loadForm = async () => {
+  //     if (!formId || typeof formId !== "string") return;
 
-    if (currentSection === SectionForm.Preview) {
-      loadForm();
-    }
-  }, [currentSection, formId]);
+  //     const res = await getFormObject(formId);
+  //     if (res.success && res.data) {
+  //       setLoadedForm(res.data);
+  //       setSectionIndex(0);
+  //       setAnswers([]);
+  //       setErrors({});
+  //     } else {
+  //       alert("❌ Failed to load form.");
+  //     }
+  //   };
+
+  //   if (currentSection === SectionForm.Preview) {
+  //     loadForm();
+  //   }
+  // }, [currentSection, formId]);
 
   // Simulate answer state for preview
   const handleInputChange = (questionId: string, value: string) => {
@@ -362,6 +371,7 @@ export default function PreviewForm({
     }
   };
 
+  const section = loadedForm?.sections?.[sectionIndex];
   const isLastSection =
     loadedForm && sectionIndex === loadedForm.sections.length - 1;
 
@@ -447,7 +457,9 @@ export default function PreviewForm({
                 >
                   <label
                     className="block text-black text-[16px] sm:text-[20px] font-normal leading-[100%] mb-2 font-[Outfit] dark:text-white"
-                    style={{ textShadow: "0.3px 0.6px 1px rgba(0, 0, 0, 0.1)" }}
+                    style={{
+                      textShadow: "0.3px 0.6px 1px rgba(0, 0, 0, 0.1)",
+                    }}
                   >
                     {q.questionText}{" "}
                     {q.isRequired && <span className="text-red-500">*</span>}
