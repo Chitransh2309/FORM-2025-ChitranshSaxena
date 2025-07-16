@@ -3,7 +3,7 @@
 import React from "react";
 import Lottie from "lottie-react";
 
-import DarkAnim from "@/lotties/Darkmode.json";
+import DarkAnim_2 from "@/lotties/Darkmode_2.json";
 import LightAnim from "@/lotties/Lightmode.json";
 
 export default function About() {
@@ -19,7 +19,7 @@ export default function About() {
 
           {/* Dark Mode Animation */}
           <div className="hidden dark:block w-full max-w-[500px] h-auto">
-            <Lottie animationData={DarkAnim} loop autoplay />
+            <Lottie animationData={DarkAnim_2} loop autoplay />
           </div>
         </div>
 
