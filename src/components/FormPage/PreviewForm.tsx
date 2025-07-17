@@ -252,6 +252,116 @@ const DynamicPreviewInput = ({
       );
     }
 
+    case QuestionType.FILE_UPLOAD: {
+  const allowedTypes =
+    (question.config?.params?.find((p) => p.name === "allowedFileTypes")
+      ?.value as string[]) || [];
+
+  const maxFileSizeMB =
+    (question.config?.params?.find((p) => p.name === "maxFileSizeMB")
+      ?.value as number) || 5;
+
+  const maxFiles =
+    (question.config?.params?.find((p) => p.name === "maxFiles")
+      ?.value as number) || 1;
+
+  const uploaded = value ? value.split(",") : [];
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    if (files.length > maxFiles) {
+      alert(`Only ${maxFiles} file(s) allowed.`);
+      return;
+    }
+
+    const urls: string[] = [];
+
+    for (const file of Array.from(files)) {
+      const fileExt = file.name.split(".").pop()?.toLowerCase();
+      const fileSizeMB = file.size / (1024 * 1024);
+
+      if (
+        allowedTypes.length > 0 &&
+        fileExt &&
+        !allowedTypes.includes(fileExt)
+      ) {
+        alert(`File type .${fileExt} is not allowed.`);
+        continue;
+      }
+
+      if (fileSizeMB > maxFileSizeMB) {
+        alert(
+          `File ${file.name} exceeds max size of ${maxFileSizeMB}MB. Skipping.`
+        );
+        continue;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch("http://localhost:8000/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (data.url) {
+          urls.push(data.url);
+        }
+      } catch (err) {
+        console.error("Upload failed for", file.name, err);
+      }
+    }
+
+    if (urls.length > 0) {
+      onChange([...uploaded, ...urls].slice(0, maxFiles).join(","));
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <input
+        type="file"
+        accept={allowedTypes.length > 0 ? allowedTypes.map(t => `.${t}`).join(",") : "*"}
+        multiple={maxFiles > 1}
+        onChange={handleUpload}
+        className={baseInputClass}
+      />
+
+      {uploaded.length > 0 && (
+        <div className="mt-2 space-y-1 text-sm">
+          {uploaded.map((url, idx) => (
+            <div key={idx} className="flex items-center space-x-2">
+              {url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                <img
+                  src={url}
+                  alt="uploaded"
+                  className="w-16 h-16 object-cover rounded border"
+                />
+              ) : (
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 underline"
+                >
+                  View File {idx + 1}
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
+    </div>
+  );
+}
+
+
     default:
       return (
         <>
@@ -375,7 +485,7 @@ export default function PreviewForm({
     loadedForm && sectionIndex === loadedForm.sections.length - 1;
 
   return (
-    <div className="relative flex justify-center items-center min-h-screen bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full overflow-scroll h-full dark:bg-[#2B2A2A]">
+    <div className="relative flex justify-center items-center min-h-full bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full  dark:bg-[#2B2A2A]">
       <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full flex justify-center px-4 sm:px-0">
         <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
           {LABELS.map((label, i) => (

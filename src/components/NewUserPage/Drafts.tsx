@@ -12,13 +12,20 @@ import { updateFormInfo } from "@/app/action/updateFormInfo";
 import { Form } from "@/lib/interface";
 import Loader from "../Loader";
 
-export default function Drafts({ forms: initialForms }: { forms: Form[] }) {
+export default function Drafts({
+  forms,
+  setForms,
+}: {
+  forms: Form[];
+  setForms: React.Dispatch<React.SetStateAction<Form[]>>;
+}) {
   const router = useRouter();
 
   // only keep items that are still drafts
-  const [forms, setForms] = useState(
-    initialForms.filter((f) => f.publishedAt === null)
-  );
+  // const [forms, setForms] = useState(
+  //   initialForms.filter((f) => f.publishedAt === null && !f.isDeleted)
+  // );
+
   const [showDialog, setShowDialog] = useState(false);
   const [title, setTitle] = useState("Untitled Form");
   const [description, setDescription] = useState("");

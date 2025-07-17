@@ -27,6 +27,8 @@ const questionTypes = [
   },
   { label: "Email", value: QuestionType.EMAIL, field: "email" },
   { label: "Url", value: QuestionType.URL, field: "url" },
+  { label: "File Upload", value: QuestionType.FILE_UPLOAD, field: "file_upload" },
+
 ];
 
 type UIParam = Param & {
@@ -160,6 +162,61 @@ export default function QuestionTypeDropdown({
     );
 
     const placeholder = param.placeholder ?? param.name;
+
+    if (param.type === "file") {
+  return wrap(
+    <>
+      <input
+        type="file"
+        className={cls}
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+
+          const formData = new FormData();
+          formData.append("file", file);
+
+          try {
+            const res = await fetch("http://localhost:8000/upload", {
+              method: "POST",
+              body: formData,
+            });
+
+            const data = await res.json();
+            if (data.url) {
+              updateParams({ ...param, value: data.url });
+            }
+          } catch (err) {
+            console.error("Upload failed", err);
+          }
+        }}
+      />
+      {param.value && typeof param.value === "string" && (
+        <div className="mt-2">
+          {param.value.match(/\.(jpeg|jpg|gif|png|webp)$/i) ? (
+            <img
+              src={param.value}
+              alt="Uploaded file preview"
+              className="max-h-40 rounded border mt-2"
+            />
+          ) : (
+            <a
+              href={param.value}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 underline mt-2 inline-block"
+            >
+              View uploaded file
+            </a>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
+
+      
 
     if (param.isValidation) {
       const vn = param.validationName!;

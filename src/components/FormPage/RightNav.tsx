@@ -67,6 +67,10 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
         return "Email";
       case QuestionType.URL:
         return "URL";
+        
+      case QuestionType.FILE_UPLOAD:
+      return "File Upload";
+      
       default:
         return "Multiple Choice";
     }
