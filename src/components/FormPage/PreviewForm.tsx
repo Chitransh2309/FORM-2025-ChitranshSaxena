@@ -375,7 +375,7 @@ export default function PreviewForm({
     loadedForm && sectionIndex === loadedForm.sections.length - 1;
 
   return (
-    <div className="relative flex justify-center items-center min-h-screen bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full overflow-scroll h-full dark:bg-[#2B2A2A]">
+    <div className="relative flex justify-center items-center min-h-full bg-[#F6F8F6] px-2 py-4 font-[Outfit] w-full  dark:bg-[#2B2A2A]">
       <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full flex justify-center px-4 sm:px-0">
         <div className="flex justify-between items-center w-full max-w-[480px] h-[68px] rounded-[10px] dark:bg-[#414141] bg-[#91C4AB]/45 shadow px-2 sm:px-4">
           {LABELS.map((label, i) => (

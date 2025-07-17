@@ -294,7 +294,6 @@ export default function ResponsesPage({
   const startedAt = React.useRef(new Date());
 
   const debouncedSaveResponse = debounce(async () => {
-
     isSaving(0);
 
     const response: FormResponse = {
@@ -354,7 +353,7 @@ export default function ResponsesPage({
             return;
           }
         }
-console.log("Form loaded:", res.data);
+        console.log("Form loaded:", res.data);
         setForm(res.data);
         setSectionIndex(0);
       } else {
@@ -583,9 +582,7 @@ console.log("Form loaded:", res.data);
   };
 
   if (!loading && hasUserSubmitted(formId, userId) && !showConfetti) {
-    return (
-      <ThankYouPage formId={formId}/>
-    );
+    return <ThankYouPage formId={formId} />;
   }
 
   if (loading) {
