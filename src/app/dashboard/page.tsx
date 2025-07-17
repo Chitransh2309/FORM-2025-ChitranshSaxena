@@ -263,7 +263,12 @@ function Workspace({
             ) : (
               <div className="w-full h-full overflow-y-auto flex flex-col items-center">
                 <div className="flex flex-col lg:flex-row flex-1 w-full max-w-7xl gap-6 px-4">
-                  <Drafts forms={forms} setForms={setForms} />
+                  <Drafts
+                    forms={forms.filter(
+                      (f) => f.publishedAt === null && !f.isDeleted
+                    )}
+                    setForms={setForms}
+                  />
                   <Published forms={filteredPublished} setForms={setForms} />
                 </div>
               </div>
