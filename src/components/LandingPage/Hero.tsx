@@ -1,8 +1,8 @@
-import React from "react";
-import { Tilt_Warp } from "next/font/google";
-import Image from "next/image";
+import React from 'react';
+import { Tilt_Warp } from 'next/font/google';
+import Image from 'next/image';
 
-const tilt = Tilt_Warp({ subsets: ["latin"], weight: ["400"] });
+const tilt = Tilt_Warp({ subsets: ['latin'], weight: ['400'] });
 
 // interface GridBoxesProps {
 //   large?: boolean;
@@ -12,29 +12,13 @@ export default function Hero() {
   return (
     <div
       id="home"
-      className={`w-screen flex items-center justify-center ${tilt.className} dark:bg-[#191719]`}
+      className={`w-full flex items-center justify-center ${tilt.className} dark:bg-[#191719]`}
     >
-      <div className="w-full px-4 lg:px-8">
+      <div className="w-full max-w-[1440px] px-4 lg:px-6">
         {/* Mobile & Tablet View */}
         <div className="flex flex-col lg:hidden items-center gap-10 px-4">
           <HeroText />
-          <div className="w-full">
-            <Image
-              src="/formlightmode.svg"
-              alt="Form Light Mode"
-              width={3000}
-              height={1600}
-              className="hidden light:block w-full h-auto object-contain"
-            />
-            <Image
-              src="/formdarkmode.svg"
-              alt="Form Dark Mode"
-              width={3000}
-              height={1600}
-              priority
-              className="hidden dark:block w-full h-auto object-contain"
-            />
-          </div>
+          <GridBoxes />
         </div>
 
         {/* Desktop View: Text left, image right */}
@@ -43,24 +27,7 @@ export default function Hero() {
             <HeroText />
           </div>
           <div className="flex-1 flex justify-end">
-            <div className="w-full">
-              <Image
-                src="/formlightmode.svg"
-                alt="Form Light Mode"
-                width={3000}
-                height={1600}
-                priority
-                className="block w-full h-auto object-contain scale-[1.4] mt-5"
-              />
-              <Image
-                src="/formdarkmode.svg"
-                alt="Form Dark Mode"
-                width={3000}
-                height={1600}
-                priority
-                className="hidden dark:block w-full h-auto object-contain"
-              />
-            </div>
+            <GridBoxes />
           </div>
         </div>
       </div>
@@ -72,10 +39,10 @@ function HeroText() {
   return (
     <h1
       className=" dark:text-white text-[42px] sm:text-[60px] md:text-[75px] lg:text-[95px] leading-[1.2] tracking-[-0.02em] text-left font-normal"
-      style={{ backdropFilter: "blur(2px)" }}
+      style={{ backdropFilter: 'blur(2px)' }}
     >
       <span className="hidden lg:block whitespace-pre-line">
-        Forms{"\n"}That Fit{"\n"}Every{"\n"}{" "}
+        Forms{'\n'}That Fit{'\n'}Every{'\n'}{' '}
         <span className="bg-gradient-to-r from-[#617DA9] via-[#61A986] to-[#61A986] bg-clip-text text-transparent">
           Space
         </span>
@@ -91,5 +58,28 @@ function HeroText() {
         </span>
       </span>
     </h1>
+  );
+}
+
+function GridBoxes() {
+  return (
+    <div className="w-full max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px]">
+      <Image
+        src="/formlightmode.svg"
+        alt="Form Light Mode"
+        width={3000}
+        height={1600}
+        priority
+        className="block dark:hidden w-full h-auto object-contain"
+      />
+      <Image
+        src="/formdarkmode.svg"
+        alt="Form Dark Mode"
+        width={3000}
+        height={1600}
+        priority
+        className="hidden dark:block w-full h-auto object-contain"
+      />
+    </div>
   );
 }

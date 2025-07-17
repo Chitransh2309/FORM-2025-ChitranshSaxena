@@ -61,7 +61,7 @@ export default function Workspace({
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const cleaned = rawForms.map(
-        ({ _id, ...form }) => form as unknown as Form
+        ({ ...form }) => form as unknown as Form
       );
 
       setForms(cleaned);
