@@ -30,7 +30,7 @@ export default function Sidebar({
       {/* ─── logo ─── */}
       <div className="flex items-center gap-3 mb-8">
         <Image
-          src="/logo-component.svg"
+          src="/FormLogo.svg"
           alt="LOGO"
           width={32}
           height={32}
