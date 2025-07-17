@@ -30,9 +30,13 @@ function Formsorter() {
   return (
     <>
       {loading && (
-        <div className="z-60 fixed inset flex flex-row justify-center align-center dark:text-white text-black dark:bg-[#2B2A2A] bg-[#F5F7F5] w-screen h-screen">
-          <Loader />
-          <p>Creating a Form for you...</p>
+        <div className="fixed inset-0 z-60 flex flex-row justify-center items-center w-screen h-screen bg-[#F5F7F5] dark:bg-[#2B2A2A] text-black dark:text-white">
+          <div className="flex flex-col items-center gap-4">
+            <Loader />
+            <h3 className="mb-20 font-[Outfit] font-bold text-xl">
+              Creating a Form for you...
+            </h3>
+          </div>
         </div>
       )}
       <div className="px-8 py-6 ">
