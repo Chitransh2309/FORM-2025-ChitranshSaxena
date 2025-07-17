@@ -23,11 +23,6 @@ const questionTypes = [
     value: QuestionType.LINEARSCALE,
     field: "linear_scale",
   },
-  {
-    label: "Linear Scale",
-    value: QuestionType.LINEARSCALE,
-    field: "linear_scale",
-  },
   { label: "Email", value: QuestionType.EMAIL, field: "email" },
   { label: "Url", value: QuestionType.URL, field: "url" },
 ];
