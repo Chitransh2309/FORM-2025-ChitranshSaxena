@@ -70,7 +70,7 @@ export default function Published({ forms, setForms }: PublishedProps) {
     <section className="relative w-full xl:w-1/2 p-4 mb-20 xl:mb-0 text-black dark:text-white">
       <h2 className="px-4 py-3 text-xl font-semibold">Published</h2>
 
-      <div className="rounded-lg border-2 border-dashed border-gray p-4 dark:border-white xl:min-h-90 lg:min-h-120">
+      <div className="rounded-lg border-2 border-dashed border-gray p-4 dark:border-white xl:min-h-90 lg:min-h-120 max-h-120 sm:max-h-none overflow-auto sm:overflow-visible">
         {published.length === 0 ? (
           <p className="text-center text-sm text-gray-500 dark:text-gray-400">
             No published forms found.
