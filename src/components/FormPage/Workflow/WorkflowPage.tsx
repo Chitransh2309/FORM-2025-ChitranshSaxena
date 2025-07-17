@@ -309,7 +309,7 @@ export default function WorkflowPage({
           className={`
             fixed top-0 left-0 z-40 h-full w-[75%] overflow-y-auto p-4
             shadow transition-transform duration-300
-            dark:bg-[#363535] bg-[#fefefe]
+            dark:bg-[#363535] bg-[#fefefe] mt-19 sm:mt-0
             ${showSavedLogic ? "translate-x-0" : "-translate-x-full"}
             xl:relative xl:translate-x-0 xl:w-[300px] xl:bg-none
           `}
