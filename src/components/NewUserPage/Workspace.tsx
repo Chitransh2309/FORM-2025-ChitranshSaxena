@@ -60,9 +60,7 @@ export default function Workspace({
       setImage(user?.image ?? "");
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const cleaned = rawForms.map(
-        ({ ...form }) => form as unknown as Form
-      );
+      const cleaned = rawForms.map(({ ...form }) => form as unknown as Form);
 
       setForms(cleaned);
       setLoading(false);
@@ -218,7 +216,12 @@ export default function Workspace({
           ) : (
             <div className="h-full border-black mx-auto flex flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white overflow-y-auto">
               <div className="flex flex-col lg:flex-row flex-1 w-full gap-4">
-                <Drafts forms={forms} setForms={setForms} />
+                <Drafts
+                  forms={forms.filter(
+                    (f) => f.publishedAt === null && !f.isDeleted
+                  )}
+                  setForms={setForms}
+                />{" "}
                 <Published forms={forms} setForms={setForms} />
               </div>
             </div>
