@@ -21,17 +21,18 @@ export default function ConditionBlock({
   );
   const options: string[] =
     question?.type === "DROPDOWN" || question?.type === "MCQ"
-      ? (question.config?.params.find((p) => p.name === "options")?.value as string[]) || []
+      ? (question.config?.params.find((p) => p.name === "options")
+          ?.value as string[]) || []
       : [];
 
   return (
-    <div className="overflow-x-auto flex items-center gap-2 border p-2 rounded">
+    <div className="text-black overflow-x-auto flex items-center gap-2 border border-black p-2 rounded">
       <select
         value={condition.fieldId}
         onChange={(e) =>
           onChange({ ...condition, fieldId: e.target.value, value: "" })
         }
-        className="border px-2 py-1 rounded"
+        className="border border-black px-2 py-1 rounded"
       >
         <option value="">Select question</option>
         {allQuestions.map((q) => (
@@ -46,7 +47,7 @@ export default function ConditionBlock({
         onChange={(e) =>
           onChange({ ...condition, op: e.target.value as "equal" })
         }
-        className="border px-2 py-1 rounded"
+        className="border border-black px-2 py-1 rounded"
       >
         <option value="equal">equals</option>
       </select>
@@ -55,7 +56,7 @@ export default function ConditionBlock({
         <select
           value={condition.value}
           onChange={(e) => onChange({ ...condition, value: e.target.value })}
-          className="border px-2 py-1 rounded"
+          className="border border-black px-2 py-1 rounded"
         >
           <option value="">Select</option>
           {options.map((opt: string, idx: number) => (

@@ -8,7 +8,7 @@ export default function CustomNode({ data }: NodeProps) {
   };
 
   return (
-    <div className="bg-white border rounded shadow-md w-48 text-center relative">
+    <div className="text-black bg-white border rounded shadow-md w-48 text-center relative">
       <div className="p-3 cursor-move font-semibold text-sm">{data.label}</div>
 
       {/* Clickable Zone (not draggable) */}
