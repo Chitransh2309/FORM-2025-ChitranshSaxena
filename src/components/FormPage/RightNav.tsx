@@ -17,6 +17,7 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
     null
   );
   const [showFaq, setShowFaq] = useState(false);
+  const [orderInput, setOrderInput] = useState("1");
 
   /* track question changes */
   useEffect(() => {
@@ -24,6 +25,11 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
       setCurrentQuestionId(selectedQuestion?.question_ID || null);
     }
   }, [selectedQuestion?.question_ID, currentQuestionId]);
+
+  useEffect(() => {
+    // Sync when selectedQuestion.order changes externally
+    setOrderInput(String(selectedQuestion?.order));
+  }, [selectedQuestion?.order]);
 
   /* ───────────────────── handlers ─────────────────────────────────── */
   const handleChangeType = (newType: QuestionType) => {
@@ -145,10 +151,22 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
               <input
                 type="number"
                 min={1}
-                value={selectedQuestion.order}
-                onChange={(e) =>
-                  handleOrderChange(parseInt(e.target.value) || 1)
-                }
+                value={orderInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  // Allow empty string for backspace
+                  if (val === "") {
+                    setOrderInput("");
+                  } else {
+                    setOrderInput(val);
+                    handleOrderChange(parseInt(val));
+                  }
+                }}
+                onBlur={() => {
+                  if (orderInput === "") {
+                    setOrderInput(String(selectedQuestion.order));
+                  }
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md
                          focus:outline-none focus:ring-2 focus:ring-blue-500
                          dark:bg-[#5A5959] dark:border-gray-600 dark:text-white"
