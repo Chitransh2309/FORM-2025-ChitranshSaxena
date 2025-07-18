@@ -142,9 +142,13 @@ function Workspace({
   return (
     <>
       {creatingFile && (
-        <div className="flex flex-row bg-black w-screen h-screen">
-          <Loader />
-          <p>Creating a Form for you...</p>
+        <div className="fixed inset-0 z-60 flex flex-row justify-center items-center w-screen h-screen bg-[#F5F7F5] dark:bg-[#2B2A2A] text-black dark:text-white">
+          <div className="flex flex-col items-center gap-4">
+            <Loader />
+            <h3 className="font-[Outfit] font-bold text-xl">
+              Creating a Form for you...
+            </h3>
+          </div>
         </div>
       )}
       <div className="min-h-screen flex flex-col">

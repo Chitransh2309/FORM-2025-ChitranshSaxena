@@ -110,7 +110,7 @@ export default function Drafts({
 
         <h2 className="px-4 py-3 text-xl font-semibold">Drafts</h2>
 
-        <div className="border-2 border-gray border-dashed rounded-lg p-4 overflow-visible xl:min-h-90 lg:min-h-120 dark:border-white">
+        <div className="border-2 border-gray border-dashed rounded-lg p-4 sm:overflow-visible xl:min-h-90 lg:min-h-120 max-h-120 sm:max-h-none overflow-auto dark:border-white">
           <div className="grid grid-cols-2 gap-3">
             {forms.map((form) => (
               <div key={form.form_ID} className="flex flex-col relative">

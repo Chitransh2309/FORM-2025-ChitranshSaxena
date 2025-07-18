@@ -328,7 +328,7 @@ export default function WorkflowPage({
           className={`
             fixed top-0 left-0 z-40 h-full w-[75%] overflow-y-auto p-4
             shadow transition-transform duration-300
-            dark:bg-[#363535] bg-[#fefefe]
+            dark:bg-[#363535] bg-[#fefefe] mt-19 sm:mt-0
             ${showSavedLogic ? "translate-x-0" : "-translate-x-full"}
             xl:relative xl:translate-x-0 xl:w-[300px] xl:bg-none
           `}
@@ -372,7 +372,9 @@ export default function WorkflowPage({
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="max-h-[500px] w-[1000px] overflow-auto rounded-lg bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-lg font-semibold">Add Logic Condition</h2>
+            <h2 className="mb-4 text-lg font-semibold text-black">
+              Add Logic Condition
+            </h2>
 
             {/* Always render ConditionBlock for all condition types */}
             <ConditionBlock
@@ -398,7 +400,7 @@ export default function WorkflowPage({
               </button>
             )}
 
-            <div className="mb-3">
+            <div className="text-black mb-3">
               <label className="mb-1 block text-sm font-medium">
                 Go to Section
               </label>
@@ -419,7 +421,7 @@ export default function WorkflowPage({
             <div className="mt-4 flex justify-end gap-3">
               <button
                 onClick={() => setShowModal(false)}
-                className="rounded border px-3 py-1 text-sm"
+                className="text-black rounded border border-black px-3 py-1 text-sm"
               >
                 Cancel
               </button>

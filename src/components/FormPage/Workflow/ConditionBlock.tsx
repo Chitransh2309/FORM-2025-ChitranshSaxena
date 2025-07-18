@@ -25,6 +25,8 @@ export default function ConditionBlock({
     question?.type === "DROPDOWN" || question?.type === "MCQ"
       ? (question.config?.params.find((p) => p.name === "options")
           ?.value as string[]) || []
+      ? (question.config?.params.find((p) => p.name === "options")
+          ?.value as string[]) || []
       : [];
 
   return (
