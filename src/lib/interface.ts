@@ -32,36 +32,55 @@ export interface Form {
   isStarred: boolean;
   responseCount?: number; // Optional, can be derived from responses
 }
-// types/Section.ts
+// // types/Section.ts
 export enum SectionForm {
   Builder,
   Workflow,
   Preview,
 }
 
-export type NestedCondition = {
-  op: "AND" | "OR";
-  conditions: (BaseCondition | NestedCondition)[];
+// export type NestedCondition = {
+//   op: "AND" | "OR";
+//   conditions: (BaseCondition | NestedCondition)[];
+// };
+
+// export type LogicRule = {
+//   triggerSectionId: string;
+//   action: {
+//     type: "jump";
+//     to: string;
+//     condition: NestedCondition | BaseCondition;
+//   };
+// };
+
+// export type BaseCondition = {
+  //   fieldId: string;
+  //   op: "equal";
+  //   value: string;
+  // };
+  // export type ConditionGroupType = {
+  //   op: "AND" | "OR";
+  //   conditions: (BaseCondition | ConditionGroupType)[];
+  // };
+  
+export interface SectionLogics {
+  conditions: BaseLogic | Always | NestedLogic;
 };
 
-export type LogicRule = {
-  triggerSectionId: string;
-  action: {
-    type: "jump";
-    to: string;
-    condition: NestedCondition | BaseCondition;
-  };
+export type Always={
+  op:"always";
+  sourceSectionId:string;
 };
 
-export type BaseCondition = {
-  fieldId: string;
-  op: "equal";
-  value: string;
+export type NestedLogic = {
+  op: 'AND' | 'OR';
+  conditions: (NestedLogic | BaseLogic)[];
 };
 
-export type ConditionGroupType = {
-  op: "AND" | "OR";
-  conditions: (BaseCondition | ConditionGroupType)[];
+export interface BaseLogic {
+  questionID: string;
+  op: 'equal';
+  value: string | number;
 };
 
 export interface FormSettings {
@@ -81,7 +100,7 @@ export interface Section {
   title: string;
   description: string;
   questions: Question[];
-  logic?: LogicRule[];
+  logic?: SectionLogics[];
 }
 
 export interface Question {

@@ -41,8 +41,8 @@ import type {
 } from "@/lib/interface";
 
 interface WorkflowPageProps {
-  form: Form;                             // live copy of the form
-  setForm: (f: Form) => void;             // parent updater
+  form: Form; // live copy of the form
+  setForm: (f: Form) => void; // parent updater
   currentSection: SectionForm;
   setCurrentSection: (s: SectionForm) => void;
 }
@@ -58,12 +58,12 @@ export default function WorkflowPage({
   const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
 
   const [sections, setSections] = useState<Section[]>([]);
-  const [nodes, setNodes]       = useState<Node[]>([]);
-  const [edges, setEdges]       = useState<Edge[]>([]);
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
   const [logicRules, setLogicRules] = useState<LogicRule[]>([]);
 
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
-    null,
+    null
   );
   const [showModal, setShowModal] = useState(false);
   const [targetSection, setTargetSection] = useState("");
@@ -107,7 +107,7 @@ export default function WorkflowPage({
       (sec.logic || []).map((rule) => ({
         ...rule,
         triggerSectionId: sec.section_ID,
-      })),
+      }))
     );
     setLogicRules(extractedRules);
   }, [form]);
@@ -116,18 +116,35 @@ export default function WorkflowPage({
   const getQuestionText = (id: string) =>
     allQuestions.find((q) => q.question_ID === id)?.questionText || id;
 
-  const renderCondition = (
-    c: NestedCondition | BaseCondition,
-  ): string => {
-    if (!c) return "";
+  // const renderCondition = (c: NestedCondition | BaseCondition): string => {
+  //   if (!c) return "";
 
-    if ("fieldId" in c) return `${getQuestionText(c.fieldId)} == ${c.value}`;
+  //   if ("fieldId" in c) return `${getQuestionText(c.fieldId)} == ${c.value}`;
 
-    if ("conditions" in c && c.conditions.length)
-      return `(${c.conditions.map(renderCondition).join(` ${c.op} `)})`;
+  //   if ("conditions" in c && c.conditions.length)
+  //     return `(${c.conditions.map(renderCondition).join(` ${c.op} `)})`;
 
-    return "";
-  };
+  //   return "";
+  // };
+
+  const renderCondition = (c: NestedLogic | BaseLogic | Always): string => {
+  if (!c) return "";
+
+  if (c.op === "always") {
+    const sourceSection = sections.find(s => s.section_ID === (c as Always).sourceSectionId);
+    return `Always from ${sourceSection?.title || (c as Always).sourceSectionId}`;
+  }
+
+  if ("questionID" in c) {
+    return `${getQuestionText((c as BaseLogic).questionID)} == ${(c as BaseLogic).value}`;
+  }
+
+  if ("conditions" in c && c.conditions.length) {
+    return `(${(c as NestedLogic).conditions.map(renderCondition).join(` ${c.op} `)})`;
+  }
+
+  return "";
+};
 
   /* ─────────────────── sync edges with logicRules ─────────────────── */
   useEffect(() => {
@@ -148,8 +165,7 @@ export default function WorkflowPage({
     setShowModal(true);
     setTargetSection("");
 
-    const firstQ = sections.find((s) => s.section_ID === secId)
-      ?.questions?.[0];
+    const firstQ = sections.find((s) => s.section_ID === secId)?.questions?.[0];
 
     setLogicCondition({
       fieldId: firstQ?.question_ID || "",
@@ -192,7 +208,7 @@ export default function WorkflowPage({
     const newSecs = sections.map((sec) =>
       sec.section_ID === selectedSectionId
         ? { ...sec, logic: [...(sec.logic || []), newRule] }
-        : sec,
+        : sec
     );
     setForm({ ...form, sections: newSecs });
   };
@@ -216,7 +232,7 @@ export default function WorkflowPage({
             ...sec,
             logic: (sec.logic || []).filter((_, i) => i !== idxToDel),
           }
-        : sec,
+        : sec
     );
     setForm({ ...form, sections: newSecs });
   };
@@ -234,15 +250,22 @@ export default function WorkflowPage({
     const { fitView } = useReactFlow();
     useEffect(() => {
       if (winW < 768) {
-        const t = setTimeout(() => fitView({ padding: 0.2, duration: 500 }), 200);
+        const t = setTimeout(
+          () => fitView({ padding: 0.2, duration: 500 }),
+          200
+        );
         return () => clearTimeout(t);
       }
     }, [winW, fitView]);
     return null;
   }
 
-  const selectedSection = sections.find((s) => s.section_ID === selectedSectionId);
-  const otherSections   = sections.filter((s) => s.section_ID !== selectedSectionId);
+  const selectedSection = sections.find(
+    (s) => s.section_ID === selectedSectionId
+  );
+  const otherSections = sections.filter(
+    (s) => s.section_ID !== selectedSectionId
+  );
 
   /* ───────────────────────── render ───────────────────────── */
   return (
@@ -305,7 +328,7 @@ export default function WorkflowPage({
           className={`
             fixed top-0 left-0 z-40 h-full w-[75%] overflow-y-auto p-4
             shadow transition-transform duration-300
-            dark:bg-[#363535] bg-[#fefefe] mt-19 sm:mt-0
+            dark:bg-[#363535] bg-[#fefefe]
             ${showSavedLogic ? "translate-x-0" : "-translate-x-full"}
             xl:relative xl:translate-x-0 xl:w-[300px] xl:bg-none
           `}
@@ -349,26 +372,19 @@ export default function WorkflowPage({
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="max-h-[500px] w-[1000px] overflow-auto rounded-lg bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-lg font-semibold text-black">
-              Add Logic Condition
-            </h2>
+            <h2 className="mb-4 text-lg font-semibold">Add Logic Condition</h2>
 
-            {"fieldId" in logicCondition ? (
-              <ConditionBlock
-                allQuestions={selectedSection?.questions || []}
-                condition={logicCondition}
-                onChange={setLogicCondition}
-                onRemove={() => {}}
-              />
-            ) : (
-              <ConditionGroup
-                group={logicCondition}
-                onUpdate={setLogicCondition}
-                allQuestions={selectedSection?.questions || []}
-              />
-            )}
+            {/* Always render ConditionBlock for all condition types */}
+            <ConditionBlock
+              allSections={sections}
+              allQuestions={selectedSection?.questions || []}
+              condition={logicCondition}
+              onChange={setLogicCondition}
+              onRemove={() => {}}
+            />
 
-            {"fieldId" in logicCondition && (
+            {/* Convert to group button - only show for BaseLogic */}
+            {logicCondition.op === "equal" && (
               <button
                 onClick={() =>
                   setLogicCondition({
@@ -382,7 +398,7 @@ export default function WorkflowPage({
               </button>
             )}
 
-            <div className="text-black mb-3">
+            <div className="mb-3">
               <label className="mb-1 block text-sm font-medium">
                 Go to Section
               </label>
@@ -403,7 +419,7 @@ export default function WorkflowPage({
             <div className="mt-4 flex justify-end gap-3">
               <button
                 onClick={() => setShowModal(false)}
-                className="text-black rounded border border-black px-3 py-1 text-sm"
+                className="rounded border px-3 py-1 text-sm"
               >
                 Cancel
               </button>

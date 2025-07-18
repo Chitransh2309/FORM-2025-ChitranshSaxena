@@ -16,8 +16,10 @@ import {
   FormResponse,
   Question,
   QuestionType,
-  NestedCondition,
-  BaseCondition,
+  NestedLogic,
+  BaseLogic,
+  SectionLogics,
+  Always,
 } from "@/lib/interface";
 import { saveFormResponse } from "@/app/action/saveformtodb";
 import { pushFileAnswer } from "@/app/action/saveFileUrl"; // ⬅️ NEW
@@ -424,8 +426,8 @@ export default function ResponsesPage({
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [sectionHistory, setSectionHistory] = useState<number[]>([]);
   const [sectionIndex, setSectionIndex] = useState(0);
-  const [jumpQueue, setJumpQueue] = useState<number[]>([]);
-
+  // const [jumpQueue, setJumpQueue] = useState<number[]>([]);
+  const [isSubmitVisible,setIsSubmitVisible]=useState(false);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const section = form?.sections?.[sectionIndex];
@@ -565,32 +567,35 @@ export default function ResponsesPage({
   };
 
   function evaluateConditions(
-    condition: NestedCondition | BaseCondition,
+    condition: NestedLogic | BaseLogic | Always,
     answers: Answer[],
-    questions: Question[]
   ): boolean {
-    if ("conditions" in condition) {
-      const subResults = condition.conditions.map((sub) =>
-        evaluateConditions(sub, answers, questions)
-      );
-
-      if (condition.op === "AND") {
-        return subResults.every(Boolean);
-      } else if (condition.op === "OR") {
-        return subResults.some(Boolean);
+    if("op" in condition && condition.op==="always"){
+      for(let i=0;i<sectionHistory.length;i++)
+      {
+        if(form?.sections[sectionHistory[i]].section_ID==condition.sourceSectionId)return true;
       }
     }
-
-    if ("fieldId" in condition && condition.op === "equal") {
-      const answer = answers.find(
-        (a) =>
-          questions.find((q) => q.question_ID === a.question_ID)
-            ?.question_ID === condition.fieldId
-      );
-      return answer?.value === condition.value;
+    if ("conditions" in condition) {
+      const subResults = condition.conditions.map((sub) =>
+        evaluateConditions(sub, answers)
+    );
+    
+    if (condition.op === "AND") {
+      return subResults.every(Boolean);
+    } else if (condition.op === "OR") {
+      return subResults.some(Boolean);
     }
-
-    return false;
+  }
+  
+  if ("questionID" in condition && condition.op === "equal") {
+    const answer = answers.find(
+      (a) => a.question_ID === condition.questionID
+    );
+    return answer?.value === condition.value;
+  }
+  
+  return false;
   }
 
   const goNext = () => {
@@ -607,43 +612,38 @@ export default function ResponsesPage({
       return;
     }
 
-    if (jumpQueue.length > 0) {
-      const nextJump = jumpQueue[0];
-      setJumpQueue((prev) => prev.slice(1));
-      setSectionHistory((prev) => [...prev, sectionIndex]);
-      setSectionIndex(nextJump);
-      return;
-    }
+    // if (jumpQueue.length > 0) {
+    //   const nextJump = jumpQueue[0];
+    //   setJumpQueue((prev) => prev.slice(1));
+    //   setSectionHistory((prev) => [...prev, sectionIndex]);
+    //   setSectionIndex(nextJump);
+    //   return;
+    // }
 
-    const allLogics = currentSection.logic || [];
-    const nextJumps: number[] = [];
-
-    for (const logic of allLogics) {
-      const isTrue = evaluateConditions(
-        logic.action.condition,
-        answers,
-        currentSection?.questions
-      );
-      if (isTrue) {
-        const jumpToIdx = form.sections.findIndex(
-          (s) => s.section_ID === logic.action.to
-        );
-        if (jumpToIdx !== -1) nextJumps.push(jumpToIdx);
+    for (let i = sectionIndex + 1; i < form.sections.length; i++) {
+      const section = form?.sections[i];
+      const allLogics = section.logic || [];
+      for (const logic of allLogics) {
+        if (!logic?.conditions) continue;
+        const isTrue = evaluateConditions(logic.conditions,answers);
+        if (isTrue) {
+          setSectionHistory((prev) => [...prev, sectionIndex]);
+          setSectionIndex(i);
+          return ;
+        }
       }
     }
+    
+    setIsSubmitVisible(true);
+    // const nextJumps: number[] = [];
 
-    if (nextJumps.length > 0) {
-      const [firstJump, ...rest] = nextJumps;
-      setJumpQueue(rest);
-      setSectionHistory((prev) => [...prev, sectionIndex]);
-      setSectionIndex(firstJump);
-      return;
-    }
+    // if (nextJumps.length > 0) {
+    //   const [firstJump, ...rest] = nextJumps;
 
-    if (sectionIndex < form.sections.length - 1) {
-      setSectionHistory((prev) => [...prev, sectionIndex]);
-      setSectionIndex((prev) => prev + 1);
-    }
+    //   setSectionHistory((prev) => [...prev, sectionIndex]);
+    //   setSectionIndex(firstJump);
+    //   return;
+    // }
   };
 
   const goBack = () => {
@@ -652,12 +652,9 @@ export default function ResponsesPage({
     const prevSection = sectionHistory[sectionHistory.length - 1];
     setSectionHistory((prev) => prev.slice(0, -1));
     setSectionIndex(prevSection);
-  };
-
-  const isSubmitVisible = () => {
-    const isLast = form ? sectionIndex === form.sections.length - 1 : false;
-    const noPendingJumps = jumpQueue.length === 0;
-    return isLast && noPendingJumps;
+    if(isSubmitVisible){
+      setIsSubmitVisible(false);
+    }
   };
 
   // Validate all answers in the current section
@@ -830,10 +827,10 @@ export default function ResponsesPage({
                 </button>
               )}
               <button
-                onClick={isSubmitVisible() ? handleSubmit : goNext}
+                onClick={isSubmitVisible ? handleSubmit : goNext}
                 className="min-w-[90px] bg-[#91C4AB] rounded px-4 py-2 ml-auto hover:bg-[#7FB39B] transition-colors"
               >
-                {isSubmitVisible() ? "Submit" : "Next"}
+                {isSubmitVisible ? "Submit" : "Next"}
               </button>
             </div>
           </div>
