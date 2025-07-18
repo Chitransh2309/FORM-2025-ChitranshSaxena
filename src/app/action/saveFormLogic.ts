@@ -12,7 +12,6 @@ export async function saveFormLogic(form_ID: string, logicRules: LogicRule[]) {
       throw new Error("Form not found");
     }
 
-
     const updatedSections = form.sections.map((section: Section) => {
       const logicForThisSection = logicRules.filter(
         (rule: LogicRule) => rule.triggerSectionId === section.section_ID
@@ -23,7 +22,6 @@ export async function saveFormLogic(form_ID: string, logicRules: LogicRule[]) {
         logic: logicForThisSection.length > 0 ? logicForThisSection : [],
       };
     });
-
 
     const result = await db.collection("forms").updateOne(
       { form_ID },
@@ -40,4 +38,3 @@ export async function saveFormLogic(form_ID: string, logicRules: LogicRule[]) {
     };
   }
 }
-

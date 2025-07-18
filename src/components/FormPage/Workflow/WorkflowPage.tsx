@@ -116,16 +116,35 @@ export default function WorkflowPage({
   const getQuestionText = (id: string) =>
     allQuestions.find((q) => q.question_ID === id)?.questionText || id;
 
-  const renderCondition = (c: NestedCondition | BaseCondition): string => {
-    if (!c) return "";
+  // const renderCondition = (c: NestedCondition | BaseCondition): string => {
+  //   if (!c) return "";
 
-    if ("fieldId" in c) return `${getQuestionText(c.fieldId)} == ${c.value}`;
+  //   if ("fieldId" in c) return `${getQuestionText(c.fieldId)} == ${c.value}`;
 
-    if ("conditions" in c && c.conditions.length)
-      return `(${c.conditions.map(renderCondition).join(` ${c.op} `)})`;
+  //   if ("conditions" in c && c.conditions.length)
+  //     return `(${c.conditions.map(renderCondition).join(` ${c.op} `)})`;
 
-    return "";
-  };
+  //   return "";
+  // };
+
+  const renderCondition = (c: NestedLogic | BaseLogic | Always): string => {
+  if (!c) return "";
+
+  if (c.op === "always") {
+    const sourceSection = sections.find(s => s.section_ID === (c as Always).sourceSectionId);
+    return `Always from ${sourceSection?.title || (c as Always).sourceSectionId}`;
+  }
+
+  if ("questionID" in c) {
+    return `${getQuestionText((c as BaseLogic).questionID)} == ${(c as BaseLogic).value}`;
+  }
+
+  if ("conditions" in c && c.conditions.length) {
+    return `(${(c as NestedLogic).conditions.map(renderCondition).join(` ${c.op} `)})`;
+  }
+
+  return "";
+};
 
   /* ─────────────────── sync edges with logicRules ─────────────────── */
   useEffect(() => {
@@ -355,22 +374,17 @@ export default function WorkflowPage({
           <div className="max-h-[500px] w-[1000px] overflow-auto rounded-lg bg-white p-6 shadow-lg">
             <h2 className="mb-4 text-lg font-semibold">Add Logic Condition</h2>
 
-            {"fieldId" in logicCondition ? (
-              <ConditionBlock
-                allQuestions={selectedSection?.questions || []}
-                condition={logicCondition}
-                onChange={setLogicCondition}
-                onRemove={() => {}}
-              />
-            ) : (
-              <ConditionGroup
-                group={logicCondition}
-                onUpdate={setLogicCondition}
-                allQuestions={selectedSection?.questions || []}
-              />
-            )}
+            {/* Always render ConditionBlock for all condition types */}
+            <ConditionBlock
+              allSections={sections}
+              allQuestions={selectedSection?.questions || []}
+              condition={logicCondition}
+              onChange={setLogicCondition}
+              onRemove={() => {}}
+            />
 
-            {"fieldId" in logicCondition && (
+            {/* Convert to group button - only show for BaseLogic */}
+            {logicCondition.op === "equal" && (
               <button
                 onClick={() =>
                   setLogicCondition({
