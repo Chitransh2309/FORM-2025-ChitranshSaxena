@@ -101,6 +101,8 @@ function Workspace({
     return startDate && now >= startDate && !f.isDeleted;
   });
 
+  const drafts = forms.filter((f) => f.publishedAt === null && !f.isDeleted);
+
   // const drafts = forms.filter((f) => {
   //   const startDate = f.settings?.startDate
   //     ? new Date(f.settings.startDate)
@@ -117,6 +119,7 @@ function Workspace({
         );
 
   const filteredPublished = filterBySearch(published);
+  const filteredDrafts = filterBySearch(drafts);
   const isEmpty = !loading && forms.length === 0 && published.length === 0;
 
   const handleCreate = async () => {
@@ -267,12 +270,7 @@ function Workspace({
             ) : (
               <div className="w-full h-full overflow-y-auto flex flex-col items-center">
                 <div className="flex flex-col lg:flex-row flex-1 w-full max-w-7xl gap-6 px-4">
-                  <Drafts
-                    forms={forms.filter(
-                      (f) => f.publishedAt === null && !f.isDeleted
-                    )}
-                    setForms={setForms}
-                  />
+                  <Drafts forms={filteredDrafts} setForms={setForms} />
                   <Published forms={filteredPublished} setForms={setForms} />
                 </div>
               </div>
