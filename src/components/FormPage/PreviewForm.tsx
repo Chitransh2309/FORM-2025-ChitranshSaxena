@@ -257,109 +257,26 @@ const DynamicPreviewInput = ({
     (question.config?.params?.find((p) => p.name === "allowedFileTypes")
       ?.value as string[]) || [];
 
-  const maxFileSizeMB =
-    (question.config?.params?.find((p) => p.name === "maxFileSizeMB")
-      ?.value as number) || 5;
-
   const maxFiles =
     (question.config?.params?.find((p) => p.name === "maxFiles")
       ?.value as number) || 1;
-
-  const uploaded = value ? value.split(",") : [];
-
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    if (files.length > maxFiles) {
-      alert(`Only ${maxFiles} file(s) allowed.`);
-      return;
-    }
-
-    const urls: string[] = [];
-
-    for (const file of Array.from(files)) {
-      const fileExt = file.name.split(".").pop()?.toLowerCase();
-      const fileSizeMB = file.size / (1024 * 1024);
-
-      if (
-        allowedTypes.length > 0 &&
-        fileExt &&
-        !allowedTypes.includes(fileExt)
-      ) {
-        alert(`File type .${fileExt} is not allowed.`);
-        continue;
-      }
-
-      if (fileSizeMB > maxFileSizeMB) {
-        alert(
-          `File ${file.name} exceeds max size of ${maxFileSizeMB}MB. Skipping.`
-        );
-        continue;
-      }
-
-      const formData = new FormData();
-      formData.append("file", file);
-
-      try {
-        const res = await fetch("http://localhost:8000/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        const data = await res.json();
-        if (data.url) {
-          urls.push(data.url);
-        }
-      } catch (err) {
-        console.error("Upload failed for", file.name, err);
-      }
-    }
-
-    if (urls.length > 0) {
-      onChange([...uploaded, ...urls].slice(0, maxFiles).join(","));
-    }
-  };
 
   return (
     <div className="space-y-2">
       <input
         type="file"
-        accept={allowedTypes.length > 0 ? allowedTypes.map(t => `.${t}`).join(",") : "*"}
+        disabled
         multiple={maxFiles > 1}
-        onChange={handleUpload}
-        className={baseInputClass}
+        accept={allowedTypes.length > 0 ? allowedTypes.map(t => `.${t}`).join(",") : "*"}
+        className="cursor-not-allowed bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded px-3 py-2 w-full"
       />
-
-      {uploaded.length > 0 && (
-        <div className="mt-2 space-y-1 text-sm">
-          {uploaded.map((url, idx) => (
-            <div key={idx} className="flex items-center space-x-2">
-              {url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                <img
-                  src={url}
-                  alt="uploaded"
-                  className="w-16 h-16 object-cover rounded border"
-                />
-              ) : (
-                <a
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 underline"
-                >
-                  View File {idx + 1}
-                </a>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
+      <p className="text-sm text-gray-500">
+        File upload preview (disabled in preview mode).
+      </p>
     </div>
   );
 }
+
 
 
     default:
