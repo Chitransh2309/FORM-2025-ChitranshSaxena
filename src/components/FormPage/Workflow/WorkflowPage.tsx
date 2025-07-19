@@ -69,6 +69,8 @@ export default function WorkflowPage({
   const [showSavedLogic, setShowSavedLogic] = useState(true);
   const [fallbackSectionId, setFallbackSectionId] = useState<string>("");
   const [allQuestions, setAllQuestions] = useState<Question[]>([]);
+  const [hasCondition, setHasCondition] = useState(false);
+
   const [logicCondition, setLogicCondition] = useState<
     SectionLogics["conditions"]
   >({
@@ -213,6 +215,7 @@ export default function WorkflowPage({
     const finalRules = [...updatedLogicRules, newRule];
     setLogicRules(finalRules);
     setShowModal(false);
+    setHasCondition(false);
 
     // Step 3: Save
     const saveRes = await saveFormLogic(form.form_ID, finalRules);
@@ -388,52 +391,71 @@ export default function WorkflowPage({
               Add Logic Condition
             </h2>
 
-            {isBaseLogic(logicCondition) ? (
-              <ConditionBlock
-                allQuestions={selectedSection?.questions || []}
-                condition={logicCondition}
-                onChange={setLogicCondition}
-                onRemove={() => {}}
-              />
-            ) : (
-              <ConditionGroup
-                group={logicCondition}
-                allQuestions={selectedSection?.questions || []}
-                onUpdate={setLogicCondition}
-              />
-            )}
-
-            {logicCondition.op === "equal" && (
+            {!hasCondition ? (
               <button
-                onClick={() =>
+                onClick={() => {
+                  setHasCondition(true);
+                  const firstQ = selectedSection?.questions?.[0];
                   setLogicCondition({
-                    op: "AND",
-                    conditions: [logicCondition],
-                  })
-                }
-                className="mt-2 text-sm text-blue-600 hover:underline"
+                    op: "equal",
+                    questionID: firstQ?.question_ID || "",
+                    value: "",
+                  });
+                }}
+                className="text-sm text-blue-600 hover:underline"
               >
-                ➕ Convert to Group
+                ➕ Add Rule
               </button>
-            )}
+            ) : (
+              <>
+                {isBaseLogic(logicCondition) ? (
+                  <ConditionBlock
+                    allQuestions={selectedSection?.questions || []}
+                    condition={logicCondition}
+                    onChange={setLogicCondition}
+                    onRemove={() => setHasCondition(false)}
+                  />
+                ) : (
+                  <ConditionGroup
+                    group={logicCondition}
+                    allQuestions={selectedSection?.questions || []}
+                    onUpdate={setLogicCondition}
+                  />
+                )}
 
-            <div className="text-black mb-3 mt-4">
-              <label className="mb-1 block text-sm font-medium">
-                Go to Section (if conditions pass)
-              </label>
-              <select
-                className="w-full rounded border px-2 py-1"
-                value={targetSection}
-                onChange={(e) => setTargetSection(e.target.value)}
-              >
-                <option value="">Select destination</option>
-                {otherSections.map((s) => (
-                  <option key={s.section_ID} value={s.section_ID}>
-                    {s.title || s.section_ID}
-                  </option>
-                ))}
-              </select>
-            </div>
+                {isBaseLogic(logicCondition) && (
+                  <button
+                    onClick={() =>
+                      setLogicCondition({
+                        op: "AND",
+                        conditions: [logicCondition],
+                      })
+                    }
+                    className="mt-2 text-sm text-blue-600 hover:underline"
+                  >
+                    ➕ Convert to Group
+                  </button>
+                )}
+
+                <div className="text-black mb-3 mt-4">
+                  <label className="mb-1 block text-sm font-medium">
+                    Go to Section (if conditions pass)
+                  </label>
+                  <select
+                    className="w-full rounded border px-2 py-1"
+                    value={targetSection}
+                    onChange={(e) => setTargetSection(e.target.value)}
+                  >
+                    <option value="">Select destination</option>
+                    {otherSections.map((s) => (
+                      <option key={s.section_ID} value={s.section_ID}>
+                        {s.title || s.section_ID}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
 
             <div className="text-black mb-3 mt-4">
               <label className="mb-1 block text-sm font-medium">
@@ -455,7 +477,10 @@ export default function WorkflowPage({
 
             <div className="mt-4 flex justify-end gap-3">
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => {
+                  setShowModal(false);
+                  setHasCondition(false);
+                }}
                 className="text-black rounded border border-black px-3 py-1 text-sm"
               >
                 Cancel
