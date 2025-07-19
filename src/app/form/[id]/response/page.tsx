@@ -1,4 +1,10 @@
+/* -------------------------------------------------------------------------- *
+ * ResponsesPage.tsx – “public” page that renders a live form and records
+ *                     in-progress answers (incl. file-upload) in real time.
+ * -------------------------------------------------------------------------- */
+
 "use client";
+
 import React, { use, useEffect, useState } from "react";
 import { useWindowSize } from "react-use";
 import ThankYouPage from "@/components/ResponseViewerPage/Thankyou";
@@ -14,6 +20,7 @@ import {
   BaseCondition,
 } from "@/lib/interface";
 import { saveFormResponse } from "@/app/action/saveformtodb";
+import { pushFileAnswer } from "@/app/action/saveFileUrl"; // ⬅️ NEW
 import { useSession } from "next-auth/react";
 import { nanoid } from "nanoid";
 import toast from "react-hot-toast";
@@ -21,23 +28,29 @@ import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";
 import { validateAnswer } from "@/lib/validation";
 import { debounce } from "lodash";
 
-// Dynamic Input Component based on question type
+/* -------------------------------------------------------------------------- */
+/*  DynamicInput                                                              */
+/* -------------------------------------------------------------------------- */
+
 const DynamicInput = ({
   question,
   value,
   onChange,
   error,
+  formId, // ⬅️ NEW: needed for pushFileAnswer
 }: {
   question: Question;
   value: string;
   onChange: (value: string) => void;
   error?: string;
+  formId: string;
 }) => {
   const baseInputClass =
     "w-full px-3 py-2 rounded-[7px] bg-[#F6F8F6] text-black placeholder:text-[#676767] outline-none border border-transparent focus:border-gray-300 font-[Outfit] dark:text-white dark:placeholder-white dark:bg-[#494949]";
 
   switch (question.type) {
-    case QuestionType.TEXT:
+    /* ───────────────────────── TEXT / EMAIL / URL / DATE etc. ──────────── */
+    case QuestionType.TEXT: {
       const isMultiline = question.config?.params?.find(
         (p) => p.name === "multiline"
       )?.value;
@@ -69,6 +82,7 @@ const DynamicInput = ({
           {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
         </>
       );
+    }
 
     case QuestionType.EMAIL:
       return (
@@ -98,7 +112,7 @@ const DynamicInput = ({
         </>
       );
 
-    case QuestionType.DATE:
+    case QuestionType.DATE: {
       const includeTime = question.config?.params?.find(
         (p) => p.name === "includeTime"
       )?.value;
@@ -113,8 +127,10 @@ const DynamicInput = ({
           {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
         </>
       );
+    }
 
-    case QuestionType.MCQ:
+    /* ──────────────────────────── MCQ / DROPDOWN / SCALE ───────────────── */
+    case QuestionType.MCQ: {
       const options =
         (question.config?.params?.find((p) => p.name === "options")
           ?.value as unknown as string[]) || [];
@@ -135,9 +151,7 @@ const DynamicInput = ({
 
         if (isMultiSelect) {
           if (checked) {
-            if (newSelection.length < maxSelections) {
-              newSelection.push(option);
-            }
+            if (newSelection.length < maxSelections) newSelection.push(option);
           } else {
             newSelection = newSelection.filter((v) => v !== option);
           }
@@ -179,8 +193,9 @@ const DynamicInput = ({
           {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
         </div>
       );
+    }
 
-    case QuestionType.DROPDOWN:
+    case QuestionType.DROPDOWN: {
       const dropdownOptions =
         (question.config?.params?.find((p) => p.name === "options")
           ?.value as unknown as string[]) || [];
@@ -201,8 +216,9 @@ const DynamicInput = ({
           {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
         </>
       );
+    }
 
-    case QuestionType.LINEARSCALE:
+    case QuestionType.LINEARSCALE: {
       const min =
         (question.config?.params?.find((p) => p.name === "min")
           ?.value as number) || 1;
@@ -252,116 +268,134 @@ const DynamicInput = ({
           {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
         </div>
       );
-
-      case QuestionType.FILE_UPLOAD: {
-  const allowedTypes =
-    (question.config?.params?.find((p) => p.name === "allowedFileTypes")
-      ?.value as string[]) || [];
-
-  const maxFileSizeMB =
-    (question.config?.params?.find((p) => p.name === "maxFileSizeMB")
-      ?.value as number) || 5;
-
-  const maxFiles =
-    (question.config?.params?.find((p) => p.name === "maxFiles")
-      ?.value as number) || 1;
-
-  const uploaded = value ? value.split(",") : [];
-
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    if (files.length > maxFiles) {
-      alert(`Only ${maxFiles} file(s) allowed.`);
-      return;
     }
 
-    const urls: string[] = [];
+    /* ─────────────────────────────── FILE UPLOAD ───────────────────────── */
+    case QuestionType.FILE_UPLOAD: {
+      const allowedTypes =
+        (question.config?.params?.find((p) => p.name === "allowedFileTypes")
+          ?.value as string[]) || [];
 
-    for (const file of Array.from(files)) {
-      const fileExt = file.name.split(".").pop()?.toLowerCase();
-      const fileSizeMB = file.size / (1024 * 1024);
+      const maxFileSizeMB =
+        (question.config?.params?.find((p) => p.name === "maxFileSizeMB")
+          ?.value as number) || 5;
 
-      if (
-        allowedTypes.length > 0 &&
-        fileExt &&
-        !allowedTypes.includes(fileExt)
-      ) {
-        alert(`File type .${fileExt} is not allowed.`);
-        continue;
-      }
+      const maxFiles =
+        (question.config?.params?.find((p) => p.name === "maxFiles")
+          ?.value as number) || 1;
 
-      if (fileSizeMB > maxFileSizeMB) {
-        alert(
-          `File ${file.name} exceeds max size of ${maxFileSizeMB}MB. Skipping.`
-        );
-        continue;
-      }
+      const uploaded = value ? value.split(",") : [];
 
-      const formData = new FormData();
-      formData.append("file", file);
+      const handleUpload = async (
+        e: React.ChangeEvent<HTMLInputElement>
+      ): Promise<void> => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
 
-      try {
-        const res = await fetch(process.env.MICROSERVICE_URL!, {
-          method: "POST",
-          body: formData,
-        });
-
-        const data = await res.json();
-        if (data.url) {
-          urls.push(data.url);
+        if (files.length > maxFiles) {
+          toast.error(`Only ${maxFiles} file(s) allowed.`);
+          return;
         }
-      } catch (err) {
-        console.error("Upload failed for", file.name, err);
-      }
-    }
 
-    if (urls.length > 0) {
-      onChange([...uploaded, ...urls].slice(0, maxFiles).join(","));
-    }
-  };
+        const urls: string[] = [];
 
-  return (
-    <div className="space-y-2">
-      <input
-        type="file"
-        accept={allowedTypes.length > 0 ? allowedTypes.map(t => `.${t}`).join(",") : "*"}
-        multiple={maxFiles > 1}
-        onChange={handleUpload}
-        className={baseInputClass}
-      />
+        for (const file of Array.from(files)) {
+          const fileExt = file.name.split(".").pop()?.toLowerCase() ?? "";
+          const fileSizeMB = file.size / (1024 * 1024);
 
-      {uploaded.length > 0 && (
-        <div className="mt-2 space-y-1 text-sm">
-          {uploaded.map((url, idx) => (
-            <div key={idx} className="flex items-center space-x-2">
-              {url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                <img
-                  src={url}
-                  alt="uploaded"
-                  className="w-16 h-16 object-cover rounded border"
-                />
-              ) : (
-                <a
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 underline"
-                >
-                  View File {idx + 1}
-                </a>
-              )}
+          if (allowedTypes.length > 0 && !allowedTypes.includes(fileExt)) {
+            toast.error(`File type .${fileExt} is not allowed.`);
+            continue;
+          }
+
+          if (fileSizeMB > maxFileSizeMB) {
+            toast.error(
+              `File ${file.name} exceeds max size of ${maxFileSizeMB} MB.`
+            );
+            continue;
+          }
+
+          /* ---------- upload to FastAPI micro-service ---------- */
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("filetype", fileExt);
+
+          try {
+            const res = await fetch(
+              process.env.NEXT_PUBLIC_UPLOAD_URL ??
+                "http://localhost:8000/upload",
+              { method: "POST", body: formData }
+            );
+
+            if (!res.ok) throw new Error("upload failed");
+            const data = await res.json();
+
+            if (data.url) {
+              urls.push(data.url);
+
+              /* ---------- persist answer immediately ---------- */
+              await pushFileAnswer({
+                formId,
+                questionId: question.question_ID,
+                url: data.url,
+              });
+            }
+          } catch (err) {
+            console.error("Upload failed:", err);
+            toast.error(`Upload failed for ${file.name}`);
+          }
+        }
+
+        if (urls.length > 0) {
+          onChange([...uploaded, ...urls].slice(0, maxFiles).join(","));
+        }
+      };
+
+      return (
+        <div className="space-y-2">
+          <input
+            type="file"
+            accept={
+              allowedTypes.length > 0
+                ? allowedTypes.map((t) => `.${t}`).join(",")
+                : "*"
+            }
+            multiple={maxFiles > 1}
+            onChange={handleUpload}
+            className={baseInputClass}
+          />
+
+          {uploaded.length > 0 && (
+            <div className="mt-2 space-y-1 text-sm">
+              {uploaded.map((url, idx) => (
+                <div key={idx} className="flex items-center space-x-2">
+                  {url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                    <img
+                      src={url}
+                      alt="uploaded"
+                      className="w-16 h-16 object-cover rounded border"
+                    />
+                  ) : (
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 underline"
+                    >
+                      View File {idx + 1}
+                    </a>
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
+          )}
+
+          {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
         </div>
-      )}
+      );
+    }
 
-      {error && <div className="text-red-500 text-xs mt-1">{error}</div>}
-    </div>
-  );
-}
-
+    /* ───────────────────────────── default fallback ───────────────────── */
     default:
       return (
         <>
@@ -636,57 +670,66 @@ export default function ResponsesPage({
       errors: Object.values(errorsObj).filter(Boolean),
     };
   };
-
+  const [isSubmitting, setIsSubmitting] = useState(false); // 🆕
+  const [uploadingFiles, setUploadingFiles] = useState(0); // 🆕
   const handleSubmit = async () => {
-    const currentSection = form?.sections[sectionIndex];
-    const now = new Date();
-    const start = new Date(form?.settings?.startDate || "");
-    const end = new Date(form?.settings?.endDate || "");
+    setIsSubmitting(true); // 🆕 Start loader
 
-    if (form?.settings?.timingEnabled) {
-      if (now < start || now > end) {
-        toast.error("This form is no longer accepting responses.");
+    try {
+      const currentSection = form?.sections[sectionIndex];
+      const now = new Date();
+      const start = new Date(form?.settings?.startDate || "");
+      const end = new Date(form?.settings?.endDate || "");
+
+      if (form?.settings?.timingEnabled) {
+        if (now < start || now > end) {
+          toast.error("This form is no longer accepting responses.");
+          return;
+        }
+      }
+
+      const unansweredRequired = currentSection?.questions.filter(
+        (q) =>
+          q.isRequired &&
+          !answers.find((a) => a.question_ID === q.question_ID)?.value
+      );
+
+      if (unansweredRequired && unansweredRequired.length > 0) {
+        toast.error("Please answer all required questions marked with *");
         return;
       }
-    }
 
-    const unansweredRequired = currentSection?.questions.filter(
-      (q) =>
-        q.isRequired &&
-        !answers.find((a) => a.question_ID === q.question_ID)?.value
-    );
+      const validation = validateAnswers();
 
-    if (unansweredRequired && unansweredRequired.length > 0) {
-      toast.error("Please answer all required questions marked with *");
-    }
-    const validation = validateAnswers();
+      if (!validation.isValid) {
+        toast.error(validation.errors[0]);
+        return;
+      }
 
-    if (!validation.isValid) {
-      toast.error(validation.errors[0]);
-      return;
-    }
+      const response: FormResponse = {
+        response_ID: nanoid(),
+        form_ID: formId,
+        userId,
+        userName: session?.user?.name || "Anonymous",
+        startedAt: startedAt.current,
+        submittedAt: new Date(),
+        status: "submitted",
+        answers,
+        version: 1,
+      };
 
-    const response: FormResponse = {
-      response_ID: nanoid(),
-      form_ID: formId,
-      userId,
-      userName: session?.user?.name || "Anonymous",
-      startedAt: startedAt.current,
-      submittedAt: new Date(),
-      status: "submitted",
-      answers,
-      version: 1,
-    };
+      const success = await saveFormResponse(response);
 
-    const success = await saveFormResponse(response);
-
-    if (success) {
-      markFormAsSubmitted(formId, userId);
-      toast.success("Form Submitted Successfully");
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 4000);
-    } else {
-      toast.error("Failed to submit form.");
+      if (success) {
+        markFormAsSubmitted(formId, userId);
+        toast.success("Form Submitted Successfully");
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 4000);
+      } else {
+        toast.error("Failed to submit form.");
+      }
+    } finally {
+      setIsSubmitting(false); // 🆕 Stop loader
     }
   };
 
@@ -750,12 +793,13 @@ export default function ResponsesPage({
                 </label>
 
                 <DynamicInput
-                  question={q}
+                  formId={formId}
+                  /* ⬅️  FIX */ question={q}
                   value={
                     answers.find((a) => a.question_ID === q.question_ID)
                       ?.value || ""
                   }
-                  onChange={(value) => handleInputChange(q.question_ID, value)}
+                  onChange={(val) => handleInputChange(q.question_ID, val)}
                   error={errors[q.question_ID]}
                 />
               </div>
