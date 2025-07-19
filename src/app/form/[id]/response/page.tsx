@@ -569,87 +569,71 @@ export default function ResponsesPage({
   function evaluateConditions(
     condition: NestedLogic | BaseLogic | Always,
     answers: Answer[],
-    sectionHistory: number[]
-  ): boolean {
-    if ("op" in condition && condition.op === "always") {
-      return sectionHistory.some(
-        (index) =>
-          form?.sections[index].section_ID === condition.sourceSectionId
-      );
-    }
-
+    sectionHistory: number[],
+    form: Form
+    ): boolean {
+      if ("op" in condition && condition.op === "always") {
+    return sectionHistory.some(
+      (index) => form?.sections[index].section_ID === condition.sourceSectionId
+    );
+  }
     if ("conditions" in condition) {
       const subResults = condition.conditions.map((sub) =>
-        evaluateConditions(sub, answers, sectionHistory)
-      );
-
-      if (condition.op === "AND") {
-        return subResults.every(Boolean);
-      } else if (condition.op === "OR") {
-        return subResults.some(Boolean);
-      }
+        evaluateConditions(sub, answers,sectionHistory,form)
+    );
+    
+    if (condition.op === "AND") {
+      return subResults.every(Boolean);
+    } else if (condition.op === "OR") {
+      return subResults.some(Boolean);
     }
-
-    if ("questionID" in condition && condition.op === "equal") {
-      const answer = answers.find(
-        (a) => a.question_ID === condition.questionID
-      );
-
-      // Normalize value to string for comparison (especially for file upload)
-      return (
-        (Array.isArray(answer?.value)
-          ? answer.value.join(",")
-          : answer?.value) === condition.value
-      );
-    }
-
-    return false;
+     }
+  
+  if ("questionID" in condition && condition.op === "equal") {
+    const answer = answers.find(
+      (a) => a.question_ID === condition.questionID
+    );
+    return answer?.value === condition.value;
+  }
+  
+  return false;
   }
 
   const goNext = () => {
+    
     const currentSection = form?.sections[sectionIndex];
     if (!currentSection) return;
 
-    const unansweredRequired = currentSection.questions.filter((q) => {
-      const answer = answers.find((a) => a.question_ID === q.question_ID);
-      const val = answer?.value;
-
-      // Handle empty string or missing answer
-      return q.isRequired && (!val || val.trim() === "");
-    });
-
+    const unansweredRequired = currentSection.questions.filter(
+      (q) =>
+        q.isRequired &&
+        !answers.find((a) => a.question_ID === q.question_ID)?.value
+    );
     if (unansweredRequired.length > 0) {
       toast.error("Please answer all required questions marked with *");
       return;
     }
-
-    const nextSectionHistory = [...sectionHistory, sectionIndex];
     let foundNext = false;
-
-    for (let i = sectionIndex + 1; i < form.sections.length; i++) {
+    const nextSectionHistory = [...sectionHistory, sectionIndex];
+for (let i = sectionIndex + 1; i < form.sections.length; i++) {
       const section = form?.sections[i];
       const allLogics = section.logic || [];
-
       for (const logic of allLogics) {
         if (!logic?.conditions) continue;
-
-        const isTrue = evaluateConditions(
-          logic.conditions,
-          answers,
-          nextSectionHistory
-        );
+        const isTrue = evaluateConditions(logic.conditions,answers,nextSectionHistory,form);
         if (isTrue) {
           setSectionHistory(nextSectionHistory);
+          foundNext = true;
           setSectionIndex(i);
           setIsSubmitVisible(false);
-          return;
+          return ;
         }
       }
     }
-
-    // If no logic matched, move to submission
     setSectionHistory(nextSectionHistory);
+    if (!foundNext) {
     setIsSubmitVisible(true);
+  }
   };
 
   const goBack = () => {
