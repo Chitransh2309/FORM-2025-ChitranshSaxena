@@ -67,6 +67,7 @@ export interface LogicRule {
   targetSectionId: string;
   fromSectionId: string;
   condition: SectionLogics; // your existing AND/OR structure
+  fallbackTargetSectionId?: string;
 }
 
 export interface SectionLogics {
