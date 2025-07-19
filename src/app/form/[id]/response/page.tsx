@@ -26,8 +26,8 @@ import { nanoid } from "nanoid";
 import toast from "react-hot-toast";
 import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";
 import { validateAnswer } from "@/lib/validation";
-import { debounce } from "lodash";
-
+import { debounce, get } from "lodash";
+import { getUser } from "@/app/action/getUser"; // ⬅️ NEW: Import getUser function
 /* -------------------------------------------------------------------------- */
 /*  DynamicInput                                                              */
 /* -------------------------------------------------------------------------- */
@@ -430,7 +430,19 @@ export default function ResponsesPage({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const section = form?.sections?.[sectionIndex];
   const { data: session } = useSession();
-  const userId = session?.user?.id ?? "anonymous";
+  const [userId, setUserId] = useState<string>("");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await getUser();
+      if (user && user.user_ID) {
+        setUserId(user.user_ID.toString());
+      } else {
+        setUserId("");
+      }
+    };
+    fetchUser();
+  }, []);
 
   const [saved, isSaving] = useState(0);
 
@@ -446,7 +458,7 @@ export default function ResponsesPage({
       userName: session?.user?.name || "Anonymous",
       startedAt: startedAt.current,
       submittedAt: new Date(),
-      status: "submitted",
+      status: "draft",
       answers,
       version: 1,
     };
@@ -732,7 +744,9 @@ export default function ResponsesPage({
       setIsSubmitting(false); // 🆕 Stop loader
     }
   };
-
+  // useEffect(() => {
+  //   debouncedSaveResponse();
+  // }, []); // 🆕 Auto-submit on mount
   if (!loading && hasUserSubmitted(formId, userId) && !showConfetti) {
     return <ThankYouPage formId={formId} />;
   }
