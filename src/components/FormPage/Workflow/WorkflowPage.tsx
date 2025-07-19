@@ -127,17 +127,36 @@ export default function WorkflowPage({
   };
 
   useEffect(() => {
-    const newEdges: Edge[] = logicRules.map((rule, idx) => ({
-      id: `e-${rule.fromSectionId}-${rule.targetSectionId}-${idx}`,
-      source: rule.fromSectionId,
-      target: rule.targetSectionId,
-      animated: true,
-      label:
-        rule.condition && "conditions" in rule.condition
-          ? renderCondition(rule.condition.conditions)
-          : "(No logic defined)",
-      labelStyle: { fontSize: 12 },
-    }));
+    const newEdges: Edge[] = [];
+
+    logicRules.forEach((rule, idx) => {
+      // Main conditional path
+      newEdges.push({
+        id: `e-${rule.fromSectionId}-${rule.targetSectionId}-${idx}`,
+        source: rule.fromSectionId,
+        target: rule.targetSectionId,
+        animated: true,
+        label:
+          rule.condition && "conditions" in rule.condition
+            ? renderCondition(rule.condition.conditions)
+            : "(No logic defined)",
+        labelStyle: { fontSize: 12 },
+      });
+
+      // Fallback path (dashed)
+      if (rule.fallbackTargetSectionId) {
+        newEdges.push({
+          id: `fallback-${rule.fromSectionId}-${rule.fallbackTargetSectionId}-${idx}`,
+          source: rule.fromSectionId,
+          target: rule.fallbackTargetSectionId,
+          animated: false,
+          style: { strokeDasharray: "5,5", stroke: "#888" },
+          label: "(always goes to)",
+          labelStyle: { fontSize: 12, fill: "#888" },
+        });
+      }
+    });
+
     setEdges(newEdges);
   }, [logicRules]);
 
@@ -147,17 +166,23 @@ export default function WorkflowPage({
     setTargetSection("");
 
     const firstQ = sections.find((s) => s.section_ID === secId)?.questions?.[0];
-
     setLogicCondition({
       op: "equal",
       questionID: firstQ?.question_ID || "",
       value: "",
     });
+
+    // 🟢 Set fallback section value if any rule from this section already has it
+    const existingRule = logicRules.find(
+      (r) => r.fromSectionId === secId && r.fallbackTargetSectionId
+    );
+    console.log(existingRule);
+    setFallbackSectionId(existingRule?.fallbackTargetSectionId || "");
   };
 
   const handleAddLogic = async () => {
-    if (!selectedSectionId || !targetSection) {
-      toast.error("Please fill all fields");
+    if (!selectedSectionId || (!targetSection && !fallbackSectionId)) {
+      toast.error("Please select a target or fallback section.");
       return;
     }
 
@@ -173,13 +198,15 @@ export default function WorkflowPage({
       return rule;
     });
 
-    // Step 2: Add the new rule with fallback
+    // ✅ Step 2: Add the new rule (only include condition if it exists)
     const newRule: LogicRule = {
       fromSectionId: selectedSectionId,
       targetSectionId: targetSection,
-      condition: {
-        conditions: logicCondition,
-      },
+      ...(logicCondition && {
+        condition: {
+          conditions: logicCondition,
+        },
+      }),
       ...(fallbackSectionId && { fallbackTargetSectionId: fallbackSectionId }),
     };
 
@@ -205,7 +232,6 @@ export default function WorkflowPage({
 
     setForm({ ...form, sections: newSecs });
   };
-
   const handleDeleteLogic = async (idxToDel: number) => {
     const updatedRules = logicRules.filter((_, i) => i !== idxToDel);
     setLogicRules(updatedRules);
@@ -411,7 +437,7 @@ export default function WorkflowPage({
 
             <div className="text-black mb-3 mt-4">
               <label className="mb-1 block text-sm font-medium">
-                Always go to (if above conditions fail)
+                Always go to (if other conditions fail)
               </label>
               <select
                 className="w-full rounded border px-2 py-1"
