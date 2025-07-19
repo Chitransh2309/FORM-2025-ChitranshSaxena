@@ -26,6 +26,7 @@ import "reactflow/dist/style.css";
 
 import CustomNode from "./CustomNode";
 import ConditionBlock from "./ConditionBlock";
+import ConditionGroup from "./ConditionGroup";
 import { saveFormLogic } from "@/app/action/saveFormLogic";
 
 import type {
@@ -34,7 +35,6 @@ import type {
   Question,
   LogicRule,
   SectionForm,
-  Always,
   NestedLogic,
   BaseLogic,
   SectionLogics,
@@ -247,6 +247,10 @@ export default function WorkflowPage({
     (s) => s.section_ID !== selectedSectionId
   );
 
+  function isBaseLogic(cond: BaseLogic | NestedLogic): cond is BaseLogic {
+    return "questionID" in cond && "value" in cond;
+  }
+
   return (
     <div className="w-full h-[90vh] p-4 flex gap-6 dark:bg-[#2B2A2A]">
       <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full px-4">
@@ -349,13 +353,20 @@ export default function WorkflowPage({
               Add Logic Condition
             </h2>
 
-            <ConditionBlock
-              allSections={sections}
-              allQuestions={selectedSection?.questions || []}
-              condition={logicCondition}
-              onChange={setLogicCondition}
-              onRemove={() => {}}
-            />
+            {isBaseLogic(logicCondition) ? (
+              <ConditionBlock
+                allQuestions={selectedSection?.questions || []}
+                condition={logicCondition}
+                onChange={setLogicCondition}
+                onRemove={() => {}}
+              />
+            ) : (
+              <ConditionGroup
+                group={logicCondition}
+                allQuestions={selectedSection?.questions || []}
+                onUpdate={setLogicCondition}
+              />
+            )}
 
             {logicCondition.op === "equal" && (
               <button
