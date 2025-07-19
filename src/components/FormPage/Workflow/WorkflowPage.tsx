@@ -57,7 +57,12 @@ export default function WorkflowPage({
   const LABELS = ["Builder", "Workflow", "Preview"];
   const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
 
+  // Track explicitly deleted always rules to prevent recreation
   const deletedAlwaysRef = useRef<Set<string>>(new Set());
+
+  // Navigation stack for section traversal - now properly managed
+  const [navigationStack, setNavigationStack] = useState<string[]>([]);
+
   const [sections, setSections] = useState<Section[]>([]);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
@@ -81,8 +86,79 @@ export default function WorkflowPage({
     value: "",
   });
 
+  // Initialize navigation stack on form load
+  useEffect(() => {
+    if (form?.sections?.length > 0 && navigationStack.length === 0) {
+      setNavigationStack([form.sections[0].section_ID]);
+    }
+  }, [form?.sections, navigationStack.length]);
+
+  // Helper function to add section to navigation stack
+  const addToNavigationStack = (sectionId: string) => {
+    setNavigationStack((prev) => {
+      // Don't add if it's already the last item
+      if (prev[prev.length - 1] === sectionId) return prev;
+      return [...prev, sectionId];
+    });
+  };
+
+  // Helper function to navigate to previous section in stack
+  const navigateToPrevious = (targetSectionId: string) => {
+    setNavigationStack((prev) => {
+      const targetIndex = prev.indexOf(targetSectionId);
+      if (targetIndex === -1) {
+        // Target not in stack, add it
+        return [...prev, targetSectionId];
+      }
+      // Pop all sections after target (going back to previous)
+      return prev.slice(0, targetIndex + 1);
+    });
+  };
+
+  // Helper function to check if navigating to a previous section
+  const isNavigatingToPrevious = (targetSectionId: string): boolean => {
+    return navigationStack.includes(targetSectionId);
+  };
+
+  // Helper function to get previous section from stack
+  const getPreviousFromStack = (): string | null => {
+    if (navigationStack.length <= 1) return null;
+    return navigationStack[navigationStack.length - 2] || null;
+  };
+
+  // Create unique key for always rules to track deletions properly
+  const createAlwaysRuleKey = (fromSectionId: string): string => {
+    return `always_${fromSectionId}`;
+  };
+
+  // Load deleted always rules from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem(`deletedAlways_${form?.form_ID}`);
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          deletedAlwaysRef.current = new Set(parsed);
+        } catch (e) {
+          console.warn("Failed to parse stored deleted always rules");
+        }
+      }
+    }
+  }, [form?.form_ID]);
+
+  // Save deleted always rules to localStorage
+  const saveDeletedAlwaysRules = () => {
+    if (typeof window !== "undefined" && form?.form_ID) {
+      localStorage.setItem(
+        `deletedAlways_${form.form_ID}`,
+        JSON.stringify([...deletedAlwaysRef.current])
+      );
+    }
+  };
+
   useEffect(() => {
     if (!form) return;
+
     const formSections = form.sections || [];
     setSections(formSections);
     setAllQuestions(formSections.flatMap((sec) => sec.questions || []));
@@ -102,6 +178,7 @@ export default function WorkflowPage({
     }));
     setNodes(nodesFromSections);
 
+    // Extract existing rules from form sections
     const extractedRules: SectionLogics[] = formSections.flatMap((sec) =>
       (sec.logic || []).map((rule) => ({
         ...rule,
@@ -118,20 +195,31 @@ export default function WorkflowPage({
       extractedRules.map((r) => r.fromSectionId)
     );
 
-    // ADD default fallbacks ONLY if user hasn't deleted them
+    // Only add default fallbacks if:
+    // 1. Section doesn't have any rules
+    // 2. User hasn't explicitly deleted the always rule for this section
+    // 3. There's a next section available
     const defaultFallbackRules: SectionLogics[] = formSections
       .map((sec, idx) => {
+        const alwaysKey = createAlwaysRuleKey(sec.section_ID);
+
+        // Skip if section already has rules
         if (sectionIdsWithRules.has(sec.section_ID)) return null;
-        if (deletedAlwaysRef.current.has(sec.section_ID)) return null; // <- user deleted, don't restore
+
+        // Skip if user has deleted the always rule for this section
+        if (deletedAlwaysRef.current.has(alwaysKey)) return null;
+
+        // Skip if no next section
         const next = formSections[idx + 1];
         if (!next) return null;
+
         return {
           fromSectionId: sec.section_ID,
           targetSectionId: next.section_ID,
           conditions: {
             op: "always",
             sourceSectionId: sec.section_ID,
-          },
+          } as Always,
         };
       })
       .filter(Boolean) as SectionLogics[];
@@ -174,26 +262,30 @@ export default function WorkflowPage({
           rule.conditions?.op === "always"
             ? "(Always go to)"
             : renderCondition(rule.conditions),
-
         labelStyle: { fontSize: 12 },
       });
 
-      // Fallback path (dashed)
-      if (rule.conditions?.op === "always") {
+      // For non-always rules, show fallback info in edge style
+      if (rule.conditions?.op !== "always") {
+        const prevSection = getPreviousFromStack();
+        const fallbackLabel = prevSection
+          ? `(fallback: ${prevSection})`
+          : "(fallback: stack-based)";
+
         newEdges.push({
-          id: `always-${rule.fromSectionId}-${rule.targetSectionId}-${idx}`,
+          id: `fallback-${rule.fromSectionId}-${idx}`,
           source: rule.fromSectionId,
-          target: rule.targetSectionId,
+          target: prevSection || rule.fromSectionId, // Self-loop if no previous
           animated: false,
           style: { strokeDasharray: "5,5", stroke: "#888" },
-          label: "(always goes to)",
+          label: fallbackLabel,
           labelStyle: { fontSize: 12, fill: "#888" },
         });
       }
     });
 
     setEdges(newEdges);
-  }, [logicRules]);
+  }, [logicRules, navigationStack]);
 
   const handleOpenModal = (secId: string) => {
     setSelectedSectionId(secId);
@@ -207,98 +299,153 @@ export default function WorkflowPage({
       value: "",
     });
 
-    // 🟢 Set fallback section value if any rule from this section already has it
+    // Set fallback section value if any always rule from this section exists
     const alwaysRule = logicRules.find(
-      (r) => r.fromSectionId === secId && r.conditions.op === "always"
+      (r) => r.fromSectionId === secId && r.conditions?.op === "always"
     );
     setFallbackSectionId(alwaysRule?.targetSectionId || "");
   };
 
   const handleAddLogic = async () => {
-    if (!selectedSectionId || (!targetSection && !fallbackSectionId)) {
-      toast.error("Please select a target or fallback section.");
+    if (!selectedSectionId) {
+      toast.error("Please select a section first.");
+      return;
+    }
+
+    if (!targetSection && !fallbackSectionId) {
+      toast.error(
+        "Please select at least one target section (conditional or fallback)."
+      );
       return;
     }
 
     const updatedLogicRules = [...logicRules];
 
-    if (targetSection) {
+    // Remove all existing rules for this section first
+    const filteredRules = updatedLogicRules.filter(
+      (r) => r.fromSectionId !== selectedSectionId
+    );
+
+    // Add conditional rule if specified
+    if (targetSection && hasCondition) {
       const conditionalRule: SectionLogics = {
         fromSectionId: selectedSectionId,
         targetSectionId: targetSection,
         conditions: logicCondition,
       };
-      updatedLogicRules.push(conditionalRule);
+
+      filteredRules.push(conditionalRule);
+      console.log("Added conditional rule:", conditionalRule);
     }
 
-    if (fallbackSectionId) {
+    // Always add a fallback rule (either user-specified or default)
+    let fallbackTargetId = fallbackSectionId;
+
+    // If no fallback specified, use next section
+    if (!fallbackTargetId) {
+      const currentIndex = sections.findIndex(
+        (s) => s.section_ID === selectedSectionId
+      );
+      if (currentIndex >= 0 && currentIndex < sections.length - 1) {
+        fallbackTargetId = sections[currentIndex + 1].section_ID;
+      }
+    }
+
+    if (fallbackTargetId) {
       const fallbackRule: SectionLogics = {
         fromSectionId: selectedSectionId,
-        targetSectionId: fallbackSectionId,
+        targetSectionId: fallbackTargetId,
         conditions: {
           op: "always",
           sourceSectionId: selectedSectionId,
-        },
+        } as Always,
       };
-      updatedLogicRules.push(fallbackRule);
+
+      filteredRules.push(fallbackRule);
+      console.log("Added/updated always rule:", fallbackRule);
+
+      // Remove from deleted set if we're adding it back
+      const alwaysKey = createAlwaysRuleKey(selectedSectionId);
+      deletedAlwaysRef.current.delete(alwaysKey);
+      saveDeletedAlwaysRules();
     }
 
-    setLogicRules(updatedLogicRules);
+    setLogicRules(filteredRules);
     setShowModal(false);
     setHasCondition(false);
 
-    const saveRes = await saveFormLogic(form.form_ID, updatedLogicRules);
-    if (!saveRes.success) {
+    // Save to backend
+    try {
+      const saveRes = await saveFormLogic(form.form_ID, filteredRules);
+      if (!saveRes.success) {
+        toast.error("Failed to save logic.");
+        return;
+      }
+      toast.success("Logic saved!");
+
+      // Update form sections with the new logic rules
+      const newSecs = sections.map((sec) => {
+        const relevantRules = filteredRules.filter(
+          (rule) => rule.fromSectionId === sec.section_ID
+        );
+        return { ...sec, logic: relevantRules };
+      });
+
+      setForm({ ...form, sections: newSecs });
+      console.log("Updated sections with logic:", newSecs);
+    } catch (error) {
+      console.error("Error saving logic:", error);
       toast.error("Failed to save logic.");
-      return;
     }
-    toast.success("Logic saved!");
-
-    const newSecs = sections.map((sec) => {
-      const relevantRules = updatedLogicRules.filter(
-        (rule) => rule.targetSectionId === sec.section_ID
-      );
-      return relevantRules.length > 0 ? { ...sec, logic: relevantRules } : sec;
-    });
-
-    setForm({ ...form, sections: newSecs });
   };
 
   const handleDeleteLogic = async (idxToDel: number) => {
     const ruleToDelete = logicRules[idxToDel];
     if (!ruleToDelete) return;
 
-    // If user is deleting an auto-added "always" fallback, remember it so we don't re-add.
+    // If deleting an "always" rule, mark it as explicitly deleted
     if (ruleToDelete.conditions?.op === "always") {
-      deletedAlwaysRef.current.add(ruleToDelete.fromSectionId);
+      const alwaysKey = createAlwaysRuleKey(ruleToDelete.fromSectionId);
+      deletedAlwaysRef.current.add(alwaysKey);
+      saveDeletedAlwaysRules();
     }
 
     // Remove from local rules list
     const updatedRules = logicRules.filter((_, i) => i !== idxToDel);
     setLogicRules(updatedRules);
 
-    // Remove from sections.logic (match by identity, not index)
-    const newSecs = sections.map((sec) => {
-      const secRules = (sec.logic || []).filter((r) => {
-        const sameFrom = r.fromSectionId === ruleToDelete.fromSectionId;
-        const sameTarget = r.targetSectionId === ruleToDelete.targetSectionId;
-        const sameOp =
-          (r.conditions?.op ?? "always") ===
-          (ruleToDelete.conditions?.op ?? "always");
-        return !(sameFrom && sameTarget && sameOp);
+    try {
+      // Save to backend
+      const saveRes = await saveFormLogic(form.form_ID, updatedRules);
+      if (!saveRes.success) {
+        toast.error("Failed to delete logic.");
+        // Revert local changes if save failed
+        setLogicRules(logicRules);
+        if (ruleToDelete.conditions?.op === "always") {
+          const alwaysKey = createAlwaysRuleKey(ruleToDelete.fromSectionId);
+          deletedAlwaysRef.current.delete(alwaysKey);
+          saveDeletedAlwaysRules();
+        }
+        return;
+      }
+
+      toast.success("Logic deleted.");
+
+      // Update form sections by removing the exact rule
+      const newSecs = sections.map((sec) => {
+        const remainingRules = updatedRules.filter(
+          (rule) => rule.fromSectionId === sec.section_ID
+        );
+        return { ...sec, logic: remainingRules };
       });
-      return { ...sec, logic: secRules };
-    });
 
-    // Persist
-    const saveRes = await saveFormLogic(form.form_ID, updatedRules);
-    if (!saveRes.success) {
+      setForm({ ...form, sections: newSecs });
+    } catch (error) {
+      console.error("Error deleting logic:", error);
       toast.error("Failed to delete logic.");
-      return;
+      // Revert on error
+      setLogicRules(logicRules);
     }
-    toast.success("Logic deleted.");
-
-    setForm({ ...form, sections: newSecs });
   };
 
   const { width: winW } = useWindowSize();
@@ -337,6 +484,52 @@ export default function WorkflowPage({
   function isAlways(cond: BaseLogic | NestedLogic | Always): cond is Always {
     return cond.op === "always";
   }
+
+  // Helper function to clear deleted always rules and regenerate defaults
+  const clearDeletedAlwaysRules = () => {
+    // Clear the tracking set
+    deletedAlwaysRef.current.clear();
+
+    // Remove from localStorage
+    if (typeof window !== "undefined" && form?.form_ID) {
+      localStorage.removeItem(`deletedAlways_${form.form_ID}`);
+    }
+
+    // Regenerate default "always" rules immediately
+    if (form?.sections) {
+      const formSections = form.sections;
+
+      // Get existing conditional rules (non-always rules)
+      const existingConditionalRules = logicRules.filter(
+        (rule) => rule.conditions?.op !== "always"
+      );
+
+      // Generate new default fallback rules for all sections
+      const newDefaultRules: SectionLogics[] = formSections
+        .map((sec, idx) => {
+          const next = formSections[idx + 1];
+          if (!next) return null;
+
+          return {
+            fromSectionId: sec.section_ID,
+            targetSectionId: next.section_ID,
+            conditions: {
+              op: "always",
+              sourceSectionId: sec.section_ID,
+            } as Always,
+          };
+        })
+        .filter(Boolean) as SectionLogics[];
+
+      // Combine existing conditional rules with new default rules
+      const updatedRules = [...existingConditionalRules, ...newDefaultRules];
+      setLogicRules(updatedRules);
+
+      toast.success(
+        "Reset complete! Default 'always' rules have been restored."
+      );
+    }
+  };
 
   return (
     <div className="w-full h-[90vh] p-4 flex gap-6 dark:bg-[#2B2A2A]">
@@ -408,6 +601,34 @@ export default function WorkflowPage({
           <h3 className="mb-2 text-sm font-medium dark:text-white">
             Saved Logic
           </h3>
+
+          {/* Navigation Stack Display */}
+          <div className="mb-4 p-2 bg-gray-100 dark:bg-gray-700 rounded">
+            <h4 className="text-xs font-medium text-gray-600 dark:text-gray-300 mb-1">
+              Navigation Stack:
+            </h4>
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              {navigationStack.length > 0
+                ? navigationStack.join(" → ")
+                : "Empty"}
+            </div>
+            <div className="mt-1">
+              <span className="text-xs text-blue-600 dark:text-blue-400">
+                Previous: {getPreviousFromStack() || "None"}
+              </span>
+            </div>
+          </div>
+
+          {/* Debug button - remove in production */}
+          <div className="mb-4">
+            <button
+              onClick={clearDeletedAlwaysRules}
+              className="text-xs bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
+            >
+              Reset Deleted Rules (Debug)
+            </button>
+          </div>
+
           <div className="space-y-1">
             {logicRules.map((rule, idx) => (
               <div key={idx} className="rounded bg-[#E0E0E0] px-2 py-1 text-sm">
@@ -435,99 +656,166 @@ export default function WorkflowPage({
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="max-h-[500px] w-[1000px] overflow-auto rounded-lg bg-white p-6 shadow-lg">
+          <div className="max-h-[600px] w-[1000px] overflow-auto rounded-lg bg-white p-6 shadow-lg">
             <h2 className="mb-4 text-lg font-semibold text-black">
-              Add Logic Condition
+              Add Logic for: {selectedSection?.title || selectedSectionId}
             </h2>
 
-            {!hasCondition ? (
-              <button
-                onClick={() => {
-                  setHasCondition(true);
-                  const firstQ = selectedSection?.questions?.[0];
-                  setLogicCondition({
-                    op: "equal",
-                    questionID: firstQ?.question_ID || "",
-                    value: "",
-                  });
-                }}
-                className="text-sm text-blue-600 hover:underline"
-              >
-                ➕ Add Rule
-              </button>
-            ) : (
-              <>
-                {!isAlways(logicCondition) && isBaseLogic(logicCondition) ? (
-                  <ConditionBlock
-                    allQuestions={selectedSection?.questions || []}
-                    condition={logicCondition}
-                    onChange={setLogicCondition}
-                    onRemove={() => setHasCondition(false)}
-                  />
-                ) : !isAlways(logicCondition) ? (
-                  <ConditionGroup
-                    group={logicCondition}
-                    allQuestions={selectedSection?.questions || []}
-                    onUpdate={setLogicCondition}
-                  />
-                ) : (
-                  <p className="text-sm text-gray-500">
-                    "Always" logic cannot be edited here.
-                  </p>
-                )}
-
-                {isBaseLogic(logicCondition) && (
-                  <button
-                    onClick={() =>
-                      setLogicCondition({
-                        op: "AND",
-                        conditions: [logicCondition],
-                      })
-                    }
-                    className="mt-2 text-sm text-blue-600 hover:underline"
-                  >
-                    ➕ Convert to Group
-                  </button>
-                )}
-
-                <div className="text-black mb-3 mt-4">
-                  <label className="mb-1 block text-sm font-medium">
-                    Go to Section (if conditions pass)
-                  </label>
-                  <select
-                    className="w-full rounded border px-2 py-1"
-                    value={targetSection}
-                    onChange={(e) => setTargetSection(e.target.value)}
-                  >
-                    <option value="">Select destination</option>
-                    {otherSections.map((s) => (
-                      <option key={s.section_ID} value={s.section_ID}>
-                        {s.title || s.section_ID}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </>
-            )}
-
-            <div className="text-black mb-3 mt-4">
-              <label className="mb-1 block text-sm font-medium">
-                Always go to (if other conditions fail)
-              </label>
-              <select
-                className="w-full rounded border px-2 py-1"
-                value={fallbackSectionId}
-                onChange={(e) => {
-                  setFallbackSectionId(e.target.value);
-                }}
-              >
-                <option value="">(Optional)</option>
-                {otherSections.map((s) => (
-                  <option key={s.section_ID} value={s.section_ID}>
-                    {s.title || s.section_ID}
-                  </option>
+            {/* Debug Information */}
+            <div className="mb-4 p-3 bg-blue-50 rounded text-sm">
+              <h4 className="font-medium text-blue-800 mb-2">
+                Debug Information:
+              </h4>
+              <div className="text-blue-700">
+                <p>
+                  <strong>Current Section:</strong> {selectedSectionId}
+                </p>
+                <p>
+                  <strong>Available Questions:</strong>{" "}
+                  {selectedSection?.questions?.length || 0}
+                </p>
+                {selectedSection?.questions?.map((q) => (
+                  <div key={q.question_ID} className="ml-4 text-xs">
+                    • {q.question_ID}: {q.questionText}
+                  </div>
                 ))}
-              </select>
+                <p>
+                  <strong>Other Sections:</strong>{" "}
+                  {otherSections.map((s) => s.section_ID).join(", ")}
+                </p>
+              </div>
+            </div>
+
+            {/* Conditional Logic Section */}
+            <div className="mb-6 p-4 border rounded bg-gray-50">
+              <h3 className="text-md font-medium text-black mb-3">
+                Conditional Navigation (Optional)
+              </h3>
+
+              {!hasCondition ? (
+                <button
+                  onClick={() => {
+                    setHasCondition(true);
+                    const firstQ = selectedSection?.questions?.[0];
+                    if (firstQ) {
+                      setLogicCondition({
+                        op: "equal",
+                        questionID: firstQ.question_ID,
+                        value: "",
+                      });
+                    }
+                  }}
+                  className="text-sm text-blue-600 hover:underline bg-blue-50 px-3 py-1 rounded"
+                >
+                  ➕ Add Conditional Rule
+                </button>
+              ) : (
+                <>
+                  {!isAlways(logicCondition) && isBaseLogic(logicCondition) ? (
+                    <ConditionBlock
+                      allQuestions={selectedSection?.questions || []}
+                      condition={logicCondition}
+                      onChange={setLogicCondition}
+                      onRemove={() => setHasCondition(false)}
+                    />
+                  ) : !isAlways(logicCondition) ? (
+                    <ConditionGroup
+                      group={logicCondition}
+                      allQuestions={selectedSection?.questions || []}
+                      onUpdate={setLogicCondition}
+                    />
+                  ) : (
+                    <p className="text-sm text-gray-500">
+                      "Always" logic cannot be edited here.
+                    </p>
+                  )}
+
+                  {isBaseLogic(logicCondition) && (
+                    <button
+                      onClick={() =>
+                        setLogicCondition({
+                          op: "AND",
+                          conditions: [logicCondition],
+                        })
+                      }
+                      className="mt-2 text-sm text-blue-600 hover:underline"
+                    >
+                      ➕ Convert to Group (AND/OR)
+                    </button>
+                  )}
+
+                  <div className="text-black mb-3 mt-4">
+                    <label className="mb-1 block text-sm font-medium">
+                      If conditions are met, go to:
+                    </label>
+                    <select
+                      className="w-full rounded border px-2 py-1"
+                      value={targetSection}
+                      onChange={(e) => setTargetSection(e.target.value)}
+                    >
+                      <option value="">Select destination section</option>
+                      {otherSections.map((s) => (
+                        <option key={s.section_ID} value={s.section_ID}>
+                          {s.title || s.section_ID}
+                          {isNavigatingToPrevious(s.section_ID)
+                            ? " (Previous)"
+                            : " (Forward)"}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Always/Fallback Logic Section */}
+            <div className="mb-6 p-4 border rounded bg-yellow-50">
+              <h3 className="text-md font-medium text-black mb-3">
+                Fallback Navigation (Always Execute)
+              </h3>
+              <p className="text-xs text-gray-600 mb-3">
+                This rule executes when no conditional rules match, or as a
+                default path.
+              </p>
+
+              <div className="text-black">
+                <label className="mb-1 block text-sm font-medium">
+                  Default destination:
+                </label>
+                <select
+                  className="w-full rounded border px-2 py-1"
+                  value={fallbackSectionId}
+                  onChange={(e) => setFallbackSectionId(e.target.value)}
+                >
+                  <option value="">(Use next section in sequence)</option>
+                  {otherSections.map((s) => (
+                    <option key={s.section_ID} value={s.section_ID}>
+                      {s.title || s.section_ID}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  If not set, will navigate to the next section in sequence
+                </p>
+              </div>
+            </div>
+
+            {/* Debug Info */}
+            <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
+              <strong>Current Logic Rules for this section:</strong>
+              <ul className="mt-1">
+                {logicRules
+                  .filter((r) => r.fromSectionId === selectedSectionId)
+                  .map((rule, idx) => (
+                    <li key={idx} className="text-gray-600">
+                      → {rule.targetSectionId}(
+                      {rule.conditions?.op === "always"
+                        ? "Always"
+                        : "Conditional"}
+                      )
+                    </li>
+                  ))}
+              </ul>
             </div>
 
             <div className="mt-4 flex justify-end gap-3">
@@ -536,7 +824,7 @@ export default function WorkflowPage({
                   setShowModal(false);
                   setHasCondition(false);
                 }}
-                className="text-black rounded border border-black px-3 py-1 text-sm"
+                className="text-black rounded border border-black px-3 py-1 text-sm hover:bg-gray-50"
               >
                 Cancel
               </button>
@@ -544,7 +832,7 @@ export default function WorkflowPage({
                 onClick={handleAddLogic}
                 className="rounded bg-blue-600 px-4 py-1 text-sm text-white hover:bg-blue-700"
               >
-                Save
+                Save Logic Rules
               </button>
             </div>
           </div>
