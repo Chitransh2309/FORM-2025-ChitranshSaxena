@@ -63,20 +63,21 @@ export enum SectionForm {
 //   conditions: (BaseCondition | ConditionGroupType)[];
 // };
 
-export interface LogicRule {
-  targetSectionId: string;
-  fromSectionId: string;
-  condition?: SectionLogics; // your existing AND/OR structure
-  fallbackTargetSectionId?: string;
-}
+// export interface LogicRule {
+//   targetSectionId: string;
+//   fromSectionId: string;
+//   condition?: SectionLogics; // your existing AND/OR structure
+//   fallbackTargetSectionId?: string;
+// }
 
 export interface SectionLogics {
-  sourceSectionId: string;
+  fromSectionId: string;
+  targetSectionId: string;
   conditions: BaseLogic | NestedLogic | Always;
 }
-export type Always={
-  op:"always";
-  sourceSectionId:string;
+export type Always = {
+  op: "always";
+  sourceSectionId: string;
 };
 
 export type NestedLogic = {
