@@ -16,6 +16,8 @@ import DateField from "./FieldType/DATE";
 import LinearScale from "./FieldType/linearscale";
 import Email from "./FieldType/EMAIL";
 import Url from "./FieldType/URL";
+import FileUpload from "./FieldType/FILE_UPLOAD";
+
 
 interface Props {
   id: string;
@@ -303,8 +305,14 @@ export default function Question({
         return <Email disabled={!isSelected} />;
       case QuestionType.URL:
         return <Url disabled={!isSelected} />;
+      
+      case QuestionType.FILE_UPLOAD:
+        return <FileUpload disabled={!isSelected} onUpload={(url) => {}} />
+
+
       default:
         return null;
+        
     }
   };
 
