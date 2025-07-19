@@ -10,6 +10,7 @@ import { useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
 import { Grip } from "lucide-react";
 import { useWindowSize } from "react-use";
+import { useRef } from "react";
 
 import ReactFlow, {
   ReactFlowProvider,
@@ -33,11 +34,11 @@ import type {
   Form,
   Section,
   Question,
-  LogicRule,
   SectionForm,
   NestedLogic,
   BaseLogic,
   SectionLogics,
+  Always,
 } from "@/lib/interface";
 
 interface WorkflowPageProps {
@@ -56,10 +57,11 @@ export default function WorkflowPage({
   const LABELS = ["Builder", "Workflow", "Preview"];
   const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
 
+  const deletedAlwaysRef = useRef<Set<string>>(new Set());
   const [sections, setSections] = useState<Section[]>([]);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
-  const [logicRules, setLogicRules] = useState<LogicRule[]>([]);
+  const [logicRules, setLogicRules] = useState<SectionLogics[]>([]);
 
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
     null
@@ -81,7 +83,6 @@ export default function WorkflowPage({
 
   useEffect(() => {
     if (!form) return;
-
     const formSections = form.sections || [];
     setSections(formSections);
     setAllQuestions(formSections.flatMap((sec) => sec.questions || []));
@@ -101,10 +102,41 @@ export default function WorkflowPage({
     }));
     setNodes(nodesFromSections);
 
-    const extractedRules: LogicRule[] = formSections.flatMap((sec) =>
-      (sec.logic || []).map((rule) => ({ ...rule }))
+    const extractedRules: SectionLogics[] = formSections.flatMap((sec) =>
+      (sec.logic || []).map((rule) => ({
+        ...rule,
+        conditions:
+          rule.conditions ??
+          ({
+            op: "always",
+            sourceSectionId: rule.fromSectionId,
+          } as const),
+      }))
     );
-    setLogicRules(extractedRules);
+
+    const sectionIdsWithRules = new Set(
+      extractedRules.map((r) => r.fromSectionId)
+    );
+
+    // ADD default fallbacks ONLY if user hasn't deleted them
+    const defaultFallbackRules: SectionLogics[] = formSections
+      .map((sec, idx) => {
+        if (sectionIdsWithRules.has(sec.section_ID)) return null;
+        if (deletedAlwaysRef.current.has(sec.section_ID)) return null; // <- user deleted, don't restore
+        const next = formSections[idx + 1];
+        if (!next) return null;
+        return {
+          fromSectionId: sec.section_ID,
+          targetSectionId: next.section_ID,
+          conditions: {
+            op: "always",
+            sourceSectionId: sec.section_ID,
+          },
+        };
+      })
+      .filter(Boolean) as SectionLogics[];
+
+    setLogicRules([...extractedRules, ...defaultFallbackRules]);
   }, [form]);
 
   const getQuestionText = (id: string) =>
@@ -139,18 +171,19 @@ export default function WorkflowPage({
         target: rule.targetSectionId,
         animated: true,
         label:
-          rule.condition && "conditions" in rule.condition
-            ? renderCondition(rule.condition.conditions)
-            : "(Always go to)",
+          rule.conditions?.op === "always"
+            ? "(Always go to)"
+            : renderCondition(rule.conditions),
+
         labelStyle: { fontSize: 12 },
       });
 
       // Fallback path (dashed)
-      if (rule.fallbackTargetSectionId) {
+      if (rule.conditions?.op === "always") {
         newEdges.push({
-          id: `fallback-${rule.fromSectionId}-${rule.fallbackTargetSectionId}-${idx}`,
+          id: `always-${rule.fromSectionId}-${rule.targetSectionId}-${idx}`,
           source: rule.fromSectionId,
-          target: rule.fallbackTargetSectionId,
+          target: rule.targetSectionId,
           animated: false,
           style: { strokeDasharray: "5,5", stroke: "#888" },
           label: "(always goes to)",
@@ -175,11 +208,10 @@ export default function WorkflowPage({
     });
 
     // 🟢 Set fallback section value if any rule from this section already has it
-    const existingRule = logicRules.find(
-      (r) => r.fromSectionId === secId && r.fallbackTargetSectionId
+    const alwaysRule = logicRules.find(
+      (r) => r.fromSectionId === secId && r.conditions.op === "always"
     );
-    console.log(existingRule);
-    setFallbackSectionId(existingRule?.fallbackTargetSectionId || "");
+    setFallbackSectionId(alwaysRule?.targetSectionId || "");
   };
 
   const handleAddLogic = async () => {
@@ -190,26 +222,23 @@ export default function WorkflowPage({
 
     const updatedLogicRules = [...logicRules];
 
-    // Add conditional rule (if there's a targetSection and maybe a condition)
     if (targetSection) {
-      const conditionalRule: LogicRule = {
+      const conditionalRule: SectionLogics = {
         fromSectionId: selectedSectionId,
         targetSectionId: targetSection,
-        ...(logicCondition && {
-          condition: {
-            conditions: logicCondition,
-          },
-        }),
+        conditions: logicCondition,
       };
       updatedLogicRules.push(conditionalRule);
     }
 
-    // Add fallback rule (no condition, only fallbackSectionId)
     if (fallbackSectionId) {
-      const fallbackRule: LogicRule = {
+      const fallbackRule: SectionLogics = {
         fromSectionId: selectedSectionId,
         targetSectionId: fallbackSectionId,
-        // no `condition` means it's an always-go-to fallback rule
+        conditions: {
+          op: "always",
+          sourceSectionId: selectedSectionId,
+        },
       };
       updatedLogicRules.push(fallbackRule);
     }
@@ -218,7 +247,6 @@ export default function WorkflowPage({
     setShowModal(false);
     setHasCondition(false);
 
-    // Step 3: Save
     const saveRes = await saveFormLogic(form.form_ID, updatedLogicRules);
     if (!saveRes.success) {
       toast.error("Failed to save logic.");
@@ -226,7 +254,6 @@ export default function WorkflowPage({
     }
     toast.success("Logic saved!");
 
-    // Step 4: Assign rules to destination sections
     const newSecs = sections.map((sec) => {
       const relevantRules = updatedLogicRules.filter(
         (rule) => rule.targetSectionId === sec.section_ID
@@ -236,10 +263,34 @@ export default function WorkflowPage({
 
     setForm({ ...form, sections: newSecs });
   };
+
   const handleDeleteLogic = async (idxToDel: number) => {
+    const ruleToDelete = logicRules[idxToDel];
+    if (!ruleToDelete) return;
+
+    // If user is deleting an auto-added "always" fallback, remember it so we don't re-add.
+    if (ruleToDelete.conditions?.op === "always") {
+      deletedAlwaysRef.current.add(ruleToDelete.fromSectionId);
+    }
+
+    // Remove from local rules list
     const updatedRules = logicRules.filter((_, i) => i !== idxToDel);
     setLogicRules(updatedRules);
 
+    // Remove from sections.logic (match by identity, not index)
+    const newSecs = sections.map((sec) => {
+      const secRules = (sec.logic || []).filter((r) => {
+        const sameFrom = r.fromSectionId === ruleToDelete.fromSectionId;
+        const sameTarget = r.targetSectionId === ruleToDelete.targetSectionId;
+        const sameOp =
+          (r.conditions?.op ?? "always") ===
+          (ruleToDelete.conditions?.op ?? "always");
+        return !(sameFrom && sameTarget && sameOp);
+      });
+      return { ...sec, logic: secRules };
+    });
+
+    // Persist
     const saveRes = await saveFormLogic(form.form_ID, updatedRules);
     if (!saveRes.success) {
       toast.error("Failed to delete logic.");
@@ -247,15 +298,6 @@ export default function WorkflowPage({
     }
     toast.success("Logic deleted.");
 
-    const rule = logicRules[idxToDel];
-    const newSecs = sections.map((sec) =>
-      sec.section_ID === rule.targetSectionId
-        ? {
-            ...sec,
-            logic: (sec.logic || []).filter((_, i) => i !== idxToDel),
-          }
-        : sec
-    );
     setForm({ ...form, sections: newSecs });
   };
 
@@ -286,8 +328,14 @@ export default function WorkflowPage({
     (s) => s.section_ID !== selectedSectionId
   );
 
-  function isBaseLogic(cond: BaseLogic | NestedLogic): cond is BaseLogic {
+  function isBaseLogic(
+    cond: BaseLogic | NestedLogic | Always
+  ): cond is BaseLogic {
     return "questionID" in cond && "value" in cond;
+  }
+
+  function isAlways(cond: BaseLogic | NestedLogic | Always): cond is Always {
+    return cond.op === "always";
   }
 
   return (
@@ -368,9 +416,9 @@ export default function WorkflowPage({
                   <strong>{rule.targetSectionId}</strong>
                   <br />
                   <em className="text-gray-600">
-                    {rule?.condition?.conditions
-                      ? renderCondition(rule.condition.conditions)
-                      : "(Always go to)"}
+                    {rule.conditions?.op === "always"
+                      ? "(Always go to)"
+                      : renderCondition(rule.conditions)}
                   </em>
                 </p>
                 <button
@@ -409,19 +457,23 @@ export default function WorkflowPage({
               </button>
             ) : (
               <>
-                {isBaseLogic(logicCondition) ? (
+                {!isAlways(logicCondition) && isBaseLogic(logicCondition) ? (
                   <ConditionBlock
                     allQuestions={selectedSection?.questions || []}
                     condition={logicCondition}
                     onChange={setLogicCondition}
                     onRemove={() => setHasCondition(false)}
                   />
-                ) : (
+                ) : !isAlways(logicCondition) ? (
                   <ConditionGroup
                     group={logicCondition}
                     allQuestions={selectedSection?.questions || []}
                     onUpdate={setLogicCondition}
                   />
+                ) : (
+                  <p className="text-sm text-gray-500">
+                    "Always" logic cannot be edited here.
+                  </p>
                 )}
 
                 {isBaseLogic(logicCondition) && (
@@ -465,7 +517,9 @@ export default function WorkflowPage({
               <select
                 className="w-full rounded border px-2 py-1"
                 value={fallbackSectionId}
-                onChange={(e) => setFallbackSectionId(e.target.value)}
+                onChange={(e) => {
+                  setFallbackSectionId(e.target.value);
+                }}
               >
                 <option value="">(Optional)</option>
                 {otherSections.map((s) => (
