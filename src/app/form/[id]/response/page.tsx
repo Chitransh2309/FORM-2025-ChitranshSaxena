@@ -569,16 +569,16 @@ export default function ResponsesPage({
   function evaluateConditions(
     condition: NestedLogic | BaseLogic | Always,
     answers: Answer[],
+    sectionHistory: number[],
     ): boolean {
-      if("op" in condition && condition.op==="always"){
-      for(let i=0;i<sectionHistory.length;i++)
-      {
-        if(form?.sections[sectionHistory[i]].section_ID==condition.sourceSectionId)return true;
-      }
-    }
+      if ("op" in condition && condition.op === "always") {
+    return sectionHistory.some(
+      (index) => form?.sections[index].section_ID === condition.sourceSectionId
+    );
+  }
     if ("conditions" in condition) {
       const subResults = condition.conditions.map((sub) =>
-        evaluateConditions(sub, answers)
+        evaluateConditions(sub, answers,sectionHistory)
     );
     
     if (condition.op === "AND") {
@@ -599,6 +599,7 @@ export default function ResponsesPage({
   }
 
   const goNext = () => {
+    
     const currentSection = form?.sections[sectionIndex];
     if (!currentSection) return;
 
@@ -611,21 +612,27 @@ export default function ResponsesPage({
       toast.error("Please answer all required questions marked with *");
       return;
     }
+    let foundNext = false;
+    const nextSectionHistory = [...sectionHistory, sectionIndex];
 for (let i = sectionIndex + 1; i < form.sections.length; i++) {
       const section = form?.sections[i];
       const allLogics = section.logic || [];
       for (const logic of allLogics) {
         if (!logic?.conditions) continue;
-        const isTrue = evaluateConditions(logic.conditions,answers);
+        const isTrue = evaluateConditions(logic.conditions,answers,nextSectionHistory);
         if (isTrue) {
-          setSectionHistory((prev) => [...prev, sectionIndex]);
+          setSectionHistory(nextSectionHistory);
+          foundNext = true;
           setSectionIndex(i);
+          setIsSubmitVisible(false);
           return ;
         }
       }
     }
-    
+    setSectionHistory(nextSectionHistory);
+    if (!foundNext) {
     setIsSubmitVisible(true);
+  }
   };
 
   const goBack = () => {
