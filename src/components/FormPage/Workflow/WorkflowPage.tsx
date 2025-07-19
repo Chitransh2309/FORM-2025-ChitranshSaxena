@@ -67,7 +67,7 @@ export default function WorkflowPage({
   const [showModal, setShowModal] = useState(false);
   const [targetSection, setTargetSection] = useState("");
   const [showSavedLogic, setShowSavedLogic] = useState(true);
-  const [fallbackSection, setFallbackSection] = useState<string>("");
+  const [fallbackSectionId, setFallbackSectionId] = useState<string>("");
   const [allQuestions, setAllQuestions] = useState<Question[]>([]);
   const [logicCondition, setLogicCondition] = useState<
     SectionLogics["conditions"]
@@ -161,30 +161,48 @@ export default function WorkflowPage({
       return;
     }
 
+    // Step 1: Update fallback on all related rules
+    const updatedLogicRules = logicRules.map((rule) => {
+      if (rule.fromSectionId === selectedSectionId) {
+        return {
+          ...rule,
+          fallbackTargetSectionId:
+            fallbackSectionId || rule.fallbackTargetSectionId,
+        };
+      }
+      return rule;
+    });
+
+    // Step 2: Add the new rule with fallback
     const newRule: LogicRule = {
       fromSectionId: selectedSectionId,
       targetSectionId: targetSection,
       condition: {
         conditions: logicCondition,
       },
+      ...(fallbackSectionId && { fallbackTargetSectionId: fallbackSectionId }),
     };
 
-    const updatedRules = [...logicRules, newRule];
-    setLogicRules(updatedRules);
+    const finalRules = [...updatedLogicRules, newRule];
+    setLogicRules(finalRules);
     setShowModal(false);
 
-    const saveRes = await saveFormLogic(form.form_ID, updatedRules);
+    // Step 3: Save
+    const saveRes = await saveFormLogic(form.form_ID, finalRules);
     if (!saveRes.success) {
       toast.error("Failed to save logic.");
       return;
     }
     toast.success("Logic saved!");
 
-    const newSecs = sections.map((sec) =>
-      sec.section_ID === targetSection
-        ? { ...sec, logic: [...(sec.logic || []), newRule] }
-        : sec
-    );
+    // Step 4: Update section logic for all affected destination sections
+    const newSecs = sections.map((sec) => {
+      const relevantRules = finalRules.filter(
+        (rule) => rule.targetSectionId === sec.section_ID
+      );
+      return relevantRules.length > 0 ? { ...sec, logic: relevantRules } : sec;
+    });
+
     setForm({ ...form, sections: newSecs });
   };
 
@@ -397,8 +415,8 @@ export default function WorkflowPage({
               </label>
               <select
                 className="w-full rounded border px-2 py-1"
-                value={fallbackSection}
-                onChange={(e) => setFallbackSection(e.target.value)}
+                value={fallbackSectionId}
+                onChange={(e) => setFallbackSectionId(e.target.value)}
               >
                 <option value="">(Optional)</option>
                 {otherSections.map((s) => (
