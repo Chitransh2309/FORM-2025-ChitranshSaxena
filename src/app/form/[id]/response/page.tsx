@@ -18,8 +18,6 @@ import {
   QuestionType,
   NestedLogic,
   BaseLogic,
-  SectionLogics,
-  Always,
 } from "@/lib/interface";
 import { saveFormResponse } from "@/app/action/saveformtodb";
 import { pushFileAnswer } from "@/app/action/saveFileUrl"; // ⬅️ NEW
@@ -427,7 +425,7 @@ export default function ResponsesPage({
   const [sectionHistory, setSectionHistory] = useState<number[]>([]);
   const [sectionIndex, setSectionIndex] = useState(0);
   // const [jumpQueue, setJumpQueue] = useState<number[]>([]);
-  const [isSubmitVisible,setIsSubmitVisible]=useState(false);
+  const [isSubmitVisible, setIsSubmitVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const section = form?.sections?.[sectionIndex];
@@ -567,38 +565,36 @@ export default function ResponsesPage({
   };
 
   function evaluateConditions(
-    condition: NestedLogic | BaseLogic | Always,
-    answers: Answer[],
+    condition: NestedLogic | BaseLogic | undefined,
+    answers: Answer[]
   ): boolean {
-    if("op" in condition && condition.op==="always"){
-      for(let i=0;i<sectionHistory.length;i++)
-      {
-        if(form?.sections[sectionHistory[i]].section_ID==condition.sourceSectionId)return true;
-      }
-    }
+    console.log("Evaluating");
+    if (!condition) return false;
+
     if ("conditions" in condition) {
       const subResults = condition.conditions.map((sub) =>
         evaluateConditions(sub, answers)
-    );
-    
-    if (condition.op === "AND") {
-      return subResults.every(Boolean);
-    } else if (condition.op === "OR") {
-      return subResults.some(Boolean);
+      );
+
+      if (condition.op === "AND") {
+        return subResults.every(Boolean);
+      } else if (condition.op === "OR") {
+        return subResults.some(Boolean);
+      }
     }
-  }
-  
-  if ("questionID" in condition && condition.op === "equal") {
-    const answer = answers.find(
-      (a) => a.question_ID === condition.questionID
-    );
-    return answer?.value === condition.value;
-  }
-  
-  return false;
+
+    if ("questionID" in condition && condition.op === "equal") {
+      const answer = answers.find(
+        (a) => a.question_ID === condition.questionID
+      );
+      return answer?.value === condition.value;
+    }
+
+    return false;
   }
 
   const goNext = () => {
+    console.log("Clicked next.");
     const currentSection = form?.sections[sectionIndex];
     if (!currentSection) return;
 
@@ -611,39 +607,32 @@ export default function ResponsesPage({
       toast.error("Please answer all required questions marked with *");
       return;
     }
+    console.log(
+      "All logic rules",
+      form?.sections.flatMap((s) => s.logic || [])
+    );
 
-    // if (jumpQueue.length > 0) {
-    //   const nextJump = jumpQueue[0];
-    //   setJumpQueue((prev) => prev.slice(1));
-    //   setSectionHistory((prev) => [...prev, sectionIndex]);
-    //   setSectionIndex(nextJump);
-    //   return;
-    // }
-
-    for (let i = sectionIndex + 1; i < form.sections.length; i++) {
-      const section = form?.sections[i];
-      const allLogics = section.logic || [];
-      for (const logic of allLogics) {
-        if (!logic?.conditions) continue;
-        const isTrue = evaluateConditions(logic.conditions,answers);
-        if (isTrue) {
-          setSectionHistory((prev) => [...prev, sectionIndex]);
-          setSectionIndex(i);
-          return ;
-        }
-      }
+    // NEW LOGIC: Find a matching rule where current section is the source
+    const matchingRule = form?.sections
+      .flatMap((section, idx) =>
+        (section.logic || []).map((logic) => ({
+          logic,
+          targetSectionIndex: idx,
+        }))
+      )
+      .find(
+        ({ logic }) =>
+          logic?.fromSectionId === currentSection.section_ID &&
+          logic.condition?.conditions &&
+          evaluateConditions(logic.condition.conditions, answers)
+      );
+    if (matchingRule) {
+      setSectionHistory((prev) => [...prev, sectionIndex]);
+      setSectionIndex(matchingRule.targetSectionIndex);
+      return;
     }
-    
-    setIsSubmitVisible(true);
-    // const nextJumps: number[] = [];
 
-    // if (nextJumps.length > 0) {
-    //   const [firstJump, ...rest] = nextJumps;
-
-    //   setSectionHistory((prev) => [...prev, sectionIndex]);
-    //   setSectionIndex(firstJump);
-    //   return;
-    // }
+    setIsSubmitVisible(true); // No matching logic, go to submit
   };
 
   const goBack = () => {
@@ -652,7 +641,7 @@ export default function ResponsesPage({
     const prevSection = sectionHistory[sectionHistory.length - 1];
     setSectionHistory((prev) => prev.slice(0, -1));
     setSectionIndex(prevSection);
-    if(isSubmitVisible){
+    if (isSubmitVisible) {
       setIsSubmitVisible(false);
     }
   };

@@ -14,7 +14,7 @@ export async function saveFormLogic(form_ID: string, logicRules: LogicRule[]) {
 
     const updatedSections = form.sections.map((section: Section) => {
       const logicForThisSection = logicRules.filter(
-        (rule: LogicRule) => rule.triggerSectionId === section.section_ID
+        (rule: LogicRule) => rule.targetSectionId === section.section_ID
       );
 
       return {
@@ -23,10 +23,9 @@ export async function saveFormLogic(form_ID: string, logicRules: LogicRule[]) {
       };
     });
 
-    const result = await db.collection("forms").updateOne(
-      { form_ID },
-      { $set: { sections: updatedSections } }
-    );
+    const result = await db
+      .collection("forms")
+      .updateOne({ form_ID }, { $set: { sections: updatedSections } });
 
     await disconnectFromDB(dbClient);
     return { success: true, modifiedCount: result.modifiedCount };

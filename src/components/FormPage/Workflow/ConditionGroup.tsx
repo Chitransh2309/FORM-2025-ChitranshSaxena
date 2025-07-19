@@ -1,13 +1,9 @@
-import type {
-  Section,
-  ConditionGroupType,
-  BaseCondition,
-} from "@/lib/interface";
+import type { Section, NestedLogic, BaseLogic } from "@/lib/interface";
 import ConditionBlock from "./ConditionBlock";
 
 interface Props {
-  group: ConditionGroupType;
-  onUpdate: (group: ConditionGroupType) => void;
+  group: NestedLogic;
+  onUpdate: (group: NestedLogic) => void;
   allQuestions: Section["questions"];
 }
 
@@ -16,10 +12,7 @@ export default function ConditionGroup({
   onUpdate,
   allQuestions,
 }: Props) {
-  const updateCondition = (
-    index: number,
-    updated: BaseCondition | ConditionGroupType
-  ) => {
+  const updateCondition = (index: number, updated: BaseLogic | NestedLogic) => {
     const newConditions = [...group.conditions];
     newConditions[index] = updated;
     onUpdate({ ...group, conditions: newConditions });
@@ -33,8 +26,8 @@ export default function ConditionGroup({
   const addBaseCondition = () => {
     const firstQ = allQuestions[0];
     if (!firstQ) return;
-    const newCond: BaseCondition = {
-      fieldId: firstQ.question_ID,
+    const newCond: BaseLogic = {
+      questionID: firstQ.question_ID,
       op: "equal",
       value: "",
     };
@@ -42,7 +35,7 @@ export default function ConditionGroup({
   };
 
   const addGroup = () => {
-    const newGroup: ConditionGroupType = { op: "AND", conditions: [] };
+    const newGroup: NestedLogic = { op: "AND", conditions: [] };
     onUpdate({ ...group, conditions: [...group.conditions, newGroup] });
   };
 
@@ -76,7 +69,7 @@ export default function ConditionGroup({
 
       {group.conditions.map((cond, idx) => (
         <div key={idx} className="pl-4 border-l-2 border-gray-300">
-          {"fieldId" in cond ? (
+          {"questionID" in cond ? (
             <ConditionBlock
               condition={cond}
               allQuestions={allQuestions}
@@ -87,7 +80,7 @@ export default function ConditionGroup({
             <div>
               <ConditionGroup
                 group={cond}
-                onUpdate={(newGroup: ConditionGroupType) => updateCondition(idx, newGroup)}
+                onUpdate={(newGroup) => updateCondition(idx, newGroup)}
                 allQuestions={allQuestions}
               />
               <button
