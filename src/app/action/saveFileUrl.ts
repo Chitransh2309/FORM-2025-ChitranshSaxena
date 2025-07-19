@@ -41,8 +41,8 @@ export async function pushFileAnswer(opts: {
           form_ID: formId,
           userId,
           startedAt: new Date(),
-          status: "draft",
           version: 1,
+          status: "draft", // Ensure status is set to draft
           answers: [],
         },
       },
