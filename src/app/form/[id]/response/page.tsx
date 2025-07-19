@@ -12,6 +12,8 @@ import {
   QuestionType,
   NestedLogic,
   BaseLogic,
+  Always,
+  SectionLogics,
 } from "@/lib/interface";
 import { saveFormResponse } from "@/app/action/saveformtodb";
 import { useSession } from "next-auth/react";
@@ -410,36 +412,38 @@ export default function ResponsesPage({
   };
 
   function evaluateConditions(
-    condition: NestedLogic | BaseLogic | undefined,
-    answers: Answer[]
-  ): boolean {
-    console.log("Evaluating");
-    if (!condition) return false;
-
+    condition: NestedLogic | BaseLogic | Always,
+    answers: Answer[],
+    ): boolean {
+      if("op" in condition && condition.op==="always"){
+      for(let i=0;i<sectionHistory.length;i++)
+      {
+        if(form?.sections[sectionHistory[i]].section_ID==condition.sourceSectionId)return true;
+      }
+    }
     if ("conditions" in condition) {
       const subResults = condition.conditions.map((sub) =>
         evaluateConditions(sub, answers)
-      );
-
-      if (condition.op === "AND") {
-        return subResults.every(Boolean);
-      } else if (condition.op === "OR") {
-        return subResults.some(Boolean);
-      }
+    );
+    
+    if (condition.op === "AND") {
+      return subResults.every(Boolean);
+    } else if (condition.op === "OR") {
+      return subResults.some(Boolean);
     }
-
-    if ("questionID" in condition && condition.op === "equal") {
-      const answer = answers.find(
-        (a) => a.question_ID === condition.questionID
-      );
-      return answer?.value === condition.value;
-    }
-
-    return false;
+     }
+  
+  if ("questionID" in condition && condition.op === "equal") {
+    const answer = answers.find(
+      (a) => a.question_ID === condition.questionID
+    );
+    return answer?.value === condition.value;
+  }
+  
+  return false;
   }
 
   const goNext = () => {
-    console.log("Clicked next.");
     const currentSection = form?.sections[sectionIndex];
     if (!currentSection) return;
 
@@ -452,32 +456,21 @@ export default function ResponsesPage({
       toast.error("Please answer all required questions marked with *");
       return;
     }
-    console.log(
-      "All logic rules",
-      form?.sections.flatMap((s) => s.logic || [])
-    );
-
-    // NEW LOGIC: Find a matching rule where current section is the source
-    const matchingRule = form?.sections
-      .flatMap((section, idx) =>
-        (section.logic || []).map((logic) => ({
-          logic,
-          targetSectionIndex: idx,
-        }))
-      )
-      .find(
-        ({ logic }) =>
-          logic?.fromSectionId === currentSection.section_ID &&
-          logic.condition?.conditions &&
-          evaluateConditions(logic.condition.conditions, answers)
-      );
-    if (matchingRule) {
-      setSectionHistory((prev) => [...prev, sectionIndex]);
-      setSectionIndex(matchingRule.targetSectionIndex);
-      return;
+for (let i = sectionIndex + 1; i < form.sections.length; i++) {
+      const section = form?.sections[i];
+      const allLogics = section.logic || [];
+      for (const logic of allLogics) {
+        if (!logic?.conditions) continue;
+        const isTrue = evaluateConditions(logic.conditions,answers);
+        if (isTrue) {
+          setSectionHistory((prev) => [...prev, sectionIndex]);
+          setSectionIndex(i);
+          return ;
+        }
+      }
     }
-
-    setIsSubmitVisible(true); // No matching logic, go to submit
+    
+    setIsSubmitVisible(true);
   };
 
   const goBack = () => {

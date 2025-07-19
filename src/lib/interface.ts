@@ -66,8 +66,13 @@ export interface LogicRule {
 }
 
 export interface SectionLogics {
-  conditions: BaseLogic | NestedLogic;
+  sourceSectionId: string;
+  conditions: BaseLogic | NestedLogic | Always;
 }
+export type Always={
+  op:"always";
+  sourceSectionId:string;
+};
 
 export type NestedLogic = {
   op: "AND" | "OR";
@@ -97,7 +102,7 @@ export interface Section {
   title: string;
   description: string;
   questions: Question[];
-  logic?: LogicRule[];
+  logic?: SectionLogics[];
 }
 
 export interface Question {
