@@ -141,7 +141,7 @@ export default function WorkflowPage({
         label:
           rule.condition && "conditions" in rule.condition
             ? renderCondition(rule.condition.conditions)
-            : "(No logic defined)",
+            : "(Always go to)",
         labelStyle: { fontSize: 12 },
       });
 
@@ -188,46 +188,47 @@ export default function WorkflowPage({
       return;
     }
 
-    // Step 1: Update fallback on all related rules
-    const updatedLogicRules = logicRules.map((rule) => {
-      if (rule.fromSectionId === selectedSectionId) {
-        return {
-          ...rule,
-          fallbackTargetSectionId:
-            fallbackSectionId || rule.fallbackTargetSectionId,
-        };
-      }
-      return rule;
-    });
+    const updatedLogicRules = [...logicRules];
 
-    // ✅ Step 2: Add the new rule (only include condition if it exists)
-    const newRule: LogicRule = {
-      fromSectionId: selectedSectionId,
-      targetSectionId: targetSection,
-      ...(logicCondition && {
-        condition: {
-          conditions: logicCondition,
-        },
-      }),
-      ...(fallbackSectionId && { fallbackTargetSectionId: fallbackSectionId }),
-    };
+    // Add conditional rule (if there's a targetSection and maybe a condition)
+    if (targetSection) {
+      const conditionalRule: LogicRule = {
+        fromSectionId: selectedSectionId,
+        targetSectionId: targetSection,
+        ...(logicCondition && {
+          condition: {
+            conditions: logicCondition,
+          },
+        }),
+      };
+      updatedLogicRules.push(conditionalRule);
+    }
 
-    const finalRules = [...updatedLogicRules, newRule];
-    setLogicRules(finalRules);
+    // Add fallback rule (no condition, only fallbackSectionId)
+    if (fallbackSectionId) {
+      const fallbackRule: LogicRule = {
+        fromSectionId: selectedSectionId,
+        targetSectionId: fallbackSectionId,
+        // no `condition` means it's an always-go-to fallback rule
+      };
+      updatedLogicRules.push(fallbackRule);
+    }
+
+    setLogicRules(updatedLogicRules);
     setShowModal(false);
     setHasCondition(false);
 
     // Step 3: Save
-    const saveRes = await saveFormLogic(form.form_ID, finalRules);
+    const saveRes = await saveFormLogic(form.form_ID, updatedLogicRules);
     if (!saveRes.success) {
       toast.error("Failed to save logic.");
       return;
     }
     toast.success("Logic saved!");
 
-    // Step 4: Update section logic for all affected destination sections
+    // Step 4: Assign rules to destination sections
     const newSecs = sections.map((sec) => {
-      const relevantRules = finalRules.filter(
+      const relevantRules = updatedLogicRules.filter(
         (rule) => rule.targetSectionId === sec.section_ID
       );
       return relevantRules.length > 0 ? { ...sec, logic: relevantRules } : sec;
@@ -369,7 +370,7 @@ export default function WorkflowPage({
                   <em className="text-gray-600">
                     {rule?.condition?.conditions
                       ? renderCondition(rule.condition.conditions)
-                      : "(No logic defined)"}
+                      : "(Always go to)"}
                   </em>
                 </p>
                 <button
