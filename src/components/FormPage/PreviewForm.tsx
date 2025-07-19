@@ -252,6 +252,33 @@ const DynamicPreviewInput = ({
       );
     }
 
+    case QuestionType.FILE_UPLOAD: {
+  const allowedTypes =
+    (question.config?.params?.find((p) => p.name === "allowedFileTypes")
+      ?.value as string[]) || [];
+
+  const maxFiles =
+    (question.config?.params?.find((p) => p.name === "maxFiles")
+      ?.value as number) || 1;
+
+  return (
+    <div className="space-y-2">
+      <input
+        type="file"
+        disabled
+        multiple={maxFiles > 1}
+        accept={allowedTypes.length > 0 ? allowedTypes.map(t => `.${t}`).join(",") : "*"}
+        className="cursor-not-allowed bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded px-3 py-2 w-full"
+      />
+      <p className="text-sm text-gray-500">
+        File upload preview (disabled in preview mode).
+      </p>
+    </div>
+  );
+}
+
+
+
     default:
       return (
         <>
