@@ -625,7 +625,7 @@ export default function WorkflowPage({
               onClick={clearDeletedAlwaysRules}
               className="text-xs bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
             >
-              Reset Deleted Rules (Debug)
+              Reset Default Deleted Rules
             </button>
           </div>
 
@@ -662,7 +662,7 @@ export default function WorkflowPage({
             </h2>
 
             {/* Debug Information */}
-            <div className="mb-4 p-3 bg-blue-50 rounded text-sm">
+            {/* <div className="mb-4 p-3 bg-blue-50 rounded text-sm">
               <h4 className="font-medium text-blue-800 mb-2">
                 Debug Information:
               </h4>
@@ -684,12 +684,12 @@ export default function WorkflowPage({
                   {otherSections.map((s) => s.section_ID).join(", ")}
                 </p>
               </div>
-            </div>
+            </div> */}
 
             {/* Conditional Logic Section */}
-            <div className="mb-6 p-4 border rounded bg-gray-50">
-              <h3 className="text-md font-medium text-black mb-3">
-                Conditional Navigation (Optional)
+            <div className="mb-6 p-4 border rounded bg-gray-50 [&_*]:!text-black [&_*]:!bg-white [&_button]:!bg-blue-50 [&_button:hover]:!bg-blue-100 [&_select]:!bg-white [&_select]:!text-black [&_input]:!bg-white [&_input]:!text-black [&_label]:!text-black">
+              <h3 className="text-md font-medium !text-black mb-3">
+                Conditional Navigation
               </h3>
 
               {!hasCondition ? (
@@ -705,27 +705,31 @@ export default function WorkflowPage({
                       });
                     }
                   }}
-                  className="text-sm text-blue-600 hover:underline bg-blue-50 px-3 py-1 rounded"
+                  className="text-sm !text-blue-600 hover:underline !bg-blue-50 hover:!bg-blue-100 px-3 py-1 rounded transition-colors"
                 >
                   ➕ Add Conditional Rule
                 </button>
               ) : (
                 <>
                   {!isAlways(logicCondition) && isBaseLogic(logicCondition) ? (
-                    <ConditionBlock
-                      allQuestions={selectedSection?.questions || []}
-                      condition={logicCondition}
-                      onChange={setLogicCondition}
-                      onRemove={() => setHasCondition(false)}
-                    />
+                    <div className="[&_*]:!text-black [&_select]:!bg-white [&_input]:!bg-white [&_button]:!bg-red-50 [&_button]:!text-red-600">
+                      <ConditionBlock
+                        allQuestions={selectedSection?.questions || []}
+                        condition={logicCondition}
+                        onChange={setLogicCondition}
+                        onRemove={() => setHasCondition(false)}
+                      />
+                    </div>
                   ) : !isAlways(logicCondition) ? (
-                    <ConditionGroup
-                      group={logicCondition}
-                      allQuestions={selectedSection?.questions || []}
-                      onUpdate={setLogicCondition}
-                    />
+                    <div className="[&_*]:!text-black [&_select]:!bg-white [&_input]:!bg-white [&_button]:!bg-blue-50">
+                      <ConditionGroup
+                        group={logicCondition}
+                        allQuestions={selectedSection?.questions || []}
+                        onUpdate={setLogicCondition}
+                      />
+                    </div>
                   ) : (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm !text-gray-500">
                       "Always" logic cannot be edited here.
                     </p>
                   )}
@@ -738,18 +742,18 @@ export default function WorkflowPage({
                           conditions: [logicCondition],
                         })
                       }
-                      className="mt-2 text-sm text-blue-600 hover:underline"
+                      className="mt-2 text-sm !text-blue-600 hover:underline !bg-transparent"
                     >
                       ➕ Convert to Group (AND/OR)
                     </button>
                   )}
 
-                  <div className="text-black mb-3 mt-4">
-                    <label className="mb-1 block text-sm font-medium">
+                  <div className="!text-black mb-3 mt-4">
+                    <label className="mb-1 block text-sm font-medium !text-black">
                       If conditions are met, go to:
                     </label>
                     <select
-                      className="w-full rounded border px-2 py-1"
+                      className="w-full rounded border px-2 py-1 !bg-white !text-black"
                       value={targetSection}
                       onChange={(e) => setTargetSection(e.target.value)}
                     >
@@ -757,9 +761,7 @@ export default function WorkflowPage({
                       {otherSections.map((s) => (
                         <option key={s.section_ID} value={s.section_ID}>
                           {s.title || s.section_ID}
-                          {isNavigatingToPrevious(s.section_ID)
-                            ? " (Previous)"
-                            : " (Forward)"}
+                          {isNavigatingToPrevious(s.section_ID)}
                         </option>
                       ))}
                     </select>
@@ -771,7 +773,7 @@ export default function WorkflowPage({
             {/* Always/Fallback Logic Section */}
             <div className="mb-6 p-4 border rounded bg-yellow-50">
               <h3 className="text-md font-medium text-black mb-3">
-                Fallback Navigation (Always Execute)
+                Always Go To
               </h3>
               <p className="text-xs text-gray-600 mb-3">
                 This rule executes when no conditional rules match, or as a
@@ -801,7 +803,7 @@ export default function WorkflowPage({
             </div>
 
             {/* Debug Info */}
-            <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
+            <div className="mb-4 p-2 bg-gray-100 rounded text-xs text-black">
               <strong>Current Logic Rules for this section:</strong>
               <ul className="mt-1">
                 {logicRules
