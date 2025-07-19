@@ -44,39 +44,45 @@ export enum SectionForm {
 //   action: {
 //     type: "jump";
 //     to: string;
-//     condition: NestedCondition | BaseCondition;
+//     condition: NestedLogic | BaseLogic;
 //   };
 // };
 
 // export type BaseCondition = {
-  //   fieldId: string;
-  //   op: "equal";
-  //   value: string;
-  // };
-  // export type ConditionGroupType = {
-  //   op: "AND" | "OR";
-  //   conditions: (BaseCondition | ConditionGroupType)[];
-  // };
-  
-export interface SectionLogics {
-  conditions: BaseLogic | Always | NestedLogic;
-};
+//   fieldId: string;
+//   op: "equal";
+//   value: string;
+// };
+// export type ConditionGroupType = {
+//   op: "AND" | "OR";
+//   conditions: (BaseCondition | ConditionGroupType)[];
+// };
 
-export type Always={
-  op:"always";
-  sourceSectionId:string;
+export interface LogicRule {
+  targetSectionId: string;
+  fromSectionId: string;
+  condition: SectionLogics; // your existing AND/OR structure
+}
+
+export interface SectionLogics {
+  conditions: BaseLogic | NestedLogic;
+}
+
+export type Always = {
+  op: "always";
+  sourceSectionId: string;
 };
 
 export type NestedLogic = {
-  op: 'AND' | 'OR';
+  op: "AND" | "OR";
   conditions: (NestedLogic | BaseLogic)[];
 };
 
 export interface BaseLogic {
   questionID: string;
-  op: 'equal';
+  op: "equal";
   value: string | number;
-};
+}
 
 export interface FormSettings {
   maxResponses?: number;
@@ -95,11 +101,10 @@ export interface Section {
   title: string;
   description: string;
   questions: Question[];
-  logic?: SectionLogics[];
+  logic?: LogicRule[];
 }
 
 export interface Question {
-
   question_ID: string;
   order: number;
   section_ID: string;

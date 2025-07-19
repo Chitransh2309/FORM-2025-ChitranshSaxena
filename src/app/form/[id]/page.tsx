@@ -24,9 +24,7 @@ export default async function FormPage({ params }: PageProps) {
     .findOne({ email: session.user.email });
   const userID = user?.user_ID;
 
-  const form = (await db
-    .collection("forms")
-    .findOne({ form_ID: formId }));
+  const form = await db.collection("forms").findOne({ form_ID: formId });
 
   await disconnectFromDB(dbClient);
 
@@ -38,9 +36,9 @@ export default async function FormPage({ params }: PageProps) {
     );
   }
 
-  // if (form.createdBy !== userID && !form.viewerID && !form.editorID) {
-  //   redirect(`/form/${formId}/response`);
-  // }
+  if (form.createdBy !== userID && !form.viewerID && !form.editorID) {
+    redirect(`/form/${formId}/response`);
+  }
 
   // ✅ FIX HERE: Convert to plain JSON-safe object
   const safeForm = JSON.parse(JSON.stringify(form));

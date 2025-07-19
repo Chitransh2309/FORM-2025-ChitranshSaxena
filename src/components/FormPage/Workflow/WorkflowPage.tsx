@@ -26,7 +26,6 @@ import "reactflow/dist/style.css";
 
 import CustomNode from "./CustomNode";
 import ConditionBlock from "./ConditionBlock";
-import ConditionGroup from "./ConditionGroup";
 import { saveFormLogic } from "@/app/action/saveFormLogic";
 
 import type {
@@ -35,14 +34,15 @@ import type {
   Question,
   LogicRule,
   SectionForm,
-  BaseCondition,
-  ConditionGroupType,
-  NestedCondition,
+  Always,
+  NestedLogic,
+  BaseLogic,
+  SectionLogics,
 } from "@/lib/interface";
 
 interface WorkflowPageProps {
-  form: Form; // live copy of the form
-  setForm: (f: Form) => void; // parent updater
+  form: Form;
+  setForm: (f: Form) => void;
   currentSection: SectionForm;
   setCurrentSection: (s: SectionForm) => void;
 }
@@ -53,7 +53,6 @@ export default function WorkflowPage({
   currentSection,
   setCurrentSection,
 }: WorkflowPageProps) {
-  /* ────────────────────────── state ────────────────────────── */
   const LABELS = ["Builder", "Workflow", "Preview"];
   const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
 
@@ -71,14 +70,13 @@ export default function WorkflowPage({
 
   const [allQuestions, setAllQuestions] = useState<Question[]>([]);
   const [logicCondition, setLogicCondition] = useState<
-    BaseCondition | ConditionGroupType
+    SectionLogics["conditions"]
   >({
-    fieldId: "",
     op: "equal",
+    questionID: "",
     value: "",
   });
 
-  /* ───────────────────── derive local copies from form ────────────────── */
   useEffect(() => {
     if (!form) return;
 
@@ -86,7 +84,6 @@ export default function WorkflowPage({
     setSections(formSections);
     setAllQuestions(formSections.flatMap((sec) => sec.questions || []));
 
-    /* nodes */
     const nodesFromSections: Node[] = formSections.map((sec, idx) => ({
       id: sec.section_ID,
       type: "custom",
@@ -102,64 +99,57 @@ export default function WorkflowPage({
     }));
     setNodes(nodesFromSections);
 
-    /* logic rules */
     const extractedRules: LogicRule[] = formSections.flatMap((sec) =>
-      (sec.logic || []).map((rule) => ({
-        ...rule,
-        triggerSectionId: sec.section_ID,
-      }))
+      (sec.logic || []).map((rule) => ({ ...rule }))
     );
     setLogicRules(extractedRules);
   }, [form]);
 
-  /* ────────────────────── render helpers ────────────────────── */
   const getQuestionText = (id: string) =>
     allQuestions.find((q) => q.question_ID === id)?.questionText || id;
 
-  // const renderCondition = (c: NestedCondition | BaseCondition): string => {
-  //   if (!c) return "";
+  const renderCondition = (c: NestedLogic | BaseLogic): string => {
+    if (!c) return "";
 
-  //   if ("fieldId" in c) return `${getQuestionText(c.fieldId)} == ${c.value}`;
+    // if (c.op === "always") {
+    //   const sourceSection = sections.find(
+    //     (s) => s.section_ID === (c as Always).sourceSectionId
+    //   );
+    //   return `Always from ${
+    //     sourceSection?.title || (c as Always).sourceSectionId
+    //   }`;
+    // }
 
-  //   if ("conditions" in c && c.conditions.length)
-  //     return `(${c.conditions.map(renderCondition).join(` ${c.op} `)})`;
+    if ("questionID" in c) {
+      return `${getQuestionText((c as BaseLogic).questionID)} == ${
+        (c as BaseLogic).value
+      }`;
+    }
 
-  //   return "";
-  // };
+    if ("conditions" in c && c.conditions.length) {
+      return `(${(c as NestedLogic).conditions
+        .map(renderCondition)
+        .join(` ${c.op} `)})`;
+    }
 
-  const renderCondition = (c: NestedLogic | BaseLogic | Always): string => {
-  if (!c) return "";
+    return "";
+  };
 
-  if (c.op === "always") {
-    const sourceSection = sections.find(s => s.section_ID === (c as Always).sourceSectionId);
-    return `Always from ${sourceSection?.title || (c as Always).sourceSectionId}`;
-  }
-
-  if ("questionID" in c) {
-    return `${getQuestionText((c as BaseLogic).questionID)} == ${(c as BaseLogic).value}`;
-  }
-
-  if ("conditions" in c && c.conditions.length) {
-    return `(${(c as NestedLogic).conditions.map(renderCondition).join(` ${c.op} `)})`;
-  }
-
-  return "";
-};
-
-  /* ─────────────────── sync edges with logicRules ─────────────────── */
   useEffect(() => {
     const newEdges: Edge[] = logicRules.map((rule, idx) => ({
-      id: `e-${rule.triggerSectionId}-${rule.action.to}-${idx}`,
-      source: rule.triggerSectionId,
-      target: rule.action.to,
+      id: `e-${rule.fromSectionId}-${rule.targetSectionId}-${idx}`,
+      source: rule.fromSectionId,
+      target: rule.targetSectionId,
       animated: true,
-      label: renderCondition(rule.action.condition),
+      label:
+        rule.condition && "conditions" in rule.condition
+          ? renderCondition(rule.condition.conditions)
+          : "(No logic defined)",
       labelStyle: { fontSize: 12 },
     }));
     setEdges(newEdges);
   }, [logicRules]);
 
-  /* ────────────────────── handlers ────────────────────── */
   const handleOpenModal = (secId: string) => {
     setSelectedSectionId(secId);
     setShowModal(true);
@@ -168,28 +158,23 @@ export default function WorkflowPage({
     const firstQ = sections.find((s) => s.section_ID === secId)?.questions?.[0];
 
     setLogicCondition({
-      fieldId: firstQ?.question_ID || "",
       op: "equal",
+      questionID: firstQ?.question_ID || "",
       value: "",
     });
   };
 
   const handleAddLogic = async () => {
-    if (
-      !selectedSectionId ||
-      !targetSection ||
-      ("conditions" in logicCondition && logicCondition.conditions.length === 0)
-    ) {
+    if (!selectedSectionId || !targetSection) {
       toast.error("Please fill all fields");
       return;
     }
 
     const newRule: LogicRule = {
-      triggerSectionId: selectedSectionId,
-      action: {
-        type: "jump",
-        to: targetSection,
-        condition: logicCondition,
+      fromSectionId: selectedSectionId,
+      targetSectionId: targetSection,
+      condition: {
+        conditions: logicCondition,
       },
     };
 
@@ -204,9 +189,8 @@ export default function WorkflowPage({
     }
     toast.success("Logic saved!");
 
-    /* update parent form so other tabs stay in sync */
     const newSecs = sections.map((sec) =>
-      sec.section_ID === selectedSectionId
+      sec.section_ID === targetSection
         ? { ...sec, logic: [...(sec.logic || []), newRule] }
         : sec
     );
@@ -224,10 +208,9 @@ export default function WorkflowPage({
     }
     toast.success("Logic deleted.");
 
-    /* reflect in parent */
     const rule = logicRules[idxToDel];
     const newSecs = sections.map((sec) =>
-      sec.section_ID === rule.triggerSectionId
+      sec.section_ID === rule.targetSectionId
         ? {
             ...sec,
             logic: (sec.logic || []).filter((_, i) => i !== idxToDel),
@@ -237,15 +220,12 @@ export default function WorkflowPage({
     setForm({ ...form, sections: newSecs });
   };
 
-  /* ─────────────────────── UI helpers ─────────────────────── */
-  /** responsive MiniMap size */
   const { width: winW } = useWindowSize();
   const mapSize = {
     width: winW < 500 ? 100 : winW > 1000 ? 200 : 160,
     height: winW < 500 ? 80 : winW > 1000 ? 150 : 120,
   };
 
-  /** auto-fit view on small screens */
   function AutoCenter() {
     const { fitView } = useReactFlow();
     useEffect(() => {
@@ -267,10 +247,8 @@ export default function WorkflowPage({
     (s) => s.section_ID !== selectedSectionId
   );
 
-  /* ───────────────────────── render ───────────────────────── */
   return (
     <div className="w-full h-[90vh] p-4 flex gap-6 dark:bg-[#2B2A2A]">
-      {/* floating nav */}
       <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-40 w-full px-4">
         <div className="mx-auto flex w-full max-w-[480px] h-[68px] items-center justify-between rounded-[10px] bg-[#91C4AB]/45 px-2 shadow dark:bg-[#414141]">
           {LABELS.map((l, i) => (
@@ -289,7 +267,6 @@ export default function WorkflowPage({
         </div>
       </div>
 
-      {/* main graph */}
       <div className="flex-1 rounded-md">
         <ReactFlowProvider>
           <ReactFlow
@@ -315,7 +292,6 @@ export default function WorkflowPage({
         </ReactFlowProvider>
       </div>
 
-      {/* logic sidebar & toggle on small screens */}
       <div className="relative">
         <button
           className="xl:hidden fixed top-20 left-2 z-30 mt-20 rounded bg-[#fefefe] p-2 shadow dark:bg-[#363535] dark:text-white"
@@ -325,13 +301,9 @@ export default function WorkflowPage({
         </button>
 
         <aside
-          className={`
-            fixed top-0 left-0 z-40 h-full w-[75%] overflow-y-auto p-4
-            shadow transition-transform duration-300
-            dark:bg-[#363535] bg-[#fefefe] mt-19 sm:mt-0
-            ${showSavedLogic ? "translate-x-0" : "-translate-x-full"}
-            xl:relative xl:translate-x-0 xl:w-[300px] xl:bg-none
-          `}
+          className={`fixed top-0 left-0 z-40 h-full w-[75%] overflow-y-auto p-4 shadow transition-transform duration-300 dark:bg-[#363535] bg-[#fefefe] mt-19 sm:mt-0 ${
+            showSavedLogic ? "translate-x-0" : "-translate-x-full"
+          } xl:relative xl:translate-x-0 xl:w-[300px] xl:bg-none`}
         >
           <div className="mb-4 flex justify-end xl:hidden">
             <button
@@ -349,11 +321,13 @@ export default function WorkflowPage({
             {logicRules.map((rule, idx) => (
               <div key={idx} className="rounded bg-[#E0E0E0] px-2 py-1 text-sm">
                 <p className="mb-1 leading-snug text-gray-700">
-                  <strong>{rule.triggerSectionId}</strong> →{" "}
-                  <strong>{rule.action.to}</strong>
+                  <strong>{rule.fromSectionId}</strong> →{" "}
+                  <strong>{rule.targetSectionId}</strong>
                   <br />
                   <em className="text-gray-600">
-                    {renderCondition(rule.action.condition)}
+                    {rule?.condition?.conditions
+                      ? renderCondition(rule.condition.conditions)
+                      : "(No logic defined)"}
                   </em>
                 </p>
                 <button
@@ -368,7 +342,6 @@ export default function WorkflowPage({
         </aside>
       </div>
 
-      {/* modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="max-h-[500px] w-[1000px] overflow-auto rounded-lg bg-white p-6 shadow-lg">
@@ -376,7 +349,6 @@ export default function WorkflowPage({
               Add Logic Condition
             </h2>
 
-            {/* Always render ConditionBlock for all condition types */}
             <ConditionBlock
               allSections={sections}
               allQuestions={selectedSection?.questions || []}
@@ -385,7 +357,6 @@ export default function WorkflowPage({
               onRemove={() => {}}
             />
 
-            {/* Convert to group button - only show for BaseLogic */}
             {logicCondition.op === "equal" && (
               <button
                 onClick={() =>
