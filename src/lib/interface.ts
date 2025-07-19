@@ -61,7 +61,7 @@ export enum SectionForm {
 export interface LogicRule {
   targetSectionId: string;
   fromSectionId: string;
-  condition: SectionLogics; // your existing AND/OR structure
+  condition?: SectionLogics; // your existing AND/OR structure
   fallbackTargetSectionId?: string;
 }
 
