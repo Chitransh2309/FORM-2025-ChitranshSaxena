@@ -67,7 +67,7 @@ export default function WorkflowPage({
   const [showModal, setShowModal] = useState(false);
   const [targetSection, setTargetSection] = useState("");
   const [showSavedLogic, setShowSavedLogic] = useState(true);
-
+  const [fallbackSection, setFallbackSection] = useState<string>("");
   const [allQuestions, setAllQuestions] = useState<Question[]>([]);
   const [logicCondition, setLogicCondition] = useState<
     SectionLogics["conditions"]
@@ -110,15 +110,6 @@ export default function WorkflowPage({
 
   const renderCondition = (c: NestedLogic | BaseLogic): string => {
     if (!c) return "";
-
-    // if (c.op === "always") {
-    //   const sourceSection = sections.find(
-    //     (s) => s.section_ID === (c as Always).sourceSectionId
-    //   );
-    //   return `Always from ${
-    //     sourceSection?.title || (c as Always).sourceSectionId
-    //   }`;
-    // }
 
     if ("questionID" in c) {
       return `${getQuestionText((c as BaseLogic).questionID)} == ${
@@ -382,9 +373,9 @@ export default function WorkflowPage({
               </button>
             )}
 
-            <div className="text-black mb-3">
+            <div className="text-black mb-3 mt-4">
               <label className="mb-1 block text-sm font-medium">
-                Go to Section
+                Go to Section (if conditions pass)
               </label>
               <select
                 className="w-full rounded border px-2 py-1"
@@ -392,6 +383,24 @@ export default function WorkflowPage({
                 onChange={(e) => setTargetSection(e.target.value)}
               >
                 <option value="">Select destination</option>
+                {otherSections.map((s) => (
+                  <option key={s.section_ID} value={s.section_ID}>
+                    {s.title || s.section_ID}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="text-black mb-3 mt-4">
+              <label className="mb-1 block text-sm font-medium">
+                Always go to (if above conditions fail)
+              </label>
+              <select
+                className="w-full rounded border px-2 py-1"
+                value={fallbackSection}
+                onChange={(e) => setFallbackSection(e.target.value)}
+              >
+                <option value="">(Optional)</option>
                 {otherSections.map((s) => (
                   <option key={s.section_ID} value={s.section_ID}>
                     {s.title || s.section_ID}

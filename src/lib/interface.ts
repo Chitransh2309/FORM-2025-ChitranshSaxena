@@ -68,11 +68,6 @@ export interface SectionLogics {
   conditions: BaseLogic | NestedLogic;
 }
 
-export type Always = {
-  op: "always";
-  sourceSectionId: string;
-};
-
 export type NestedLogic = {
   op: "AND" | "OR";
   conditions: (NestedLogic | BaseLogic)[];
