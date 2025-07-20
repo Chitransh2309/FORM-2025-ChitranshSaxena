@@ -43,13 +43,13 @@ export default function Dropdown({ options, onOptionsChange, disabled = false }:
           Add Option
         </button>
       )}
-      <div className="mt-2">
+      {/* <div className="mt-2">
         <select className="border px-2 py-1 rounded dark:bg-[#5A5959] dark:text-white" disabled>
           {options.map((option, idx) => (
             <option key={idx}>{option}</option>
           ))}
         </select>
-      </div>
+      </div> */}
     </div>
   );
 }
