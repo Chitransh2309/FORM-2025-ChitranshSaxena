@@ -61,7 +61,7 @@ export default async function Home() {
             ].map((card, i) => (
               <div
                 key={i}
-                className={`w-full max-w-[360px] min-h-[360px] sm:min-h-[400px] md:min-h-[420px] xl:min-h-[440px] 2xl:min-h-[460px] border-2  rounded-[25px] hover:scale-[1.05] transition-transform duration-300 cursor-pointer px-4 sm:px-6 pt-6 pb-4 flex flex-col justify-between`}
+                className={`w-full min-h-[300px]  xl:min-h-[320px] 2xl:min-h-[340px] border-2  rounded-[25px] hover:scale-[1.05] transition-transform duration-300 cursor-pointer px-4 sm:px-6 pt-6 pb-4 flex flex-col justify-between`}
                 style={{
                   boxShadow: card.shadow,
                   borderColor: card.color,
