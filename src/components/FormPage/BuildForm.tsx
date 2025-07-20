@@ -49,34 +49,32 @@ export default function BuildPage({
   const formRef = useRef<Form | null>(form);
   useEffect(() => void (formRef.current = form), [form]);
 
-useEffect(() => {
-  if (form && form.sections.length === 0) {
-    const section_ID = "section-1";
-    const defaultQuestion: Question = {
-      question_ID: `q-${Date.now()}`,
-      section_ID,
-      questionText: "",
-      isRequired: false,
-      order: 1,
-      type: QuestionType.TEXT,
-    };
+  useEffect(() => {
+    if (form && form.sections.length === 0) {
+      const section_ID = "section-1";
+      const defaultQuestion: Question = {
+        question_ID: `q-${Date.now()}`,
+        section_ID,
+        questionText: "",
+        isRequired: false,
+        order: 1,
+        type: QuestionType.TEXT,
+      };
 
-    const newSection: Section = {
-      section_ID,
-      title: "Section 1",
-      description: "",
-      questions: [defaultQuestion],
-    };
+      const newSection: Section = {
+        section_ID,
+        title: "Section 1",
+        description: "",
+        questions: [defaultQuestion],
+      };
 
-    const newForm = { ...form, sections: [newSection] };
-    setForm(newForm);
-    setSelectedSectionId(section_ID);
-    setSelectedQuestion(defaultQuestion);
-    debouncedSaveForm();
-  }
-}, [form]);
-
-
+      const newForm = { ...form, sections: [newSection] };
+      setForm(newForm);
+      setSelectedSectionId(section_ID);
+      setSelectedQuestion(defaultQuestion);
+      debouncedSaveForm();
+    }
+  }, [form]);
 
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
     null
@@ -157,39 +155,38 @@ useEffect(() => {
   );
   /* ─────────────────────── section helpers ──────────────────────────── */
   const addSection = () => {
-  if (!form) return;
+    if (!form) return;
 
-  const nums = form.sections
-    .map((s) => Number(s.section_ID.match(/section-(\d+)/)?.[1] ?? 0))
-    .filter(Boolean);
+    const nums = form.sections
+      .map((s) => Number(s.section_ID.match(/section-(\d+)/)?.[1] ?? 0))
+      .filter(Boolean);
 
-  let next = 1;
-  while (nums.includes(next)) next++;
+    let next = 1;
+    while (nums.includes(next)) next++;
 
-  const newSectionId = `section-${next}`;
+    const newSectionId = `section-${next}`;
 
-  const defaultQuestion: Question = {
-    question_ID: `q-${Date.now()}`,
-    section_ID: newSectionId,
-    questionText: "",
-    isRequired: false,
-    order: 1,
-    type: QuestionType.TEXT,
+    const defaultQuestion: Question = {
+      question_ID: `q-${Date.now()}`,
+      section_ID: newSectionId,
+      questionText: "",
+      isRequired: false,
+      order: 1,
+      type: QuestionType.TEXT,
+    };
+
+    const newSection: Section = {
+      section_ID: newSectionId,
+      title: `Section ${next}`,
+      description: "",
+      questions: [defaultQuestion], // Add default question here
+    };
+
+    setForm({ ...form, sections: [...form.sections, newSection] });
+    setSelectedSectionId(newSection.section_ID);
+    setSelectedQuestion(defaultQuestion); // Optional: focus new question
+    debouncedSaveForm();
   };
-
-  const newSection: Section = {
-    section_ID: newSectionId,
-    title: `Section ${next}`,
-    description: "",
-    questions: [defaultQuestion], // Add default question here
-  };
-
-  setForm({ ...form, sections: [...form.sections, newSection] });
-  setSelectedSectionId(newSection.section_ID);
-  setSelectedQuestion(defaultQuestion); // Optional: focus new question
-  debouncedSaveForm();
-};
-
 
   const deleteSection = (sectionId: string) => {
     if (!form) return;
@@ -251,6 +248,7 @@ useEffect(() => {
             questions: sec.questions.map((q) => {
               if (q.question_ID === id) {
                 const upd = { ...q, ...u };
+
                 if (selectedQuestion?.question_ID === id) newSel = upd;
                 return upd;
               }
@@ -260,6 +258,7 @@ useEffect(() => {
         : sec
     );
 
+    console.log("update: ", newSel);
     setForm({ ...form, sections });
     if (newSel) setSelectedQuestion(newSel);
     debouncedSaveForm();
@@ -443,12 +442,12 @@ useEffect(() => {
                 Close
               </button>
             </div>
-            <div className="p-4">
+            {/* <div className="p-4">
               <RightNav
                 selectedQuestion={selectedQuestion}
                 onUpdate={updateQuestion}
               />
-            </div>
+            </div> */}
           </div>
         )}
         {showFAQ && <FAQs showFaq={showFAQ} setShowFaq={setShowFAQ} />}
