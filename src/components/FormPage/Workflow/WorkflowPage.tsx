@@ -93,28 +93,6 @@ export default function WorkflowPage({
     }
   }, [form?.sections, navigationStack.length]);
 
-  // Helper function to add section to navigation stack
-  const addToNavigationStack = (sectionId: string) => {
-    setNavigationStack((prev) => {
-      // Don't add if it's already the last item
-      if (prev[prev.length - 1] === sectionId) return prev;
-      return [...prev, sectionId];
-    });
-  };
-
-  // Helper function to navigate to previous section in stack
-  const navigateToPrevious = (targetSectionId: string) => {
-    setNavigationStack((prev) => {
-      const targetIndex = prev.indexOf(targetSectionId);
-      if (targetIndex === -1) {
-        // Target not in stack, add it
-        return [...prev, targetSectionId];
-      }
-      // Pop all sections after target (going back to previous)
-      return prev.slice(0, targetIndex + 1);
-    });
-  };
-
   // Helper function to check if navigating to a previous section
   const isNavigatingToPrevious = (targetSectionId: string): boolean => {
     return navigationStack.includes(targetSectionId);
@@ -126,11 +104,6 @@ export default function WorkflowPage({
     return navigationStack[navigationStack.length - 2] || null;
   };
 
-  // Create unique key for always rules to track deletions properly
-  const createAlwaysRuleKey = (fromSectionId: string): string => {
-    return `always_${fromSectionId}`;
-  };
-
   // Load deleted always rules from localStorage on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -140,7 +113,7 @@ export default function WorkflowPage({
           const parsed = JSON.parse(stored);
           deletedAlwaysRef.current = new Set(parsed);
         } catch (e) {
-          console.warn("Failed to parse stored deleted always rules");
+          console.warn("Failed to parse stored deleted always rules" + e);
         }
       }
     }
@@ -157,79 +130,80 @@ export default function WorkflowPage({
   };
 
   useEffect(() => {
-  if (!form) return;
-  const formSections = form.sections || [];
-  setSections(formSections);
-  setAllQuestions(formSections.flatMap((sec) => sec.questions || []));
+    if (!form) return;
+    const formSections = form.sections || [];
+    setSections(formSections);
+    setAllQuestions(formSections.flatMap((sec) => sec.questions || []));
 
-  const nodesFromSections: Node[] = formSections.map((sec, idx) => ({
-    id: sec.section_ID,
-    type: "custom",
-    position: {
-      x: idx * 0 + Math.random() * 10,
-      y: 200 * idx + Math.random() * 100,
-    },
-    data: {
-      label: sec.title || `Section ${idx + 1}`,
+    const nodesFromSections: Node[] = formSections.map((sec, idx) => ({
       id: sec.section_ID,
-      onClick: handleOpenModal,
-    },
-  }));
-  setNodes(nodesFromSections);
+      type: "custom",
+      position: {
+        x: idx * 0 + Math.random() * 10,
+        y: 200 * idx + Math.random() * 100,
+      },
+      data: {
+        label: sec.title || `Section ${idx + 1}`,
+        id: sec.section_ID,
+        onClick: handleOpenModal,
+      },
+    }));
+    setNodes(nodesFromSections);
 
-  const extractedRules: SectionLogics[] = formSections.flatMap((sec) =>
-    (sec.logic || []).map((rule) => ({
-      ...rule,
-      conditions:
-        rule.conditions ??
-        ({
-          op: "always",
-          sourceSectionId: rule.fromSectionId,
-        } as const),
-    }))
-  );
+    const extractedRules: SectionLogics[] = formSections.flatMap((sec) =>
+      (sec.logic || []).map((rule) => ({
+        ...rule,
+        conditions:
+          rule.conditions ??
+          ({
+            op: "always",
+            sourceSectionId: rule.fromSectionId,
+          } as const),
+      }))
+    );
 
-  const sectionIdsWithRules = new Set(
-    extractedRules.map((r) => r.fromSectionId)
-  );
+    const sectionIdsWithRules = new Set(
+      extractedRules.map((r) => r.fromSectionId)
+    );
 
-  const defaultFallbackRules: SectionLogics[] = formSections
-    .map((sec, idx) => {
-      if (sectionIdsWithRules.has(sec.section_ID)) return null;
-      if (deletedAlwaysRef.current.has(sec.section_ID)) return null;
-      const next = formSections[idx + 1];
-      if (!next) return null;
-      return {
-        fromSectionId: sec.section_ID,
-        targetSectionId: next.section_ID,
-        conditions: {
-          op: "always",
-          sourceSectionId: sec.section_ID,
-        },
-      };
-    })
-    .filter(Boolean) as SectionLogics[];
+    const defaultFallbackRules: SectionLogics[] = formSections
+      .map((sec, idx) => {
+        if (sectionIdsWithRules.has(sec.section_ID)) return null;
+        if (deletedAlwaysRef.current.has(sec.section_ID)) return null;
+        const next = formSections[idx + 1];
+        if (!next) return null;
+        return {
+          fromSectionId: sec.section_ID,
+          targetSectionId: next.section_ID,
+          conditions: {
+            op: "always",
+            sourceSectionId: sec.section_ID,
+          },
+        };
+      })
+      .filter(Boolean) as SectionLogics[];
 
-  const allRules = [...extractedRules, ...defaultFallbackRules];
-  setLogicRules(allRules);
+    const allRules = [...extractedRules, ...defaultFallbackRules];
+    setLogicRules(allRules);
 
-  // ✅ SAVE TO DB IF DEFAULT FALLBACKS WERE CREATED
-  if (defaultFallbackRules.length > 0) {
-    saveFormLogic(form.form_ID, allRules).then((res) => {
-      if (!res.success) toast.error("Failed to save default logic");
-      else toast.success("Default fallback logic auto-added!");
-    });
+    // ✅ SAVE TO DB IF DEFAULT FALLBACKS WERE CREATED
+    if (defaultFallbackRules.length > 0) {
+      saveFormLogic(form.form_ID, allRules).then((res) => {
+        if (!res.success) toast.error("Failed to save default logic");
+        else toast.success("Default fallback logic auto-added!");
+      });
 
-    // ✅ Update the section objects with logic field as well
-    const newSecs = formSections.map((sec) => {
-      const rules = allRules.filter((r) => r.fromSectionId === sec.section_ID);
-      return { ...sec, logic: rules };
-    });
+      // ✅ Update the section objects with logic field as well
+      const newSecs = formSections.map((sec) => {
+        const rules = allRules.filter(
+          (r) => r.fromSectionId === sec.section_ID
+        );
+        return { ...sec, logic: rules };
+      });
 
-    setForm({ ...form, sections: newSecs });
-  }
-}, [form]);
-
+      setForm({ ...form, sections: newSecs });
+    }
+  }, [form]);
 
   const getQuestionText = (id: string) =>
     allQuestions.find((q) => q.question_ID === id)?.questionText || id;
@@ -311,102 +285,100 @@ export default function WorkflowPage({
   };
 
   const handleAddLogic = async () => {
-  if (!selectedSectionId || (!targetSection && !fallbackSectionId)) {
-    toast.error("Please select a target or fallback section.");
-    return;
-  }
-
-  const updatedLogicRules = [...logicRules];
-
-  // Add conditional rule if selected
-  if (targetSection) {
-    const alreadyExists = updatedLogicRules.some(
-      (r) =>
-        r.fromSectionId === selectedSectionId &&
-        r.targetSectionId === targetSection &&
-        JSON.stringify(r.conditions) === JSON.stringify(logicCondition)
-    );
-    if (!alreadyExists) {
-      updatedLogicRules.push({
-        fromSectionId: selectedSectionId,
-        targetSectionId: targetSection,
-        conditions: logicCondition,
-      });
+    if (!selectedSectionId || (!targetSection && !fallbackSectionId)) {
+      toast.error("Please select a target or fallback section.");
+      return;
     }
-  }
 
-  // Add fallback rule if selected
-  if (fallbackSectionId) {
-    const fallbackExists = updatedLogicRules.some(
-      (r) =>
-        r.fromSectionId === selectedSectionId &&
-        r.targetSectionId === fallbackSectionId &&
-        r.conditions?.op === "always"
-    );
-    if (!fallbackExists) {
-      updatedLogicRules.push({
-        fromSectionId: selectedSectionId,
-        targetSectionId: fallbackSectionId,
-        conditions: {
-          op: "always",
-          sourceSectionId: selectedSectionId,
-        },
-      });
+    const updatedLogicRules = [...logicRules];
+
+    // Add conditional rule if selected
+    if (targetSection) {
+      const alreadyExists = updatedLogicRules.some(
+        (r) =>
+          r.fromSectionId === selectedSectionId &&
+          r.targetSectionId === targetSection &&
+          JSON.stringify(r.conditions) === JSON.stringify(logicCondition)
+      );
+      if (!alreadyExists) {
+        updatedLogicRules.push({
+          fromSectionId: selectedSectionId,
+          targetSectionId: targetSection,
+          conditions: logicCondition,
+        });
+      }
     }
-  }
 
-  setLogicRules(updatedLogicRules);
-  setShowModal(false);
-  setHasCondition(false);
+    // Add fallback rule if selected
+    if (fallbackSectionId) {
+      const fallbackExists = updatedLogicRules.some(
+        (r) =>
+          r.fromSectionId === selectedSectionId &&
+          r.targetSectionId === fallbackSectionId &&
+          r.conditions?.op === "always"
+      );
+      if (!fallbackExists) {
+        updatedLogicRules.push({
+          fromSectionId: selectedSectionId,
+          targetSectionId: fallbackSectionId,
+          conditions: {
+            op: "always",
+            sourceSectionId: selectedSectionId,
+          },
+        });
+      }
+    }
 
-  const saveRes = await saveFormLogic(form.form_ID, updatedLogicRules);
-  if (!saveRes.success) {
-    toast.error("Failed to save logic.");
-    return;
-  }
-  toast.success("Logic saved!");
+    setLogicRules(updatedLogicRules);
+    setShowModal(false);
+    setHasCondition(false);
 
-  // ✅ Update logic in sections without overwriting unrelated rules
-  const newSecs = sections.map((sec) => {
-    const rulesFromThisSection = updatedLogicRules.filter(
-      (r) => r.fromSectionId === sec.section_ID
-    );
-    return { ...sec, logic: rulesFromThisSection };
-  });
+    const saveRes = await saveFormLogic(form.form_ID, updatedLogicRules);
+    if (!saveRes.success) {
+      toast.error("Failed to save logic.");
+      return;
+    }
+    toast.success("Logic saved!");
 
-  setForm({ ...form, sections: newSecs });
-};
+    // ✅ Update logic in sections without overwriting unrelated rules
+    const newSecs = sections.map((sec) => {
+      const rulesFromThisSection = updatedLogicRules.filter(
+        (r) => r.fromSectionId === sec.section_ID
+      );
+      return { ...sec, logic: rulesFromThisSection };
+    });
 
+    setForm({ ...form, sections: newSecs });
+  };
 
   const handleDeleteLogic = async (idxToDel: number) => {
-  const ruleToDelete = logicRules[idxToDel];
-  if (!ruleToDelete) return;
+    const ruleToDelete = logicRules[idxToDel];
+    if (!ruleToDelete) return;
 
-  if (ruleToDelete.conditions?.op === "always") {
-    deletedAlwaysRef.current.add(ruleToDelete.fromSectionId);
-    saveDeletedAlwaysRules();
-  }
+    if (ruleToDelete.conditions?.op === "always") {
+      deletedAlwaysRef.current.add(ruleToDelete.fromSectionId);
+      saveDeletedAlwaysRules();
+    }
 
-  const updatedRules = logicRules.filter((_, i) => i !== idxToDel);
-  setLogicRules(updatedRules);
+    const updatedRules = logicRules.filter((_, i) => i !== idxToDel);
+    setLogicRules(updatedRules);
 
-  const newSecs = sections.map((sec) => {
-    const rulesFromThisSection = updatedRules.filter(
-      (r) => r.fromSectionId === sec.section_ID
-    );
-    return { ...sec, logic: rulesFromThisSection };
-  });
+    const newSecs = sections.map((sec) => {
+      const rulesFromThisSection = updatedRules.filter(
+        (r) => r.fromSectionId === sec.section_ID
+      );
+      return { ...sec, logic: rulesFromThisSection };
+    });
 
-  const saveRes = await saveFormLogic(form.form_ID, updatedRules);
-  if (!saveRes.success) {
-    toast.error("Failed to delete logic.");
-    return;
-  }
-  toast.success("Logic deleted.");
+    const saveRes = await saveFormLogic(form.form_ID, updatedRules);
+    if (!saveRes.success) {
+      toast.error("Failed to delete logic.");
+      return;
+    }
+    toast.success("Logic deleted.");
 
-  setForm({ ...form, sections: newSecs });
-};
-
+    setForm({ ...form, sections: newSecs });
+  };
 
   const { width: winW } = useWindowSize();
   const mapSize = {
@@ -690,7 +662,7 @@ export default function WorkflowPage({
                     </div>
                   ) : (
                     <p className="text-sm !text-gray-500">
-                      "Always" logic cannot be edited here.
+                      &quot;Always&quot; logic cannot be edited here.
                     </p>
                   )}
 
