@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { FaChevronDown } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { createNewForm } from "@/app/action/createnewform";
@@ -11,6 +11,8 @@ function Formsorter() {
   const [showDialog, setShowDialog] = useState(false);
   const [formName, setFormName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isWorkspaceDropdownOpen, setWorkspaceDropdownOpen] = useState(false);
+  const workspaceDropdownRef = useRef<HTMLDivElement>(null);
 
   const handleCreate = async () => {
     if (!formName.trim()) return alert("Please enter a form name");
@@ -27,6 +29,23 @@ function Formsorter() {
     }
   };
 
+  // Effect to close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        workspaceDropdownRef.current &&
+        !workspaceDropdownRef.current.contains(event.target as Node)
+      ) {
+        setWorkspaceDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+
   return (
     <>
       {loading && (
@@ -41,13 +60,28 @@ function Formsorter() {
       )}
       <div className="px-8 py-6 ">
         <div className="flex justify-between items-start relative">
-          <button className="flex gap-2 items-center bg-[#61A986] text-lg px-6 py-3 text-white rounded-lg cursor-pointer hover:bg-[#4d8a6b] transition-all duration-300 hover:scale-[1.02] shadow-md hover:shadow-lg dark:text-black">
-            My Workspace
-            <FaChevronDown
-              size={12}
-              className="transition-transform duration-200 group-hover:rotate-180"
-            />
-          </button>
+          {/* --- MODIFIED BUTTON WITH DROPDOWN --- */}
+          <div className="relative group" ref={workspaceDropdownRef}>
+            <button
+              onClick={() => setWorkspaceDropdownOpen((prev) => !prev)}
+              className="flex gap-2 items-center bg-[#61A986] text-lg px-6 py-3 text-white rounded-lg cursor-pointer hover:bg-[#4d8a6b] transition-all duration-300 hover:scale-[1.02] shadow-md hover:shadow-lg dark:text-black"
+            >
+              My Workspace
+              <FaChevronDown
+                size={12}
+                className={`transition-transform duration-200 ${isWorkspaceDropdownOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+            {isWorkspaceDropdownOpen && (
+              <div className="absolute top-full mt-2 w-full bg-white rounded-md shadow-lg z-10 dark:bg-gray-800 border dark:border-gray-700">
+                <div className="py-3 text-lg text-center text-gray-500 cursor-not-allowed dark:text-gray-400">
+                  Coming Soon
+                </div>
+              </div>
+            )}
+          </div>
+          {/* --- END OF MODIFICATION --- */}
+
 
           <div className="relative">
             <button
