@@ -384,6 +384,7 @@ export default function WorkflowPage({
 
   if (ruleToDelete.conditions?.op === "always") {
     deletedAlwaysRef.current.add(ruleToDelete.fromSectionId);
+    saveDeletedAlwaysRules();
   }
 
   const updatedRules = logicRules.filter((_, i) => i !== idxToDel);

@@ -111,6 +111,11 @@ export default function Drafts({
         <h2 className="px-4 py-3 text-xl font-semibold">Drafts</h2>
 
         <div className="border-2 border-gray border-dashed rounded-lg p-4 sm:overflow-visible xl:min-h-90 lg:min-h-120 max-h-120 sm:max-h-none overflow-auto dark:border-white">
+          {forms.length === 0 ? (
+          <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+            No Draft forms found.
+          </p>
+        ) : (
           <div className="grid grid-cols-2 gap-3">
             {forms.map((form) => (
               <div key={form.form_ID} className="flex flex-col relative">
@@ -148,6 +153,7 @@ export default function Drafts({
               </div>
             ))}
           </div>
+        )}
         </div>
 
         {/* Modal Dialog */}
