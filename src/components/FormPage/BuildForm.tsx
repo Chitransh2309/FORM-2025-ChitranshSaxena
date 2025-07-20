@@ -49,6 +49,35 @@ export default function BuildPage({
   const formRef = useRef<Form | null>(form);
   useEffect(() => void (formRef.current = form), [form]);
 
+useEffect(() => {
+  if (form && form.sections.length === 0) {
+    const section_ID = "section-1";
+    const defaultQuestion: Question = {
+      question_ID: `q-${Date.now()}`,
+      section_ID,
+      questionText: "",
+      isRequired: false,
+      order: 1,
+      type: QuestionType.TEXT,
+    };
+
+    const newSection: Section = {
+      section_ID,
+      title: "Section 1",
+      description: "",
+      questions: [defaultQuestion],
+    };
+
+    const newForm = { ...form, sections: [newSection] };
+    setForm(newForm);
+    setSelectedSectionId(section_ID);
+    setSelectedQuestion(defaultQuestion);
+    debouncedSaveForm();
+  }
+}, [form]);
+
+
+
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
     null
   );
@@ -128,26 +157,39 @@ export default function BuildPage({
   );
   /* ─────────────────────── section helpers ──────────────────────────── */
   const addSection = () => {
-    if (!form) return;
+  if (!form) return;
 
-    const nums = form.sections
-      .map((s) => Number(s.section_ID.match(/section-(\d+)/)?.[1] ?? 0))
-      .filter(Boolean);
+  const nums = form.sections
+    .map((s) => Number(s.section_ID.match(/section-(\d+)/)?.[1] ?? 0))
+    .filter(Boolean);
 
-    let next = 1;
-    while (nums.includes(next)) next++;
+  let next = 1;
+  while (nums.includes(next)) next++;
 
-    const newSection: Section = {
-      section_ID: `section-${next}`,
-      title: `Section ${next}`,
-      description: "",
-      questions: [],
-    };
+  const newSectionId = `section-${next}`;
 
-    setForm({ ...form, sections: [...form.sections, newSection] });
-    setSelectedSectionId(newSection.section_ID);
-    debouncedSaveForm();
+  const defaultQuestion: Question = {
+    question_ID: `q-${Date.now()}`,
+    section_ID: newSectionId,
+    questionText: "",
+    isRequired: false,
+    order: 1,
+    type: QuestionType.TEXT,
   };
+
+  const newSection: Section = {
+    section_ID: newSectionId,
+    title: `Section ${next}`,
+    description: "",
+    questions: [defaultQuestion], // Add default question here
+  };
+
+  setForm({ ...form, sections: [...form.sections, newSection] });
+  setSelectedSectionId(newSection.section_ID);
+  setSelectedQuestion(defaultQuestion); // Optional: focus new question
+  debouncedSaveForm();
+};
+
 
   const deleteSection = (sectionId: string) => {
     if (!form) return;

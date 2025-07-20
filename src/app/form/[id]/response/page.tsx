@@ -27,7 +27,7 @@ import { nanoid } from "nanoid";
 import toast from "react-hot-toast";
 import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";
 import { validateAnswer } from "@/lib/validation";
-import { debounce } from "lodash";
+import { debounce} from "lodash";
 import { getUser } from "@/app/action/getUser"; // ⬅️ NEW: Import getUser function
 /* -------------------------------------------------------------------------- */
 /*  DynamicInput                                                              */
@@ -570,36 +570,36 @@ export default function ResponsesPage({
     answers: Answer[],
     sectionHistory: number[],
     form: Form
-  ): boolean {
-    if ("op" in condition && condition.op === "always") {
-      return sectionHistory.some(
-        (index) =>
-          form?.sections[index].section_ID === condition.sourceSectionId
-      );
-    }
+    ): boolean {
+      if ("op" in condition && condition.op === "always") {
+    return sectionHistory.some(
+      (index) => form?.sections[index].section_ID === condition.sourceSectionId
+    );
+  }
     if ("conditions" in condition) {
       const subResults = condition.conditions.map((sub) =>
-        evaluateConditions(sub, answers, sectionHistory, form)
-      );
-
-      if (condition.op === "AND") {
-        return subResults.every(Boolean);
-      } else if (condition.op === "OR") {
-        return subResults.some(Boolean);
-      }
+        evaluateConditions(sub, answers,sectionHistory,form)
+    );
+    
+    if (condition.op === "AND") {
+      return subResults.every(Boolean);
+    } else if (condition.op === "OR") {
+      return subResults.some(Boolean);
     }
-
-    if ("questionID" in condition && condition.op === "equal") {
-      const answer = answers.find(
-        (a) => a.question_ID === condition.questionID
-      );
-      return answer?.value === condition.value;
-    }
-
-    return false;
+     }
+  
+  if ("questionID" in condition && condition.op === "equal") {
+    const answer = answers.find(
+      (a) => a.question_ID === condition.questionID
+    );
+    return answer?.value === condition.value;
+  }
+  
+  return false;
   }
 
   const goNext = () => {
+    
     const currentSection = form?.sections[sectionIndex];
     if (!currentSection) return;
 
@@ -614,30 +614,36 @@ export default function ResponsesPage({
     }
     let foundNext = false;
     const nextSectionHistory = [...sectionHistory, sectionIndex];
-    for (let i = sectionIndex + 1; i < form.sections.length; i++) {
-      const section = form?.sections[i];
-      const allLogics = section.logic || [];
-      for (const logic of allLogics) {
-        if (!logic?.conditions) continue;
-        const isTrue = evaluateConditions(
-          logic.conditions,
-          answers,
-          nextSectionHistory,
-          form
-        );
-        if (isTrue) {
-          setSectionHistory(nextSectionHistory);
-          foundNext = true;
-          setSectionIndex(i);
-          setIsSubmitVisible(false);
-          return;
-        }
-      }
+for (let i = sectionIndex + 1; i < form.sections.length; i++) {
+  const section = form.sections[i];
+  const allLogics = section.logic || [];
+
+  if (allLogics.length === 0) {
+    // ✅ No logic: go to this section
+    setSectionHistory(nextSectionHistory);
+    foundNext = true;
+    setSectionIndex(i);
+    setIsSubmitVisible(false);
+    return;
+  }
+
+  for (const logic of allLogics) {
+    if (!logic?.conditions) continue;
+    const isTrue = evaluateConditions(logic.conditions, answers, nextSectionHistory, form);
+    if (isTrue) {
+      setSectionHistory(nextSectionHistory);
+      foundNext = true;
+      setSectionIndex(i);
+      setIsSubmitVisible(false);
+      return;
     }
+  }
+}
+
     setSectionHistory(nextSectionHistory);
     if (!foundNext) {
-      setIsSubmitVisible(true);
-    }
+    setIsSubmitVisible(true);
+  }
   };
 
   const goBack = () => {
@@ -673,7 +679,11 @@ export default function ResponsesPage({
       errors: Object.values(errorsObj).filter(Boolean),
     };
   };
+  const [isSubmitting, setIsSubmitting] = useState(false); // 🆕
+  const [uploadingFiles, setUploadingFiles] = useState(0); // 🆕
   const handleSubmit = async () => {
+    setIsSubmitting(true); // 🆕 Start loader
+
     try {
       const currentSection = form?.sections[sectionIndex];
       const now = new Date();
@@ -727,9 +737,8 @@ export default function ResponsesPage({
       } else {
         toast.error("Failed to submit form.");
       }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error("An error occurred while submitting the form.");
+    } finally {
+      setIsSubmitting(false); // 🆕 Stop loader
     }
   };
   // useEffect(() => {
