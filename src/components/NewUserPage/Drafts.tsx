@@ -112,48 +112,50 @@ export default function Drafts({
 
         <div className="border-2 border-gray border-dashed rounded-lg p-4 sm:overflow-visible xl:min-h-90 lg:min-h-120 max-h-120 sm:max-h-none overflow-auto dark:border-white">
           {forms.length === 0 ? (
-          <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-            No Draft forms found.
-          </p>
-        ) : (
-          <div className="grid grid-cols-2 gap-3">
-            {forms.map((form) => (
-              <div key={form.form_ID} className="flex flex-col relative">
-                {/* form card */}
-                <button
-                  onClick={() => handleOpenDialog(form)}
-                  disabled={isPending}
-                  className="w-full aspect-square bg-gray-300 hover:bg-[#d1ebdb]
+            <div className="flex items-center justify-center min-h-[310px] p-4 text-center w-full">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                No Draft forms found.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3">
+              {forms.map((form) => (
+                <div key={form.form_ID} className="flex flex-col relative">
+                  {/* form card */}
+                  <button
+                    onClick={() => handleOpenDialog(form)}
+                    disabled={isPending}
+                    className="w-full aspect-square bg-gray-300 hover:bg-[#d1ebdb]
                   rounded-lg shadow transition p-3 dark:bg-[#353434] dark:hover:bg-[#3f3d3d]
                   text-center font-semibold disabled:opacity-60"
-                >
-                  {form.title || "Untitled Form"}
-                </button>
+                  >
+                    {form.title || "Untitled Form"}
+                  </button>
 
-                {/* action buttons */}
-                <div className="mt-2 flex gap-2">
-                  <button
-                    onClick={() => {
-                      setLoading(true);
-                      router.push(`/form/${form.form_ID}`);
-                    }}
-                    disabled={isPending}
-                    className="flex-1 rounded bg-[#56A37D] py-1 text-xs text-white disabled:opacity-60"
-                  >
-                    Edit Form
-                  </button>
-                  <button
-                    onClick={() => handleDiscard(form.form_ID)}
-                    disabled={isPending}
-                    className="flex-1 rounded bg-[#3D3D3D] py-1 text-xs text-white disabled:opacity-60"
-                  >
-                    Discard Draft
-                  </button>
+                  {/* action buttons */}
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      onClick={() => {
+                        setLoading(true);
+                        router.push(`/form/${form.form_ID}`);
+                      }}
+                      disabled={isPending}
+                      className="flex-1 rounded bg-[#56A37D] py-1 text-xs text-white disabled:opacity-60"
+                    >
+                      Edit Form
+                    </button>
+                    <button
+                      onClick={() => handleDiscard(form.form_ID)}
+                      disabled={isPending}
+                      className="flex-1 rounded bg-[#3D3D3D] py-1 text-xs text-white disabled:opacity-60"
+                    >
+                      Discard Draft
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Modal Dialog */}

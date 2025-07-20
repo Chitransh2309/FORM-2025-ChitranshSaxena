@@ -47,7 +47,7 @@ export default async function Home() {
                 color: "#617DA9",
                 image: "/cl2.svg",
                 gradient:
-                  "from-[#000000] dark:from-[#F6F8F6] via-[#8C6E85] to-[#617DA9]",
+                  "from-[#000000] dark:from-[#F6F8F6] via-[#6B88B0] to-[#617DA9]",
                 shadow: "inset 0 0 25px 8px rgba(97, 125, 169, 0.6)",
               },
               {
