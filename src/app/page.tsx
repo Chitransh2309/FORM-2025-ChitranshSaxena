@@ -27,7 +27,7 @@ export default async function Home() {
         id="features"
         className="py-10 sm:py-12 md:py-16 lg:py-10 text-center"
       >
-        <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-[#3D3D3D] dark:text-white mb-8">
+        <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-[#3D3D3D] dark:text-white mb-12">
           Features That Make You Come Back
         </h2>
 
@@ -47,7 +47,7 @@ export default async function Home() {
                 color: "#617DA9",
                 image: "/cl2.svg",
                 gradient:
-                  "from-[#000000] dark:from-[#F6F8F6] via-[#8C6E85] to-[#617DA9]",
+                  "from-[#000000] dark:from-[#F6F8F6] via-[#6B88B0] to-[#617DA9]",
                 shadow: "inset 0 0 25px 8px rgba(97, 125, 169, 0.6)",
               },
               {
