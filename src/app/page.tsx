@@ -9,7 +9,7 @@ export default async function Home() {
     <div className="font-[Outfit] min-h-screen w-full bg-[#F6F8F6] dark:bg-[#191719] text-black dark:text-white overflow-x-hidden">
       <Navbar />
       <main className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 md:px-10 lg:px-16 xl:px-20 2xl:px-24">
-        <section className="py-8 sm:py-10 md:py-14 lg:py-20">
+        <section className="py-5 sm:py-5 md:py-14 lg:py-10">
           <Hero />
         </section>
       </main>
@@ -17,7 +17,7 @@ export default async function Home() {
       {/* About Section */}
       <section
         id="about"
-        className="py-8 sm:py-10 md:py-14 lg:py-20 flex flex-col items-center"
+        className="py-8 sm:py-10 md:py-14 lg:py-10 flex flex-col items-center"
       >
         <About />
       </section>
@@ -25,7 +25,7 @@ export default async function Home() {
       {/* Features Section */}
       <section
         id="features"
-        className="py-10 sm:py-12 md:py-16 lg:py-20 text-center"
+        className="py-10 sm:py-12 md:py-16 lg:py-10 text-center"
       >
         <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-[#3D3D3D] dark:text-white mb-8">
           Features That Make You Come Back
