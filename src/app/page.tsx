@@ -32,7 +32,7 @@ export default async function Home() {
         </h2>
 
         <div className="w-full flex justify-center">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-[1600px] 2xl:max-w-[1800px] w-full place-items-center px-2 sm:px-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-3 max-w-[1600px] 2xl:max-w-[1800px] w-fit place-items-center px-2 sm:px-4">
             {[
               {
                 title: "Real Time Analytics",
@@ -61,8 +61,11 @@ export default async function Home() {
             ].map((card, i) => (
               <div
                 key={i}
-                className={`w-full max-w-[360px] min-h-[360px] sm:min-h-[400px] md:min-h-[420px] xl:min-h-[440px] 2xl:min-h-[460px] border-2 border-[${card.color}] rounded-[25px] hover:scale-[1.05] transition-transform duration-300 cursor-pointer px-4 sm:px-6 pt-6 pb-4 flex flex-col justify-between`}
-                style={{ boxShadow: card.shadow }}
+                className={`w-full max-w-[360px] min-h-[360px] sm:min-h-[400px] md:min-h-[420px] xl:min-h-[440px] 2xl:min-h-[460px] border-2  rounded-[25px] hover:scale-[1.05] transition-transform duration-300 cursor-pointer px-4 sm:px-6 pt-6 pb-4 flex flex-col justify-between`}
+                style={{
+                  boxShadow: card.shadow,
+                  borderColor: card.color,
+                }}
               >
                 <div
                   className={`text-base sm:text-lg md:text-xl xl:text-2xl font-semibold bg-gradient-to-r ${card.gradient} bg-clip-text text-transparent mb-4`}
