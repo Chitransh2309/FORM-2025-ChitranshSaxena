@@ -6,6 +6,7 @@
 "use client";
 
 import React, { use, useEffect, useState } from "react";
+import Image from "next/image";
 import { useWindowSize } from "react-use";
 import ThankYouPage from "@/components/ResponseViewerPage/Thankyou";
 import Confetti from "react-confetti";
@@ -614,31 +615,36 @@ export default function ResponsesPage({
     }
     let foundNext = false;
     const nextSectionHistory = [...sectionHistory, sectionIndex];
-for (let i = sectionIndex + 1; i < form.sections.length; i++) {
-  const section = form.sections[i];
-  const allLogics = section.logic || [];
+    for (let i = sectionIndex + 1; i < form.sections.length; i++) {
+      const section = form.sections[i];
+      const allLogics = section.logic || [];
 
-  if (allLogics.length === 0) {
-    // ✅ No logic: go to this section
-    setSectionHistory(nextSectionHistory);
-    foundNext = true;
-    setSectionIndex(i);
-    setIsSubmitVisible(false);
-    return;
-  }
+      if (allLogics.length === 0) {
+        // ✅ No logic: go to this section
+        setSectionHistory(nextSectionHistory);
+        foundNext = true;
+        setSectionIndex(i);
+        setIsSubmitVisible(false);
+        return;
+      }
 
-  for (const logic of allLogics) {
-    if (!logic?.conditions) continue;
-    const isTrue = evaluateConditions(logic.conditions, answers, nextSectionHistory, form);
-    if (isTrue) {
-      setSectionHistory(nextSectionHistory);
-      foundNext = true;
-      setSectionIndex(i);
-      setIsSubmitVisible(false);
-      return;
+      for (const logic of allLogics) {
+        if (!logic?.conditions) continue;
+        const isTrue = evaluateConditions(
+          logic.conditions,
+          answers,
+          nextSectionHistory,
+          form
+        );
+        if (isTrue) {
+          setSectionHistory(nextSectionHistory);
+          foundNext = true;
+          setSectionIndex(i);
+          setIsSubmitVisible(false);
+          return;
+        }
+      }
     }
-  }
-}
 
     setSectionHistory(nextSectionHistory);
     if (!foundNext) {
@@ -765,10 +771,22 @@ for (let i = sectionIndex + 1; i < form.sections.length; i++) {
   }
 
   return (
-    <div className="h-screen overflow-auto bg-[#F6F8F6] dark:bg-[#2B2A2A]">
+    <div className="font-[Outfit] h-screen overflow-auto bg-[#F6F8F6] dark:bg-[#2B2A2A]">
       {showConfetti && <Confetti width={width} height={height} />}
-      <div className="flex justify-around pt-5 pr-8 text-black">
-        <div className="bg-[#91C4AB] p-3 rounded shadow">
+      <div className="bg-black flex items-center justify-around pt-5 pb-2 text-white">
+        <div className="flex justify-center items-center gap-1 sm:gap-2">
+          <Image
+            src="/logoform.svg"
+            alt="LOGO"
+            width={32}
+            height={32}
+            className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10"
+          />
+          <span className="text-white text-lg sm:text-xl md:text-2xl font-bold">
+            FormSpace
+          </span>
+        </div>
+        <div>
           {saved != 0 ? <h4>Saved {saved} sec ago</h4> : <h4>Saving...</h4>}
         </div>
         <ToggleSwitch />
