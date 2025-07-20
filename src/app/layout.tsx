@@ -22,23 +22,22 @@ export const metadata: Metadata = {
     siteName: "FormSpace",
     images: [
       {
-        url: "/logoform.svg", // Make sure this image exists in /public
+        url: "/logoform.png", // Make sure this image exists in /public
         width: 1200,
         height: 630,
         alt: "FormSpace preview image",
       },
     ],
-    locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "FormSpace",
     description: "Forms that fit every space.",
-    images: ["/logoform.svg"], // Ensure this image is accessible
+    images: ["/logoform.png"], // Ensure this image is accessible
   },
   icons: {
-    icon: "/logoform.svg", // Add this line for the favicon
+    icon: "/logoform.png", // Add this line for the favicon
   },
 };
 
