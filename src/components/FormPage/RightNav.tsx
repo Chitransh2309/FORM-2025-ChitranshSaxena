@@ -32,18 +32,20 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
   }, [selectedQuestion?.order]);
 
   /* ───────────────────── handlers ─────────────────────────────────── */
-  const handleChangeType = (newType: QuestionType) => {
+  const handleChangeType = (newType: QuestionType, config: FieldType) => {
     if (selectedQuestion) {
       onUpdate(selectedQuestion.question_ID, {
         type: newType,
-        config: undefined,
+        config: config,
       });
     }
   };
 
   const handleUpdateConfig = (config: FieldType) => {
     if (selectedQuestion) {
-      onUpdate(selectedQuestion.question_ID, { config });
+      onUpdate(selectedQuestion.question_ID, {
+        config: config,
+      });
     }
   };
 
@@ -73,10 +75,10 @@ export default function RightNav({ selectedQuestion, onUpdate }: Props) {
         return "Email";
       case QuestionType.URL:
         return "URL";
-        
+
       case QuestionType.FILE_UPLOAD:
-      return "File Upload";
-      
+        return "File Upload";
+
       default:
         return "Multiple Choice";
     }
