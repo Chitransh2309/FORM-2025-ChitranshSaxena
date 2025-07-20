@@ -11,6 +11,7 @@ function Formsorter() {
   const [showDialog, setShowDialog] = useState(false);
   const [formName, setFormName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [description,setDescription]=useState("");
   const [isWorkspaceDropdownOpen, setWorkspaceDropdownOpen] = useState(false);
   const workspaceDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -19,7 +20,7 @@ function Formsorter() {
 
     setLoading(true);
 
-    const res = await createNewForm(formName);
+    const res = await createNewForm(formName,description);
     if (res) {
       router.push(`/form/${res}`);
       setLoading(false);
@@ -104,6 +105,24 @@ function Formsorter() {
                     onChange={(e) => setFormName(e.target.value)}
                     autoFocus
                   />
+                  <textarea
+                className="w-full px-5 py-4 border-2 border-gray-300 rounded-lg mb-8 text-black placeholder-gray-500 text-lg focus:outline-none focus:ring-2 focus:ring-[#61A986] focus:border-transparent transition-all dark:text-white dark:placeholder-white"
+                placeholder="Enter description"
+                value={description}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                  e.target.style.height = "auto";
+                  e.target.style.height = `${e.target.scrollHeight}px`;
+                }}
+                rows={1}
+                style={{ maxHeight: "calc(1.5rem * 8)" }}
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleCreate();
+                  }
+                }}
+              />
                   <div className="flex gap-4 justify-end">
                     <button
                       onClick={() => setShowDialog(false)}
