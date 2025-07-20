@@ -43,6 +43,7 @@ function Workspace({
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
   const [formName, setFormName] = useState("");
+  const [description,setDescription]=useState("");
   const [showFaq, setShowFaq] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [name, setName] = useState("");
@@ -130,25 +131,11 @@ function Workspace({
   const handleCreate = async () => {
     if (!formName.trim()) return alert("Please enter a form name");
 
-    // Immediately show loader and hide dialog
-    setCreatingFile(true);
-    setShowDialog(false);
-    setFormName("");
-
-    try {
-      const newId = await createNewForm(formName);
-      if (!newId) {
-        setCreatingFile(false);
-        return alert("Failed to create form");
-      }
-
-      // Prefetch the route
-      router.prefetch(`/form/${newId}`);
-
-      // Use window.location for immediate navigation without React rendering cycles
-    } catch (error) {
-      setCreatingFile(false);
-      alert("Failed to create form" + error);
+    const res = await createNewForm(formName,description);
+    if (res) {
+      router.push(`/form/${res}`);
+    } else {
+      alert("Failed to create a new form. Try again.");
     }
   };
 
@@ -255,7 +242,7 @@ function Workspace({
 
         {/* Create Form Modal */}
         {showDialog && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-opacity-50">
             <div className="bg-white dark:bg-[#353434] border-2 dark:border-gray-500 border-gray-800 rounded-xl shadow-2xl w-full max-w-xl p-8">
               <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 dark:text-white mb-6">
                 Create New Form
@@ -266,6 +253,23 @@ function Workspace({
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleCreate();
+                  }
+                }}
+              />
+              <textarea
+                className="w-full px-5 py-4 border-2 border-gray-300 rounded-lg mb-8 text-black placeholder-gray-500 text-lg focus:outline-none focus:ring-2 focus:ring-[#61A986] focus:border-transparent transition-all dark:text-white dark:placeholder-white"
+                placeholder="Enter description"
+                value={description}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                  e.target.style.height = "auto";
+                  e.target.style.height = `${e.target.scrollHeight}px`;
+                }}
+                rows={1}
+                style={{ maxHeight: "calc(1.5rem * 8)" }}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     handleCreate();
