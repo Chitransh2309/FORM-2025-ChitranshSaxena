@@ -773,16 +773,16 @@ export default function ResponsesPage({
   return (
     <div className="font-[Outfit] h-screen overflow-auto bg-[#F6F8F6] dark:bg-[#2B2A2A]">
       {showConfetti && <Confetti width={width} height={height} />}
-      <div className="bg-black flex items-center justify-around pt-5 pb-2 text-white">
+      <div className="bg-[#56A37D] dark:bg-[#414141] flex items-center justify-around pt-5 pb-2 text-black dark:text-white">
         <div className="flex justify-center items-center gap-1 sm:gap-2">
           <Image
-            src="/logoform.svg"
+            src="/FormLogo.svg"
             alt="LOGO"
             width={32}
             height={32}
             className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10"
           />
-          <span className="text-white text-lg sm:text-xl md:text-2xl font-bold">
+          <span className=" text-lg sm:text-xl md:text-2xl font-bold">
             FormSpace
           </span>
         </div>
