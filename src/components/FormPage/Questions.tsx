@@ -18,7 +18,6 @@ import Email from "./FieldType/EMAIL";
 import Url from "./FieldType/URL";
 import FileUpload from "./FieldType/FILE_UPLOAD";
 
-
 interface Props {
   id: string;
   data: QuestionInterface;
@@ -52,7 +51,7 @@ export default function Question({
   // Get MCQ options from config
   const getMcqOptions = (): string[] => {
     if (data.type === QuestionType.MCQ && data.config) {
-      const config : FieldType = data.config;
+      const config: FieldType = data.config;
       if (config.params) {
         const optionsParam = config.params.find(
           (p: Param) => p.name === "options"
@@ -88,7 +87,7 @@ export default function Question({
   // Get Date config
   const getDateConfig = () => {
     if (data.type === QuestionType.DATE && data.config) {
-      const config : FieldType= data.config;
+      const config: FieldType = data.config;
       const includeTime = !!config.params?.find(
         (p: Param) => p.name === "includeTime"
       )?.value;
@@ -134,7 +133,7 @@ export default function Question({
       const config: FieldType = data.config;
       const placeholder = String(
         config.params?.find((p: Param) => p.name === "placeholder")?.value ||
-        "Enter your answer..."
+          "Enter your answer..."
       );
       let charlimit: { min?: number; max?: number } | undefined;
       const charlimitValidation = config.validations?.find(
@@ -305,120 +304,121 @@ export default function Question({
         return <Email disabled={!isSelected} />;
       case QuestionType.URL:
         return <Url disabled={!isSelected} />;
-      
-      case QuestionType.FILE_UPLOAD:
-        return <FileUpload disabled={!isSelected} onUpload={(url) => {}} />
 
+      case QuestionType.FILE_UPLOAD:
+        return <FileUpload />;
 
       default:
         return null;
-        
     }
   };
 
   return (
-   <div
-  ref={containerRef}
-  className={`bg-[#FEFEFE] shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl
+    <div
+      ref={containerRef}
+      className={`bg-[#FEFEFE] shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl
               w-[90%] min-h-[20%] mx-auto mb-10 transition-all duration-200
               ${isSelected ? "ring-4 ring-black dark:ring-[#64ad8b]" : ""}
               ${isDuplicate ? "border-2 border-red-500" : ""}
               dark:bg-[#5A5959] dark:text-white hover:shadow-lg`}
->
-  {/* ─── Header row ──────────────────────────────────────── */}
-  <div
-    className="flex flex-col gap-2
+    >
+      {/* ─── Header row ──────────────────────────────────────── */}
+      <div
+        className="flex flex-col gap-2
                sm:flex-row sm:items-center sm:justify-between
                dark:text-white"
-  >
-    {/* Title */}
-    <div className="flex items-center justify-between">
-    <p className="font-bold text-xl break-words bg-transparent flex-1">
-      Question
-    </p>
+      >
+        {/* Title */}
+        <div className="flex items-center justify-between">
+          <p className="font-bold text-xl break-words bg-transparent flex-1">
+            Question
+          </p>
 
-    {/* Edit button – shown only on mobile already */}
-   
-      <button
-        className="text-gray-700 hover:text-red-500 hover:bg-gray-100
+          {/* Edit button – shown only on mobile already */}
+
+          <button
+            className="text-gray-700 hover:text-red-500 hover:bg-gray-100
                    p-2 rounded-full transition-colors cursor-pointer
                    dark:text-white dark:hover:bg-[#494949]"
-        onClick={() => onDelete(id)}
-      >
-        <Trash2 size={18} />
-      </button>
-      </div>
-    {/* Required toggle + trash */}
-    <div
-      className="flex flex-wrap items-center gap-2 sm:gap-4
+            onClick={() => onDelete(id)}
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
+        {/* Required toggle + trash */}
+        <div
+          className="flex flex-wrap items-center gap-2 sm:gap-4
                  justify-end max-w-full sm:max-w-none"
-    >
-      <div className="flex items-center gap-2 w-full justify-between">
-        <div>
-           <button
-      className="lg:hidden flex items-center gap-2 self-start
+        >
+          <div className="flex items-center gap-2 w-full justify-between">
+            <div>
+              <button
+                className="lg:hidden flex items-center gap-2 self-start
                  bg-[#8cc7aa] text-black py-0.5 px-2 rounded-md shadow
                  dark:bg-[#353434] dark:text-white"
-      onClick={onEditQuestion}
-    >
-      <Menu className="w-4 h-4" />
-      Edit
-    </button>
+                onClick={onEditQuestion}
+              >
+                <Menu className="w-4 h-4" />
+                Edit
+              </button>
+            </div>
+            <div className="flex justify-center items-center space-x-2">
+              <label className="text-gray-700 text-sm dark:text-white">
+                Required
+              </label>
 
-        </div>
-        <div className="flex justify-center items-center space-x-2">
-        <label className="text-gray-700 text-sm dark:text-white">
-          Required
-        </label>
-
-        <label
-          htmlFor={toggleId}
-          className="relative inline-flex items-center cursor-pointer"
-        >
-          <input
-            type="checkbox"
-            id={toggleId}
-            className="sr-only peer"
-            checked={data.isRequired || false}
-            onChange={(e) => onUpdate(id, { isRequired: e.target.checked })}
-          />
-          <div className="w-11 h-6 bg-gray-200 rounded-full peer
+              <label
+                htmlFor={toggleId}
+                className="relative inline-flex items-center cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  id={toggleId}
+                  className="sr-only peer"
+                  checked={data.isRequired || false}
+                  onChange={(e) =>
+                    onUpdate(id, { isRequired: e.target.checked })
+                  }
+                />
+                <div
+                  className="w-11 h-6 bg-gray-200 rounded-full peer
                           dark:bg-gray-700 peer-checked:after:translate-x-full
                           after:absolute after:top-[2px] after:left-[2px]
                           after:w-5 after:h-5 after:bg-white after:rounded-full
-                          after:transition-all peer-checked:bg-blue-600" />
-        </label>
-      </div>
+                          after:transition-all peer-checked:bg-blue-600"
+                />
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
 
-    </div>
-  </div>
-
-  {/* ─── Question text area ──────────────────────────────── */}
-  <div className="mt-3 text-black text-lg dark:text-white">
-    <textarea
-      ref={textareaRef}
-      onInput={handleInput}
-      placeholder="Write your question here *"
-      className="w-full min-h-[40px] resize-none bg-transparent
+      {/* ─── Question text area ──────────────────────────────── */}
+      <div className="mt-3 text-black text-lg dark:text-white">
+        <textarea
+          ref={textareaRef}
+          onInput={handleInput}
+          placeholder="Write your question here *"
+          className="w-full min-h-[40px] resize-none bg-transparent
                  focus:outline-none break-words
                  dark:text-white dark:placeholder-white"
-      value={data.questionText || ""}
-      onChange={(e) => onUpdate(id, { questionText: e.target.value })}
-    />
-  </div>
+          value={data.questionText || ""}
+          onChange={(e) => onUpdate(id, { questionText: e.target.value })}
+        />
+      </div>
 
-  {renderAnswerSection()}
+      {renderAnswerSection()}
 
-  {/* ─── Footer row ──────────────────────────────────────── */}
-  <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-between
-                  text-sm text-gray-500 dark:text-gray-400">
-    <div className="bg-[#F6F6F6] rounded-md px-3 py-1 dark:bg-[#494949]">
-      Type: {data.type || "MCQ"}
+      {/* ─── Footer row ──────────────────────────────────────── */}
+      <div
+        className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-between
+                  text-sm text-gray-500 dark:text-gray-400"
+      >
+        <div className="bg-[#F6F6F6] rounded-md px-3 py-1 dark:bg-[#494949]">
+          Type: {data.type || "MCQ"}
+        </div>
+        <div>Order: {data.order}</div>
+      </div>
     </div>
-    <div>Order: {data.order}</div>
-  </div>
-</div>
-
   );
 }
