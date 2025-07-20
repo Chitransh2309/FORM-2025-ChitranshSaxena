@@ -615,20 +615,31 @@ export default function ResponsesPage({
     let foundNext = false;
     const nextSectionHistory = [...sectionHistory, sectionIndex];
 for (let i = sectionIndex + 1; i < form.sections.length; i++) {
-      const section = form?.sections[i];
-      const allLogics = section.logic || [];
-      for (const logic of allLogics) {
-        if (!logic?.conditions) continue;
-        const isTrue = evaluateConditions(logic.conditions,answers,nextSectionHistory,form);
-        if (isTrue) {
-          setSectionHistory(nextSectionHistory);
-          foundNext = true;
-          setSectionIndex(i);
-          setIsSubmitVisible(false);
-          return ;
-        }
-      }
+  const section = form.sections[i];
+  const allLogics = section.logic || [];
+
+  if (allLogics.length === 0) {
+    // ✅ No logic: go to this section
+    setSectionHistory(nextSectionHistory);
+    foundNext = true;
+    setSectionIndex(i);
+    setIsSubmitVisible(false);
+    return;
+  }
+
+  for (const logic of allLogics) {
+    if (!logic?.conditions) continue;
+    const isTrue = evaluateConditions(logic.conditions, answers, nextSectionHistory, form);
+    if (isTrue) {
+      setSectionHistory(nextSectionHistory);
+      foundNext = true;
+      setSectionIndex(i);
+      setIsSubmitVisible(false);
+      return;
     }
+  }
+}
+
     setSectionHistory(nextSectionHistory);
     if (!foundNext) {
     setIsSubmitVisible(true);
