@@ -27,37 +27,64 @@ export interface Form {
   isStarred: boolean;
   responseCount?: number; // Optional, can be derived from responses
 }
-// types/Section.ts
+// // types/Section.ts
 export enum SectionForm {
   Builder,
   Workflow,
   Preview,
 }
 
-export type NestedCondition = {
+// export type NestedCondition = {
+//   op: "AND" | "OR";
+//   conditions: (BaseCondition | NestedCondition)[];
+// };
+
+// export type LogicRule = {
+//   triggerSectionId: string;
+//   action: {
+//     type: "jump";
+//     to: string;
+//     condition: NestedLogic | BaseLogic;
+//   };
+// };
+
+// export type BaseCondition = {
+//   fieldId: string;
+//   op: "equal";
+//   value: string;
+// };
+// export type ConditionGroupType = {
+//   op: "AND" | "OR";
+//   conditions: (BaseCondition | ConditionGroupType)[];
+// };
+
+// export interface LogicRule {
+//   targetSectionId: string;
+//   fromSectionId: string;
+//   condition?: SectionLogics; // your existing AND/OR structure
+//   fallbackTargetSectionId?: string;
+// }
+
+export interface SectionLogics {
+  fromSectionId: string;
+  targetSectionId: string;
+  conditions: BaseLogic | NestedLogic | Always;
+}
+export type Always = {
+  op: "always";
+  sourceSectionId: string;
+};
+
+export type NestedLogic = {
   op: "AND" | "OR";
-  conditions: (BaseCondition | NestedCondition)[];
+  conditions: (NestedLogic | BaseLogic)[];
 };
 
-export type LogicRule = {
-  triggerSectionId: string;
-  action: {
-    type: "jump";
-    to: string;
-    condition: NestedCondition | BaseCondition;
-  };
-};
-
-export type BaseCondition = {
-  fieldId: string;
+export interface BaseLogic {
+  questionID: string;
   op: "equal";
-  value: string;
-};
-
-export type ConditionGroupType = {
-  op: "AND" | "OR";
-  conditions: (BaseCondition | ConditionGroupType)[];
-};
+  value: string | number;
+}
 
 export interface FormSettings {
   maxResponses?: number;
@@ -76,11 +103,10 @@ export interface Section {
   title: string;
   description: string;
   questions: Question[];
-  logic?: LogicRule[];
+  logic?: SectionLogics[];
 }
 
 export interface Question {
-
   question_ID: string;
   order: number;
   section_ID: string;

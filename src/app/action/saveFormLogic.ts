@@ -2,8 +2,11 @@
 "use server";
 import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
 import { Section } from "@/lib/interface";
-import { LogicRule } from "@/lib/interface";
-export async function saveFormLogic(form_ID: string, logicRules: LogicRule[]) {
+import { SectionLogics } from "@/lib/interface";
+export async function saveFormLogic(
+  form_ID: string,
+  logicRules: SectionLogics[]
+) {
   try {
     const { db, dbClient } = await connectToDB();
 
@@ -12,10 +15,9 @@ export async function saveFormLogic(form_ID: string, logicRules: LogicRule[]) {
       throw new Error("Form not found");
     }
 
-
     const updatedSections = form.sections.map((section: Section) => {
       const logicForThisSection = logicRules.filter(
-        (rule: LogicRule) => rule.triggerSectionId === section.section_ID
+        (rule: SectionLogics) => rule.targetSectionId === section.section_ID
       );
 
       return {
@@ -24,11 +26,9 @@ export async function saveFormLogic(form_ID: string, logicRules: LogicRule[]) {
       };
     });
 
-
-    const result = await db.collection("forms").updateOne(
-      { form_ID },
-      { $set: { sections: updatedSections } }
-    );
+    const result = await db
+      .collection("forms")
+      .updateOne({ form_ID }, { $set: { sections: updatedSections } });
 
     await disconnectFromDB(dbClient);
     return { success: true, modifiedCount: result.modifiedCount };
@@ -40,4 +40,3 @@ export async function saveFormLogic(form_ID: string, logicRules: LogicRule[]) {
     };
   }
 }
-
