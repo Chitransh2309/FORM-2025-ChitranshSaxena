@@ -74,9 +74,11 @@ export default function Published({ forms, setForms }: PublishedProps) {
 
       <div className="rounded-lg border-2 border-dashed border-gray p-4 dark:border-white xl:min-h-90 lg:min-h-120 max-h-120 sm:max-h-none overflow-auto sm:overflow-visible">
         {published.length === 0 ? (
-          <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-            No published forms found.
-          </p>
+          <div className="flex items-center justify-center min-h-[310px] p-4 text-center w-full">
+            <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+              No published forms found.
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
             {published.map((form) => (
