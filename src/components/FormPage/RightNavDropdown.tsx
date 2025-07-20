@@ -37,7 +37,7 @@ type UIParam = Param & {
 
 interface Props {
   selectedQuestion?: Question;
-  onChangeType?: (t: QuestionType) => void;
+  onChangeType?: (t: QuestionType, c: FieldType) => void;
   onUpdateConfig?: (c: FieldType) => void;
 }
 
@@ -66,9 +66,14 @@ export default function QuestionTypeDropdown({
     setIsOpen(false);
 
     const found = questionTypes.find((q) => q.label === label);
-    if (!found) return;
+    if (!found) {
+      return;
+    }
 
-    if (onUpdateConfig) {
+    console.log("found: ", found.value);
+    // onChangeType?.(found.value);
+
+    if (onChangeType) {
       const schema = fieldtypes.find((f) => f.name === found.field);
       if (schema) {
         const fresh: FieldType = {
@@ -79,11 +84,10 @@ export default function QuestionTypeDropdown({
             params: v.params?.map((p) => ({ ...p })) ?? [],
           })),
         };
-        onUpdateConfig(fresh);
+
+        onChangeType(found.value, fresh);
       }
     }
-
-    onChangeType?.(found.value);
   };
 
   const updateParams = (newParam: Param) => {
@@ -162,39 +166,38 @@ export default function QuestionTypeDropdown({
     const placeholder = param.placeholder ?? param.name;
 
     if (param.type === "file") {
-  return wrap(
-    <>
-      <input
-        type="file"
-        className={cls}
-        disabled
-        placeholder="Upload disabled in preview"
-      />
+      return wrap(
+        <>
+          <input
+            type="file"
+            className={cls}
+            disabled
+            placeholder="Upload disabled in preview"
+          />
 
-      {param.value && typeof param.value === "string" && (
-        <div className="mt-2">
-          {param.value.match(/\.(jpeg|jpg|gif|png|webp)$/i) ? (
-            <img
-              src={param.value}
-              alt="Uploaded file preview"
-              className="max-h-40 rounded border mt-2"
-            />
-          ) : (
-            <a
-              href={param.value}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 underline mt-2 inline-block"
-            >
-              View uploaded file
-            </a>
+          {param.value && typeof param.value === "string" && (
+            <div className="mt-2">
+              {param.value.match(/\.(jpeg|jpg|gif|png|webp)$/i) ? (
+                <img
+                  src={param.value}
+                  alt="Uploaded file preview"
+                  className="max-h-40 rounded border mt-2"
+                />
+              ) : (
+                <a
+                  href={param.value}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 underline mt-2 inline-block"
+                >
+                  View uploaded file
+                </a>
+              )}
+            </div>
           )}
-        </div>
-      )}
-    </>
-  );
-}
-
+        </>
+      );
+    }
 
     if (param.isValidation) {
       const vn = param.validationName!;
