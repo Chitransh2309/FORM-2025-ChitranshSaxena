@@ -32,9 +32,9 @@ export default function Starred({ searchTerm, forms, setForms }: StarredProps) {
         (f) =>
           f.isStarred &&
           !f.isDeleted &&
-          f.title.toLowerCase().includes(searchTerm.toLowerCase()),
+          f.title.toLowerCase().includes(searchTerm.toLowerCase())
       ),
-    [forms, searchTerm],
+    [forms, searchTerm]
   );
 
   /* ───────── handlers ───────── */
@@ -45,8 +45,8 @@ export default function Starred({ searchTerm, forms, setForms }: StarredProps) {
 
       setForms((prev) =>
         prev.map((f) =>
-          f.form_ID === id ? { ...f, isStarred: newStarState } : f,
-        ),
+          f.form_ID === id ? { ...f, isStarred: newStarState } : f
+        )
       );
     } catch {
       alert("Something went wrong while toggling star.");
@@ -70,9 +70,14 @@ export default function Starred({ searchTerm, forms, setForms }: StarredProps) {
 
       <div className="min-h-[60vh] rounded-lg border-2 border-dashed border-gray-400 p-6 dark:border-white">
         {filteredForms.length === 0 ? (
-          <p className="text-center text-gray-500 dark:text-gray-400">
-            No starred forms found.
-          </p>
+          <div
+            className="absolute left-0 w-full h-[500px] p-4 text-center flex items-center justify-center transform -translate-y-1/2"
+            style={{ top: "55%" }}
+          >
+            <p className="text-center text-gray-500 dark:text-gray-400">
+              No starred forms found.
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {filteredForms.map((form) => (

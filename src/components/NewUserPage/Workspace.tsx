@@ -149,11 +149,9 @@ export default function Workspace({
                 />
               </button>
               {isWorkspaceDropdownOpen && (
-                <div className="fixed top-20 left-4 right-4 z-50">
-                  <div className="bg-white rounded-md shadow-md dark:bg-gray-800 border dark:border-gray-700 py-2">
-                    <div className="text-xs text-center text-gray-500 cursor-not-allowed dark:text-gray-400">
-                      Coming soon
-                    </div>
+                <div className="absolute top-full mt-2 w-full bg-white rounded-md shadow-lg z-10 dark:bg-gray-800 border dark:border-gray-700">
+                  <div className="py-2 text-xs text-center text-gray-500 cursor-not-allowed dark:text-gray-400">
+                    Coming soon
                   </div>
                 </div>
               )}
