@@ -65,11 +65,16 @@ export default function Shared() {
     <section className="w-full px-4 xl:px-10 py-6 text-black dark:text-white">
       <h2 className="text-xl font-semibold px-4 py-3">Shared With Me</h2>
 
-      <div className="border-2 border-dashed border-gray-400 dark:border-white rounded-lg p-6 min-h-[60vh]">
+      <div className="border-2 border-dashed border-gray-400 dark:border-white rounded-lg p-6 min-h-[60vh] relative">
         {sharedForms.length === 0 ? (
-          <p className="text-center text-gray-500 dark:text-gray-400">
-            No shared forms available.
-          </p>
+          <div
+            className="absolute left-0 w-full h-[500px] p-4 text-center flex items-center justify-center transform -translate-y-1/2"
+            style={{ top: "50%" }}
+          >
+            <p className="text-center text-gray-500 dark:text-gray-400">
+              No shared forms available.
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {sharedForms.map(({ form, role }) => (

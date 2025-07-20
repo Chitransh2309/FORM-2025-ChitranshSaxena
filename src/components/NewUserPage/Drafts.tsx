@@ -112,8 +112,11 @@ export default function Drafts({
 
         <div className="border-2 border-gray border-dashed rounded-lg p-4 sm:overflow-visible xl:min-h-90 lg:min-h-120 max-h-120 sm:max-h-none overflow-auto dark:border-white">
           {forms.length === 0 ? (
-            <div className="flex items-center justify-center min-h-[310px] p-4 text-center w-full">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+            <div
+              className="absolute left-0 w-full h-[500px] p-4 text-center flex items-center justify-center transform -translate-y-1/2"
+              style={{ top: "55%" }}
+            >
+              <p className="text-center text-gray-500 dark:text-gray-400">
                 No Draft forms found.
               </p>
             </div>
