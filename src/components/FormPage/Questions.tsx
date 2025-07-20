@@ -1,9 +1,6 @@
 "use client";
 import React, { useRef, useState } from "react";
 import { Trash2, Menu } from "lucide-react";
-("use client");
-import React, { useRef, useState } from "react";
-import { Trash2, Menu } from "lucide-react";
 import {
   FieldType,
   Param,
