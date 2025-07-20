@@ -521,7 +521,7 @@ export default function WorkflowPage({
             showSavedLogic ? "translate-x-0" : "-translate-x-full"
           } xl:relative xl:translate-x-0 xl:w-[300px] xl:bg-none`}
         >
-          <div className="mb-4 flex justify-end xl:hidden">
+          <div className="mb-4 flex justify-end xl:hidden sm:mt-20">
             <button
               onClick={() => setShowSavedLogic(false)}
               className="rounded px-3 py-1 font-semibold text-red-500 transition hover:bg-red-500 hover:text-white"
