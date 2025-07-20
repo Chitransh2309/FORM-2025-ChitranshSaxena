@@ -5,7 +5,7 @@ import { auth } from "../../../auth";
 import { v4 as uuidv4 } from "uuid";
 import { Form,QuestionType } from "@/lib/interface";
 import { redirect } from "next/navigation";
-export async function createNewForm(name: string) {
+export async function createNewForm(name: string,description:string) {
   let form_ID: string;
   let db, dbClient;
   try {
@@ -29,7 +29,7 @@ export async function createNewForm(name: string) {
    const newForm: Form = {
   form_ID,
   title: name || "Untitled Form",
-  description: "",
+  description: description || "",
   createdAt: new Date(),
   createdBy: userID,
   editorID: [],
@@ -86,6 +86,7 @@ export async function createNewForm(name: string) {
       );
     }
     await disconnectFromDB(dbClient);
+    return form_ID;
   } catch (err) {
     console.error("❌ Error creating form:", err);
     return null;
@@ -95,5 +96,5 @@ export async function createNewForm(name: string) {
       await disconnectFromDB(dbClient);
     }
   }
-  redirect(`/form/${form_ID}`);
+  // redirect(`/form/${form_ID}`);
 }
