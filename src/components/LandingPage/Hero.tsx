@@ -12,7 +12,7 @@ export default function Hero() {
   return (
     <div
       id="home"
-      className={`w-full flex items-center justify-center ${tilt.className} dark:bg-[#191719]`}
+      className={`pt-5 w-full flex items-center justify-center ${tilt.className} dark:bg-[#191719]`}
     >
       <div className="w-full max-w-[1440px] ">
         {/* Mobile & Tablet View */}
