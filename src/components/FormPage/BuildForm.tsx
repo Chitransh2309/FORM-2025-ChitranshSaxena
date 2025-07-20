@@ -442,12 +442,12 @@ export default function BuildPage({
                 Close
               </button>
             </div>
-            {/* <div className="p-4">
+            <div className="p-4">
               <RightNav
                 selectedQuestion={selectedQuestion}
                 onUpdate={updateQuestion}
               />
-            </div> */}
+            </div>
           </div>
         )}
         {showFAQ && <FAQs showFaq={showFAQ} setShowFaq={setShowFAQ} />}
