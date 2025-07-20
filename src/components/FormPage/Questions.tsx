@@ -1,6 +1,6 @@
-"use client";
-import React, { useRef } from "react";
-import { Trash2, Menu } from "lucide-react";
+'use client';
+import React, { useRef, useState} from 'react';
+import { Trash2, Menu } from 'lucide-react';
 import {
   FieldType,
   Param,
@@ -8,15 +8,15 @@ import {
   QuestionType,
   Validation,
   fieldtypes,
-} from "@/lib/interface";
-import MCQ from "./FieldType/MCQ";
-import Text from "./FieldType/TEXT";
-import Dropdown from "./FieldType/DROPDOWN";
-import DateField from "./FieldType/DATE";
-import LinearScale from "./FieldType/linearscale";
-import Email from "./FieldType/EMAIL";
-import Url from "./FieldType/URL";
-import FileUpload from "./FieldType/FILE_UPLOAD";
+} from '@/lib/interface';
+import MCQ from './FieldType/MCQ';
+import Text from './FieldType/TEXT';
+import Dropdown from './FieldType/DROPDOWN';
+import DateField from './FieldType/DATE';
+import LinearScale from './FieldType/linearscale';
+import Email from './FieldType/EMAIL';
+import Url from './FieldType/URL';
+import FileUpload from './FieldType/FILE_UPLOAD';
 
 interface Props {
   id: string;
@@ -43,10 +43,13 @@ export default function Question({
   const handleInput = () => {
     const el = textareaRef.current;
     if (el) {
-      el.style.height = "auto";
+      el.style.height = 'auto';
       el.style.height = `${el.scrollHeight}px`;
     }
   };
+
+  const [showWarning, setShowWarning] = useState(false);
+  const [hasBlurred, setHasBlurred] = useState(false);
 
   // Get MCQ options from config
   const getMcqOptions = (): string[] => {
@@ -54,16 +57,16 @@ export default function Question({
       const config: FieldType = data.config;
       if (config.params) {
         const optionsParam = config.params.find(
-          (p: Param) => p.name === "options"
+          (p: Param) => p.name === 'options'
         );
         if (optionsParam?.value) {
           return Array.isArray(optionsParam.value)
             ? optionsParam.value
-            : String(optionsParam.value).split(", ");
+            : String(optionsParam.value).split(', ');
         }
       }
     }
-    return ["Option 1", "Option 2"];
+    return ['Option 1', 'Option 2'];
   };
 
   // Get Dropdown options from config
@@ -72,16 +75,16 @@ export default function Question({
       const config: FieldType = data.config;
       if (config.params) {
         const optionsParam = config.params.find(
-          (p: Param) => p.name === "options"
+          (p: Param) => p.name === 'options'
         );
         if (optionsParam?.value) {
           return Array.isArray(optionsParam.value)
             ? optionsParam.value
-            : String(optionsParam.value).split(", ");
+            : String(optionsParam.value).split(', ');
         }
       }
     }
-    return ["Option 1", "Option 2"];
+    return ['Option 1', 'Option 2'];
   };
 
   // Get Date config
@@ -89,18 +92,18 @@ export default function Question({
     if (data.type === QuestionType.DATE && data.config) {
       const config: FieldType = data.config;
       const includeTime = !!config.params?.find(
-        (p: Param) => p.name === "includeTime"
+        (p: Param) => p.name === 'includeTime'
       )?.value;
       const dateRange = config.validations?.find(
-        (v: Validation) => v.name === "dateRange"
+        (v: Validation) => v.name === 'dateRange'
       );
       let minDate, maxDate;
       if (dateRange?.params) {
         minDate = dateRange.params.find(
-          (p: Param) => p.name === "minDate"
+          (p: Param) => p.name === 'minDate'
         )?.value;
         maxDate = dateRange.params.find(
-          (p: Param) => p.name === "maxDate"
+          (p: Param) => p.name === 'maxDate'
         )?.value;
       }
       return { includeTime, minDate, maxDate };
@@ -113,18 +116,18 @@ export default function Question({
     if (data.type === QuestionType.LINEARSCALE && data.config) {
       const config: FieldType = data.config;
       const min = Number(
-        config.params?.find((p: Param) => p.name === "min")?.value ?? 1
+        config.params?.find((p: Param) => p.name === 'min')?.value ?? 1
       );
       const max = Number(
-        config.params?.find((p: Param) => p.name === "max")?.value ?? 5
+        config.params?.find((p: Param) => p.name === 'max')?.value ?? 5
       );
       const minLabel =
-        config.params?.find((p: Param) => p.name === "minLabel")?.value ?? "";
+        config.params?.find((p: Param) => p.name === 'minLabel')?.value ?? '';
       const maxLabel =
-        config.params?.find((p: Param) => p.name === "maxLabel")?.value ?? "";
+        config.params?.find((p: Param) => p.name === 'maxLabel')?.value ?? '';
       return { min, max, minLabel, maxLabel };
     }
-    return { min: 1, max: 5, minLabel: "", maxLabel: "" };
+    return { min: 1, max: 5, minLabel: '', maxLabel: '' };
   };
 
   // Get Text configuration from config
@@ -132,19 +135,19 @@ export default function Question({
     if (data.type === QuestionType.TEXT && data.config) {
       const config: FieldType = data.config;
       const placeholder = String(
-        config.params?.find((p: Param) => p.name === "placeholder")?.value ||
-          "Enter your answer..."
+        config.params?.find((p: Param) => p.name === 'placeholder')?.value ||
+          'Enter your answer...'
       );
       let charlimit: { min?: number; max?: number } | undefined;
       const charlimitValidation = config.validations?.find(
-        (v: Validation) => v.name === "charlimit"
+        (v: Validation) => v.name === 'charlimit'
       );
       if (charlimitValidation?.params) {
         const minParam = charlimitValidation.params.find(
-          (p: Param) => p.name === "min"
+          (p: Param) => p.name === 'min'
         );
         const maxParam = charlimitValidation.params.find(
-          (p: Param) => p.name === "max"
+          (p: Param) => p.name === 'max'
         );
         charlimit = {
           min: minParam?.value ? Number(minParam.value) : undefined,
@@ -155,14 +158,14 @@ export default function Question({
         | { contains?: string[]; doesnotContain?: string[] }
         | undefined;
       const keywordValidation = config.validations?.find(
-        (v: Validation) => v.name === "keywordChecker"
+        (v: Validation) => v.name === 'keywordChecker'
       );
       if (keywordValidation?.params) {
         const containsParam = keywordValidation.params.find(
-          (p: Param) => p.name === "contains"
+          (p: Param) => p.name === 'contains'
         );
         const doesnotContainParam = keywordValidation.params.find(
-          (p: Param) => p.name === "doesnotContain"
+          (p: Param) => p.name === 'doesnotContain'
         );
         keywordChecker = {
           contains: containsParam?.value
@@ -179,14 +182,14 @@ export default function Question({
       }
       return { placeholder, charlimit, keywordChecker };
     }
-    return { placeholder: "Enter your answer..." };
+    return { placeholder: 'Enter your answer...' };
   };
 
   // Handle MCQ options change
   const handleMcqOptionsChange = (options: string[]) => {
     if (data.config && data.config.params) {
       const updatedParams = data.config.params.map((param: Param) => {
-        if (param.name === "options") {
+        if (param.name === 'options') {
           return { ...param, value: options };
         }
         return param;
@@ -197,10 +200,10 @@ export default function Question({
       };
       onUpdate(id, { config: newConfig });
     } else {
-      const fieldType = fieldtypes.find((f) => f.name === "mcq");
+      const fieldType = fieldtypes.find((f) => f.name === 'mcq');
       if (fieldType) {
         const updatedParams = fieldType.params.map((param) => {
-          if (param.name === "options") {
+          if (param.name === 'options') {
             return { ...param, value: options };
           }
           return param;
@@ -218,7 +221,7 @@ export default function Question({
   const handleDropdownOptionsChange = (options: string[]) => {
     if (data.config && data.config.params) {
       const updatedParams = data.config.params.map((param: Param) => {
-        if (param.name === "options") {
+        if (param.name === 'options') {
           return { ...param, value: options };
         }
         return param;
@@ -229,10 +232,10 @@ export default function Question({
       };
       onUpdate(id, { config: newConfig });
     } else {
-      const fieldType = fieldtypes.find((f) => f.name === "dropdown");
+      const fieldType = fieldtypes.find((f) => f.name === 'dropdown');
       if (fieldType) {
         const updatedParams = fieldType.params.map((param) => {
-          if (param.name === "options") {
+          if (param.name === 'options') {
             return { ...param, value: options };
           }
           return param;
@@ -318,8 +321,8 @@ export default function Question({
       ref={containerRef}
       className={`bg-[#FEFEFE] shadow-[0_0_10px_rgba(0,0,0,0.3)] p-6 rounded-xl
               w-[90%] min-h-[20%] mx-auto mb-10 transition-all duration-200
-              ${isSelected ? "ring-4 ring-black dark:ring-[#64ad8b]" : ""}
-              ${isDuplicate ? "border-2 border-red-500" : ""}
+              ${isSelected ? 'ring-4 ring-black dark:ring-[#64ad8b]' : ''}
+              ${isDuplicate ? 'border-2 border-red-500' : ''}
               dark:bg-[#5A5959] dark:text-white hover:shadow-lg`}
     >
       {/* ─── Header row ──────────────────────────────────────── */}
@@ -399,11 +402,31 @@ export default function Question({
           ref={textareaRef}
           onInput={handleInput}
           placeholder="Write your question here *"
-          className="w-full min-h-[40px] resize-none bg-transparent
-                 focus:outline-none break-words
-                 dark:text-white dark:placeholder-white"
-          value={data.questionText || ""}
-          onChange={(e) => onUpdate(id, { questionText: e.target.value })}
+          className={`
+  w-full min-h-[40px] resize-none bg-transparent px-3 py-2
+  focus:outline-none break-words border-2
+  dark:text-white dark:placeholder-white
+  ${
+    hasBlurred && !data.questionText.trim()
+      ? 'border-red-500 rounded-md'
+      : 'border-transparent'
+  }
+`}
+          value={data.questionText || ''}
+          onChange={(e) => {
+            const value = e.target.value;
+            onUpdate(id, { questionText: value });
+            if (value.trim()) {
+              setShowWarning(false);
+            }
+          }}
+          onBlur={() => {
+            setHasBlurred(true);
+            if (!data.questionText.trim() && !showWarning) {
+              alert('❗ Question cannot be empty.');
+              setShowWarning(true);
+            }
+          }}
         />
       </div>
 
@@ -415,7 +438,7 @@ export default function Question({
                   text-sm text-gray-500 dark:text-gray-400"
       >
         <div className="bg-[#F6F6F6] rounded-md px-3 py-1 dark:bg-[#494949]">
-          Type: {data.type || "MCQ"}
+          Type: {data.type || 'MCQ'}
         </div>
         <div>Order: {data.order}</div>
       </div>
