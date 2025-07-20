@@ -19,7 +19,6 @@ import {
   NestedLogic,
   BaseLogic,
   Always,
-  SectionLogics,
 } from "@/lib/interface";
 import { saveFormResponse } from "@/app/action/saveformtodb";
 import { pushFileAnswer } from "@/app/action/saveFileUrl"; // ⬅️ NEW
@@ -28,7 +27,7 @@ import { nanoid } from "nanoid";
 import toast from "react-hot-toast";
 import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";
 import { validateAnswer } from "@/lib/validation";
-import { debounce, get } from "lodash";
+import { debounce} from "lodash";
 import { getUser } from "@/app/action/getUser"; // ⬅️ NEW: Import getUser function
 /* -------------------------------------------------------------------------- */
 /*  DynamicInput                                                              */
@@ -740,7 +739,7 @@ for (let i = sectionIndex + 1; i < form.sections.length; i++) {
 
   if (loading) {
     return (
-      <div className="text-center mt-20 text-lg font-semibold">
+      <div className="text-center mt-20 text-lg font-semibold text-black">
         Loading form...
       </div>
     );

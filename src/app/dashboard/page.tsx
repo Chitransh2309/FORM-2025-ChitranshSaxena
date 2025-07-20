@@ -101,7 +101,7 @@ function Workspace({
     return startDate && now >= startDate && !f.isDeleted;
   });
 
-  const drafts = forms.filter((f) => f.publishedAt === null && !f.isDeleted);
+  const drafts = forms.filter((f) => !f.publishedAt && !f.isDeleted);
 
   // const drafts = forms.filter((f) => {
   //   const startDate = f.settings?.startDate
