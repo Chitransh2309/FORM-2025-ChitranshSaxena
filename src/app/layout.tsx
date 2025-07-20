@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     siteName: "FormSpace",
     images: [
       {
-        url: "/logoform.png", // Make sure this image exists in /public
+        url: "/logotwo.png", // Make sure this image exists in /public
         width: 1200,
         height: 630,
         alt: "FormSpace preview image",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "FormSpace",
     description: "Forms that fit every space.",
-    images: ["/logoform.png"], // Ensure this image is accessible
+    images: ["/logotwo.png"], // Ensure this image is accessible
   },
   icons: {
     icon: "/logoform.svg", // Add this line for the favicon
