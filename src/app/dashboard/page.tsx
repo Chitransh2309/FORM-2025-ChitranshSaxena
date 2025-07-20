@@ -1,6 +1,5 @@
 "use client";
-
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { FaChevronDown, FaSearch } from "react-icons/fa";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
@@ -21,12 +20,13 @@ import Profile from "../../components/NewUserPage/Profile";
 import FAQs from "../../components/NewUserPage/FAQs";
 import ToggleSwitch from "../../components/NewUserPage/ToggleSwitch";
 import Shared from "../../components/NewUserPage/Shared";
+import { usePathname } from "next/navigation";
 
 // Actions & Types
 import { getFormsForUser } from "@/app/action/forms";
 import { createNewForm } from "@/app/action/createnewform";
 import { getUser } from "@/app/action/getUser";
-import { Form } from "@/lib/interface";
+import type { Form } from "@/lib/interface";
 
 function Workspace({
   searchTerm,
@@ -37,6 +37,7 @@ function Workspace({
   setSearchTerm?: (term: string) => void;
   selected: "myForms" | "starred" | "shared" | "trash";
 }) {
+  const [isPending] = useTransition();
   const router = useRouter();
   const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,15 +49,31 @@ function Workspace({
   const [image, setImage] = useState("");
   const [email, setEmail] = useState("");
   const [creatingFile, setCreatingFile] = useState(false);
+  const pathname = usePathname();
 
-  // Fetch user + forms
+  useEffect(() => {
+    getUser().then((user) => {
+      setName(user?.name || "");
+      setEmail(user?.email || "");
+      setImage(user?.image || "");
+    });
+  }, []);
+
+  // Only hide loader when we're actually on a different page
+  useEffect(() => {
+    if (creatingFile && !pathname.startsWith("/dashboard")) {
+      // Add a longer delay to ensure the new page is fully rendered
+      const timer = setTimeout(() => {
+        setCreatingFile(false);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [pathname, creatingFile]);
+
   useEffect(() => {
     (async () => {
       try {
-        const [formsRes, user] = await Promise.all([
-          getFormsForUser(true),
-          getUser(),
-        ]);
+        const [formsRes] = await Promise.all([getFormsForUser(true)]);
         const mappedForms = formsRes.map((form) => ({
           form_ID: form._id.toString(),
           title: "",
@@ -82,9 +99,6 @@ function Workspace({
           ...form,
         }));
         setForms(mappedForms);
-        setName(user?.name || "");
-        setEmail(user?.email || "");
-        setImage(user?.image || "");
       } finally {
         setLoading(false);
       }
@@ -92,24 +106,14 @@ function Workspace({
   }, []);
 
   const now = new Date();
-
   const published = forms.filter((f) => {
     const startDate = f.settings?.startDate
       ? new Date(f.settings.startDate)
       : null;
-
     return startDate && now >= startDate && !f.isDeleted;
   });
 
   const drafts = forms.filter((f) => !f.publishedAt && !f.isDeleted);
-
-  // const drafts = forms.filter((f) => {
-  //   const startDate = f.settings?.startDate
-  //     ? new Date(f.settings.startDate)
-  //     : null;
-
-  //   return (!startDate || now < startDate) && !f.isDeleted;
-  // });
 
   const filterBySearch = (forms: Form[]) =>
     !searchTerm
@@ -120,17 +124,32 @@ function Workspace({
 
   const filteredPublished = filterBySearch(published);
   const filteredDrafts = filterBySearch(drafts);
+
   const isEmpty = !loading && forms.length === 0 && published.length === 0;
 
   const handleCreate = async () => {
     if (!formName.trim()) return alert("Please enter a form name");
-    setCreatingFile(true);
 
-    const res = await createNewForm(formName);
-    if (res) {
-      router.push(`/form/${res}`);
+    // Immediately show loader and hide dialog
+    setCreatingFile(true);
+    setShowDialog(false);
+    setFormName("");
+
+    try {
+      const newId = await createNewForm(formName);
+      if (!newId) {
+        setCreatingFile(false);
+        return alert("Failed to create form");
+      }
+
+      // Prefetch the route
+      router.prefetch(`/form/${newId}`);
+
+      // Use window.location for immediate navigation without React rendering cycles
+    } catch (error) {
       setCreatingFile(false);
-    } else alert("Failed to create a new form. Try again.");
+      alert("Failed to create form" + error);
+    }
   };
 
   const handleRestoreInWorkspace = (formId: string) => {
@@ -144,19 +163,40 @@ function Workspace({
 
   return (
     <>
-      {creatingFile && (
-        <div className="fixed inset-0 z-60 flex flex-row justify-center items-center w-screen h-screen bg-[#F5F7F5] dark:bg-[#2B2A2A] text-black dark:text-white">
+      {/* Full screen loader overlay */}
+      {(creatingFile || isPending) && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#F5F7F5] dark:bg-[#2B2A2A]"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "100vw",
+            height: "100vh",
+            zIndex: 9999,
+          }}
+        >
           <div className="flex flex-col items-center gap-4">
             <Loader />
-            <h3 className="font-[Outfit] font-bold text-xl">
-              Creating a Form for you...
+            <h3 className="font-[Outfit] font-semibold text-xl text-black dark:text-white">
+              Creating a form for you…
             </h3>
           </div>
         </div>
       )}
-      <div className="min-h-screen flex flex-col">
-        <Navbar image={image} name={name} email={email} />
 
+      {/* Main content - hidden when creating */}
+      <div
+        className="min-h-screen flex flex-col"
+        style={{
+          visibility: creatingFile || isPending ? "hidden" : "visible",
+          opacity: creatingFile || isPending ? 0 : 1,
+          transition: "opacity 0.2s ease-in-out",
+        }}
+      >
+        <Navbar image={image} name={name} email={email} />
         <div className="hidden xl:flex items-center justify-between px-6 py-4 ml-auto">
           <div className="flex items-center gap-4">
             <ToggleSwitch />
@@ -169,7 +209,7 @@ function Workspace({
             <button onClick={() => setShowProfile(!showProfile)}>
               {image ? (
                 <Image
-                  src={image}
+                  src={image || "/placeholder.svg"}
                   width={28}
                   height={28}
                   alt="profile_image"
@@ -185,7 +225,6 @@ function Workspace({
           </div>
           {showProfile && <Profile name={name} email={email} />}
         </div>
-
         <div className="hidden xl:block">
           <Formsorter />
         </div>
@@ -216,28 +255,37 @@ function Workspace({
 
         {/* Create Form Modal */}
         {showDialog && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-[#353434] border-2 dark:border-gray-500 border-gray-800 rounded-xl shadow-2xl w-full max-w-xl p-8 animate-pop-in">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+            <div className="bg-white dark:bg-[#353434] border-2 dark:border-gray-500 border-gray-800 rounded-xl shadow-2xl w-full max-w-xl p-8">
               <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 dark:text-white mb-6">
                 Create New Form
               </h2>
               <input
-                className="w-full px-5 py-4 border-2 border-gray-300 rounded-lg mb-8 text-black placeholder-gray-500 text-lg focus:outline-none focus:ring-2 focus:ring-[#61A986] focus:border-transparent transition-all dark:text-white dark:placeholder-white"
+                className="w-full px-5 py-4 border-2 border-gray-300 rounded-lg mb-8 text-black placeholder-gray-500 text-lg focus:outline-none focus:ring-2 focus:ring-[#61A986] focus:border-transparent transition-all dark:text-white dark:placeholder-white dark:bg-[#353434]"
                 placeholder="Enter form name"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleCreate();
+                  }
+                }}
               />
               <div className="flex gap-4 justify-end">
                 <button
-                  onClick={() => setShowDialog(false)}
-                  className="px-6 py-3 bg-white text-gray-700 rounded-lg hover:bg-gray-100 text-lg font-medium border border-gray-300 shadow-sm transition-all"
+                  onClick={() => {
+                    setShowDialog(false);
+                    setFormName("");
+                  }}
+                  className="px-6 py-3 bg-white text-gray-700 rounded-lg hover:bg-gray-100 text-lg font-medium border border-gray-300 shadow-sm transition-all dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleCreate}
-                  className="px-6 py-3 bg-[#61A986] text-white rounded-lg hover:bg-[#4d8a6b] text-lg font-medium shadow-md transition-all"
+                  disabled={!formName.trim()}
+                  className="px-6 py-3 bg-[#61A986] text-white rounded-lg hover:bg-[#4d8a6b] text-lg font-medium shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Create
                 </button>
@@ -289,9 +337,7 @@ function Workspace({
               setForms={setForms}
             />
           ) : selected === "shared" ? (
-            <>
-              <Shared />
-            </>
+            <Shared />
           ) : null}
           {showFaq && <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />}
         </div>
@@ -326,7 +372,6 @@ export default function CombinedWorkspacePage() {
           />
         </div>
       </div>
-
       {/* Mobile View */}
       <div className="block xl:hidden h-screen flex flex-col">
         <div className="flex-1 overflow-y-auto">
