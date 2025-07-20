@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  restoreForm,
-  permanentlyDeleteForm,
-} from "@/app/action/forms";
+import { restoreForm, permanentlyDeleteForm } from "@/app/action/forms";
 import type { Form } from "@/lib/interface";
 
 interface TrashProps {
@@ -21,19 +18,18 @@ export default function Trash({
 }: TrashProps) {
   /* common predicate so we don’t repeat the logic string-literal style */
   const matches = (f: Form) =>
-    f.isDeleted &&
-    f.title?.toLowerCase().includes(searchTerm.toLowerCase());
+    f.isDeleted && f.title?.toLowerCase().includes(searchTerm.toLowerCase());
 
   /* ───────── handlers ───────── */
   const handleRestore = async (formId: string) => {
     try {
       const res = await restoreForm(formId);
       if (res.success) {
-       setForms(prev =>
-  prev.map(f =>
-    f.form_ID === formId ? { ...f, isDeleted: false } : f
-  )
-);
+        setForms((prev) =>
+          prev.map((f) =>
+            f.form_ID === formId ? { ...f, isDeleted: false } : f
+          )
+        );
 
         onRestore(formId);
       } else {
@@ -67,9 +63,14 @@ export default function Trash({
 
       <div className="min-h-[60vh] rounded-lg border-2 border-dashed border-gray-400 p-6 dark:border-white">
         {forms.filter(matches).length === 0 ? (
-          <p className="text-center text-gray-500 dark:text-gray-400">
-            No deleted forms found.
-          </p>
+          <div
+            className="absolute left-0 w-full h-[500px] p-4 text-center flex items-center justify-center transform -translate-y-1/2"
+            style={{ top: "55%" }}
+          >
+            <p className="text-center text-gray-500 dark:text-gray-400">
+              No deleted forms found.
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {forms.filter(matches).map((form) => (
