@@ -20,13 +20,8 @@ const questionTypes = [
     value: QuestionType.LINEARSCALE,
     field: "linear_scale",
   },
-  {
-    label: "Linear Scale",
-    value: QuestionType.LINEARSCALE,
-    field: "linear_scale",
-  },
-  { label: "Email", value: QuestionType.EMAIL, field: "email" },
-  { label: "Url", value: QuestionType.URL, field: "url" },
+  // { label: "Email", value: QuestionType.EMAIL, field: "email" },
+  // { label: "Url", value: QuestionType.URL, field: "url" },
   {
     label: "File Upload",
     value: QuestionType.FILE_UPLOAD,
@@ -42,7 +37,7 @@ type UIParam = Param & {
 
 interface Props {
   selectedQuestion?: Question;
-  onChangeType?: (t: QuestionType, c: FieldType) => void;
+  onChangeType?: (t: QuestionType) => void;
   onUpdateConfig?: (c: FieldType) => void;
 }
 
@@ -71,14 +66,9 @@ export default function QuestionTypeDropdown({
     setIsOpen(false);
 
     const found = questionTypes.find((q) => q.label === label);
-    if (!found) {
-      return;
-    }
+    if (!found) return;
 
-    console.log("found: ", found.value);
-    // onChangeType?.(found.value);
-
-    if (onChangeType) {
+    if (onUpdateConfig) {
       const schema = fieldtypes.find((f) => f.name === found.field);
       if (schema) {
         const fresh: FieldType = {
@@ -89,10 +79,11 @@ export default function QuestionTypeDropdown({
             params: v.params?.map((p) => ({ ...p })) ?? [],
           })),
         };
-
-        onChangeType(found.value, fresh);
+        onUpdateConfig(fresh);
       }
     }
+
+    onChangeType?.(found.value);
   };
 
   const updateParams = (newParam: Param) => {
@@ -171,38 +162,39 @@ export default function QuestionTypeDropdown({
     const placeholder = param.placeholder ?? param.name;
 
     if (param.type === "file") {
-      return wrap(
-        <>
-          <input
-            type="file"
-            className={cls}
-            disabled
-            placeholder="Upload disabled in preview"
-          />
+  return wrap(
+    <>
+      <input
+        type="file"
+        className={cls}
+        disabled
+        placeholder="Upload disabled in preview"
+      />
 
-          {param.value && typeof param.value === "string" && (
-            <div className="mt-2">
-              {param.value.match(/\.(jpeg|jpg|gif|png|webp)$/i) ? (
-                <img
-                  src={param.value}
-                  alt="Uploaded file preview"
-                  className="max-h-40 rounded border mt-2"
-                />
-              ) : (
-                <a
-                  href={param.value}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 underline mt-2 inline-block"
-                >
-                  View uploaded file
-                </a>
-              )}
-            </div>
+      {param.value && typeof param.value === "string" && (
+        <div className="mt-2">
+          {param.value.match(/\.(jpeg|jpg|gif|png|webp)$/i) ? (
+            <img
+              src={param.value}
+              alt="Uploaded file preview"
+              className="max-h-40 rounded border mt-2"
+            />
+          ) : (
+            <a
+              href={param.value}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 underline mt-2 inline-block"
+            >
+              View uploaded file
+            </a>
           )}
-        </>
-      );
-    }
+        </div>
+      )}
+    </>
+  );
+}
+
 
     if (param.isValidation) {
       const vn = param.validationName!;
