@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { FaChevronDown, FaSearch } from "react-icons/fa";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
@@ -36,6 +36,9 @@ export default function Workspace({
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
   const [email, setEmail] = useState("");
+  const [isWorkspaceDropdownOpen, setWorkspaceDropdownOpen] = useState(false);
+  const workspaceDropdownRef = useRef<HTMLDivElement>(null);
+
 
   const handleCreate = async () => {
     if (!formName.trim()) return alert("Please enter a form name");
@@ -65,6 +68,22 @@ export default function Workspace({
       setForms(cleaned);
       setLoading(false);
     })();
+  }, []);
+
+  // Effect to close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        workspaceDropdownRef.current &&
+        !workspaceDropdownRef.current.contains(event.target as Node)
+      ) {
+        setWorkspaceDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   const drafts = forms.filter((f) => !f.isActive);
@@ -116,9 +135,23 @@ export default function Workspace({
         {/* Mobile Top Buttons */}
         <div className="xl:hidden w-full bg-white border-b px-4 py-3 dark:bg-[#2B2A2A] dark:border-gray-500">
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1 bg-[#56A37D] text-black text-xs px-4 py-2 rounded-lg dark:text-white">
-              My Workspace <FaChevronDown size={12} />
-            </button>
+            {/* --- MODIFIED BUTTON WITH DROPDOWN --- */}
+            <div className="relative" ref={workspaceDropdownRef}>
+              <button
+                onClick={() => setWorkspaceDropdownOpen((prev) => !prev)}
+                className="flex items-center gap-1 bg-[#56A37D] text-black text-xs px-4 py-2 rounded-lg dark:text-white"
+              >
+                My Workspace <FaChevronDown size={12} className={`transition-transform duration-200 ${isWorkspaceDropdownOpen ? "rotate-180" : ""}`} />
+              </button>
+              {isWorkspaceDropdownOpen && (
+                 <div className="absolute top-full mt-2 w-full bg-white rounded-md shadow-lg z-10 dark:bg-gray-800 border dark:border-gray-700">
+                   <div className="py-2 text-xs text-center text-gray-500 cursor-not-allowed dark:text-gray-400">
+                     Coming soon
+                   </div>
+                 </div>
+              )}
+            </div>
+            {/* --- END OF MODIFICATION --- */}
 
             <div className="flex items-center bg-[#3D3D3D] rounded-lg px-3 py-2 flex-1 min-w-0">
               <FaSearch size={14} className="text-white flex-shrink-0" />
