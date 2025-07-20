@@ -301,7 +301,9 @@ function Workspace({
                 Loading…
               </div>
             ) : isEmpty ? (
-              <div className={wrapperStyles + " dark:border-white"}>
+              <div
+                className={wrapperStyles + " border-gray-800 dark:border-white"}
+              >
                 <p className="text-lg md:text-2xl text-center text-gray-600 dark:text-gray-200">
                   You have not created any forms yet.
                 </p>

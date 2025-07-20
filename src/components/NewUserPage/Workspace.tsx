@@ -39,7 +39,6 @@ export default function Workspace({
   const [isWorkspaceDropdownOpen, setWorkspaceDropdownOpen] = useState(false);
   const workspaceDropdownRef = useRef<HTMLDivElement>(null);
 
-
   const handleCreate = async () => {
     if (!formName.trim()) return alert("Please enter a form name");
     const res = await createNewForm(formName);
@@ -141,14 +140,20 @@ export default function Workspace({
                 onClick={() => setWorkspaceDropdownOpen((prev) => !prev)}
                 className="flex items-center gap-1 bg-[#56A37D] text-black text-xs px-4 py-2 rounded-lg dark:text-white"
               >
-                My Workspace <FaChevronDown size={12} className={`transition-transform duration-200 ${isWorkspaceDropdownOpen ? "rotate-180" : ""}`} />
+                My Workspace{" "}
+                <FaChevronDown
+                  size={12}
+                  className={`transition-transform duration-200 ${
+                    isWorkspaceDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
               </button>
               {isWorkspaceDropdownOpen && (
-                 <div className="absolute top-full mt-2 w-full bg-white rounded-md shadow-lg z-10 dark:bg-gray-800 border dark:border-gray-700">
-                   <div className="py-2 text-xs text-center text-gray-500 cursor-not-allowed dark:text-gray-400">
-                     Coming soon
-                   </div>
-                 </div>
+                <div className="absolute top-full mt-2 w-full bg-white rounded-md shadow-lg z-10 dark:bg-gray-800 border dark:border-gray-700">
+                  <div className="py-2 text-xs text-center text-gray-500 cursor-not-allowed dark:text-gray-400">
+                    Coming soon
+                  </div>
+                </div>
               )}
             </div>
             {/* --- END OF MODIFICATION --- */}
