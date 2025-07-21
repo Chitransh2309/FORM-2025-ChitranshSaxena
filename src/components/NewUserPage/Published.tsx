@@ -148,7 +148,7 @@ export default function Published({ forms, setForms }: PublishedProps) {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 xl:min-h-90 lg:min-h-120 max-h-120 sm:max-h-none">
             {published.map((form) => (
               <div key={form.form_ID} className="relative flex flex-col">
                 {/* ⭐ toggle */}
