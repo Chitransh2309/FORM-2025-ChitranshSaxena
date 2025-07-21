@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { FaChevronDown, FaSearch } from "react-icons/fa";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
@@ -51,7 +51,8 @@ function Workspace({
   const [email, setEmail] = useState("");
   const [creatingFile, setCreatingFile] = useState(false);
   const pathname = usePathname();
-
+  const [isWorkspaceDropdownOpen, setWorkspaceDropdownOpen] = useState(false);
+  const workspaceDropdownRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     getUser().then((user) => {
       setName(user?.name || "");
@@ -130,14 +131,29 @@ function Workspace({
 
   const handleCreate = async () => {
     if (!formName.trim()) return alert("Please enter a form name");
-
+    setCreatingFile(true);
     const res = await createNewForm(formName,description);
     if (res) {
       router.push(`/form/${res}`);
+      //setCreatingFile(false);
     } else {
+      setCreatingFile(false);
       alert("Failed to create a new form. Try again.");
     }
   };
+
+  useEffect(() => {
+    const close = (e: MouseEvent) => {
+      if (
+        workspaceDropdownRef.current &&
+        !workspaceDropdownRef.current.contains(e.target as Node)
+      ) {
+        setWorkspaceDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, []);
 
   const handleRestoreInWorkspace = (formId: string) => {
     setForms((prev) =>
@@ -219,9 +235,30 @@ function Workspace({
         {/* Mobile Header */}
         <div className="xl:hidden w-full bg-white border-b px-4 py-3 dark:bg-[#2B2A2A] dark:border-gray-500">
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1 bg-[#56A37D] text-black text-xs px-4 py-2 rounded-lg dark:text-white">
-              My Workspace <FaChevronDown size={12} />
-            </button>
+            <div className="relative group" ref={workspaceDropdownRef}>
+              <button
+                onClick={() => {
+                  console.log("Button clicked");
+                  setWorkspaceDropdownOpen((p) => !p)
+                }}
+                className="flex items-center gap-1 bg-[#56A37D] text-white text-xs px-4 py-2 rounded-lg dark:text-black"
+              >
+                My Workspace{" "}
+                <FaChevronDown
+                  size={12}
+                  className={`transition-transform ${
+                    isWorkspaceDropdownOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {isWorkspaceDropdownOpen && (
+                <div className="absolute top-full mt-2 w-full bg-white rounded-md shadow-lg z-10 dark:bg-gray-800 border dark:border-gray-700">
+                  <div className="py-2 text-xs text-center text-gray-500 cursor-not-allowed dark:text-gray-400">
+                    Coming soon
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="flex items-center bg-[#3D3D3D] rounded-lg px-3 py-2 flex-1 min-w-0">
               <FaSearch size={14} className="text-white flex-shrink-0" />
               <input
@@ -322,7 +359,7 @@ function Workspace({
                 </button>
               </div>
             ) : (
-              <div className="w-full h-full overflow-y-auto flex flex-col items-center">
+              <div className="w-full h-full flex flex-col items-center">
                 <div className="flex flex-col lg:flex-row flex-1 w-full max-w-7xl gap-6 px-4">
                   <Drafts forms={filteredDrafts} setForms={setForms} />
                   <Published forms={filteredPublished} setForms={setForms} />
