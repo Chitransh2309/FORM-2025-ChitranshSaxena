@@ -63,11 +63,15 @@ export default function Published({ forms, setForms }: PublishedProps) {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this form?")) return;
     try {
+      setLoading(true);
       await deleteFormFromDB(id);
-      setForms((prev) => prev.map((f) => f.form_ID === id ? { ...f, isDeleted: true } : f));
+      setLoading(false);
+      setForms((prev) =>
+        prev.map((f) => (f.form_ID === id ? { ...f, isDeleted: true } : f))
+      );
     } catch {
       alert("Something went wrong while deleting.");
-    } 
+    }
   };
 
   /* star/unstar -------------------------------------------------------- */
@@ -75,8 +79,8 @@ export default function Published({ forms, setForms }: PublishedProps) {
     /* optimistic local flip */
     setForms((prev) =>
       prev.map((f) =>
-        f.form_ID === id ? { ...f, isStarred: !f.isStarred } : f,
-      ),
+        f.form_ID === id ? { ...f, isStarred: !f.isStarred } : f
+      )
     );
 
     try {
@@ -84,8 +88,8 @@ export default function Published({ forms, setForms }: PublishedProps) {
       if (res && "isStarred" in res) {
         setForms((prev) =>
           prev.map((f) =>
-            f.form_ID === id ? { ...f, isStarred: !!res.isStarred } : f,
-          ),
+            f.form_ID === id ? { ...f, isStarred: !!res.isStarred } : f
+          )
         );
       }
     } catch {
@@ -93,22 +97,22 @@ export default function Published({ forms, setForms }: PublishedProps) {
       /* roll back optimistic change on error */
       setForms((prev) =>
         prev.map((f) =>
-          f.form_ID === id ? { ...f, isStarred: !f.isStarred } : f,
-        ),
+          f.form_ID === id ? { ...f, isStarred: !f.isStarred } : f
+        )
       );
-    } 
+    }
   };
 
   /* ------------------------------ UI ------------------------------- */
   return (
     <>
-    {loading && (
+    {(loading || isPending) && (
             <div>
               <Loader />
             </div>
           )}
     <section className="relative w-full xl:w-1/2 p-4 mb-20 xl:mb-0 text-black dark:text-white">
-    {isPending && (
+    {/* {isPending && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/70 dark:bg-black/60">
             <svg
               className="h-8 w-8 animate-spin text-[#61A986]"
@@ -131,14 +135,13 @@ export default function Published({ forms, setForms }: PublishedProps) {
               />
             </svg>
           </div>
-        )}
+        )} */}
       <h2 className="px-4 py-3 text-xl font-semibold">Published</h2>
 
       <div className="rounded-lg border-2 border-dashed border-gray p-4 dark:border-white xl:min-h-90 lg:min-h-120 max-h-120 sm:max-h-none overflow-auto sm:overflow-visible">
         {published.length === 0 ? (
           <div
-            className="absolute left-0 w-full h-[500px] p-4 text-center flex items-center justify-center transform -translate-y-1/2"
-            style={{ top: "55%" }}
+            className="flex items-center justify-center xl:min-h-90 lg:min-h-120 max-h-120 sm:max-h-none"
           >
             <p className="text-center text-gray-500 dark:text-gray-400">
               No published forms found.
@@ -158,7 +161,9 @@ export default function Published({ forms, setForms }: PublishedProps) {
                   onClick={() => handleStarToggle(form.form_ID)}
                   title="Star Form"
                 >
-                  <FontAwesomeIcon icon={form.isStarred ? solidStar : regularStar} />
+                  <FontAwesomeIcon
+                    icon={form.isStarred ? solidStar : regularStar}
+                  />
                 </button>
 
                 {/* 🗑 delete */}
