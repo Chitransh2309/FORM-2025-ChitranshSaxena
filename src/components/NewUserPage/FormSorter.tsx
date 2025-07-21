@@ -23,11 +23,11 @@ function Formsorter() {
     const res = await createNewForm(formName,description);
     if (res) {
       router.push(`/form/${res}`);
-      setLoading(false);
     } else {
       setLoading(false);
       alert("Failed to create a new form. Try again.");
     }
+    //setLoading(false);
   };
 
   // Effect to close dropdown when clicking outside

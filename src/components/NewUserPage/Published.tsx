@@ -63,7 +63,9 @@ export default function Published({ forms, setForms }: PublishedProps) {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this form?")) return;
     try {
+      setLoading(true);
       await deleteFormFromDB(id);
+      setLoading(false);
       setForms((prev) =>
         prev.map((f) => (f.form_ID === id ? { ...f, isDeleted: true } : f))
       );
@@ -104,13 +106,13 @@ export default function Published({ forms, setForms }: PublishedProps) {
   /* ------------------------------ UI ------------------------------- */
   return (
     <>
-    {loading && (
+    {(loading || isPending) && (
             <div>
               <Loader />
             </div>
           )}
     <section className="relative w-full xl:w-1/2 p-4 mb-20 xl:mb-0 text-black dark:text-white">
-    {isPending && (
+    {/* {isPending && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/70 dark:bg-black/60">
             <svg
               className="h-8 w-8 animate-spin text-[#61A986]"
@@ -133,14 +135,13 @@ export default function Published({ forms, setForms }: PublishedProps) {
               />
             </svg>
           </div>
-        )}
+        )} */}
       <h2 className="px-4 py-3 text-xl font-semibold">Published</h2>
 
       <div className="rounded-lg border-2 border-dashed border-gray p-4 dark:border-white xl:min-h-90 lg:min-h-120 max-h-120 sm:max-h-none overflow-auto sm:overflow-visible">
         {published.length === 0 ? (
           <div
-            className="absolute left-0 w-full h-[500px] p-4 text-center flex items-center justify-center transform -translate-y-1/2"
-            style={{ top: "55%" }}
+            className="flex items-center justify-center xl:min-h-90 lg:min-h-120 max-h-120 sm:max-h-none"
           >
             <p className="text-center text-gray-500 dark:text-gray-400">
               No published forms found.
