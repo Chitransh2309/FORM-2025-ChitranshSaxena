@@ -30,6 +30,7 @@ import ToggleSwitch from "@/components/LandingPage/ToggleSwitch";
 import { validateAnswer } from "@/lib/validation";
 import { debounce } from "lodash";
 import { getUser } from "@/app/action/getUser"; // ⬅️ NEW: Import getUser function
+import Loader from "@/components/Loader";
 /* -------------------------------------------------------------------------- */
 /*  DynamicInput                                                              */
 /* -------------------------------------------------------------------------- */
@@ -429,6 +430,7 @@ export default function ResponsesPage({
   // const [jumpQueue, setJumpQueue] = useState<number[]>([]);
   const [isSubmitVisible, setIsSubmitVisible] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isLoader,setIsLoader]=useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const section = form?.sections?.[sectionIndex];
   const { data: session } = useSession();
@@ -728,9 +730,9 @@ export default function ResponsesPage({
         answers,
         version: 1,
       };
-
+      setIsLoader(true);
       const success = await saveFormResponse(response);
-
+      setIsLoader(false);
       if (success) {
         markFormAsSubmitted(formId, userId);
         toast.success("Form Submitted Successfully");
@@ -768,6 +770,12 @@ export default function ResponsesPage({
   }
 
   return (
+    <>
+    {isLoader && (
+            <div>
+              <Loader />
+            </div>
+          )}
     <div className="font-[Outfit] h-screen overflow-auto bg-[#F6F8F6] dark:bg-[#2B2A2A]">
       {showConfetti && <Confetti width={width} height={height} />}
       <div className="bg-[#56A37D] dark:bg-[#414141] flex items-center justify-around pt-5 pb-2 text-black dark:text-white">
@@ -852,5 +860,6 @@ export default function ResponsesPage({
         </div>
       </div>
     </div>
+    </>
   );
 }
