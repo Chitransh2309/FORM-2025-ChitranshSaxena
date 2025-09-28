@@ -3,6 +3,7 @@ import { connectToDB, disconnectFromDB } from "@/lib/mongodb";
 import { auth } from "../../../../auth";
 import CenterNav from "@/components/FormPage/CenterNav";
 import FormWrapper from "@/components/FormPage/FormHeader";
+import {Form} from "@/lib/interface";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -24,7 +25,8 @@ export default async function FormPage({ params }: PageProps) {
     .findOne({ email: session.user.email });
   const userID = user?.user_ID;
 
-  const form = await db.collection("forms").findOne({ form_ID: formId });
+  const form = await db.collection("forms").findOne({ form_ID: formId }) as Form | null;
+
 
   await disconnectFromDB(dbClient);
 
@@ -36,7 +38,7 @@ export default async function FormPage({ params }: PageProps) {
     );
   }
 
-  if (form.createdBy !== userID && !form.viewerID && !form.editorID) {
+  if (form.createdBy !== userID && !form.editorID?.some(editorID=>editorID===userID) && !form.viewerID?.some(viewerID=>viewerID===userID)) {
     redirect(`/form/${formId}/response`);
   }
 
