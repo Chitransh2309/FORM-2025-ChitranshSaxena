@@ -8,7 +8,7 @@ interface Props {
   section: Section;
   isSelected: boolean;
   onClick: () => void;
-  onDeleteSection?: () => void; // Optional: provide a delete handler from parent if needed
+  onDeleteSection?: (sectionId: string) => void;
 }
 
 export default function SectionItem({
@@ -23,15 +23,11 @@ export default function SectionItem({
     <div className="mb-1 w-full ">
       <div
         className={`flex justify-between items-start sm:items-center px-3 py-3 rounded-lg cursor-pointer w-full transition-all
-<<<<<<< HEAD
-          ${isSelected ? "bg-[#8cc7aa] dark:bg-[#494949] text-black" : "hover:bg-gray-100 dark:hover:bg-[#6d6d6d] text-gray-700"} dark:text-white`}
-=======
           ${
             isSelected
               ? "bg-[#8cc7aa] dark:bg-[#5A5959] dark:text-white text-black"
               : "hover:bg-gray-100 text-gray-700 dark:text-white dark:hover:bg-gray-700"
           }`}
->>>>>>> f5bb73a (dark mode added to build page)
         onClick={onClick}
       >
         {/* Section Info */}
@@ -39,32 +35,12 @@ export default function SectionItem({
           <div className="text-base sm:text-[15px] font-semibold truncate dark:text-white">
             {section.title || "Section Name"}
           </div>
-<<<<<<< HEAD
-<<<<<<< HEAD
           <div className="text-xs text-gray-500 dark:text-white">
-            {section.questions.length} question{section.questions.length !== 1 ? "s" : ""}
-=======
-          <div className="text-xs text-gray-500">
-=======
-          <div className="text-xs text-gray-500 dark:text-white">
->>>>>>> 8a431a9 (fixes for better visibility in dark mode.)
             {section.questions.length} question
             {section.questions.length !== 1 ? "s" : ""}
->>>>>>> f5bb73a (dark mode added to build page)
           </div>
         </div>
 
-<<<<<<< HEAD
-        <div className="flex gap-2 items-center">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              if (onDeleteSection) onDeleteSection();
-            }}
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-=======
         {/* Controls */}
         <div className="flex items-center gap-2 ml-2 mt-[2px]">
           {onDeleteSection && (
@@ -79,7 +55,6 @@ export default function SectionItem({
               <Trash2 className=" w-4 h-4" />
             </button>
           )}
->>>>>>> 1da22d4 (Added responsiveness for form builder)
 
           <button
             className="text-gray-600 p-1 dark:text-white"
@@ -100,33 +75,20 @@ export default function SectionItem({
 
       {/* Expandable Question List */}
       {isOpen && (
-<<<<<<< HEAD
         <ul className="ml-4 mt-1 text-sm text-gray-600 space-y-1 dark:text-white">
-=======
-        <ul className="ml-4 mt-1 text-sm text-gray-600 dark:text-white space-y-1">
->>>>>>> 8a431a9 (fixes for better visibility in dark mode.)
           {section.questions.length > 0 ? (
             section.questions.map((q) => (
-<<<<<<< HEAD
-              <li key={`sec-${section.section_ID}-q-${q.id}`} className="py-1 truncate">
-                • {q.content || "Untitled"}
-=======
               <li
                 key={`sec-${section.section_ID}-q-${q.question_ID}`}
                 className="py-1 truncate text-xs sm:text-sm"
               >
                 • {q.questionText || "Untitled"}
->>>>>>> 1da22d4 (Added responsiveness for form builder)
               </li>
             ))
           ) : (
-<<<<<<< HEAD
-            <li className="italic text-gray-400 py-1 dark:text-white">No questions</li>
-=======
-            <li className="italic text-gray-400  dark:text-white py-1">
+            <li className="italic text-gray-400 py-1 dark:text-white">
               No questions
             </li>
->>>>>>> 8a431a9 (fixes for better visibility in dark mode.)
           )}
         </ul>
       )}

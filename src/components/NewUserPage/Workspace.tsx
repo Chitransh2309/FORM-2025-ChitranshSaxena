@@ -1,7 +1,14 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import {
+  useState,
+  useEffect,
+  useTransition,
+  useRef,
+  useLayoutEffect,
+} from "react";
+import { useRouter, usePathname } from "next/navigation";
+import Image from "next/image";
 import { FaChevronDown, FaSearch } from "react-icons/fa";
 import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
 import { FaRegCircleUser } from "react-icons/fa6";
@@ -10,14 +17,15 @@ import Navbar from "./NavBar";
 import Formsorter from "./FormSorter";
 import Drafts from "./Drafts";
 import Published from "./Published";
-import Image from "next/image";
+import ToggleSwitch from "../LandingPage/ToggleSwitch";
+import Profile from "./Profile";
+import FAQs from "./FAQs";
+
 import { getFormsForUser } from "@/app/action/forms";
 import { createNewForm } from "@/app/action/createnewform";
-import { Form } from "@/lib/interface";
-import Profile from "./Profile";
 import { getUser } from "@/app/action/getUser";
-import FAQs from "./FAQs";
-import ToggleSwitch from "../LandingPage/ToggleSwitch";
+import type { Form } from "@/lib/interface";
+import Loader from "@/components/Loader";
 
 export default function Workspace({
   searchTerm,
@@ -26,77 +34,124 @@ export default function Workspace({
   searchTerm: string;
   setSearchTerm?: (term: string) => void;
 }) {
+  /* ───────── state ───────── */
   const router = useRouter();
+  const pathname = usePathname();
+  const [isPending] = useTransition();
+
   const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [showDialog, setShowDialog] = useState(false);
   const [formName, setFormName] = useState("");
+  const [description, setDescription] = useState("");
+  const [creatingFile, setCreatingFile] = useState(false);
+
   const [showFaq, setShowFaq] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
   const [email, setEmail] = useState("");
+
   const [isWorkspaceDropdownOpen, setWorkspaceDropdownOpen] = useState(false);
   const workspaceDropdownRef = useRef<HTMLDivElement>(null);
 
-  const handleCreate = async () => {
-    if (!formName.trim()) return alert("Please enter a form name");
-    const res = await createNewForm(formName);
-    if (res) {
-      router.push(`/form/${res}`);
-    } else {
-      alert("Failed to create a new form. Try again.");
-    }
-  };
+  /* ───────── fetch forms + user ───────── */
   useEffect(() => {
     (async () => {
-      /* fetch everything in parallel */
       const [rawForms, user] = await Promise.all([
-        getFormsForUser(), // returns { …Form, responseCount, _id }
+        getFormsForUser(),
         getUser(),
       ]);
 
-      /* profile info */
       setName(user?.name ?? "");
       setEmail(user?.email ?? "");
       setImage(user?.image ?? "");
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const cleaned = rawForms.map(({ ...form }) => form as unknown as Form);
-
-      setForms(cleaned);
+      setForms(
+        rawForms.map((f) => ({ ...(f as unknown as Form) })) // strip extra props
+      );
       setLoading(false);
     })();
   }, []);
 
-  // Effect to close dropdown when clicking outside
+  /* ───────── auto-fold mobile dropdown when click outside ───────── */
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const close = (e: MouseEvent) => {
       if (
         workspaceDropdownRef.current &&
-        !workspaceDropdownRef.current.contains(event.target as Node)
+        !workspaceDropdownRef.current.contains(e.target as Node)
       ) {
         setWorkspaceDropdownOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
   }, []);
 
-  const drafts = forms.filter((f) => !f.isActive);
-  const published = forms.filter((f) => f.isActive);
+  /* ───────── keep overlay until new route mounts ───────── */
+  useEffect(() => {
+    if (creatingFile && pathname.startsWith("/form/") && !isPending) {
+      const t = setTimeout(() => setCreatingFile(false), 300);
+      return () => clearTimeout(t);
+    }
+  }, [pathname, creatingFile, isPending]);
 
+  /* ───────── auto-grow textarea ───────── */
+  const descRef = useRef<HTMLTextAreaElement | null>(null);
+  const autosize = () => {
+    const el = descRef.current;
+    if (el) {
+      el.style.height = "auto";
+      el.style.height = `${el.scrollHeight}px`;
+    }
+  };
+  useLayoutEffect(autosize, [description, showDialog]);
+
+  /* ───────── helpers ───────── */
+  const resetDialog = () => {
+    setFormName("");
+    setDescription("");
+    setShowDialog(false);
+  };
+
+  async function handleCreate() {
+    if (!formName.trim()) {
+      alert("Please enter a form name");
+      return;
+    }
+    setCreatingFile(true);
+
+    const id = await createNewForm(formName.trim(), description.trim());
+
+    // if server action redirects, the code below never runs
+    if (id) router.push(`/form/${id}`);
+  }
+
+  /* ───────── derived sets ───────── */
+  const drafts = forms.filter((f) => f.publishedAt === null && !f.isDeleted);
+  const published = forms.filter((f) => f.publishedAt !== null && !f.isDeleted);
   const isEmpty = !loading && drafts.length === 0 && published.length === 0;
 
+  /* ───────── UI ───────── */
   return (
     <>
-      <div className="border-5 min-h-screen flex flex-col">
-        {/* Green Header for mobile */}
+      {/* overlay */}
+      {(creatingFile || isPending) && (
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#F5F7F5] dark:bg-[#2B2A2A]">
+          <Loader />
+          <h3 className="mt-4 font-[Outfit] text-xl font-semibold text-black dark:text-white">
+            Creating a form for you…
+          </h3>
+        </div>
+      )}
+
+      <div className="min-h-screen flex flex-col">
+        {/* ───── Navbar (mobile) ───── */}
         <Navbar image={image} name={name} email={email} />
 
-        {/* Desktop Topbar */}
+        {/* ───── top-right controls (desktop) ───── */}
         <div className="hidden xl:flex items-center justify-between px-6 py-4 ml-auto">
           <div className="flex items-center gap-4">
             <ToggleSwitch />
@@ -107,13 +162,13 @@ export default function Workspace({
               />
             </button>
             <button onClick={() => setShowProfile(!showProfile)}>
-              {image !== "" ? (
+              {image ? (
                 <Image
                   src={image}
                   width={26}
                   height={26}
-                  alt="profile_image"
-                  className="text-black rounded-full hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
+                  alt="profile"
+                  className="rounded-full"
                 />
               ) : (
                 <FaRegCircleUser
@@ -126,24 +181,24 @@ export default function Workspace({
           {showProfile && <Profile name={name} email={email} />}
         </div>
 
-        {/* Desktop Sorter */}
+        {/* ───── sorter (desktop) ───── */}
         <div className="hidden xl:block">
           <Formsorter />
         </div>
 
-        {/* Mobile Top Buttons */}
+        {/* ───── mobile header (search + create) ───── */}
         <div className="xl:hidden w-full bg-white border-b px-4 py-3 dark:bg-[#2B2A2A] dark:border-gray-500">
           <div className="flex items-center gap-2">
-            {/* --- MODIFIED BUTTON WITH DROPDOWN --- */}
+            {/* workspace dropdown (placeholder) */}
             <div className="relative" ref={workspaceDropdownRef}>
               <button
-                onClick={() => setWorkspaceDropdownOpen((prev) => !prev)}
+                onClick={() => setWorkspaceDropdownOpen((p) => !p)}
                 className="flex items-center gap-1 bg-[#56A37D] text-black text-xs px-4 py-2 rounded-lg dark:text-white"
               >
                 My Workspace{" "}
                 <FaChevronDown
                   size={12}
-                  className={`transition-transform duration-200 ${
+                  className={`transition-transform ${
                     isWorkspaceDropdownOpen ? "rotate-180" : ""
                   }`}
                 />
@@ -156,51 +211,83 @@ export default function Workspace({
                 </div>
               )}
             </div>
-            {/* --- END OF MODIFICATION --- */}
 
-            <div className="flex items-center bg-[#3D3D3D] rounded-lg px-3 py-2 flex-1 min-w-0">
-              <FaSearch size={14} className="text-white flex-shrink-0" />
+            {/* search */}
+            <div className="flex flex-1 min-w-0 items-center rounded-lg bg-[#3D3D3D] px-3 py-2">
+              <FaSearch size={14} className="flex-shrink-0 text-white" />
               <input
                 placeholder="Search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm?.(e.target.value)}
-                className="flex-1 bg-transparent outline-none placeholder-white text-xs ml-2 text-white"
+                className="ml-2 flex-1 bg-transparent text-xs text-white outline-none placeholder-white"
               />
             </div>
 
+            {/* create */}
             <button
               onClick={() => setShowDialog(true)}
-              className="bg-[#3D3D3D] text-white text-xs px-4 py-2 rounded-lg whitespace-nowrap"
+              className="whitespace-nowrap rounded-lg bg-[#3D3D3D] px-4 py-2 text-xs text-white"
             >
               + New Form
             </button>
           </div>
         </div>
 
-        {/* Create Form Dialog */}
+        {/* ───── modal dialog ───── */}
         {showDialog && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="bg-white border-2 border-gray-800 rounded-xl shadow-2xl w-[42rem] max-w-full p-8 animate-pop-in dark:bg-[#353434] dark:border-gray-500">
-              <label className="text-gray-950 mb-6 font-bold text-3xl flex items-center justify-center dark:text-white">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-xl rounded-xl border-2 border-gray-800 bg-white p-8 shadow-2xl dark:border-gray-500 dark:bg-[#353434]">
+              <h2 className="mb-6 text-center text-3xl font-bold text-gray-900 dark:text-white">
                 Create New Form
-              </label>
+              </h2>
+
+              {/* title */}
               <input
-                className="w-full px-5 py-4 border-2 border-gray-300 rounded-lg mb-8 text-black placeholder-gray-500 text-lg focus:outline-none focus:ring-2 focus:ring-[#61A986] focus:border-transparent transition-all dark:text-white dark:placeholder-white"
+                className="mb-8 w-full rounded-lg border-2 border-gray-300 px-5 py-4 text-lg text-black placeholder-gray-500 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#61A986] dark:bg-[#353434] dark:text-white dark:placeholder-white"
                 placeholder="Enter form name"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleCreate();
+                  }
+                }}
               />
-              <div className="flex gap-4 justify-end">
+
+              {/* description */}
+              <textarea
+                ref={descRef}
+                rows={1}
+                style={{
+                  maxHeight: "calc(1.5rem * 8)",
+                  overflow: "hidden",
+                  resize: "none",
+                }}
+                className="mb-8 w-full rounded-lg border-2 border-gray-300 px-5 py-4 text-lg text-black placeholder-gray-500 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#61A986] dark:bg-[#353434] dark:text-white dark:placeholder-white"
+                placeholder="Enter description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleCreate();
+                  }
+                }}
+              />
+
+              <div className="mt-2 flex justify-end gap-4">
                 <button
-                  onClick={() => setShowDialog(false)}
-                  className="px-6 py-3 bg-white text-gray-700 rounded-lg hover:bg-gray-200 text-lg font-medium transition-all duration-200 border-2 border-gray-300 hover:border-gray-400 shadow-sm hover:shadow-md"
+                  onClick={resetDialog}
+                  className="rounded-lg border border-gray-300 bg-white px-6 py-3 text-lg font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-100 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleCreate}
-                  className="px-6 py-3 bg-[#61A986] text-white rounded-lg hover:bg-[#4d8a6b] text-lg font-medium transition-all duration-200 hover:shadow-md"
+                  disabled={!formName.trim()}
+                  className="rounded-lg bg-[#61A986] px-6 py-3 text-lg font-medium text-white shadow-md transition-all hover:bg-[#4d8a6b] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Create
                 </button>
@@ -209,64 +296,43 @@ export default function Workspace({
           </div>
         )}
 
-        {/* Main Content */}
-        <div className="flex-1 px-4 md:px-6 pb-4 h-full">
+        {/* ───── main content ───── */}
+        <div className="flex-1 h-full px-4 pb-4 md:px-6">
           {loading ? (
-            <div className="flex-1 flex flex-col justify-center items-center h-[90%]">
-              <div className="h-[80%] w-[80%] border border-dashed text-black dark:text-white border-black flex items-center justify-center mx-auto dark:border-white">
-                Loading…
+            <div className="flex h-[90%] items-center justify-center">
+              <div className="flex h-[80%] w-[80%] items-center justify-center border border-dashed border-black text-black dark:border-white dark:text-white">
+                Loading&hellip;
               </div>
             </div>
           ) : isEmpty ? (
-            <div className="flex-1 flex flex-col justify-center items-center h-[90%]">
-              {/* Mobile Empty State */}
-              <div className="lg:hidden h-[80%] w-[80%] border border-dashed border-black mx-auto flex flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white">
-                <p className="text-gray-600 text-center dark:text-white md:text-3xl">
+            /* empty states condensed for brevity */
+            <div className="flex h-[90%] flex-col items-center justify-center">
+              <div className="flex flex-col items-center gap-6 border border-dashed border-black px-8 py-12 dark:border-white lg:w-[80%]">
+                <p className="text-center text-gray-600 dark:text-white md:text-3xl">
                   You have not created any forms yet.
                 </p>
-                <h2 className="text-2xl font-semibold text-gray-800 text-center dark:text-white md:text-5xl md:leading-20">
+                <h2 className="text-center text-2xl font-semibold text-gray-800 dark:text-white md:text-5xl">
                   Create Your First Form Today!
                 </h2>
                 <button
                   onClick={() => setShowDialog(true)}
-                  className="bg-[#56A37D] text-white px-6 py-3 rounded-lg md:text-2xl"
-                >
-                  Create Now
-                </button>
-              </div>
-
-              {/* Desktop Empty State */}
-              <div className="hidden lg:flex h-[80%] border w-[80%] flex items-center justify-center border-dashed border-black mx-auto flex-col gap-6 px-8 bg-transparent dark:border-white">
-                <h4 className="text-xl text-gray-600 dark:text-white text-center">
-                  You have not created any forms yet.
-                </h4>
-                <h2 className="text-3xl font-semibold text-gray-800 dark:text-white text-center">
-                  Create Your First Form Today!
-                </h2>
-                <button
-                  onClick={() => setShowDialog(true)}
-                  className="bg-[#61A986] px-6 py-3 text-white text-lg rounded-lg cursor-pointer hover:bg-[#4d8a6b] transition-colors dark:text-black"
+                  className="rounded-lg bg-[#56A37D] px-6 py-3 text-white md:text-2xl"
                 >
                   Create Now
                 </button>
               </div>
             </div>
           ) : (
-            <div className="h-full border-black mx-auto flex flex-col justify-center items-center gap-6 px-8 bg-transparent dark:border-white overflow-y-auto">
-              <div className="flex flex-col lg:flex-row flex-1 w-full gap-4">
-                <Drafts
-                  forms={forms.filter(
-                    (f) => f.publishedAt === null && !f.isDeleted
-                  )}
-                  setForms={setForms}
-                />{" "}
-                <Published forms={forms} setForms={setForms} />
+            <div className="h-full overflow-y-auto">
+              <div className="flex flex-col gap-4 lg:flex-row">
+                <Drafts forms={drafts} setForms={setForms} />
+                <Published forms={published} setForms={setForms} />
               </div>
             </div>
           )}
         </div>
 
-        {/* FAQ Modal */}
+        {/* FAQ */}
         {showFaq && <FAQs showFaq={showFaq} setShowFaq={setShowFaq} />}
       </div>
     </>

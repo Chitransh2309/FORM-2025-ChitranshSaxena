@@ -13,18 +13,13 @@ export interface Form {
   form_ID: string;
   title: string;
   description: string;
-  description: string;
   createdAt: Date;
   createdBy: string; // user_ID reference
   editorID?: string[];
   viewerID?: string[];
   publishedAt?: Date | null;
   isActive: boolean;
-  publishedAt: Date;
-  isActive: boolean;
   version: number;
-  share_url: string;
-  settings: FormSettings;
   share_url: string;
   settings: FormSettings;
   sections: Section[];

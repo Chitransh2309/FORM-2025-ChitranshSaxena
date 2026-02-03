@@ -1,11 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   images: {
-    domains: ['lh3.googleusercontent.com'],
+    domains: ["lh3.googleusercontent.com"],
   },
-  
+  async rewrites() {
+    return [
+      {
+        source: "/upload",
+        destination: "http://localhost:8000/upload",
+      },
+    ];
+  },
 };
 
 export default nextConfig;
+
